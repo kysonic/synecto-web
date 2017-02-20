@@ -1,0 +1,22 @@
+<script>
+    function isFunction (obj) {
+        return !!(obj && obj.constructor && obj.call && obj.apply)
+    }
+
+    function createActionHandler (ignore) {
+        return function handleAction (reducer, actions) {
+            actions = actions || [];
+            var predicate = isFunction(actions)
+                    ? actions
+                    : function(action) {
+                return actions.indexOf(action.type) >= 0
+            }
+            return function (state, action) {
+                return predicate(action) || state==undefined ? reducer(state, action) : state;
+            }
+        }
+    }
+
+    const ignoreActions = createActionHandler(true);
+    const filterActions = createActionHandler(false);
+</script>

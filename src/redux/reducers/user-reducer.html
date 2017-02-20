@@ -1,0 +1,16 @@
+<script>
+    const userReducer = function(state,action) {
+        if(!state) state = null;
+        switch(action.type) {
+            case "UPDATE_USER":
+                return Object.assign({},state,action.data);
+                break;
+            case "CLEAN_USER":
+                return null;
+                break;
+            default:
+                return state;
+                break;
+        }
+    }
+</script>

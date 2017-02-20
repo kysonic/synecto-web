@@ -1,0 +1,11 @@
+<script>
+  const CombineActions = function(){
+    var a = {actions:{}};
+    [].forEach.call(arguments,function(action){
+       Object.keys(action.actions).forEach(function(name){
+         a.actions[name] = action.actions[name];
+       });
+    });
+    return a;
+  }
+</script>

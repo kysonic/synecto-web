@@ -1,0 +1,156 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<!-- APP -->
+<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<!-- Iron -->
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/iron-iconset-svg/iron-iconset-svg.html">
+<!-- Styles -->
+<link rel="import" href="elements/dm/dm-icons/dm-logo-icons.html">
+<link rel="import" href="styles/app-theme.html">
+<link rel="import" href="styles/shared-styles.html">
+<!-- Redux -->
+<link rel="import" href="redux/redux-store.html">
+<link rel="import" href="redux/actions/combine-actions.html">
+
+<dom-module id="dm-app">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+      }
+      app-header {
+        color: #fff;
+        background-color: var(--gray-lightern-color);
+        height: var(--header-height);
+      }
+      app-drawer {
+        border-right: 1px solid var(--gray-color);
+        --app-drawer-width: var(--sidebar-width);
+      }
+      app-drawer app-toolbar {
+        background-color: var(--blue-lighty-color);
+        height: var(--header-height);
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      app-drawer app-toolbar a {
+        display: inherit;
+        width: 100%;
+      }
+    </style>
+
+    <app-location route="{{route}}"></app-location>
+    <app-route
+        route="{{route}}"
+        pattern="/:page"
+        data="{{routeData}}"
+        tail="{{subroute}}"></app-route>
+
+    <app-drawer-layout fullbleed>
+      <!-- Drawer content -->
+      <app-drawer id="drawer">
+        <app-toolbar>
+          <a href="/">
+            <iron-icon class="dm-logo" icon="designmap-logo:logo"></iron-icon>
+          </a>
+        </app-toolbar>
+        <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
+
+        </iron-selector>
+      </app-drawer>
+
+      <!-- Main content -->
+      <app-header-layout has-scrolling-region>
+
+        <app-header condenses reveals effects="waterfall">
+          <app-toolbar>
+            <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
+          </app-toolbar>
+        </app-header>
+
+        <iron-pages
+            selected="[[page]]"
+            attr-for-selected="name"
+            fallback-selection="dm-404"
+            role="main">
+          <dm-fs-view name="dm-fs-view"></dm-fs-view>
+          <dm-login-view name="dm-login-view"></dm-login-view>
+          <dm-404 name="dm-404"></dm-404>
+        </iron-pages>
+      </app-header-layout>
+    </app-drawer-layout>
+  </template>
+
+  <script>
+    // Defaults
+    const HOME_VIEW = 'dm-fs-view';
+    const LOGIN_VIEW = 'dm-login-view';
+    // Routes
+    const SHOULD_AUTH_ROUTES = ['dm-fs-view'];
+    Polymer({
+      is: 'dm-app',
+      behaviors: [
+              ReduxBehavior,
+              CombineActions(UserActions)
+      ],
+      properties: {
+        page: {
+          type: String,
+          reflectToAttribute: true,
+          observer: '_pageChanged',
+        },
+        user: {
+          type: Object,
+          statePath: 'user',
+          observer: '_userChanged'
+        }
+      },
+
+      observers: [
+        '_routePageChanged(routeData.page)',
+      ],
+
+      ready: function(){
+
+      },
+
+      _routePageChanged: function(page) {
+        // Change page
+        const currentPage = page || HOME_VIEW;
+        // Check authorization
+        if(!this.user && SHOULD_AUTH_ROUTES.indexOf(currentPage)!==-1) return this.page = LOGIN_VIEW;
+        // Setup page
+        this.page = currentPage;
+        // Close drawer if so
+        if (!this.$.drawer.persistent) {
+          this.$.drawer.close();
+        }
+      },
+
+      _pageChanged: function(page) {
+        // Load page import on demand. Show 404 page if fails
+        var resolvedPageUrl = this.resolveUrl(page + '.html');
+        this.importHref(resolvedPageUrl, null, this._showPage404, true);
+      },
+
+      _userChanged: function(user){
+        this._routePageChanged(this.page);
+      },
+
+      _showPage404: function() {
+        this.page = 'dm-404';
+      }
+    });
+  </script>
+</dom-module>

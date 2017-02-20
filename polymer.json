@@ -1,0 +1,17 @@
+{
+  "entrypoint": "index.html",
+  "shell": "src/dm-app.html",
+  "fragments": [
+    "src/dm-fs-view.html",
+    "src/dm-404.html"
+  ],
+  "sourceGlobs": [
+    "src/**/*",
+    "images/**/*",
+    "bower.json"
+  ],
+  "includeDependencies": [
+    "manifest.json",
+    "bower_components/webcomponentsjs/webcomponents-lite.min.js"
+  ]
+}

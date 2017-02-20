@@ -1,0 +1,223 @@
+  <script>
+  /**
+   * User actions
+   * @type {{actions: {getData: (function(this:Polymer.UserActions))}}}
+   */
+  const UserActions = {
+    actions: {
+      /**
+       * Get data about all of user
+       */
+      getUsers: function(q){
+        return function(dispatch){
+          var promise = xhr.get(Designmap.config.apiURL+'user?q='+q);
+          promise.then(function(response){
+            if(!response.users) return;
+            dispatch({type:"SET_USERS",users:response.users});
+          });
+          return promise;
+        }.bind(this);
+      },
+      /**
+       * Get particular user by id
+       */
+      getCurrentUser: function(id){
+        return function(dispatch){
+            var promise = fetch(Designmap.config.apiURL+'user/'+id);
+            promise.then(function(response){
+                if(!response.user) return;
+                dispatch({type:"SET_USERS",data:ReduxStore.getState().users.concat(response.user)});
+            });
+            return promise;
+        }.bind(this);
+      },
+      /**
+       * Get particular user by id
+       */
+      getUser: function(id){
+        return function(dispatch){
+          var promise = xhr.get(Designmap.config.apiURL+'user/'+id);
+          promise.then(function(response){
+            if(!response.user) return;
+            dispatch({type:"SET_USERS",data:ReduxStore.getState().users.concat(response.user)});
+          });
+          return promise;
+        }.bind(this);
+      },
+      /**
+       * Load user's data to define whether it's authorized
+       * @returns {function(this:Polymer.UserActions)}
+       */
+      getUserData: function(){
+        return function(dispatch){
+            var promise = xhr.get(Designmap.config.apiURL+'user?my=true');
+            promise.then(function(response){
+              if(!response.user) return;
+              dispatch({type:"UPDATE_USER",data:response.user});
+              dispatch({type:'UPDATE_APP_IS_AUTH',isAuth:true});
+            });
+          return promise;
+        }.bind(this);
+      },
+      /**
+       * Logout user
+       * @returns {function(this:Polymer.UserActions)}
+       */
+      userLogout: function(){
+        return function(dispatch){
+          var promise = xhr.get(Designmap.config.apiURL+'user/logout');
+          promise.then(function(response){
+            if(!response.success) return;
+            dispatch({type:"CLEAN_USER"});
+            dispatch({type:"CLEAN_NOTIFICATIONS"});
+            dispatch({type:'UPDATE_APP_IS_AUTH',isAuth:false});
+          }.bind(this));
+          return promise;
+        }.bind(this);
+      },
+      /**
+       * Login user
+       * @returns {function(this:Polymer.UserActions)}
+       */
+      userLogin: function(email,password){
+        return function(dispatch){
+          var promise = xhr.post(Designmap.config.apiURL+'user/login',{email: email, password: password});
+          promise.then(function(response){
+            if(!response.success) return;
+            dispatch({type:"UPDATE_USER",data:response.user});
+            dispatch({type:'UPDATE_APP_IS_AUTH',isAuth:true});
+          }.bind(this));
+          return promise;
+        }.bind(this);
+      },
+      /**
+       * Login with token
+       * @returns {function(this:Polymer.UserActions)}
+       */
+      token: function(token){
+        return function(dispatch){
+          var promise = xhr.post(Designmap.config.apiURL+'user/token',{token:token});
+          promise.then(function(response){
+            if(!response.success) return;
+            dispatch({type:"UPDATE_USER",data:response.user});
+            dispatch({type:'UPDATE_APP_IS_AUTH',isAuth:true});
+          }.bind(this));
+          return promise;
+        }.bind(this);
+      },
+      /**
+       * Approve token
+       */
+      approveToken: function(token){
+        return function(dispatch){
+          var promise = xhr.post(Designmap.config.apiURL+'token/approve',{token:token});
+          promise.then(function(response){
+            if(!response.success) return;
+            dispatch({type:"UPDATE_USER",data:response.user});
+            dispatch({type:'UPDATE_APP_IS_AUTH',isAuth:true});
+          }.bind(this));
+          return promise;
+        }.bind(this);
+      },
+      /**
+       * Approve token
+       */
+      reapprove: function(email,lang){
+        return function(dispatch){
+          var promise = xhr.get(Designmap.config.apiURL+'token/reapprove?email='+email+'&lang='+lang);
+          return promise;
+        }.bind(this);
+      },
+      /**
+       * Login signup
+       * @returns {function(this:Polymer.UserActions)}
+       */
+      userSignup: function(email,password){
+        return function(dispatch){
+          var language = (window.navigator.browserLanguage || window.navigator.language || window.navigator.userLanguage).substr(0,2) || 'en';
+          var promise = xhr.post(Designmap.config.apiURL+'user/registration',{email:email,password:password,lang:language});
+          /*promise.then(function(response){
+            if(!response.success) return;
+            dispatch({type:"UPDATE_USER",data:response.user});
+            dispatch({type:'UPDATE_APP_IS_AUTH',isAuth:true});
+          }.bind(this));*/
+          return promise;
+        }.bind(this);
+      },
+      /**
+       * User signup
+       * @returns {function(this:Polymer.UserActions)}
+       */
+      userGoogleSignup: function(googleUser){
+        return function(dispatch){
+          var promise = xhr.post(Designmap.config.apiURL+'user/google-registration',{user:googleUser});
+          promise.then(function(response){
+            if(!response.success) return;
+            dispatch({type:"UPDATE_USER",data:response.user});
+            dispatch({type:'UPDATE_APP_IS_AUTH',isAuth:true});
+          }.bind(this));
+          return promise;
+        }.bind(this);
+      },
+      /**
+       * Login with google
+       */
+      userGoogleSignin: function(googleUser){
+        return function(dispatch){
+          var promise = xhr.post(Designmap.config.apiURL+'user/google-login',{user:googleUser});
+          promise.then(function(response){
+            if(!response.success) return;
+            dispatch({type:"UPDATE_USER",data:response.user});
+            dispatch({type:'UPDATE_APP_IS_AUTH',isAuth:true});
+          }.bind(this));
+          return promise;
+        }.bind(this);
+      },
+      /**
+       * Update user state
+       * @param data - data to update
+       * @returns {Function}
+       */
+      userUpdate: function(data){
+        return function(dispatch) {
+          var promise = xhr.put(Designmap.config.apiURL+'user',data);
+          promise.then(function(response){
+            if(!response.success) return;
+            dispatch({type:"UPDATE_USER",data:response.user});
+          }.bind(this));
+          return promise;
+        }.bind(this);
+      },
+      /**
+       * Clean user
+       */
+      cleanUser: function(){
+        return {
+          type: 'CLEAN_USER'
+        }
+      },
+      /**
+       * Clean user
+       */
+      cleanUsers: function(){
+        return {
+          type: 'CLEAN_USERS'
+        }
+      },
+      /**
+       * Update user password
+       * @param password - password
+       * @returns {Function}
+       */
+      userUpdatePassword: function(password){
+        return function(dispatch) {
+          var promise = xhr.put(Designmap.config.apiURL+'user/password',{password:password});
+          promise.then(function(response){
+            if(!response.success) return;
+          }.bind(this));
+          return promise;
+        }.bind(this);
+      }
+    }
+  }
+</script>
