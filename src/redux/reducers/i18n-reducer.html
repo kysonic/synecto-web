@@ -1,0 +1,13 @@
+<script>
+    const I18nLoadedReducer = function(state,action) {
+        if(!state) state = null;
+        switch(action.type) {
+            case "UPDATE_I18_LOADED":
+                return action.i18Loaded;
+                break;
+            default:
+                return state;
+                break;
+        }
+    }
+</script>

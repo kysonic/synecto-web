@@ -1,0 +1,107 @@
+[
+  {
+    "code": "intro",
+    "title":"Designmap",
+    "text": "it is a web app for designers that will allow you: \n\n1. Create projects for mutual work **in realtime**. \n\n2. Discuss your work precisely and take feedbacks from your customers using **Stickers**. \n\n3. Systemize your work with Designmap **Task Manager**.\n\n4. Preview PSD, EPS, AI in browser.\n\n5. **Integrate** a few cloud drives.* \n\n *<span style=\"font-size:14px\">Using integration you will be able to get more data space. If some yours cloud drive is empty, just add new one, there is no diffrence in using of them. Currently supported: Google Drive, DropBox, Yandex Disk.</span>"
+  },
+  {
+    "code":"project",
+    "title": "1. Project",
+    "text": "**A Project** ― basic unit of DesignMap application. Contains: work folders and files, Task Manager and Trash bin. There is possibility to manage accesses to any project. \n\n\n\n ![Design project](/images/docs/designmap_1_eng.svg)"
+  },
+  {
+    "code": "files",
+    "title":"1.1 Connecting of cloud drives",
+    "text":"Currently DesignMap cannot store user's files in own data space. All of files will be stored into cloud drives should be connected to your DesignMap account. \n\n Today is available: Google Drive, Dropbox and Yandex Disk. But it is not a limit! Our team works to help you connect as many cloud drives as possible."
+  },
+  {
+    "code":"project-creating",
+    "title": "1.2.  Work with project",
+    "text": "\n\n ### Create a project: \n\n 1. Click on a *“Create Project”* button. \n\n <img style=\"max-width:360px\" src=\"/images/docs/designmap_21_eng.svg\"/> \n\n 2. *Enter project's name* and click *“Create”*. \n\n <img style=\"max-width: 250px\" src=\"/images/docs/designmap_21_2_eng.svg\"/> \n\n If you want to open your own or available projects click on *«Open project»*.\n\n <img style=\"max-width: 420px\" src=\"/images/docs/designmap_22_eng.svg\"/> \n\n\n\n ### Rename project: \n\n Select a *«Rename»* item in a menu. \n\n\n\n ### Remove project: \n\n Select a *«Remove»* item in a menu."
+  },
+  {
+    "code":"folder-creating",
+    "title": "1.3. Folder/file adding",
+    "text": "### To create new folder do following things: \n\n\n\n 1. Click on *«Add folder»*. \n 2. Enter name, click *«Next»* button (An arrow). \n\n\n\n  <img style=\"max-width: 470px\" src=\"/images/docs/designmap_23_eng.svg\"/> \n\n\n\n  ### To upload file: \n\n\n\n 1. Select *«Add file»* item in a context menu.\n\n2. Click *«Select file»* in opened window. <img style=\"max-width:250px\" src=\"/images/docs/designmap_32_eng.svg\"/>\n\n3. Select files that you want to upload. After that you will see a list of selected files and list of available cloud drives. Select cloud drive you would like to use for uploading. \n\n\n\n It should be noted that .psd, .eps, .ai files can be previewed. \n\n Files with following extensions .fla,.swf cannot be viewed in the Gallery."
+  },
+  {
+    "code":"folder-renaming",
+    "title":"1.4. Elements renaming",
+    "text":"\n\n 1. Click on a *“Rename”* item in context menu, \n\n 2. Enter new name, \n\n 3. Click on *“Next”* button or use a *Ctrl+Enter* shortcut."
+  },
+  {
+    "code":"folder-removing",
+    "title": "1.5. Elements removing",
+    "text": "The Folder including all of its content (folders, files) will be removed into ***Trash bin***. You have possibility to cancel removing (*Ctrl+Z* or *“Cancel”* button placed into floating notification). \n\n\n\n ### One folder removing: \n\n Select *«Remove»* item in context menu. \n\n\n\n ### Removing a few folders: \n\n 1. Use *Ctrl+LMB* combination to mark folders. **A panel of group operation** will be appeared at top of the screen, \n\n 2. Click *“Delete”* button placed on the panel. \n\n\n\n  <img src=\"/images/docs/designmap_25_eng.svg\"/> \n\n\n\n ### The Project removing: \n\n Select *“Remove”* item in a context menu of the Project."
+  },
+  {
+    "code":"files",
+    "title":"2. Uploaded files",
+    "text": "All of files in Designmap can be managed via the Gallery. To open it just make double click on an image."
+  },
+  {
+    "code":"gallery-functions",
+    "title": "2.1. Gallery UI",
+    "text": "Basic gallery functions (dashboard buttons from left to right):\n\n1. Description of a file, \n\n2. A File removing (it will be removed to trash bin. You have possibility to restore this file if you want).\n\n3. Download file.\n\n4. Lock file (the locked file can be displayed only for project's owner).\n\n5. On/Off stickers mode (more precisely p.4.). \n\n\n\n <img src=\"/images/docs/designmap_34_eng.svg\"/>"
+  },
+  {
+    "code":"stickers",
+    "title": "3. Stickers",
+    "text": "**Stickers** ― it is a convinient tool to discuss your work with clients and colleagues. The sticker can be “glued” to any area of uploaded image. \n\n You will be able to  control a max amount of stickers per image. To do this go to the account settings (p. 9). \n\n Stickers can be added by DesignMap users only. \n\n\n\n <img style=\"max-width: 420px\" src=\"/images/docs/designmap_4_eng.svg\"/>"
+  },
+  {
+    "code":"work-with-stickers",
+    "title": "3.1. Work with stickers",
+    "text": "To add the sticker on an image you have to: \n\n 1. Switch on stickers mode,\n\n2. Move mouse cursor to certain place of your image and click left mouse button,\n\n3. Open the sticker via clicing on it,\n\n4. Write your comment,\n\n5. Click on a *“Next”* button (or *CTRL+Enter*). \n\n\n\n <img style=\"max-width:360px\" src=\"/images/docs/designmap_41_eng.svg\"/>"
+  },
+  {
+    "code": "stickers-limits",
+    "title":" 3.2. Stickers restrictions",
+    "text": "To prevent “cluttering” of your image you can set up the maximum amount of stickers and a maximum amount of сstickers for certain user. To configure those parameters: \n\n 1. Open **User's menu** clicking on *e-mail * (top-right area). \n\n 2. Click on *“Account settings»* item. \n\n 3. Go to a *«Settings»* tab. \n\n 2. Configure all values using sliders. \n\n\n\n ![Stickers restiction](/images/docs/designmap_42_eng.svg) \n\n\n\n "
+  },
+  {
+    "code": "accesses",
+    "title": "4. Project's accesses",
+    "text": "You have an ability to allow using of your project to another DesignMap user. To do this: \n\n 1. Click on *«Access»* button placed at left part of project's panel *(1)*, Window of accesses configuration should be opened. \n\n 2. Search users by its e-mail, *(2)*.\n\n 3. Setup an access level using buttons near by e-mail *(3)*. \n\n 4. Click on  *«Open access»* button. \n\n\n\n <img style=\"max-width:390px\" src=\"/images/docs/designmap_5_1.svg\"/> \n\n\n\n <img style=\"max-width: 740px\" src=\"/images/docs/designmap_5_eng.svg\"/> \n\n\n\n After you open the access to another user he will receive notification about this and this project will be added to his projects list. \n\n\n\n <table class=\"doc-table\"><thead><tr><th>User's accesses</th><th>«Read»</th><th>«Edit»</th></tr></thead><tbody><tr><td>1. See folders and unlocked files of your project.</td><td>✓</td><td>✓</td></tr><tr><td>2. Edit files description .</td><td>✓</td><td>✓</td></tr><tr><td>3. Read stickers.</td><td>✓</td><td>✓</td></tr><tr><td>4. Write and delete stickers on his own behalf.</td><td>✓</td><td>✓</td></tr><tr><td>5. Add folders and files to project (using YOURS cloud drives).</td><td>―</td><td>✓</td></tr><tr><td>6. Remove any elements to trash bin.</td><td>―</td><td>✓</td></tr><tr><td>7. Create tasks into the DesignMap task manager.</td><td>―</td><td>✓</td></tr><tr><td>8. Edit and remove tasks on his name behalf.</td><td>―</td><td>✓</td></tr></tbody></table>"
+  },
+  {
+    "code": "trash",
+    "title": "5. Trash bin",
+    "text": "All removed elements will be placed in a trash bin and only from trash bin it can be removed irretrievably. To open trash bin click on *«Trash»* button (at right of project's title). \n\n\n\n <img style=\"max-width:360px\" src=\"/images/docs/designmap_6_ru.svg\"/>"
+  },
+  {
+    "code":"work-with-trash",
+    "title": "5.2. Trash bin functions",
+    "text": "\n\n 1. ***Sorting***. There is ability to sort elements by name or date. \n\n 2. ***Empty trash***. Removing of all bin's elements irretrievably. Files will be removed from cloud drives. \n\n 3. ***Restore all***. All elements of trash bin will be restored . \n\n\n\n <img style=\"max-width:465px\" src=\"/images/docs/designmap_62_eng.svg\"/> \n\n\n\n ### Removing/restoring of certain element \n\n Click on element using left or right mouse button. In first case it will be appeared window with information about the file, also ther are two buttons *«Remove»* and *«Restore»*. In the second case it will be appeared the context menu. \n\n ### Removing/restoring of group \n\n 1. Mark elements using *CTRL+LMB* combination.\n\n 2. At the top of screen you will see **Group operation panel**. \n\n  <img src=\"/images/docs/designmap_62_2_eng.svg\"/> "
+  },
+  {
+    "code":"task-manager",
+    "title": "6. Task manager",
+    "text": "The task manager contains tasks bound to opened project only. To go to task manager click on *\"Task manager\"* button placed at left from the project's title. \n\n\n\n <img style=\"max-width:360px\" src=\"/images/docs/designmap_7_eng.svg\"/> \n\n\n\n User should have *\"Edit\"* access to use task manager of the project. The project's owner can edit any task added to the project. \n\n Another user can: \n\n 1. Edit tasks made by itself. \n\n 2. Change task status if he/she is asigned on it. \n\n\n\n At left of the screen we will see *«Task list»* panel. There are: tasks ***filter*** (1) and ***list*** (2). \n\n <img src=\"/images/docs/designmap_7_2_eng.svg\"/> \n\n When you add a task the list will be changed. \n\n  <img style=\"max-width:566px\" src=\"/images/docs/designmap_7_3_eng.svg\"/> \n\n\n\n There are 4 possible statuses:\n\n 1. ***«Awaiting»*** ― task is opened but nobody start to work on it.\n\n 2. ***«In progress»*** ― task is already started.\n\n 3. ***«Completed»*** ― task has been done.\n\n 4. ***«Expired»*** ― status will be shown automatically if task was expired. \n\n <img style=\"max-width:630px\" src=\"/images/docs/designmap_7_4_eng.svg\"/> "
+  },
+  {
+    "code": "task-list",
+    "title": "6.1. «Task list» panel",
+    "text": "\n\n 1. To ***change the task status*** you have to click on *Status* button placed at left. Statuses changes one by one:  «in progress», «completed», and «awaiting» again.\n\n 2. ***Time to expire*** — shows how much time is left. This parameter can be set by task's owner. If the parameter won't be set up manually DesignMap makes it automatically.\n\n 3. ***Assign the responsible***. Responsible user will be able to change status of the task.\n\n 4. ***Subtask amount***. Click on it to focus *Subtask input*. Also there is a number displays amount of current task's subtasks.<img style=\"max-width:630px\" src=\"/images/docs/designmap_71_eng.svg\"/> "
+  },
+  {
+    "code": "task-details",
+    "title": "6.2.«Task details» panel",
+    "text": "\n\n 1. ***Assign the responsible***. Dublicate button represented.in p. 7.1.\n\n 2. ***A Task title***. To change task title click on it. Edit it and click on *Next* button or press *CTRL+Enter*.\n\n 3. ***Task description***. You will be able to change task's description same way like a task title.\n\n 4. ***«Due date»***. Calendar will be opened by clicking on it.\n\n 5. ***«Attach file»***. There is ability to attach a few files to certain task. Files will be added to selected cloud drive.\n\n 6. ***«Remove»***. The task will be removed including all its contetn (files, subtasks) irretrievably. Later we will make possibility to archive it. \n\n 7. ***Add subtask***.\n\n <img src=\"/images/docs/designmap_72_eng.svg\"/> \n\n Added subtasks can be viewed on «Task's details» panel. Breadcrumbs will be added in case of creating a few levels of subtasks into deep. <img style=\"max-width:430px\" src=\"/images/docs/designmap_72_2_eng.svg\"/>"
+  },
+  {
+    "code":"notifications",
+    "title": "7. Notifications",
+    "text": "Designmap has ***flash notifications system*** to provide possibility of quick reaction. You will receive notifications if: another user open an access to his project for you, you will be assigned like a responsible, sombody will add a sticker to your image. \n\n <img style=\"max-width:430px\" src=\"/images/docs/designmap_8_eng.svg\"/> \n\n\n\n To explore all notifications at same time click on *«Notifications»* button.\n\n Also you will receive notifications by e-mail. This option can be switched off in Designmap settings. To do this uncheck *«Fetch notifications»* (*«Account settings»* > *«Settings»*)."
+  },
+  {
+    "code":"settings",
+    "title": "8. Account settings",
+    "text": "To reach DesignMap settings, open ***User's menu*** and click ***Account settings***. You will see 3 tabs: \n\n 1. ***Profile***. Setup your avatar and fill out your name/lastname (this helps to find you more easier). \n\n 2. ***Account***. Here you can change your password and bind cloud drive accounts. \n\n 3. ***Settings***. The main settings of the DesignMap application"
+  },
+  {
+    "code":"conclusion",
+    "title": "Now you are ready to work with DesignMap!",
+    "text": "DesignMap team wishes you good day and productive work! \n\n\n\n If you dindn't find an answer on your question in documentation, wtite us: designmap.io@gmail.com."
+  }
+]

@@ -1,0 +1,55 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../dm-icons/dm-icons.html">
+
+<dom-module id="dm-circle-button">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                cursor: pointer;
+                width: 60px;
+                height: 60px;
+            }
+
+            :host[disabled] {
+                opacity: 0.4;
+            }
+
+            :host iron-icon.circle {
+                height: 100%;
+                width: 100%;
+                --iron-icon-components-mixin: {
+                    stroke-dashoffset: 1002;
+                    stroke-dasharray: 1000;
+                    transition: stroke-dashoffset .3s ease-in;
+                    @apply(--dm-circle-button-circle-mixin);
+                }
+            }
+
+            :host ::content > iron-icon:not(.circle) {
+                position: absolute !important;
+                left: 0;
+                top: 0;
+                width: 40%;
+                height: 40%;
+                padding: 32% 30%;
+                @apply(--dm-circle-button-content-icon-mixin);
+            }
+
+            :host(:hover:not([disabled])) iron-icon.circle ::shadow circle {
+                stroke-dashoffset: 0;
+                transition: stroke-dashoffset .3s ease-in;
+                @apply(--dm-circle-button-circle-hover-mixin);
+            }
+
+        </style>
+        <iron-icon id="circle" class="circle" icon="designmap:circle"></iron-icon>
+        <content id="content"></content>
+    </template>
+    <script>
+        Polymer({
+            is: 'dm-circle-button'
+        });
+    </script>
+</dom-module>

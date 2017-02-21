@@ -23,10 +23,12 @@
        */
       getCurrentUser: function(id){
         return function(dispatch){
-            var promise = fetch(Designmap.config.apiURL+'user/'+id);
+            var promise = fetch(Designmap.config.apiURL+'user?my=true',Designmap.fetchOptions);
             promise.then(function(response){
+                return response.json();
+            }).then(function(response){
                 if(!response.user) return;
-                dispatch({type:"SET_USERS",data:ReduxStore.getState().users.concat(response.user)});
+                dispatch({type:"UPDATE_USER",user: response.user});
             });
             return promise;
         }.bind(this);

@@ -1,9 +1,9 @@
 <script>
-    const userReducer = function(state,action) {
+    const UserReducer = function(state,action) {
         if(!state) state = null;
         switch(action.type) {
             case "UPDATE_USER":
-                return Object.assign({},state,action.data);
+                return Object.assign({},state,action.user);
                 break;
             case "CLEAN_USER":
                 return null;

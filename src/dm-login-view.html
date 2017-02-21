@@ -1,12 +1,18 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="elements/dm/dm-workspace/dm-login-form.html">
 
 <dom-module id="dm-login-view">
   <template>
     <style>
-
+      :host {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background: var(--gray-lighty-color);
+      }
     </style>
-
-    <h1>LOGIN</h1>
+    <dm-login-form></dm-login-form>
   </template>
 
   <script>

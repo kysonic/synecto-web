@@ -39,10 +39,10 @@
     <meta name="msapplication-tap-highlight" content="no">
 
     <!-- Redux -->
-    <script src="node_modules/redux/dist/redux.min.js"></script>
-    <script src="node_modules/redux-thunk/dist/redux-thunk.min.js"></script>
+    <script src="/node_modules/redux/dist/redux.min.js"></script>
+    <script src="/node_modules/redux-thunk/dist/redux-thunk.min.js"></script>
     <!-- Fetch -->
-    <script src="node_modules/whatwg-fetch/fetch.js"></script>
+    <script src="/node_modules/whatwg-fetch/fetch.js"></script>
 
     <script>
       // Setup Polymer options
@@ -84,11 +84,11 @@
       })();
 
       // Load pre-caching Service Worker
-      if ('serviceWorker' in navigator) {
+      /*if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
           navigator.serviceWorker.register('/service-worker.js');
         });
-      }
+      }*/
     </script>
 
     <link rel="import" href="/src/dm-app.html">

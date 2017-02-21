@@ -13,6 +13,9 @@
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/iron-iconset-svg/iron-iconset-svg.html">
+<link rel="import" href="../bower_components/i18-n/i18-n-domain.html">
+<!-- Configs -->
+<link rel="import" href="config/dm-app-config.html">
 <!-- Styles -->
 <link rel="import" href="elements/dm/dm-icons/dm-logo-icons.html">
 <link rel="import" href="styles/app-theme.html">
@@ -20,6 +23,9 @@
 <!-- Redux -->
 <link rel="import" href="redux/redux-store.html">
 <link rel="import" href="redux/actions/combine-actions.html">
+<link rel="import" href="redux/actions/user-actions.html">
+
+<link rel="import" href="mixins/dm-messages-mixin.html">
 
 <dom-module id="dm-app">
   <template>
@@ -31,6 +37,9 @@
         color: #fff;
         background-color: var(--gray-lightern-color);
         height: var(--header-height);
+      }
+      app-header[hidden] {
+        display: none !important;
       }
       app-drawer {
         border-right: 1px solid var(--gray-color);
@@ -50,12 +59,14 @@
       }
     </style>
 
+    <!-- Router -->
     <app-location route="{{route}}"></app-location>
-    <app-route
-        route="{{route}}"
-        pattern="/:page"
-        data="{{routeData}}"
-        tail="{{subroute}}"></app-route>
+    <app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
+    <!-- Router -->
+
+    <!-- i18-n -->
+    <i18-n-domain id="i18nDomain" locale="[[language]]" messages-url="/locales" cache="0001-11-01"></i18-n-domain>
+    <!-- i18-n -->
 
     <app-drawer-layout fullbleed>
       <!-- Drawer content -->
@@ -73,7 +84,7 @@
       <!-- Main content -->
       <app-header-layout has-scrolling-region>
 
-        <app-header condenses reveals effects="waterfall">
+        <app-header id="header" condenses reveals effects="waterfall">
           <app-toolbar>
             <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
           </app-toolbar>
@@ -84,9 +95,10 @@
             attr-for-selected="name"
             fallback-selection="dm-404"
             role="main">
-          <dm-fs-view name="dm-fs-view"></dm-fs-view>
-          <dm-login-view name="dm-login-view"></dm-login-view>
-          <dm-404 name="dm-404"></dm-404>
+          <dm-fs-view name="fs"></dm-fs-view>
+          <dm-gallery-view name="gallery"></dm-gallery-view>
+          <dm-login-view name="login"></dm-login-view>
+          <dm-404 name="404"></dm-404>
         </iron-pages>
       </app-header-layout>
     </app-drawer-layout>
@@ -94,15 +106,16 @@
 
   <script>
     // Defaults
-    const HOME_VIEW = 'dm-fs-view';
-    const LOGIN_VIEW = 'dm-login-view';
+    const HOME_VIEW = 'fs';
+    const LOGIN_VIEW = 'login';
     // Routes
-    const SHOULD_AUTH_ROUTES = ['dm-fs-view'];
+    const SHOULD_AUTH_ROUTES = ['fs'];
     Polymer({
       is: 'dm-app',
       behaviors: [
-              ReduxBehavior,
-              CombineActions(UserActions)
+        ReduxBehavior,
+        CombineActions(UserActions),
+        DesignMapMessagesMixin
       ],
       properties: {
         page: {
@@ -114,6 +127,10 @@
           type: Object,
           statePath: 'user',
           observer: '_userChanged'
+        },
+        language: {
+          type: String,
+          computed: '_computeLanguage(user.language)'
         }
       },
 
@@ -122,7 +139,11 @@
       ],
 
       ready: function(){
-
+        this.dispatch('getCurrentUser');
+        // Update languages
+        this.$.i18nDomain.addEventListener('i18-n-locale-ready',function(){
+          ReduxStore.dispatch({type: "UPDATE_I18_LOADED", i18Loaded:true});
+        });
       },
 
       _routePageChanged: function(page) {
@@ -139,8 +160,9 @@
       },
 
       _pageChanged: function(page) {
+        this._setLayoutState(page===LOGIN_VIEW);
         // Load page import on demand. Show 404 page if fails
-        var resolvedPageUrl = this.resolveUrl(page + '.html');
+        var resolvedPageUrl = this.resolveUrl('dm-'+page + '-view.html');
         this.importHref(resolvedPageUrl, null, this._showPage404, true);
       },
 
@@ -150,6 +172,16 @@
 
       _showPage404: function() {
         this.page = 'dm-404';
+      },
+      /**
+       * Login page should be without drawer
+       * and header.
+       * @private
+       */
+      _setLayoutState: function(nude){
+        this.$.drawer.hidden = nude;
+        this.$.header.hidden = nude;
+        window.dispatchEvent(new Event('resize'));
       }
     });
   </script>

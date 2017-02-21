@@ -1,0 +1,758 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/google-signin/google-signin-aware.html">
+<link rel="import" href="/bower_components/i18-n/i18-n.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+<link rel="import" href="/bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<!-- Animation -->
+<link rel="import" href="/bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="/bower_components/neon-animation/neon-animatable.html">
+<link rel="import" href="/bower_components/neon-animation/neon-animations.html">
+<!-- Buttons -->
+<link rel="import" href="../dm-buttons/dm-button.html">
+<link rel="import" href="../dm-buttons/dm-loading-button.html">
+<!-- Redux -->
+<link rel="import" href="../../../redux/redux-store.html">
+<link rel="import" href="../../../redux/actions/combine-actions.html">
+<link rel="import" href="../../../redux/actions/user-actions.html">
+<!-- Mixins -->
+<link rel="import" href="../../../mixins/dm-messages-mixin.html">
+
+<dom-module id="dm-login-form">
+    <template>
+        <style>
+            :host {
+                --designmap-login-form-background: var(--gray-lighty-color);
+                --designmap-login-form-color: var(--blue-darkest-color);
+                --designmap-login-form-content: var(--white-color);
+                --designmap-login-form-header: var(--blue-darker-color);
+
+                background: var(--designmap-login-form-background);
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                font-weight: 300;
+                color: var(--designmap-login-form-color);
+
+                --paper-input-container-color:  var(--designmap-login-form-color);
+                --paper-input-container-focus-color: var(--designmap-login-form-color);
+                --paper-input-container-input: {
+                    color: var(--designmap-login-form-color);
+                    font-weight: 300;
+                };
+                --iron-overlay-backdrop: {
+                    z-index: 10;
+                };
+                --iron-overlay-backdrop-opened: {
+                    z-index: 10;
+                };
+            }
+            .forgot-message {
+                margin-top: 50px;
+                text-align: center;
+            }
+            .forgot-button {
+                display: block;
+                margin: 12px auto !important;
+                margin-bottom: 0 !important;
+            }
+            .wrapper {
+                width: 90%;
+                max-width: 500px;
+                height: 556px;
+                overflow: hidden;
+                position: relative;
+                bottom: 20px;
+            }
+            /** HEADER **/
+            .header, .header-phantom{
+                height: 150px;
+                width: 100%;
+                background: var(--designmap-login-form-header);
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .header-phantom {
+                height: 270px;
+                background: var(--white-color);
+            }
+            .header {
+                position: absolute;
+                top: 0;
+                z-index: 20;
+            }
+            .social {
+                position: absolute;
+                width: 100%;
+                text-align: center;
+                top: 150px;
+                height: 117px;
+                z-index: 20;
+                background: var(--white-color);
+            }
+            .social button {
+                margin-top: 39px;
+            }
+            .title {
+                position: absolute;
+                width: 100%;
+                text-align: center;
+                z-index: 20;
+            }
+            .title hr {
+                border-color: var(--gray-lightenest-color);
+                background: var(--gray-lightenest-color);
+                opacity: 0.3;
+            }
+            .title .text {
+                position: absolute;
+                color: var(--gray-darky-color);
+                font-weight: 100;
+                font-size: 22px;
+                text-align: center;
+                padding: 0 5px;
+                left: 50%;
+                margin-left: -28px;
+                top: -10px;
+                background: var(--white-color);
+            }
+            .header iron-icon {
+                width: 280px;
+                height: 45px;
+            }
+            .beta {
+                color: var(--white-color);
+                position: absolute;
+                left: 100%;
+                top: 0;
+                margin-left: -47px;
+                font-size: 12px;
+            }
+            /** CONTENT **/
+            .wrapper >.content {
+                background: var(--designmap-login-form-content);
+                height: 100%;
+                padding: 20px 75px;
+            }
+            .wrapper button {
+                display: inline-block;
+                background: var(--blue-darker-color);
+                color: var(--white-color);
+                width: 350px;
+            }
+            .wrapper > .content button:hover {
+                background: var(--blue-super-dark-color);
+            }
+            .wrapper > .content .button-set {
+                text-align: center;
+            }
+            .wrapper > .content .button-set button {
+                display: inline-block;
+                width: 350px;
+            }
+            .wrapper > .content .msg, .msg {
+                display: block;
+                width: 100%;
+                cursor: pointer;
+                text-align: center;
+                margin: 3px 0 0 0;
+                font-size: 12px;
+                color: var(--blue-super-dark-color);
+            }
+            .wrapper > .content .msg:hover {
+                text-decoration: underline;
+            }
+            .wrapper > .content .forgot-msg {
+                display: inline-block;
+                cursor: pointer;
+                margin: 15px 0 9px 0;
+                font-size: 12px;
+            }
+            .wrapper > .content  .forgot-msg:hover {
+                text-decoration: underline;
+            }
+
+            .sign-up {
+                color: var(--orange-color);
+                font-weight: bold;
+            }
+            /** Forgot password **/
+            .forgot-password-form, .approval-form {
+                position: absolute;
+                top: -50px;
+                z-index: 19;
+                background: transparent;
+                transition: top .5s cubic-bezier(0.23, 1, 0.32, 1);
+                height: 325px;
+            }
+            .forgot-password-form .content,.approval-form .content {
+                background: transparent;
+                height: 100%;
+                padding: 20px 75px;
+            }
+            .forgot-password-form .title, .approval-form .title {
+                width: 350px;
+                text-align: center;
+                font-size: 22px;
+            }
+            .forgot-password-form .msg, .approval-form .msg {
+                margin-top: 5px;
+            }
+
+            /** GOOGLE BUTTONS **/
+            .google-btn {
+                background: var(--google-btn-color) !important;
+                font-size: 16px;
+                vertical-align: top;
+                padding-top: 13px;
+                padding-bottom: 12px;
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+            .google-btn.twl {
+                font-size: 15px;
+                padding-top: 13px;
+                padding-bottom: 13px;
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+            .twl:not(.google-btn) {
+                font-size: 16px;
+                padding-top: 12px;
+                padding-bottom: 12px;
+                vertical-align: top;
+            }
+            .linkers {
+                text-align: left;
+                width: 512px;
+                position: relative;
+                bottom: 20px;
+            }
+            .linkers a {
+                color: var(--gray-darky-color);
+                padding: 5px;
+                font-size: 12px;
+                font-weight: 100;
+            }
+        </style>
+        <google-signin-aware id="aware"
+                             on-google-signin-aware-success="googleSigninSuccess"
+                             on-google-signin-aware-error="googleSigninFailure"
+                             on-google-signin-aware-signed-out="googleSigninFailure"
+                             client-id="{{clientID}}"
+                             hosted-domain="{{hostedDomain}}"></google-signin-aware>
+        <div class="wrapper">
+            <div class="header-phantom"></div>
+            <div class="header">
+                <iron-icon icon="designmap-logo:logo"></iron-icon>
+                <div class="beta">beta 3.0</div>
+            </div>
+            <div class="social">
+                <button id="registerGoogleButton" is="dm-loading-button"
+                        class="google-btn " on-click="googleRegister" thin>
+                    <i18-n msgid="Signin with Google">Signin with Google</i18-n>
+                </button>
+            </div>
+            <div class="title">
+                <hr/>
+                <div class="text">
+                    <i18-n msgid="or">or</i18-n>
+                </div>
+            </div>
+            <!-- Forgot password form -->
+            <div class="forgot-password-form" id="forgotPasswordForm">
+                <div class="content" id="forgotPasswordFormContent">
+                    <div class="title">
+                        <i18-n msgid="Forgot password">Forgot password?</i18-n>
+                    </div>
+                    <div class="forgot-message">
+                        <i18-n msgid="Restore message" hidden$="[[restoreMessageSent]]"></i18-n>
+                        <span hidden$="[[!restoreMessageSent]]">
+                <i18-n msgid="Restore message sent"></i18-n>
+                [[restoreEmail]]
+              </span>
+                    </div>
+                    <template is="dom-if" if="[[!restoreMessageSent]]">
+                        <paper-input id="restorePasswordEmail" required
+                                     pattern="[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*" value="{{restoreEmail::keyup}}"
+                                     label="E-mail" error-message="[[translate('EmailError',language,i18Loaded)]]"
+                                     type="email"></paper-input>
+                        <button is="dm-loading-button" id="restoreLoadingButton" type="submit"
+                                class="forgot-button" thin on-click="creteToken">
+                            <i18-n msgid="Send">Send</i18-n>
+                        </button>
+                    </template>
+                    <a class="msg" on-click="back">
+                        <i18-n msgid="return">return</i18-n>
+                    </a>
+                </div>
+            </div>
+            <!-- Forgot password form -->
+            <!-- Send approving link -->
+            <div class="approval-form" id="approvingForm">
+                <div class="content" id="approvingFormContent">
+                    <div class="title">
+                        <i18-n msgid="Approving link">Approving link</i18-n>
+                    </div>
+                    <div class="forgot-message">
+                        <i18-n msgid="Restore message" hidden$="[[approveMessageSent]]"></i18-n>
+                        <span hidden$="[[!approveMessageSent]]">
+                <i18-n msgid="Approve message sent"></i18-n>
+                [[approvingEmail]]
+              </span>
+                    </div>
+                    <template is="dom-if" if="[[!approveMessageSent]]">
+                        <paper-input id="approvingEmail" required pattern="[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*"
+                                     value="{{approvingEmail::keyup}}" label="E-mail"
+                                     error-message="[[translate('EmailError',language,i18Loaded)]]"
+                                     type="email"></paper-input>
+                        <button is="dm-loading-button" id="approvingButton" type="submit" class="forgot-button"
+                                thin on-click="sendApprovingEmail">
+                            <i18-n msgid="Send">Send</i18-n>
+                        </button>
+                    </template>
+                    <a class="msg" on-click="backApproving">
+                        <i18-n msgid="return">return</i18-n>
+                    </a>
+                </div>
+            </div>
+            <!-- Send approving link-->
+            <div class="content" id="content">
+                <neon-animated-pages id="pages" class="flex" selected="[[selected]]"
+                                     entry-animation="[[entryAnimation]]"
+                                     exit-animation="[[exitAnimation]]">
+                    <!-- Sign in -->
+                    <neon-animatable id="animatable1">
+                        <paper-input id="emailSignin" required pattern="[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*"
+                                     value="{{authEmail::keyup}}"
+                                     label="E-mail" error-message="[[translate('EmailError',language,i18Loaded)]]"
+                                     type="email"></paper-input>
+                        <iron-a11y-keys id="a11One" keys="enter" target="[[this.$.emailSignin]]"
+                                        on-keys-pressed="login"></iron-a11y-keys>
+                        <paper-input id="passwordSignin" required name="passwordSignin" auto-validate pattern=".{4,}"
+                                     error-message="[[translate('PasswordError',language,i18Loaded)]]"
+                                     label="[[translate('Password',language,i18Loaded)]]"
+                                     type="password"></paper-input>
+                        <a class="forgot-msg" on-click="restorePassword">
+                            <i18-n msgid="Forgot password?">Forgot password?</i18-n>
+                        </a>
+                        <div class="button-set">
+                            <button is="dm-loading-button" id="signInLoadingButton" thin on-click="login">
+                                <i18-n msgid="SignIn">Sign In</i18-n>
+                            </button>
+                        </div>
+                        <a class="msg" on-click="goToTheSignup">
+                            <i18-n msgid="DidNotHaveAccount">Do not have account?</i18-n>
+                            <i18-n class="sign-up" msgid="Sign-up">Sign-up!</i18-n>
+                        </a>
+                        <!--<a href="https://goo.gl/PbeJAo" target="_blank" class="msg">
+                          <i18-n msgid="RequestTestingAccount">Request testing account</i18-n>
+                        </a>-->
+                    </neon-animatable>
+                    <!-- Sign up -->
+                    <neon-animatable id="animatable2">
+                        <paper-input id="emailSignup" required pattern="[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*"
+                                     value="{{registerEmail::keyup}}"
+                                     label="E-mail" error-message="[[translate('EmailError',language,i18Loaded)]]"
+                                     type="email"></paper-input>
+                        <iron-a11y-keys id="a11Two" keys="enter" target="[[this.$.emailSignup]]"
+                                        on-keys-pressed="register"></iron-a11y-keys>
+                        <paper-input id="passwordSignup" required name="passwordSignup" on-input="checkoutPassword"
+                                     pattern=".{4,}" error-message="[[translate('PasswordError',language,i18Loaded)]]"
+                                     label="Password" type="password"></paper-input>
+                        <a class="forgot-msg" on-click="openApprovingForm">
+                            <i18-n msgid="Send me approving link">Send me approving link</i18-n>
+                        </a>
+                        <div class="button-set">
+                            <button is="dm-button" thin on-click="register">
+                                <i18-n msgid="SignUp">Sign Up</i18-n>
+                            </button>
+                        </div>
+                        <a class="msg" on-click="goToTheSignin">
+                            <i18-n msgid="ReturnToTheLogin"></i18-n>
+                            <i18-n class="sign-up" msgid="Authorization"></i18-n>
+                            <i18-n msgid="frm"></i18-n>
+                        </a>
+                    </neon-animatable>
+                </neon-animated-pages>
+            </div>
+        </div>
+        <div class="linkers">
+            <a href="https://vk.com/designmap" target="_blank">
+                <i18-n msgid="Join us VK">Join us VK</i18-n>
+            </a>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'dm-login-form',
+            behaviors: [
+                ReduxBehavior,
+                CombineActions(UserActions),
+                DesignMapMessagesMixin
+            ],
+            /**
+             * Regular expression allowing to checkout how strong is password.
+             */
+            strongPasswordRegexp: /(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{6,50}/i,
+            properties: {
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.language)'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    statePath: 'i18Loaded'
+                },
+                selected: {
+                    type: Number,
+                    value: 0
+                },
+                authEmail: {
+                    type: String,
+                    observer: 'authEmailChanged'
+                },
+                registerEmail: {
+                    type: String,
+                    observer: 'registerEmailChanged'
+                },
+                restoreEmail: {
+                    type: String,
+                    observer: 'restoreEmailChanged'
+                },
+                approvingEmail: {
+                    type: String,
+                    observer: 'approvingEmailChanged'
+                },
+                token: {
+                    type: String,
+                    value: null,
+                    observer: 'tokenChanged'
+                },
+                approveToken: {
+                    type: String,
+                    value: null,
+                    observer: 'approveTokenChanged'
+                },
+                clientID: {
+                    type: String,
+                    value: function () {
+                        return Designmap.oauth.googleDrive.clientID
+                    }
+                },
+                restoreMessageSent: {
+                    type: Boolean,
+                    value: false
+                },
+                approveMessageSent: {
+                    type: Boolean,
+                    value: false
+                }
+            },
+            ready: function () {
+                this.resolveQuery();
+            },
+            attached: function(){
+              this.async(function(){
+                  console.log('lnnnnn');
+                  this.language = 'en';
+              },1000)
+            },
+            /**
+             * Resolve query
+             */
+            resolveQuery: function () {
+                //var query = this.parseQuery();
+                //if (query.token) this.token = query.token;
+                //if (query.approveToken) this.approveToken = query.approveToken;
+            },
+            /**
+             * If token was changed, we have to send request to get
+             * temporary access
+             */
+            tokenChanged: function () {
+                if (!this.token || this.token.length < 12) return;
+                this.dispatch('token', this.token).then(function (response) {
+                    if (!response.success) return this.showErrorMessage(response.errors.message, {}, 10000);
+                    // Redirect
+                    page.redirect('/settings');
+                    backURL = '/';
+                    // Message
+                    this.showMessage('You have entered using temporary token');
+                    //location.hash = '#account';
+                }.bind(this))
+            },
+            /**
+             * If we had approve token - send request
+             * to complete approving
+             */
+            approveTokenChanged: function () {
+                if (!this.approveToken) return;
+                this.dispatch('approveToken', this.approveToken).then(function (response) {
+                    if (!response.success) return this.showErrorMessage(response.errors.message);
+                    this.showMessage('You have been approved your email successfully!');
+                    page.redirect(backURL);
+                    backURL = '/';
+                }.bind(this)).catch(function (err) {
+                    this.showErrorMessage(err);
+                }.bind(this));
+            },
+            /**
+             * Go to the sign-up form.
+             */
+            goToTheSignup: function () {
+                this.entryAnimation = 'slide-from-right-animation';
+                this.exitAnimation = 'slide-left-animation';
+                this.selected = 1;
+                // Form hooks
+                this.$['animatable' + (this.selected + 1)].style.position = 'absolute';
+                this.async(function () {
+                    this.$['animatable' + (this.selected + 1)].style.position = 'static';
+                }, 400)
+            },
+            /**
+             * Go to the signin form.
+             */
+            goToTheSignin: function () {
+                this.entryAnimation = 'slide-from-left-animation';
+                this.exitAnimation = 'slide-right-animation';
+                this.selected = 0;
+                // Form hooks
+                this.$['animatable' + (this.selected + 1)].style.position = 'absolute';
+                this.async(function () {
+                    this.$['animatable' + (this.selected + 1)].style.position = 'static';
+                }, 400)
+            },
+            /**
+             * Register new user. Validate fields at first.
+             */
+            register: function (e) {
+                e.preventDefault();
+                if (!(this.$.emailSignup.validate() && this.$.passwordSignup.validate())) return this.showErrorMessage('AuthorizationFormWasFilledNotCorrectly');
+                this.dispatch('userSignup', this.$.emailSignup.value, this.$.passwordSignup.value).then(function (response) {
+                    if (!response.success) return this.manageErrorResponse(response);
+                    this.$.emailSignup.value = null;
+                    this.$.passwordSignup.value = null;
+                    this.showMessage('Welcome to the DesignMap!', {}, 20000);
+                    // Redirect
+                    page.redirect(backURL);
+                    backURL = '/';
+                }.bind(this)).catch(this.manageErrorResponse.bind(this));
+            },
+            /**
+             * Authorize user. Validate fields at first.
+             */
+            login: function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (this.$.signInLoadingButton.loading) return;
+                this.$.signInLoadingButton.loading = true;
+                if (!(this.$.emailSignin.validate() && this.$.passwordSignin.validate())) {
+                    this.$.signInLoadingButton.loading = false;
+                    return this.showErrorMessage('AuthorizationFormWasFilledNotCorrectly');
+                }
+                this.dispatch('userLogin', this.$.emailSignin.value, this.$.passwordSignin.value).then(function (response) {
+                    this.$.signInLoadingButton.loading = false;
+                    if (!response.success) return this.manageErrorResponse(response);
+                    this.$.emailSignin.value = null;
+                    this.$.passwordSignin.value = null;
+                    // Redirect
+                    page.redirect(backURL);
+                    backURL = '/';
+                    //this.showMessage('Welcome.');
+                }.bind(this)).catch(function (err) {
+                    this.$.signInLoadingButton.loading = false;
+                    this.manageErrorResponse(err);
+                }.bind(this));
+            },
+            /**
+             * Logout.
+             */
+            logout: function () {
+                if (this.$$('#logout').disabled) return;
+                document.querySelector('designmap-project').loading = true;
+                this.dispatch('userLogout').then(function () {
+                    // this.showMessage('Good bye.');
+                    document.querySelector('designmap-project').loading = false;
+                }.bind(this)).catch(this.manageErrorResponse.bind(this));
+            },
+            /**
+             * Restrictions to start validation
+             * @param value
+             */
+            authEmailChanged: function (value) {
+                if (value.length > 4) this.$.emailSignin.validate();
+            },
+            /**
+             * Restrictions to start validation
+             * @param value
+             */
+            registerEmailChanged: function (value) {
+                if (value.length > 4) this.$.emailSignup.validate();
+            },
+            /**
+             * Restrictions to start validation
+             * @param value
+             */
+            restoreEmailChanged: function (value) {
+                if (value.length > 4) this.$$('#restorePasswordEmail').validate();
+            },
+            /**
+             * Restrictions to start validation
+             * @param value
+             */
+            approvingEmailChanged: function (value) {
+                if (value.length > 4) this.$$('#approvingEmail').validate();
+            },
+            /**
+             * Open restore password form
+             */
+            restorePassword: function () {
+                this.$.forgotPasswordForm.style.top = '289px';
+                this.$.forgotPasswordFormContent.style.background = '#fff';
+            },
+            openApprovingForm: function () {
+                this.$.approvingForm.style.top = '289px';
+                this.$.approvingFormContent.style.background = '#fff';
+            },
+            back: function () {
+                this.restoreMessageSent = false;
+                this.$.forgotPasswordForm.style.top = '-50px';
+                this.$.forgotPasswordFormContent.style.background = 'transparent';
+            },
+            backApproving: function () {
+                this.approveMessageSent = false;
+                this.$.approvingForm.style.top = '-50px';
+                this.$.forgotPasswordFormContent.style.background = 'transparent';
+            },
+            /**
+             * Message if not allowed
+             */
+            notAllowed: function () {
+                this.showErrorMessage('Not allowed in beta');
+            },
+            /**
+             * Send request to create entry-token
+             * if you forgot a password
+             */
+            creteToken: function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (this.$$('#restoreLoadingButton').loading) return;
+                this.$$('#restoreLoadingButton').loading = true;
+                if (!this.$$('#restorePasswordEmail').validate()) {
+                    this.$$('#restoreLoadingButton').loading = false;
+                    return this.showErrorMessage('Email is not correct');
+                }
+                var promise = xhr.post(Designmap.config.apiURL + 'token/entry', {email: this.restoreEmail});
+                promise.then(function (response) {
+                    this.$$('#restoreLoadingButton').loading = false;
+                    if (!response.success) return this.showErrorMessage(response.errors.message);
+                    this.restoreMessageSent = true;
+                    //this.showMessage('You will receive an email with further instructions on #EMAIL#',{'#EMAIL#':this.restoreEmail},5000);
+                    //this.back();
+                }.bind(this));
+            },
+            /**
+             * Google Registration
+             * @param e
+             * @returns {*}
+             */
+            googleRegister: function (e) {
+                var googleUser = gapi.auth2.getAuthInstance()['currentUser'].get();
+                this.googleRegisterClicked = true;
+                //this.$.registerGoogleButton.loading = true;
+                if (googleUser && googleUser.w3) return this.registerWithGoogle(googleUser);
+                this.$.aware.signIn();
+            },
+            /**
+             * Google sign in
+             * @param e
+             * @returns {*}
+             */
+            googleSignin: function (e) {
+                var googleUser = gapi.auth2.getAuthInstance()['currentUser'].get();
+                this.googleSigninClicked = true;
+                this.$.siginGoogleButton.loading = true;
+                if (googleUser && googleUser.w3) return this.loginWithGoogle(googleUser);
+                this.$.aware.signIn();
+            },
+            /**
+             * Google sign-in success
+             */
+            googleSigninSuccess: function () {
+                var googleUser = gapi.auth2.getAuthInstance()['currentUser'].get();
+                if (this.googleRegisterClicked == true) this.registerWithGoogle(googleUser);
+                if (this.googleSigninClicked == true) this.loginWithGoogle(googleUser);
+                this.googleRegisterClicked = false;
+                this.googleSigninClicked = false;
+            },
+            /**
+             * Google sign in failure
+             */
+            googleSigninFailure: function () {
+                this.showErrorMessage('Google authorization went wrong.');
+                this.googleRegisterClicked = false;
+                this.googleSigninClicked = false;
+            },
+            /**
+             * Register with google
+             * @param googleUser
+             */
+            registerWithGoogle: function (googleUser) {
+                this.dispatch('userGoogleSignup', googleUser.w3).then(function (response) {
+                    this.$.registerGoogleButton.loading = false;
+                    if (!response.success) return this.showErrorMessage(response.errors.message);
+                    this.showMessage(response.message, {}, 10000);
+                    // Redirect
+                    page.redirect(backURL);
+                    backURL = '/';
+                }.bind(this)).catch(function (err) {
+                    this.$.registerGoogleButton.loading = false;
+                }.bind(this));
+            },
+            /**
+             * Login with google
+             * @param googleUser
+             */
+            loginWithGoogle: function (googleUser) {
+                this.dispatch('userGoogleSignin', googleUser.w3).then(function (response) {
+                    this.$.siginGoogleButton.loading = false;
+                    if (!response.success) return this.showErrorMessage(response.errors.message);
+                    // Redirect
+                    page.redirect(backURL);
+                    backURL = '/';
+                }.bind(this)).catch(function (err) {
+                    this.$.siginGoogleButton.loading = false;
+                }.bind(this));
+            },
+            sendApprovingEmail: function () {
+                this.$$('#approvingButton').loading = true;
+                this.dispatch('reapprove', this.approvingEmail, this.language).then(function (response) {
+                    this.$$('#approvingButton').loading = false;
+                    if (!response.success) return this.showErrorMessage(response.errors.message);
+                    this.approveMessageSent = true;
+                    //this.showMessage('A mail has been sent',{'#EMAIL#':this.approvingEmail});
+                    //this.backApproving();
+                }.bind(this)).catch(function (err) {
+                    this.$$('#approvingButton').loading = false;
+                    this.showErrorMessage(err);
+                }.bind(this))
+            },
+            msgState: function (msg) {
+                return !!msg;
+            },
+            forgotMessage: function (forgotMSG) {
+                return forgotMSG ? forgotMSG : 'Restore message';
+            },
+            languageChanged: function (language) {
+                console.log(language,'<<<<');
+            }
+        })
+    </script>
+</dom-module>

@@ -1,0 +1,31 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module id="dm-round-button">
+    <template>
+        <style>
+            :host {
+                width: 40px;
+                height: 40px;
+                background: var(--blue-color);
+                border-radius: 50%;
+                border: none;
+                color: var(--white-color);
+                cursor: pointer;
+                outline: none;
+            }
+            :host(:hover) {
+                background: var(--blue-lighty-color);
+            }
+            :host(:active) {
+                background: var(--orange-color);
+            }
+        </style>
+        <content></content>
+    </template>
+    <script>
+        Polymer({
+            is: 'dm-round-button',
+            extends: 'button'
+        });
+    </script>
+</dom-module>

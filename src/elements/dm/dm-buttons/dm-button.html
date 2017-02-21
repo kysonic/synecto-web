@@ -1,0 +1,54 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module id="dm-button">
+    <template>
+        <style>
+            :host {
+                background: transparent;
+                border: 2px solid var(--white-color);
+                color: var(--white-color);
+                text-align: center;
+                padding: 10px 2em;
+                font-size: 19px;
+                margin: 10px 0;
+                cursor: pointer;
+                transition: background .2s;
+                outline: none;
+                user-select: none;
+                -webkit-user-select: none;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            :host(:focus) {
+                outline: none;
+            }
+            :host(:hover) {
+                background: rgba(256,256,256,0.5);
+                transition: background .2s;
+            }
+            :host(:active) {
+                background: var(--orange-color);
+                transition: background .2s;
+            }
+            :host([fit]) {
+                width: 100%;
+            }
+            :host([thin]) {
+                border: 1px solid var(--white-color);
+                font-family: 'Open Sans Light', 'Open Sans', sans-serif;
+                font-weight: 300;
+            }
+            :host([disabled]) {
+                opacity: 0.6;
+            }
+
+        </style>
+        <content></content>
+    </template>
+    <script>
+        Polymer({
+            is: 'dm-button',
+            extends: 'button'
+        })
+    </script>
+</dom-module>

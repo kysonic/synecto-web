@@ -1,0 +1,89 @@
+<script>
+    const DesignMapMessagesMixin = {
+        attached: function(){
+          this.snackbar = document.querySelector('x-snackbar');
+          this.i18nDomain = document.querySelector('i18-n-domain');
+        },
+        /**
+         * Show usual message.
+         * @param message
+         */
+        showMessage: function(message,replacement,duration){
+            var msg = this.i18nDomain.getMsg(message) || message;
+            if(replacement) msg = this.replaceExpressions(msg,replacement);
+            this.snackbar.style.top ='70px';
+            this.snackbar.style.right ='20px';
+            this.snackbar.style.bottom ='inherit';
+            this.snackbar.style.left ='inherit';
+            this.snackbar.add({text:msg,duration:duration});
+        },
+        /**
+         * Show usual message.
+         * @param message
+         */
+        showUndoMessage: function(message,replacement,duration){
+            var msg = this.i18nDomain.getMsg(message) || message;
+            if(replacement) msg = this.replaceExpressions(msg,replacement);
+            this.snackbar.style.top ='70px';
+            this.snackbar.style.right ='20px';
+            this.snackbar.style.bottom ='inherit';
+            this.snackbar.style.left ='inherit';
+            this.snackbar.add({text:msg,duration:duration,undo:true});
+        },
+        /**
+         * Show error message.
+         * @param message
+         */
+        showErrorMessage: function(message,replacement,duration){
+            var msg = this.i18nDomain.getMsg(message) || message;
+            if(replacement) msg = this.replaceExpressions(msg,replacement);
+            this.snackbar.style.top ='215px';
+            this.snackbar.style.left =0;
+            this.snackbar.add({text:msg,error:true,duration:duration});
+        },
+        /**
+         * Special designmap toast function !
+         */
+        notify: function(message, type, replacement, sender, duration){
+          var msg = this.i18nDomain.getMsg(message) || message;
+          if(replacement) msg = this.replaceExpressions(msg,replacement);
+          this.snackbar.add({text:msg,type: type, notify:true,sender:sender,duration:duration});
+          this.async(function(){
+            var notifier = document.querySelector('designmap-notifier');
+            var notifierBounding = notifier.getBoundingClientRect();
+            var toastBounding = document.querySelector('x-toast').getBoundingClientRect();
+            this.snackbar.style.left = notifierBounding.left - (toastBounding.width/2) - 65 + 'px';
+            this.snackbar.style.top = 70 + 'px';
+          },0);
+        },
+        /**
+         * Replace all of expressions in the sentence
+         */
+        replaceExpressions: function(msg,replacement,duration){
+            for(var expression in replacement) {
+                var value = replacement[expression];
+                msg = msg.replace(expression,value);
+            }
+            return msg;
+        },
+        /**
+         * Translate function can manage any codes or full phrases.
+         * @param msg
+         * @returns {*}
+         */
+        translate: function(msg,language,i18Loaded) {
+          if(!msg) return msg;
+          this.i18nDomain = this.i18nDomain || document.querySelector('i18-n-domain');
+          return !this.i18nDomain ? msg : this.i18nDomain.getMsg(msg) || msg;
+        },
+        /**
+         * Compute language
+         * @param language
+         * @returns {*|string}
+         * @private
+         */
+        _computeLanguage: function(language){
+            return language || 'ru';
+        }
+    }
+</script>
