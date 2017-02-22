@@ -1,7 +1,7 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
-<link rel="import" href="../dm-icons/dm-icons.html">
+<link rel="import" href="../designmap-icons/designmap-icons.html">
 
-<dom-module id="dm-circle-button">
+<dom-module id="designmap-circle-button">
     <template>
         <style>
             :host {
@@ -23,7 +23,7 @@
                     stroke-dashoffset: 1002;
                     stroke-dasharray: 1000;
                     transition: stroke-dashoffset .3s ease-in;
-                    @apply(--dm-circle-button-circle-mixin);
+                    @apply(--designmap-circle-button-circle-mixin);
                 }
             }
 
@@ -34,13 +34,13 @@
                 width: 40%;
                 height: 40%;
                 padding: 32% 30%;
-                @apply(--dm-circle-button-content-icon-mixin);
+                @apply(--designmap-circle-button-content-icon-mixin);
             }
 
             :host(:hover:not([disabled])) iron-icon.circle ::shadow circle {
                 stroke-dashoffset: 0;
                 transition: stroke-dashoffset .3s ease-in;
-                @apply(--dm-circle-button-circle-hover-mixin);
+                @apply(--designmap-circle-button-circle-hover-mixin);
             }
 
         </style>
@@ -49,7 +49,7 @@
     </template>
     <script>
         Polymer({
-            is: 'dm-circle-button'
+            is: 'designmap-circle-button'
         });
     </script>
 </dom-module>

@@ -23,10 +23,8 @@
        */
       getCurrentUser: function(id){
         return function(dispatch){
-            var promise = fetch(Designmap.config.apiURL+'user?my=true',Designmap.fetchOptions);
+            var promise = xhr.get(Designmap.config.apiURL+'user?my=true');
             promise.then(function(response){
-                return response.json();
-            }).then(function(response){
                 if(!response.user) return;
                 dispatch({type:"UPDATE_USER",user: response.user});
             });

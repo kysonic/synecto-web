@@ -1,0 +1,274 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<!-- Components -->
+<link rel="import" href="../designmap-ui/designmap-dropdown.html">
+<link rel="import" href="./designmap-language-switcher.html">
+<!-- Mixins -->
+<link rel="import" href="../../../mixins/designmap-messages-mixin.html">
+<link rel="import" href="../../../mixins/deisgnmap-utils-mixin.html">
+<!-- Redux -->
+<link rel="import" href="../../../redux/redux-store.html">
+<link rel="import" href="../../../redux/actions/combine-actions.html">
+<link rel="import" href="../../../redux/actions/user-actions.html">
+<!-- Icons -->
+<link rel="import" href="../designmap-icons/designmap-user-menu-icons.html">
+
+<dom-module id="designmap-user-menu">
+  <template>
+    <style>
+      :host {
+        --designmap-notifier-mixin: {
+          width: 43px;
+          height: 43px;
+          font-size: 20px;
+          line-height: 42px;
+          font-weight: 100;
+          margin-right: 10px;
+        };
+
+        --designmap-user-menu-indicator-color: var(--orange-color);
+        --designmap-user-menu-text: var(--gray-darky-color);
+
+        --designmap-dropdown-mixin: {
+          padding: 30px;
+          background: var(--primary-color);
+        };
+        --designmap-dropdown-triangle-mixin: {
+          border-color: transparent transparent var(--primary-color) transparent;
+          margin-left: 30px;
+        };
+      }
+
+      #logout[disabled] {
+        opacity: 0.3;
+      }
+      .notify-title {
+        display: none;
+      }
+      .info {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 7px;
+      }
+      .block {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        height: 100%;
+        position: relative;
+      }
+      /** AVATAR **/
+      .avatar {
+        width: 43px;
+        height: 43px;
+        vertical-align: top;
+        margin-right: 17px;
+        border-radius: 50%;
+        border: 2px solid var(--white-color);
+        overflow: hidden;
+        cursor: pointer;
+        position: relative;
+      }
+      .avatar .text {
+        padding: 8px 2px;
+        font-size: 20px;
+        color: var(--designmap-user-menu-text);
+        text-align: center;
+        text-transform: uppercase;
+      }
+      .avatar img {
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+      }
+      /** EMAIL **/
+      .email {
+        display: block;
+        position: relative;
+        cursor: pointer;
+        margin-right: 5px;
+        white-space: nowrap;
+        color: var(--gray-darky-color);
+        transition: color .2s ease-in;
+        font-weight: 100;
+        font-size: 16px;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .email:hover {
+        color: var(--gray-darky-hovered-color);
+        transition: color .2s ease-in;
+      }
+      .account-menu {
+        display: none;
+      }
+      /** QUESTION **/
+      .question {
+        width: 43px;
+        height: 43px;
+        vertical-align: top;
+        border-radius: 50%;
+        overflow: hidden;
+        cursor: pointer;
+        margin-right: 5px;
+        transition: .2s background ease-in;
+      }
+      .question:hover {
+        border-radius: 50%;
+        background: var(--white-color);
+        transition: .2s background ease-in;
+      }
+      .question iron-icon {
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        --iron-icon-components-mixin: {
+          stroke: var(--gray-darky-color) !important;
+        }
+      }
+      .mobile-avatar {
+        display: none;
+      }
+      /** MESSAGE INDICATOR **/
+      .indicator {
+        position: absolute;
+        top: 2px;
+        left: 100%;
+        margin-left: -29px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: 2px solid var(--white-color);
+        background: var(--designmap-user-menu-indicator-color);
+      }
+
+    </style>
+    <designmap-notifier id="notifier" x-tooltip$="[[translate('Notifications',language)]]" data-hint="notifier"></designmap-notifier>
+    <!-- Auth -->
+    <template is="dom-if" if="[[!!user]]" >
+      <div class="info">
+        <div class="block" data-hint="support">
+          <div class="question" on-click="goToDocs" x-tooltip$="[[translate('Support',language,i18Loaded)]]" data-cls="blue"><iron-icon icon="designmap-workspace:help"></iron-icon></div>
+        </div>
+        <div class="block" on-click="openUserMenu" data-hint="login" >
+          <div class="email" title="[[user.local.email]]">
+            [[user.local.email]]
+          </div>
+          <div class="avatar" >
+            <template is="dom-if" if="[[user.avatar]]">
+              <img src="[[computeAvatarPath(user.avatar)]]" title="[[user.local.email]]">
+            </template>
+            <template is="dom-if" if="[[!user.avatar]]">
+              <div class="text">[[computeUserName(user)]]</div>
+            </template>
+          </div>
+          <div class="indicator" hidden$="[[!notifications.length]]"></div>
+        </div>
+      </div>
+      <!-- Account menu -->
+      <designmap-dropdown id="dropdown" horizontal-offset="[[horizontalOffset]]"  vertical-offset="[[verticalOffset]]">
+        <div class="row" on-click="goToProfile">
+          <iron-icon icon="designmap-user-menu:settings"></iron-icon>
+          <div class="text"><i18-n msgid="Account Settings">Account Settings</i18-n></div>
+        </div>
+        <div class="row">
+          <iron-icon icon="designmap-user-menu:language"></iron-icon>
+          <designmap-language-switcher></designmap-language-switcher>
+        </div>
+        <div class="row" on-click="goToNotification">
+          <iron-icon icon="designmap-user-menu:notify"></iron-icon>
+          <div class="text"><i18-n msgid="Notifications">Notifications</i18-n>&nbsp;<span hidden$="[[!notifications.length]]">([[notifications.length]])</span></div>
+        </div>
+        <div class="row" on-click="goToTypeForm">
+          <iron-icon icon="designmap-user-menu:feedback"></iron-icon>
+          <div class="text"><i18-n msgid="Leave a feedback">Leave a feedback</i18-n></div>
+        </div>
+        <div class="row" on-click="logout" id="logout">
+          <iron-icon icon="designmap-user-menu:sign_out"></iron-icon>
+          <div class="text" ><i18-n msgid="SignOut">Sign out</i18-n></div>
+        </div>
+      </designmap-dropdown>
+      <!-- Account menu -->
+    </template>
+  </template>
+  <script>
+    Polymer({
+      is: 'designmap-user-menu',
+      behaviors: [
+                  DesignMapMessagesMixin,
+                  DesignMapUtilsMixin,
+                  ReduxBehavior,
+                  CombineActions(UserActions)
+                 ],
+      properties: {
+        user: {
+          type: Object,
+          statePath: 'user'
+        },
+        language: {
+            type: String,
+            computed: '_computeLanguage(user.language)'
+        },
+        i18Loaded: {
+          type: Boolean,
+          statePath: 'i18Loaded'
+        },
+        selected: {
+          type: Number,
+          value: 0
+        },
+        verticalOffset: {
+          type: Number,
+          value: 20
+        },
+        horizontalOffset: {
+          type: Number,
+          value: -45
+        },
+        notifications: {
+            type: Array,
+            statePath: 'notifications'
+        }
+      },
+      openLoginDialog: function (e) {
+        this.$.dialog.open();
+      },
+      logout: function () {
+        if(this.$$('#logout').disabled) return;
+        this.dispatch('userLogout').then(function(){
+          this.$$("#dropdown").close();
+        }.bind(this)).catch(this.manageErrorResponse.bind(this));
+      },
+      selectLanguage: function (e) {
+        this.dispatch('updateLanguage',e.detail.value);
+      },
+      openUserMenu: function(){
+        this.$$("#dropdown").open();
+      },
+      goToProfile: function(){
+        page.redirect('/settings/#account');
+        this.$$("#dropdown").close();
+        //Hints
+        var hs = document.querySelector('designmap-hint-system');
+        if(hs.isRunning) hs.$.accountSettings.close(true);
+      },
+      goToNotification: function(){
+        //page.redirect('/notifications/');
+        this.$$("#dropdown").close();
+      },
+      goToTheProfileSettings: function(){
+        //page.redirect('/settings/#profile');
+        this.$$("#dropdown").close();
+      },
+      goToDocs: function(){
+        //page.redirect('/support');
+        this.$$("#dropdown").close();
+      },
+      goToTypeForm: function(){
+        window.open('https://kysonic.typeform.com/to/w61k3K','_blank');
+      }
+    })
+  </script>
+</dom-module>

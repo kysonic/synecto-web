@@ -8,16 +8,17 @@
 <link rel="import" href="/bower_components/neon-animation/neon-animatable.html">
 <link rel="import" href="/bower_components/neon-animation/neon-animations.html">
 <!-- Buttons -->
-<link rel="import" href="../dm-buttons/dm-button.html">
-<link rel="import" href="../dm-buttons/dm-loading-button.html">
+<link rel="import" href="../designmap-buttons/designmap-button.html">
+<link rel="import" href="../designmap-buttons/designmap-loading-button.html">
 <!-- Redux -->
 <link rel="import" href="../../../redux/redux-store.html">
 <link rel="import" href="../../../redux/actions/combine-actions.html">
 <link rel="import" href="../../../redux/actions/user-actions.html">
 <!-- Mixins -->
-<link rel="import" href="../../../mixins/dm-messages-mixin.html">
+<link rel="import" href="../../../mixins/designmap-messages-mixin.html">
+<link rel="import" href="../../../mixins/deisgnmap-utils-mixin.html">
 
-<dom-module id="dm-login-form">
+<dom-module id="designmap-login-form">
     <template>
         <style>
             :host {
@@ -249,7 +250,7 @@
                 <div class="beta">beta 3.0</div>
             </div>
             <div class="social">
-                <button id="registerGoogleButton" is="dm-loading-button"
+                <button id="registerGoogleButton" is="designmap-loading-button"
                         class="google-btn " on-click="googleRegister" thin>
                     <i18-n msgid="Signin with Google">Signin with Google</i18-n>
                 </button>
@@ -278,7 +279,7 @@
                                      pattern="[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*" value="{{restoreEmail::keyup}}"
                                      label="E-mail" error-message="[[translate('EmailError',language,i18Loaded)]]"
                                      type="email"></paper-input>
-                        <button is="dm-loading-button" id="restoreLoadingButton" type="submit"
+                        <button is="designmap-loading-button" id="restoreLoadingButton" type="submit"
                                 class="forgot-button" thin on-click="creteToken">
                             <i18-n msgid="Send">Send</i18-n>
                         </button>
@@ -307,7 +308,7 @@
                                      value="{{approvingEmail::keyup}}" label="E-mail"
                                      error-message="[[translate('EmailError',language,i18Loaded)]]"
                                      type="email"></paper-input>
-                        <button is="dm-loading-button" id="approvingButton" type="submit" class="forgot-button"
+                        <button is="designmap-loading-button" id="approvingButton" type="submit" class="forgot-button"
                                 thin on-click="sendApprovingEmail">
                             <i18-n msgid="Send">Send</i18-n>
                         </button>
@@ -324,8 +325,8 @@
                                      exit-animation="[[exitAnimation]]">
                     <!-- Sign in -->
                     <neon-animatable id="animatable1">
-                        <paper-input id="emailSignin" required pattern="[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*"
-                                     value="{{authEmail::keyup}}"
+                        <paper-input is="iron-input" id="emailSignin" required pattern="[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*"
+                                     on-cahange="authEmailChanged"
                                      label="E-mail" error-message="[[translate('EmailError',language,i18Loaded)]]"
                                      type="email"></paper-input>
                         <iron-a11y-keys id="a11One" keys="enter" target="[[this.$.emailSignin]]"
@@ -338,7 +339,7 @@
                             <i18-n msgid="Forgot password?">Forgot password?</i18-n>
                         </a>
                         <div class="button-set">
-                            <button is="dm-loading-button" id="signInLoadingButton" thin on-click="login">
+                            <button is="designmap-loading-button" id="signInLoadingButton" thin on-click="login">
                                 <i18-n msgid="SignIn">Sign In</i18-n>
                             </button>
                         </div>
@@ -360,12 +361,12 @@
                                         on-keys-pressed="register"></iron-a11y-keys>
                         <paper-input id="passwordSignup" required name="passwordSignup" on-input="checkoutPassword"
                                      pattern=".{4,}" error-message="[[translate('PasswordError',language,i18Loaded)]]"
-                                     label="Password" type="password"></paper-input>
+                                     label="[[translate('Password',language,i18Loaded)]]" type="password"></paper-input>
                         <a class="forgot-msg" on-click="openApprovingForm">
                             <i18-n msgid="Send me approving link">Send me approving link</i18-n>
                         </a>
                         <div class="button-set">
-                            <button is="dm-button" thin on-click="register">
+                            <button is="designmap-button" thin on-click="register">
                                 <i18-n msgid="SignUp">Sign Up</i18-n>
                             </button>
                         </div>
@@ -386,11 +387,12 @@
     </template>
     <script>
         Polymer({
-            is: 'dm-login-form',
+            is: 'designmap-login-form',
             behaviors: [
                 ReduxBehavior,
                 CombineActions(UserActions),
-                DesignMapMessagesMixin
+                DesignMapMessagesMixin,
+                DesignMapUtilsMixin
             ],
             /**
              * Regular expression allowing to checkout how strong is password.
@@ -415,6 +417,7 @@
                 },
                 authEmail: {
                     type: String,
+                    notify: true,
                     observer: 'authEmailChanged'
                 },
                 registerEmail: {
@@ -457,19 +460,13 @@
             ready: function () {
                 this.resolveQuery();
             },
-            attached: function(){
-              this.async(function(){
-                  console.log('lnnnnn');
-                  this.language = 'en';
-              },1000)
-            },
             /**
              * Resolve query
              */
             resolveQuery: function () {
-                //var query = this.parseQuery();
+                var query = this.parseQuery();
                 //if (query.token) this.token = query.token;
-                //if (query.approveToken) this.approveToken = query.approveToken;
+                if (query.approveToken) this.approveToken = query.approveToken;
             },
             /**
              * If token was changed, we have to send request to get
@@ -479,12 +476,8 @@
                 if (!this.token || this.token.length < 12) return;
                 this.dispatch('token', this.token).then(function (response) {
                     if (!response.success) return this.showErrorMessage(response.errors.message, {}, 10000);
-                    // Redirect
-                    page.redirect('/settings');
-                    backURL = '/';
                     // Message
                     this.showMessage('You have entered using temporary token');
-                    //location.hash = '#account';
                 }.bind(this))
             },
             /**
@@ -496,11 +489,7 @@
                 this.dispatch('approveToken', this.approveToken).then(function (response) {
                     if (!response.success) return this.showErrorMessage(response.errors.message);
                     this.showMessage('You have been approved your email successfully!');
-                    page.redirect(backURL);
-                    backURL = '/';
-                }.bind(this)).catch(function (err) {
-                    this.showErrorMessage(err);
-                }.bind(this));
+                }.bind(this)).catch(this.manageErrorResponse.bind(this));
             },
             /**
              * Go to the sign-up form.
@@ -538,10 +527,7 @@
                     if (!response.success) return this.manageErrorResponse(response);
                     this.$.emailSignup.value = null;
                     this.$.passwordSignup.value = null;
-                    this.showMessage('Welcome to the DesignMap!', {}, 20000);
-                    // Redirect
-                    page.redirect(backURL);
-                    backURL = '/';
+                    this.showMessage('Welcome to the DesignMap!', {centered:true}, 20000);
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));
             },
             /**
@@ -562,9 +548,7 @@
                     this.$.emailSignin.value = null;
                     this.$.passwordSignin.value = null;
                     // Redirect
-                    page.redirect(backURL);
-                    backURL = '/';
-                    //this.showMessage('Welcome.');
+                    window.history.pushState({}, null, '/');
                 }.bind(this)).catch(function (err) {
                     this.$.signInLoadingButton.loading = false;
                     this.manageErrorResponse(err);
@@ -586,7 +570,10 @@
              * @param value
              */
             authEmailChanged: function (value) {
-                if (value.length > 4) this.$.emailSignin.validate();
+                if (value.length > 4) {
+                    console.log(this.$.emailSignin);
+                    this.$.emailSignin.validate();
+                }
             },
             /**
              * Restrictions to start validation
@@ -709,9 +696,6 @@
                     this.$.registerGoogleButton.loading = false;
                     if (!response.success) return this.showErrorMessage(response.errors.message);
                     this.showMessage(response.message, {}, 10000);
-                    // Redirect
-                    page.redirect(backURL);
-                    backURL = '/';
                 }.bind(this)).catch(function (err) {
                     this.$.registerGoogleButton.loading = false;
                 }.bind(this));
@@ -724,9 +708,6 @@
                 this.dispatch('userGoogleSignin', googleUser.w3).then(function (response) {
                     this.$.siginGoogleButton.loading = false;
                     if (!response.success) return this.showErrorMessage(response.errors.message);
-                    // Redirect
-                    page.redirect(backURL);
-                    backURL = '/';
                 }.bind(this)).catch(function (err) {
                     this.$.siginGoogleButton.loading = false;
                 }.bind(this));
@@ -749,9 +730,6 @@
             },
             forgotMessage: function (forgotMSG) {
                 return forgotMSG ? forgotMSG : 'Restore message';
-            },
-            languageChanged: function (language) {
-                console.log(language,'<<<<');
             }
         })
     </script>

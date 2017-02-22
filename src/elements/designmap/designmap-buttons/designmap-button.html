@@ -1,5 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
-<dom-module id="dm-loading-button">
+
+<dom-module id="designmap-button">
     <template>
         <style>
             :host {
@@ -17,7 +18,6 @@
                 -webkit-user-select: none;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                position: relative;
             }
             :host(:focus) {
                 outline: none;
@@ -41,39 +41,14 @@
             :host([disabled]) {
                 opacity: 0.6;
             }
-            :host(.loading) {
-                text-indent: -9999px;
-            }
-            .loading {
-                background: url('/images/svg/three-dots.svg') no-repeat center;
-                background-size: 40%;
-                width: 100%;
-                height: 30px;
-                position: absolute;
-                left: 0;
-                top: 8px;
-            }
+
         </style>
         <content></content>
-        <div hidden$="[[!loading]]" class="loading"></div>
     </template>
     <script>
         Polymer({
-            is: 'dm-loading-button',
-            extends: 'button',
-            properties: {
-              loading: {
-                type: Boolean,
-                value: false,
-                observer: 'loadingChanged'
-              }
-            },
-            /**
-             * Change root classes
-             */
-            loadingChanged: function(loading){
-              this.classList[loading?'add':'remove']('loading');
-            }
+            is: 'designmap-button',
+            extends: 'button'
         })
     </script>
 </dom-module>

@@ -1,0 +1,304 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module id="plastic-toast">
+  <style>
+    :host {
+      font-family: 'Open Sans';
+      background: #4d92ea;
+      color: #f1f1f1;
+      padding: 12px 24px 12px;
+      text-align: center;
+      box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+      border-radius: 2px;
+      font-size: 14px;
+      cursor: default;
+
+      -webkit-transition: visibility 0.3s, -webkit-transform 0.3s;
+      transition: visibility 0.3s, transform 0.3s,opacity .3s;
+
+      -webkit-transform: translateY(-100px);
+      transform: translateY(-100px);
+
+      visibility: hidden;
+      opacity: 0;
+
+      @apply(--x-toast);
+    }
+
+    :host(.capsule) {
+      border-radius: 24px;
+    }
+    :host(.error) {
+      background: #d81838;
+    }
+    :host(.notify) {
+      background: var(--orange-color);
+    }
+
+    :host(.notify) #label {
+      display: none;
+    }
+    .triangle,.notification {
+      display: none;
+    }
+    :host(.notify) .triangle,:host(.notify) .notification {
+      display: block;
+    }
+
+    :host(.fit-bottom) {
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      min-width: 0;
+      border-radius: 0;
+    }
+
+    :host(.paper-toast-open){
+      visibility: visible;
+
+      -webkit-transform: translateY(0px);
+      transform: translateY(0px);
+      transition: visibility 0.3s, transform 0.3s, opacity .3s;
+      opacity: 1;
+    }
+    .close {
+      display: inline-block;
+      margin-left: 2px;
+      vertical-align: middle;
+      cursor: pointer;
+      width: 20px;
+      position: relative;
+      top: 2px;
+    }
+    .from {
+      text-align: left !important;
+    }
+    hr {
+      margin: 5px 0;
+      background: #fff;
+      border: 1px dashed #fff;
+    }
+    span#label {
+      vertical-align: middle;
+      @apply(--plastic-toast-text);
+    }
+    .triangle {
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0 5px 10px 5px;
+      border-color: transparent transparent var(--secondary-color) transparent;
+      position: absolute;
+      left: 50%;
+      margin-left: 72px;
+      top: -10px;
+    }
+    .undo {
+      display: none;
+      text-align: center;
+      width: 100px;
+      margin: 5px auto;
+      margin-bottom: 0px;
+      text-decoration: underline;
+    }
+    .title {
+      text-align: center;
+      text-transform: uppercase;
+    }
+    .hide {
+      display: none;
+      width: 15px;
+      height: 15px;
+      position: absolute;
+      left: 100%;
+      top: 0px;
+      margin-left: -20px;
+    }
+    .hide iron-icon {
+      width: 100%;
+      height: 100%;
+    }
+    .close {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      top: 0;
+      left: 100%;
+      margin-left: -20px;
+    }
+    :host(.undo) .undo,:host(.undo) .hide  {
+      cursor: pointer;
+      display: block;
+    }
+  </style>
+  <template>
+    <span id="label">{{text}}</span>
+    <div class="undo" on-click="makeUndo">
+      <i18-n msgid="Undo">Undo</i18-n>
+    </div>
+    <!--<div class="hide" on-click="hide">
+      <iron-icon icon="close"></iron-icon>
+    </div>-->
+    <div class="triangle"></div>
+    <div class="notification" >
+      <div class="title">[[computeType(type)]]</div>
+      <div class="text">[[text]]</div>
+      <span class="from"><i18-n msgid="From"></i18-n>: [[computeOwnerName(sender)]]</span>
+    </div>
+    <iron-icon class="close" icon="icons:close" on-click="hide"></iron-icon>
+    <content></content>
+  </template>
+</dom-module>
+<script>
+(function() {
+
+  Polymer({
+    is: 'plastic-toast',
+    properties: {
+      /**
+       * The duration in milliseconds to show the toast.
+       */
+      duration: {
+        type: Number,
+        value: 3000
+      },
+
+      /**
+       * The text to display in the toast.
+       */
+      text: {
+        type: String,
+        value: ""
+      },
+
+      /**
+       * True if the toast is currently visible.
+       */
+      visible: {
+        type: Boolean,
+        readOnly: true,
+        value: false,
+        observer: '_visibleChanged'
+      },
+      error: {
+        type: Boolean
+      },
+      notify: {
+        type: Boolean,
+        value: false
+      },
+      undo: {
+        type: Boolean,
+        value: false
+      },
+      oid: Number,
+      sender: {
+        type: Object
+      }
+    },
+
+    listeners: {
+      'tap': 'hide'
+    },
+
+    created: function() {
+      //Polymer.IronA11yAnnouncer.requestAvailability();
+      //document.body.addEventListener('click',this._onCaptureClick.bind(this));
+    },
+
+    /**
+     * Ensures the click event is delegated to the right overlay.
+     * @param {!Event} event
+     * @private
+     */
+    _onCaptureClick: function(event) {
+      if(!this._parents(event.target,'x-toast')) {
+        this.hide();
+      }
+    },
+
+
+    ready: function() {
+      if(this.error) this.classList.add('error');
+      if(this.notify) this.classList.add('notify');
+      if(this.undo) this.classList.add('undo');
+      this.hide(null,null,true);
+    },
+
+    attached: function(){
+      this.async(function(){this.show();},10);
+    },
+
+    detached: function(){
+      //document.body.removeEventListener('click',this.bodyClick.bind(this));
+    },
+
+    bodyClick: function(e){
+      if(!this._parents(e.target,'x-snackbar')) this.hide();
+    },
+    /**
+     * Show the toast.
+     * @method show
+     */
+    show: function() {
+      this.removeAttribute('aria-hidden');
+      this._setVisible(true);
+      this.debounce('hide', this.hide, this.duration);
+    },
+
+    /**
+     * Hide the toast
+     */
+    hide: function(e,o,donotfire) {
+      this.setAttribute('aria-hidden', 'true');
+      if(!donotfire) this.fire('hide',{oid:this.oid});
+      this._setVisible(false);
+    },
+
+    /**
+     * Toggle the opened state of the toast.
+     * @method toggle
+     */
+    toggle: function() {
+      !this.visible?this.show():this.hide();
+    },
+
+    _parents: function (node,acin){
+      if(!node) return false;
+      if(node.getAttribute(acin) || node.classList.contains(acin) || node.id==acin || node.tagName==acin) return node;
+      if(node.tagName.toLowerCase()=='body') return false;
+      return this._parents.call(this,node.parentNode,acin);
+    },
+
+    _visibleChanged: function(visible) {
+      this.toggleClass('paper-toast-open', visible);
+    },
+    /**
+     * Compute sticker owner's name.
+     */
+    computeOwnerName: function(owner){
+      return owner.name&&owner.lastName?owner.name+ ' '+ owner.lastName:owner.name?owner.name: owner.login? owner.login : owner.local&&owner.local.email?owner.local.email: 'xxx';
+    },
+    /**
+     * Undo
+     */
+    makeUndo: function(){
+      Designmap.app.undo();
+    },
+    /**
+     * Redo
+     */
+    makeRedo: function(){
+      if(Designmap.undoManager.hasRedo()) Designmap.app.redo();
+    },
+    /**
+     * Type
+     * @param text
+     */
+    computeType: function(text){
+      return document.querySelector('designmap-notifier').translate(text?text.replace('-',' ').capitalize() : 'Unknown');
+    }
+  });
+
+})();
+</script>

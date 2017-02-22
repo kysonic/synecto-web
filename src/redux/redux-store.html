@@ -3,18 +3,21 @@
 <!-- Reducers -->
 <link rel="import" href="reducers/user-reducer.html">
 <link rel="import" href="reducers/i18n-reducer.html">
+<link rel="import" href="reducers/notifications-reducer.html">
 
 <script>
     const initialState = {
         user: null,
-        i18Loaded: false
+        i18Loaded: false,
+        notifications: []
     };
     // Combine reducers
     const reducer = Redux.combineReducers({
        user: filterActions(UserReducer,['UPDATE_USER','CLEAN_USER']),
-       i18Loaded: filterActions(I18nLoadedReducer,['UPDATE_I18_LOADED'])
+       i18Loaded: filterActions(I18nLoadedReducer,['UPDATE_I18_LOADED']),
+       notifications: filterActions(NotificationsReducer,['ADD_NOTIFICATION','REMOVE_NOTIFICATION','UPDATE_NOTIFICATION','SET_NOTIFICATIONS','CLEAN_NOTIFICATIONS'])
     });
-
+    // Build store
     const ReduxStore = Redux.createStore(reducer,Redux.applyMiddleware(ReduxThunk.default));
     const ReduxBehavior = PolymerRedux(ReduxStore);
 

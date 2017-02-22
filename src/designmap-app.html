@@ -13,21 +13,23 @@
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/iron-iconset-svg/iron-iconset-svg.html">
+<!-- Components -->
 <link rel="import" href="../bower_components/i18-n/i18-n-domain.html">
+<link rel="import" href="elements/designmap/designmap-login/designmap-user-menu.html">
+<link rel="import" href="elements/designmap/designmap-icons/designmap-logo-icons.html">
 <!-- Configs -->
-<link rel="import" href="config/dm-app-config.html">
+<link rel="import" href="config/designmap-app-config.html">
 <!-- Styles -->
-<link rel="import" href="elements/dm/dm-icons/dm-logo-icons.html">
 <link rel="import" href="styles/app-theme.html">
 <link rel="import" href="styles/shared-styles.html">
 <!-- Redux -->
 <link rel="import" href="redux/redux-store.html">
 <link rel="import" href="redux/actions/combine-actions.html">
 <link rel="import" href="redux/actions/user-actions.html">
+<!-- Mixins -->
+<link rel="import" href="mixins/designmap-messages-mixin.html">
 
-<link rel="import" href="mixins/dm-messages-mixin.html">
-
-<dom-module id="dm-app">
+<dom-module id="designmap-app">
   <template>
     <style include="shared-styles">
       :host {
@@ -65,7 +67,7 @@
     <!-- Router -->
 
     <!-- i18-n -->
-    <i18-n-domain id="i18nDomain" locale="[[language]]" messages-url="/locales" cache="0001-11-01"></i18-n-domain>
+    <i18-n-domain id="i18nDomain" locale="[[language]]" messages-url="/locales"></i18-n-domain>
     <!-- i18-n -->
 
     <app-drawer-layout fullbleed>
@@ -73,7 +75,7 @@
       <app-drawer id="drawer">
         <app-toolbar>
           <a href="/">
-            <iron-icon class="dm-logo" icon="designmap-logo:logo"></iron-icon>
+            <iron-icon class="designmap-logo" icon="designmap-logo:logo"></iron-icon>
           </a>
         </app-toolbar>
         <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
@@ -87,18 +89,19 @@
         <app-header id="header" condenses reveals effects="waterfall">
           <app-toolbar>
             <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
+            <designmap-user-menu></designmap-user-menu>
           </app-toolbar>
         </app-header>
 
         <iron-pages
             selected="[[page]]"
             attr-for-selected="name"
-            fallback-selection="dm-404"
+            fallback-selection="designmap-404"
             role="main">
-          <dm-fs-view name="fs"></dm-fs-view>
-          <dm-gallery-view name="gallery"></dm-gallery-view>
-          <dm-login-view name="login"></dm-login-view>
-          <dm-404 name="404"></dm-404>
+          <designmap-fs-view name="fs"></designmap-fs-view>
+          <designmap-gallery-view name="gallery"></designmap-gallery-view>
+          <designmap-login-view name="login"></designmap-login-view>
+          <designmap-404 name="404"></designmap-404>
         </iron-pages>
       </app-header-layout>
     </app-drawer-layout>
@@ -111,7 +114,7 @@
     // Routes
     const SHOULD_AUTH_ROUTES = ['fs'];
     Polymer({
-      is: 'dm-app',
+      is: 'designmap-app',
       behaviors: [
         ReduxBehavior,
         CombineActions(UserActions),
@@ -139,7 +142,8 @@
       ],
 
       ready: function(){
-        this.dispatch('getCurrentUser');
+        // Get possible current user
+        this.dispatch('getCurrentUser')
         // Update languages
         this.$.i18nDomain.addEventListener('i18-n-locale-ready',function(){
           ReduxStore.dispatch({type: "UPDATE_I18_LOADED", i18Loaded:true});
@@ -162,16 +166,16 @@
       _pageChanged: function(page) {
         this._setLayoutState(page===LOGIN_VIEW);
         // Load page import on demand. Show 404 page if fails
-        var resolvedPageUrl = this.resolveUrl('dm-'+page + '-view.html');
+        var resolvedPageUrl = this.resolveUrl('designmap-'+page + '-view.html');
         this.importHref(resolvedPageUrl, null, this._showPage404, true);
       },
 
       _userChanged: function(user){
-        this._routePageChanged(this.page);
+        this._routePageChanged(HOME_VIEW);
       },
 
       _showPage404: function() {
-        this.page = 'dm-404';
+        this.page = 'designmap-404';
       },
       /**
        * Login page should be without drawer

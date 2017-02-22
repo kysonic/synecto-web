@@ -1,0 +1,80 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<!-- Redux -->
+<link rel="import" href="../../../redux/redux-store.html">
+<link rel="import" href="../../../redux/actions/combine-actions.html">
+<link rel="import" href="../../../redux/actions/user-actions.html">
+<!-- Mixins -->
+<link rel="import" href="../../../mixins/designmap-messages-mixin.html">
+<!-- Styles -->
+<link rel="import" href="../../../styles/shared-styles.html">
+
+<dom-module is="designmap-language-switcher">
+    <template>
+        <style include="shared-styles">
+            :host {
+                font-size: 18px;
+            }
+            .language-button {
+                display: inline-block;
+                padding: 2px 12px;
+                border-radius: 30px;
+                color: #fff;
+                cursor: pointer;
+                margin-left: 4px;
+            }
+            .language-button.selected {
+                border: 1px solid #fff;
+            }
+
+        </style>
+        <template is="dom-repeat" items="[[languages]]" as="lang">
+            <div class$="[[computeClass(index,selected)]]" on-click="checkLanguage">[[lang.text]]</div>
+        </template>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-language-switcher',
+            behaviors: [
+                ReduxBehavior,
+                CombineActions(UserActions),
+                DesignMapMessagesMixin
+            ],
+            properties: {
+                languages: {
+                    type: Array,
+                    value: [
+                        {code: 'ru', text: 'Рус'},
+                        {code: 'en', text: 'Eng'}
+                    ]
+                },
+                selected: {
+                    type: Number,
+                    value: 0
+                },
+                user: {
+                  type: Object,
+                  statePath: 'user'
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.language)'
+                }
+            },
+            checkLanguage: function (e) {
+                this.selected = e.model.index;
+                this.dispatch('updateLanguage', e.model.lang.code);
+                this.dispatch('userUpdate', {language: e.model.lang.code});
+            },
+            computeClass: function (index, selected) {
+                return index == selected ? 'selected language-button' : 'language-button';
+            },
+            languageChanged: function () {
+                this.languages.forEach(function (lng, index) {
+                    if (lng.code == this.language) {
+                        this.selected = index;
+                    }
+                }.bind(this));
+            }
+        })
+    </script>
+</dom-module>

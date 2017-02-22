@@ -21,7 +21,9 @@
     "i18-n": "kysonic/i18-n#^1.2.2",
     "paper-input": "^1.1.23",
     "neon-animation": "PolymerElements/neon-animation#^1.2.4",
-    "iron-a11y-keys": "^1.0.6"
+    "iron-a11y-keys": "^1.0.6",
+    "xhr": "kysonic/xhr#es5",
+    "iron-dropdown": "^1.5.5"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"

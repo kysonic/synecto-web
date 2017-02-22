@@ -1,20 +1,15 @@
 <script>
     const DesignMapMessagesMixin = {
-        attached: function(){
-          this.snackbar = document.querySelector('x-snackbar');
-          this.i18nDomain = document.querySelector('i18-n-domain');
+        ready: function(){
+            this.snackbar = document.querySelector('plastic-snackbar');
         },
         /**
          * Show usual message.
          * @param message
          */
         showMessage: function(message,replacement,duration){
-            var msg = this.i18nDomain.getMsg(message) || message;
+           var msg = this.i18nDomain.getMsg(message) || message;
             if(replacement) msg = this.replaceExpressions(msg,replacement);
-            this.snackbar.style.top ='70px';
-            this.snackbar.style.right ='20px';
-            this.snackbar.style.bottom ='inherit';
-            this.snackbar.style.left ='inherit';
             this.snackbar.add({text:msg,duration:duration});
         },
         /**
@@ -24,10 +19,6 @@
         showUndoMessage: function(message,replacement,duration){
             var msg = this.i18nDomain.getMsg(message) || message;
             if(replacement) msg = this.replaceExpressions(msg,replacement);
-            this.snackbar.style.top ='70px';
-            this.snackbar.style.right ='20px';
-            this.snackbar.style.bottom ='inherit';
-            this.snackbar.style.left ='inherit';
             this.snackbar.add({text:msg,duration:duration,undo:true});
         },
         /**
@@ -37,8 +28,6 @@
         showErrorMessage: function(message,replacement,duration){
             var msg = this.i18nDomain.getMsg(message) || message;
             if(replacement) msg = this.replaceExpressions(msg,replacement);
-            this.snackbar.style.top ='215px';
-            this.snackbar.style.left =0;
             this.snackbar.add({text:msg,error:true,duration:duration});
         },
         /**
@@ -48,13 +37,13 @@
           var msg = this.i18nDomain.getMsg(message) || message;
           if(replacement) msg = this.replaceExpressions(msg,replacement);
           this.snackbar.add({text:msg,type: type, notify:true,sender:sender,duration:duration});
-          this.async(function(){
+          /*this.async(function(){
             var notifier = document.querySelector('designmap-notifier');
             var notifierBounding = notifier.getBoundingClientRect();
-            var toastBounding = document.querySelector('x-toast').getBoundingClientRect();
+            var toastBounding = document.querySelector('plastic-toast').getBoundingClientRect();
             this.snackbar.style.left = notifierBounding.left - (toastBounding.width/2) - 65 + 'px';
             this.snackbar.style.top = 70 + 'px';
-          },0);
+          },0);*/
         },
         /**
          * Replace all of expressions in the sentence
@@ -73,7 +62,7 @@
          */
         translate: function(msg,language,i18Loaded) {
           if(!msg) return msg;
-          this.i18nDomain = this.i18nDomain || document.querySelector('i18-n-domain');
+          this.i18nDomain = this.i18nDomain || document.querySelector('designmap-app').$.i18nDomain;
           return !this.i18nDomain ? msg : this.i18nDomain.getMsg(msg) || msg;
         },
         /**
@@ -84,6 +73,33 @@
          */
         _computeLanguage: function(language){
             return language || 'ru';
+        },
+        /**
+         * Manage not successful response
+         * @param response
+         * @returns {*}
+         */
+        manageErrorResponse: function(response){
+            if(response.errors) {
+                // If we have array of errors
+                if(response.errors instanceof Array) {
+                    response.errors.forEach(function(error){
+                        if(error.message) return this.showErrorMessage(error.message);
+                        for(var p in error) {
+                            var e = error[p];
+                            if(e.message) return this.showErrorMessage(e.message);
+                        }
+                    }.bind(this));
+                }
+                // Passport info handle | Some my errors have similar view
+                if(response.errors.message) return this.showErrorMessage(response.errors.message);
+            }
+            if(response.response && response.response.error) {
+                return this.showErrorMessage(response.response.error);
+            }
+            if(response.message) {
+                return this.showErrorMessage(response.message);
+            }
         }
     }
 </script>

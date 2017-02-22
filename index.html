@@ -7,7 +7,7 @@
 
     <title>Designmap</title>
     <meta name="description" content="Designmap increases speed of design approval.">
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300italic,300,400italic,600,600italic,700,700italic,800,800italic' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:100,400,300italic,300,400italic,600,600italic,700,700italic,800,800italic' rel='stylesheet' type='text/css'>
 
     <link rel="icon" href="/images/favicon.ico">
 
@@ -41,14 +41,14 @@
     <!-- Redux -->
     <script src="/node_modules/redux/dist/redux.min.js"></script>
     <script src="/node_modules/redux-thunk/dist/redux-thunk.min.js"></script>
-    <!-- Fetch -->
-    <script src="/node_modules/whatwg-fetch/fetch.js"></script>
+    <!-- XHR -->
+    <script src="/bower_components/xhr/Xhr.js"></script>
 
     <script>
       // Setup Polymer options
       window.Polymer = {
         dom: 'shadow',
-        lazyRegister: true,
+        lazyRegister: true
       };
 
       // Load webcomponentsjs polyfill if browser does not support native
@@ -91,12 +91,14 @@
       }*/
     </script>
 
-    <link rel="import" href="/src/dm-app.html">
+    <link rel="import" href="/src/designmap-app.html">
+    <link rel="import" href="/src/elements/plastic/plastic-snackbar/plastic-snackbar.html">
 
     <style>
       body {
         margin: 0;
         font-family: 'Open Sans', 'Noto', sans-serif;
+        font-weight: 100;
         line-height: 1.5;
         min-height: 100vh;
         background-color: #fff;
@@ -104,7 +106,8 @@
     </style>
   </head>
   <body>
-    <dm-app></dm-app>
+    <plastic-snackbar id="snackbar" duration="118000"></plastic-snackbar>
+    <designmap-app></designmap-app>
     <!-- Built with love using Polymer Starter Kit -->
   </body>
 </html>

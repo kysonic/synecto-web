@@ -1,0 +1,77 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="plastic-toast.html">
+
+<dom-module is="plastic-snackbar">
+    <style>
+        :host {
+            z-index: 200;
+            position: fixed;
+            top: 115px;
+            left: 0;
+            right: 0;
+            bottom: auto;
+            width: 300px;
+            height: 100px;
+            margin: 0 auto;
+
+            display: none;
+            flex-flow: column;
+
+            --x-toast: {
+                margin-top: 5px;
+             };
+
+            @apply(--plastic-snackbar);
+        }
+      :host(.opened) {
+        display: flex;
+      }
+    </style>
+    <template>
+        <template is="dom-repeat" items="{{toasts}}" as="toast">
+            <plastic-toast oid="{{index}}" on-hide="remove" type="[[toast.type]]" sender="[[toast.sender]]" notify="[[toast.notify]]" undo="[[toast.undo]]" error="[[toast.error]]" text="[[toast.text]]" duration="[[resolveDuration(toast)]]"></plastic-toast>
+        </template>
+    </template>
+    <script>
+        Polymer({
+            is: 'plastic-snackbar',
+            properties: {
+                toasts: {
+                    type: Array,
+                    value: []
+                },
+                duration: Number,
+                position:{
+                  type: String,
+                  value:'center'
+                }
+            },
+            /**
+             * Add a new one
+             * @param toast - toast element
+             */
+            add: function(toast){
+                this.classList.add('opened');
+                this.push('toasts',toast);
+            },
+            /**
+             * Remove toast by oid
+             * @param e
+             */
+            remove: function(e){
+                this.async(function(){
+                    this.splice('toasts',e.detail.oid,1);
+                    if(!this.toasts.length) this.classList.remove('opened');
+                },200);
+            },
+            /**
+             * Fadeout the toast when its time is come
+             * @param toast - toast element
+             * @returns {number|*}
+             */
+            resolveDuration: function(toast){
+                return toast.duration || this.duration || 6500;
+            }
+        })
+    </script>
+</dom-module>

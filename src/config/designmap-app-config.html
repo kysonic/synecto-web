@@ -22,5 +22,7 @@
         },
         fetchOptions: {headers: {'Content-Type':'application/json',mode:'cors',credentials:'include'}}
     };
-
+    // XHR
+    xhr.opts.withCredentials = true;
+    xhr.opts.preventCache = true;
 </script>
