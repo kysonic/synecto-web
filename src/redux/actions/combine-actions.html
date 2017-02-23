@@ -1,5 +1,5 @@
 <script>
-  const CombineActions = function(){
+  Polymer.CombineActions = function(){
     var a = {actions:{}};
     [].forEach.call(arguments,function(action){
        Object.keys(action.actions).forEach(function(name){

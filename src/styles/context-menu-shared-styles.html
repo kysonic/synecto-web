@@ -1,0 +1,61 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module id="context-menu-shared-styles">
+  <template>
+    <style>
+      /** MENU **/
+      .menu {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        width: 200px;
+      }
+
+      .menu li {
+        padding: 10px;
+        text-align: center;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background .2s ease-out;
+        color: #fff;
+      }
+
+      .menu li:hover {
+        background: var(--blue-darkest-color);
+        transition: background .2s ease-in;
+      }
+      .menu li.disabled {
+        opacity: 0.3;
+      }
+
+      .context-content {
+        min-width: 200px;
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+      }
+
+      .context-content paper-input {
+        position: relative;
+        bottom: 15px;
+        flex: 3;
+      }
+
+      .context-content .button-container {
+        flex: 1;
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .context-content .button-container button {
+        background: transparent;
+        transition: background .2s;
+      }
+
+      .context-content .button-container button:hover {
+        background: var(--blue-lighty-color);
+        transition: background .2s;
+      }
+    </style>
+  </template>
+</dom-module>

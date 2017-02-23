@@ -1,5 +1,5 @@
 <script>
-    const DesignMapMessagesMixin = {
+    Polymer.DesignMapMessagesBehavior = {
         ready: function(){
             this.snackbar = document.querySelector('plastic-snackbar');
         },
@@ -8,7 +8,7 @@
          * @param message
          */
         showMessage: function(message,replacement,duration){
-           var msg = this.i18nDomain.getMsg(message) || message;
+            var msg = this.i18nDomain.getMsg(message) || message;
             if(replacement) msg = this.replaceExpressions(msg,replacement);
             this.snackbar.add({text:msg,duration:duration});
         },

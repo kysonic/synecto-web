@@ -1,0 +1,563 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<!-- Styles -->
+<link rel="import" href="../../../styles/context-menu-shared-styles.html">
+
+<dom-module id="designmap-fs">
+  <template>
+    <style include="context-menu-shared-styles">
+      :host {
+        display: block;
+        height: 100%;
+      }
+      /** BASE **/
+      .dashboard {
+        width: 100%;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        background: var(--white-color);
+        position: relative;
+      }
+      .workarea {
+        flex: 1;
+        width: 100%;
+        height: calc(100% - 77px);
+        padding: 0px 10px;
+      }
+      .pre-button {
+        margin-left: 27px;
+        width: 40px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: left;
+        position: relative;
+        top: 4px;
+        cursor: pointer;
+      }
+      #projectContextMenu {
+        --designmap-dropdown-triangle-mixin: {
+          left: 0;
+          margin-left: 12px;
+        }
+      }
+      .pre-button iron-icon {
+        stroke: var(--blue-darker-color) !important;
+        fill: var(--blue-darker-color) !important;
+      }
+      #breadcrumbs {
+        flex: 1;
+      }
+      #panel {
+        flex: 20;
+      }
+      .context-content {
+        background: var(--blue-darker-color);
+      }
+      .arrow-back {
+        border-radius: 50%;
+        margin-left: 18px;
+        cursor: pointer;
+        transition: background .2s ease-in;
+      }
+      .arrow-back:hover {
+        background: var(--gray-lightern-color);
+        transition: background .2s ease-in;
+      }
+      .arrow-back iron-icon{
+        width: 50px;
+        height: 50px;
+        transform: rotate(223deg);
+        --iron-icon-components-mixin: {
+          stroke: var(--primary-color) !important;
+          stroke-width: 2px !important;
+        }
+      }
+      .empty-message,.error-message,.loading-wrapper {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gray-darky-color);
+        font-weight: 100;
+      }
+      .error-message {
+        color: #ff4f0d;
+      }
+      designmap-context-menu {
+        position: absolute;
+      }
+
+    </style>
+    <div class="dashboard" hidden="[[!selectedProjectID]]">
+      <div class="arrow-back" hidden$="[[!trashMode]]" on-click="goBack">
+        <iron-icon icon="designmap-workspace:open"></iron-icon>
+      </div>
+      <!-- Crumbs -->
+      <designmap-fs-breadcrumbs id="breadcrumbs"  trash-mode="[[trashMode]]" project-name="[[project.name]]" current-folder-id="{{currentFolderID}}"></designmap-fs-breadcrumbs>
+      <!-- Button panel -->
+      <designmap-fs-panel id="panel" acl="[[acl]]" role="[[role]]" sort-way="{{sortWay}}" trash-mode="[[trashMode]]" current-folder-id="[[currentFolderID]]"></designmap-fs-panel>
+    </div>
+    <div class="workarea" on-contextmenu="openContextMenu">
+      <template is="dom-if" if="[[shouldWeShowElements(selectedProjectID,projectLoading,projectError)]]">
+        <designmap-fs-elements id="elements" acl="[[acl]]" role="[[role]]"  id="elements" sort-way="[[sortWay]]" trash-mode="[[trashMode]]" current-folder-id="{{currentFolderID}}"></designmap-fs-elements>
+        <!-- Context menu -->
+        <designmap-context-menu id="contextMenu" parent>
+          <ul class="menu">
+            <li on-click="openAddFolderContext" hidden$="[[!doesUserHaveEditAccess(role,acl,trashMode)]]"><i18-n msgid="Add folder">Add folder</i18-n></li>
+            <!-- Add folder context -->
+            <designmap-context-menu id="addFolderContext" previous>
+              <div class="context-content">
+                <iron-a11y-keys id="a11yAddFolder" keys="enter" on-keys-pressed="addFolderManually"></iron-a11y-keys>
+                <paper-input label="[[translate('Folder Name',language,i18Loaded)]]" auto-validate pattern="[\w\dа-яА-ЯёЁ -]+" error-message="[[translate('FolderNameError',language)]]" id="addFolder"></paper-input>
+                <div class="button-container">
+                  <button is="designmap-round-button" on-click="addFolderManually">
+                    <iron-icon icon="icons:arrow-forward"></iron-icon>
+                  </button>
+                </div>
+              </div>
+            </designmap-context-menu>
+            <li on-click="openFileUploaderManually" hidden$="[[!doesUserHaveEditAccess(role,acl,trashMode)]]"><i18-n msgid="Upload file">Upload file</i18-n></li>
+            <li class="sort-button" on-click="changeSort" data-sort="name"><i18-n msgid="Sort by name">Sort by name</i18-n></li>
+            <li class="sort-button" on-click="changeSort" data-sort="modified"><i18-n msgid="Sort by date">Sort by date</i18-n></li>
+          </ul>
+        </designmap-context-menu>
+      </template>
+      <template is="dom-if" if="[[shouldWeShowLoading(selectedProjectID,projectLoading,projectError)]]">
+         <div class="loading-wrapper">
+           <img src="/images/svg/three-dots-gray.svg" alt="Loading">
+         </div>
+      </template>
+      <template is="dom-if" if="[[shouldWeShowError(selectedProjectID,projectLoading,projectError)]]">
+        <designmap-stub image="designmap-taskmanager-whitespace:error" message="[[projectError]]" error></designmap-stub>
+      </template>
+      <template is="dom-if" if="[[shouldWeShowEmptyMessage(selectedProjectID,projectLoading,projectError)]]">
+        <div class="empty-message">
+          <designmap-stub value="{{projectName}}" on-action="onCreateProject" image="designmap-workspace-white-space:project" message="There is no selected project yet..." input-text="Create project" input-error="ProjectNameError"></designmap-stub>
+        </div>
+      </template>
+    </div>
+  </template>
+  <script>
+    /**
+     */
+    Polymer({
+      is: 'designmap-fs',
+      behaviors: [
+        // Useful behaviors
+        Polymer.DesignMapMessagesBehavior,
+        Polymer.DesignMapUtilsBehavior,
+        // Services
+        // Redux
+        ReduxBehavior,
+        Polymer.CombineActions(Polymer.UserActions)
+      ],
+      shareRegexp: /(share\/(.*)\/|share\/(.*))/,
+      objectIDRegexp: /^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/i,
+      properties: {
+        /**
+         * Whether user is authorized
+         */
+        isAuth: {
+          type: Boolean,
+          statePath: 'isAuth',
+          observer: 'isAuthChanged'
+        },
+        /**
+         * Current user to define a list of projects
+         * and etc.
+         */
+        user: {
+          type: Object,
+          statePath: 'user'
+        },
+        /**
+         * Displayed project
+         */
+        selectedProjectID: {
+          type: String,
+          statePath: 'selectedProjectID',
+          observer: 'selectedProjectIDChanged'
+        },
+        /**
+         * Uniq session id to provide socket updating
+         */
+        uid: String,
+        /**
+         * Pre button node
+         */
+        preButton: {
+          type: Object,
+          value: function(){
+            return this.$.preButton;
+          }
+        },
+        /**
+         * Sharing id
+         */
+        shareID: {
+          type: String,
+          statePath: 'shareID',
+          observer: 'shareIDChanged'
+        },
+        /**
+         * Language
+         */
+        language: {
+          type: String,
+          statePath: 'language'
+        },
+        /**
+         * Whether i18-n is loaded a language
+         */
+        i18Loaded: {
+          type: String,
+          statePath: 'i18Loaded'
+        },
+        /**
+         * User role
+         */
+        role: {
+          type: String,
+          statePath: 'role',
+          observer: 'roleChanged'
+        },
+        /**
+         * ACL
+         */
+        acl: {
+          type: Array,
+          statePath: 'acl'
+        },
+        /**
+         * Current folder we in,
+         * null if we in the root
+         */
+        currentFolderID: {
+          type: String,
+          value: null
+        },
+        /**
+         * Name of the project
+         */
+        projectName: {
+          type: String,
+          value: ''
+        },
+        /**
+         * Project data
+         */
+        project: {
+          type: Object,
+          statePath: 'project'
+        },
+        /**
+         * Project loading state
+         */
+        projectLoading: {
+          type: Boolean,
+          statePath: 'projectLoading'
+        },
+        /**
+         * Project error
+         */
+        projectError: {
+          type: String,
+          statePath: 'projectError'
+        },
+        /**
+         * Projects list for current user
+         */
+        projects: {
+          type: Array,
+          statePath: 'projects'
+        },
+        /**
+         * Show trash items
+         */
+        trashMode: {
+          type: Boolean,
+          value: false,
+          observer: 'trashModeChanged'
+        },
+        /**
+         * Sort way
+         */
+        sortWay: {
+          type: String,
+          value: 'modified'
+        }
+      },
+      listeners: {
+        'add-folder': 'addFolder',
+        'add-file': 'addFile',
+        'update-folder': 'updateFolder',
+        'remove-folder': 'removeFolder',
+        'remove-folder-irretrievably': 'removeFolderIrretrievably',
+        'remove-file': 'removeFile',
+        'remove-file-irretrievably': 'removeFileIrretrievably',
+        'restore-folder': 'restoreFolder',
+        'restore-file': 'restoreFile',
+        'restore-all': 'restoreAll',
+        'remove-all': 'removeAll',
+        'open-file-uploader': 'openFileUploader',
+        'open-context-menu': 'openContextMenuEvent',
+        'apply-route': 'applyRouteManually'
+      },
+      ready: function () {
+        this.uid = this.generateUid();
+        Designmap.uid = this.uid;
+      },
+      /**
+       * Open file uploader
+       */
+      openFileUploader: function(e){
+         this.$$('#elements').$.uploader._id = e.detail.id;
+         this.$$('#elements').$.uploader.openForm();
+      },
+      /**
+       * Update custom scroll to prevent problems with
+       * displaying of scroll-bar
+       */
+      updateCustomScroll: function(){
+        if(this.$$('#elements')) {
+          this.async(function(){
+            this.$$('#elements').$.fsElementsCustomScroll.calculate();
+          },100)
+        }
+      },
+      /**
+       * Open context menu
+       */
+      openContextMenu: function(e){
+        e.preventDefault();
+        if(!this.selectedProjectID) return;
+        this.$$('#contextMenu').toggle(e);
+      },
+      /**
+       * Open context menu
+       */
+      openContextMenuEvent: function(e){
+        this.$$('#contextMenu').toggle(e.detail);
+      },
+      /**
+       * Open add folder context menu menu
+       */
+      openAddFolderContext: function(e){
+        this.$$('#addFolderContext').toggle(e);
+        this.async(function(){this.$$('#addFolder').focus();},150);
+      },
+      /**
+       * Go on project page
+       */
+      goBack: function(){
+        this.redirect('/');
+        this.trashMode = false;
+        //this.selectedProjectID = null;
+      },
+      /**
+       * Change sort
+       * @param e - event
+       */
+      changeSort: function(e){
+        var target = this.parents(e.target,'sort-button');
+        this.sortWay = target.dataset.sort;
+        this.$$('#contextMenu').close();
+      },
+      /**
+       * Open file upload
+       */
+      openFileUploaderManually: function(e){
+        this.$$('#elements').$.uploader._id = this.currentFolderID;
+        this.$$('#elements').$.uploader.openForm();
+      },
+      /**
+       * If trash mode has been changed
+       * we have to update view
+       */
+      trashModeChanged: function(){
+        if(this.$$('#elements')) this.$$('#elements').updateView();
+      },
+      /**
+       * Create project
+       */
+      onCreateProject: function(){
+        if (!this.projectName) return;
+        if (!/[\w\dа-яА-ЯёЁ -]+/.test(this.projectName)) return this.showErrorMessage('Project name is not correct');
+        this.createProject();
+      },
+      /**
+       * ACL Accesses
+       * @returns {*|boolean}
+       */
+      doesUserHaveEditAccess: function(){
+        if(this.trashMode) return false;
+        return this.can('update','project');
+      },
+      /**
+       * If user would be changed we would have to request
+       * projects data for current user.
+       */
+      isAuthChanged: function (isAuth) {
+        if(!isAuth) return this.cleanUp();
+        // Get user's projects
+        this.dispatch('getProjects').then(function(response){
+          if(!response.success) return;
+          // Stop producing if we in share
+          if(this.shareID) return false;
+          // Update project if project id already set but it could not be updated because projects weren't loaded
+          if(this.selectedProjectID) {
+            var project = this.findProjectByID(this.selectedProjectID);
+            if(!project) {
+              this.dispatch('updateProjectLoading',false);
+              return this.dispatch('updateProjectError','Cannot find share\'s project.');
+            }
+            return this.updateProject(project);
+          }
+
+          // Find default project
+          var openedProject = this.user.lastOpenedProject || (response.projects[0] ? response.projects[0]._id : null) || null;
+          if(!openedProject) return this.dispatch('updateProjectLoading',false);
+          if(Designmap.previousRoute!='/') return ReduxStore.dispatch({type:'UPDATE_SELECTED_PROJECT_ID',selectedProjectID:openedProject});
+          page.redirect('/'+openedProject+'/');
+        }.bind(this)).catch(function(err){
+          this.dispatch('updateProjectLoading',false);
+          this.dispatch('updateProjectError',err.message||err.toString()+(err.stack?err.stack:''));
+        }.bind(this));
+      },
+      /**
+       * When selected project ID is changed
+       * we have to update project data and etc
+       */
+      selectedProjectIDChanged: function(selectedProjectID){
+        this.cleanProjectData();
+        if(!selectedProjectID) return;
+        this.resolveProject(selectedProjectID).then(function(project){
+          if(!project) return;
+          this.dispatch('updateProjectError',null);
+          this.updateProject(project);
+
+        }.bind(this)).catch(function(err){
+          this.dispatch('updateProjectError',err.message||err+(err.stack?err.stack:''));
+          this.dispatch('updateSelectedProjectID',null);
+          this.dispatch('updateProjectLoading',false);
+        }.bind(this));
+      },
+      /**
+       * Update project
+       */
+      updateProject: function(project){
+        if(!project) return;
+        this.dispatch('setProjectState',project);
+        this.setupSocket(project._id);
+        if(!this.shareID) this.dispatch('setStores',this.user.storages || {});
+        this.getProjectData();
+      },
+      /**
+       * When share id is changed
+       * we have to get this share and apply project
+       */
+      shareIDChanged: function () {
+        if (!this.shareID) return;
+        this.dispatch('getShareByID', this.shareID).then(function(response){
+          if(!response.success) {
+            this.dispatch('updateProjectLoading',false);
+            this.dispatch('updateProjectError',response.errors.message);
+          }
+          this.async(function(){this.dispatch('setStores',response.storages || [])},1000);
+        }.bind(this)).catch(function(err){
+          this.dispatch('updateProjectLoading',false);
+          this.dispatch('updateProjectError',err.message || err);
+        });
+      },
+      /**
+       * Find project in list or
+       * via request
+       */
+      resolveProject: function (selectedProjectID) {
+        return new Promise(function (resolve, reject) {
+          if(!this.shareID) return resolve(this.findProjectByID(selectedProjectID));
+          this.dispatch('getProject', selectedProjectID).then(function(response){
+            if (!response.success) return reject(response.errors);
+            resolve(response.project);
+          });
+        }.bind(this));
+      },
+      shouldWeShowElements: function(selectedProjectID,projectLoading,projectError){
+        return selectedProjectID && !projectLoading && !projectError;
+      },
+      shouldWeShowEmptyMessage: function(selectedProjectID,projectLoading,projectError){
+        return !selectedProjectID && !projectLoading && !projectError;
+      },
+      shouldWeShowLoading: function(selectedProjectID,projectLoading,projectError){
+        return projectLoading;
+      },
+      shouldWeShowError: function(selectedProjectID,projectLoading,projectError){
+        return projectError && !projectLoading;
+      },
+      applyRouteManually: function(){
+        this.applyRoute(Designmap.hash);
+      },
+      applyRoute: function(path){
+        var pathArray = path.split('/').clean();
+        var fileID = null;
+        if(this.objectIDRegexp.test(pathArray[pathArray.length-1])) fileID = pathArray.pop();
+        var folder = this.findFolderByPath(pathArray.join('/'))
+        this.currentFolderID = folder ? folder._id : null;
+        if(fileID && this.$$('#elements')) {
+          var files = this.$$('#elements').getFiles(this.$$('#elements').elements);
+          if(!files || !files.length) return;
+          var index = this.findFileIndexById(fileID,files);
+          if(index==null) return;
+          this.$$('#elements').$.gallery.selected = index;
+          this.$$('#elements').$.gallery.open();
+        }
+      },
+      /**
+       * Get all project data
+       */
+      getProjectData: function(){
+        this.dispatch('getFolders',{scope:this.project._id}).then(function(){
+          if(Designmap.hash) this.applyRoute(Designmap.hash);
+        }.bind(this));
+        this.dispatch('getFiles',{project:this.project._id}).then(function(){
+          if(Designmap.hash) this.applyRoute(Designmap.hash);
+        }.bind(this));
+        this.dispatch('getStickers',{project:this.project._id});
+        this.dispatch('getShare');
+      },
+      /**
+       * Remove all data associated
+       * with current user
+       */
+      cleanUp: function(){
+        this.dispatch('cleanProjects');
+        this.dispatch('cleanShared');
+        this.dispatch('cleanNotifications');
+        this.dispatch('cleanUser');
+        this.dispatch('cleanUsers');
+        this.dispatch('cleanStores');
+        this.dispatch('updateSelectedProjectID', null);
+      },
+      /**
+       * Remove all data from redux store
+       * associated with current project
+       */
+      cleanProjectData: function(){
+        this.dispatch('cleanFolders');
+        this.dispatch('cleanFiles');
+        this.dispatch('cleanStickers');
+        this.dispatch('cleanStores');
+        this.dispatch('cleanShare');
+      },
+      /**
+       * Redirect from trash and task manager
+       * @param role
+       */
+      roleChanged: function(role){
+        if(role && !this.can('update','project') && (Designmap.previousRoute.indexOf('task-manager')!=-1 || Designmap.previousRoute.indexOf('trash')!=-1)) this.redirect('/');
+      }
+    });
+  </script>
+</dom-module>

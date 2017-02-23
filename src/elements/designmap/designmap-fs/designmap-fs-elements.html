@@ -1,0 +1,549 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<dom-module is="designmap-fs-elements">
+    <template>
+        <style>
+            :host {
+                display: block;
+                border: 2px dashed transparent;
+                resize: both;
+                width: calc(100% - 24px);
+                height: calc(100% - 14px);
+                --designmap-hidden-panel: {
+                    height: 77px !important;
+                    background: #8ECCFF;
+                    z-index: 8;
+                };
+                --x-custom-scroll-content-mixin: {
+                    display: flex;
+                    padding: 0;
+                    width: auto;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                    max-height: calc(100vh - 160px);
+                };
+                --x-custom-scroll-content-after-mixin: {
+                    content: "";
+                    flex: auto;
+                };
+                --x-custom-scroll-bar-mixin: {
+                    margin-left: -3px;
+                };
+                --designmap-circle-button-content-icon-mixin: {
+                    padding: 40px;
+                }
+
+            }
+
+            :host(.dragged) {
+                border: 2px dashed var(--gray-color);
+            }
+            /** ELEMENTS **/
+            x-custom-scroll {
+                width: 100%;
+            }
+
+            .dropzone {
+                display: inline-block;
+                vertical-align: top;
+                width: 220px;
+                height: 170px;
+                min-height: 100px;
+                margin-left: 0;
+                position: relative;
+                padding: 20px;
+                transition: background .1s ease-in;
+            }
+
+            .dropzone .content {
+                background: transparent;
+                border: 2px dashed var(--gray-color);
+                text-align: center;
+                height: calc(83% - 2px);
+                width: calc(100% - 2px);
+                color: var(--gray-color);
+                display: flex;
+                align-items: center;
+            }
+            .dropzone .content .text {
+                display: inline-block;
+                vertical-align: middle;
+                width: 100%;
+            }
+
+            .dropzone .label{
+                width: 45%;
+                height: 5%;
+                display: block;
+                opacity: 0;
+            }
+
+            /** WHITE SPACE **/
+            .white-space {
+                display: flex;
+                width: 100%;
+                height: 100%;
+                align-items: center;
+                justify-content: center;
+            }
+            .white-space .wrapper {
+                width: 245px;
+                height: 270px;
+            }
+            .white-space .wrapper iron-icon {
+                width: 200px;
+                height: 100%;
+                position: relative;
+                left: 42px;
+            }
+            .white-space .wrapper .text {
+                font-weight: 100;
+                text-align: center;
+                color: var(--gray-saturated-color);
+            }
+            .white-space .wrapper .text a {
+                color: var(--primary-darky-color);
+            }
+
+
+        </style>
+        <!-- Associated components -->
+        <designmap-hidden-panel target="[[document.body]]" position="top"
+                                disabled="[[!doesUserHaveEditAccess(role,acl)]]" cancel-auto-closing
+                                opened="[[computeHiddenPanelState(selected.length)]]">
+            <div class="select-panel-content">
+                <designmap-circle-button class="cancel-selecting" on-click="cancelSelecting">
+                    <iron-icon icon="designmap40:add" style="transform: rotate(45deg)"></iron-icon>
+                </designmap-circle-button>
+                <div class="selected">
+                    [[selected.length]]
+                    <i18-n msgid="selected">selected</i18-n>
+                </div>
+                <div class="button-set">
+                    <button is="designmap-button" class="no-unselect" hidden="[[!trashMode]]"
+                            on-click="restoreSelectedElements" thin>
+                        <i18-n msgid="Restore">Restore</i18-n>
+                    </button>
+                    <button is="designmap-button" class="no-unselect" on-click="removeSelectedElements" thin>
+                        <i18-n msgid="Remove">Remove</i18-n>
+                    </button>
+                </div>
+            </div>
+        </designmap-hidden-panel>
+        <!-- Confirms -->
+        <designmap-confirm id="removingSelectedConfirm" message="AreYouSureThatYouWannaDeleteSelectedObjects"
+                           on-continue="removeSelectedElementsIrretrievably"
+                           on-suspend="suspendRemoving"></designmap-confirm>
+        <!-- Gallery -->
+        <designmap-gallery id="gallery" folder="[[currentFolderId]]" files="[[getFiles(elements)]]"></designmap-gallery>
+        <!-- Uploader -->
+        <designmap-file-uploader id="uploader" animation-on="[[user.config.animationOn]]" on-done="closeUploader"
+                                 parent="folder" _id="[[currentFolderId]]" files="[[getFiles(elements)]]"
+                                 allowed-extension='[[allowedExtensions]]'></designmap-file-uploader>
+        <!-- Elements -->
+        <div class="elements">
+            <x-custom-scroll id="fsElementsCustomScroll" fit>
+                <template id="elementsRepeater" restamp is="dom-repeat" items="[[elements]]"
+                          sort="[[elementsSort(sortWay)]]">
+                    <designmap-fs-element item="[[item]]"
+                                          id="element-[[index]]"
+                                          index="[[index]]"
+                                          trash-mode="[[trashMode]]"
+                                          role="[[role]]"
+                                          acl="[[acl]]"
+                                          data-element-id$="[[item._id]]"
+                                          current-folder-id="{{currentFolderId}}"
+                                          on-dblclick="applyAction"></designmap-fs-element>
+                </template>
+            </x-custom-scroll>
+        </div>
+        <div class="white-space" hidden$="[[computeElementsState(elements.length)]]">
+            <div class="wrapper">
+                <div class="text" hidden$="[[trashMode]]">
+                    <i18-n msgid="Drag files here"></i18-n>
+                    <a href="#" on-click="openContextMenu">
+                        <i18-n msgid="create"></i18-n>
+                    </a>
+                    <i18-n msgid="new folder"></i18-n>
+                </div>
+                <div class="text" hidden$="[[!trashMode]]">
+                    <i18-n msgid="Trash bin is empty..."></i18-n>
+                </div>
+                <iron-icon icon="[[computeWhiteSpaceIcon(trashMode)]]"></iron-icon>
+                <!--<div class="text" hidden$="[[!trashMode]]">
+                  <i18-n msgid="Your elements has been recycled"></i18-n>
+                </div>-->
+            </div>
+        </div>
+        <!-- Drag zone -->
+        <!--<div class$="element dropzone [[computeAlone(elements.length)]]" hidden$="[[trashMode]]" on-drop="drop" on-dragover="dragOver" on-contextmenu="preventContext">
+          <div class="label file"></div>
+          <div class="content">
+            <div class="text"><i18-n msgid="Drag files here">Drag files here</i18-n></div>
+          </div>
+        </div>-->
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-fs-elements',
+            colors: ['#82a5c4', '#82c4b9', '#82c48c', '#b5c482', '#cccc85', '#ddab91', '#d6a971', '#cc8f8f', '#b695c5'],
+            persistColors: ['#82a5c4', '#82c4b9', '#82c48c', '#b5c482', '#cccc85', '#ddab91', '#d6a971', '#cc8f8f', '#b695c5'],
+            behaviors: [
+                Polymer.IronResizableBehavior,
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapACLBehavior,
+                Polymer.DesignMapFsFolderService,
+                Polymer.DesignMapFsFileService,
+                ReduxBehavior,
+                Polymer.CombineActions(
+                    Polymer.FoldersActions,
+                    Polymer.FilesActions)
+            ],
+            properties: {
+                /**
+                 * Current folder ID from top
+                 */
+                currentFolderId: {
+                    type: String,
+                    notify: true,
+                    observer: 'currentFolderIdChanged'
+                },
+                /**
+                 * Allowed extionsions to upload
+                 */
+                allowedExtensions: {
+                    type: String,
+                    value: '[".jpg",".png",".gif",".ttf",".rif",".bmp",".jpg",".hdr",".ppm",".pbm",".psd",".eps",".ai",".fla",".swf",".svg"]'
+                },
+                /**
+                 * Selected elements
+                 */
+                selected: {
+                    type: Array,
+                    value: []
+                },
+                /**
+                 * Trash mode
+                 */
+                trashMode: {
+                    type: Boolean,
+                    value: false
+                },
+                /**
+                 * Define sort funciton
+                 */
+                sortWay: {
+                    type: String,
+                    value: 'modified'
+                },
+                /**
+                 * ACL representation
+                 */
+                acl: {
+                    type: Array
+                },
+                /**
+                 * User's role
+                 */
+                role: {
+                    type: String
+                },
+                /**
+                 * Elements
+                 */
+                elements: {
+                    type: Array,
+                    value: [],
+                    statePath: function (state) {
+                        var parent = this.currentFolderId || null;
+                        var folders = state.folders.filter(function (folder) {
+                            return this.trashMode ? folder.removed : String(folder.parent) == String(parent) && !folder.removed;
+                        }.bind(this));
+                        var files = state.files.filter(function (file) {
+                            return this.trashMode ? file.removed : String(file.folder) == String(parent) && !file.removed && !(state.user && (state.user._id !== file.owner && file.locked));
+                        }.bind(this));
+                        return folders.concat(files);
+                    }
+                }
+            },
+            listeners: {
+                'open-in-gallery': 'openInGallery',
+                'select-element': 'selectElement'
+            },
+            observers: [
+                'selectedChanged(selected.splices)'
+            ],
+            ready: function () {
+                window.addEventListener('click', this.clickOutside.bind(this));
+                // Dropzone
+                this.addEventListener('dragover', this.dragOver.bind(this));
+                this.addEventListener('dragleave', this.dragLeave.bind(this));
+                this.addEventListener('drop', this.drop.bind(this));
+                // Resizer
+                this.resizerShouldNotify(this);
+                this.assignParentResizable(this);
+            },
+            /**
+             * Execute stagger animation
+             */
+            executeStaggerAnimation: function () {
+                this.$.elementsRepeater.items.forEach(function (item, index) {
+                    this.$$('#element-' + index).playStaggerAnimation();
+                }, this);
+            },
+            /**
+             * Click on body. Test whether should we
+             */
+            clickOutside: function (e) {
+                if (!this.parents(e.target, 'element') && !this.parents(e.target, 'no-unselect')) this.cleanSelected();
+            },
+            /**
+             * Sorts function
+             */
+            sorts: {
+                name: function (a, b) {
+                    var aName = a.type == 'folder' ? a.name : a.data.name.replace(a.folder + '-', '');
+                    var bName = b.type == 'folder' ? b.name : b.data.name.replace(b.folder + '-', '');
+                    if (aName < bName) return -1;
+                    if (aName > bName) return 1;
+                    return 0;
+                },
+                modified: function (a, b) {
+                    if (a.modified < b.modified) return -1;
+                    if (a.modified > b.modified) return 1;
+                    return 0;
+                }
+            },
+            /**
+             * Array sorting
+             */
+            elementsSort: function (sortWay) {
+                return this.sorts[sortWay];
+            },
+            /**
+             * Select element
+             */
+            selectElement: function (event) {
+                var e = event.detail.e;
+                var item = event.detail.item;
+                e.stopPropagation();
+                var multiMode = !!e.ctrlKey;
+                if (!multiMode && this.selected.length) this.cleanSelected();
+                this.push('selected', item);
+            },
+            /**
+             * Clean all of selected elements
+             * Folder and files
+             */
+            cleanSelected: function () {
+                this.selected = [];
+            },
+            /**
+             * Manage elements classes manually
+             * because of repeater stamps
+             */
+            selectedChanged: function () {
+                var elements = this.querySelectorAll('designmap-fs-element');
+                if (elements) [].forEach.call(elements, function (element) {
+                    element.classList.remove('selected');
+                });
+                this.selected.forEach(function (element) {
+                    var node = this.$$('*[data-element-id="' + element._id + '"]');
+                    if (node) node.classList.add('selected');
+                }, this);
+                // Setup new information
+                if (document.querySelector('designmap-info')) {
+                    document.querySelector('designmap-info').data = this.selected.length ? this.selected[this.selected.length - 1] : null;
+                }
+            },
+            /**
+             * Define whether the drop zone element is alone
+             * @param length
+             * @returns {string}
+             */
+            computeAlone: function (length) {
+                return !length ? 'alone' : '';
+            },
+            /**
+             * Apply action regarding current element
+             * folder - go down
+             * file - open gallery
+             */
+            applyAction: function (e) {
+                if (this.trashMode) return;
+                var element = e.model.item;
+                var actionName = 'execute' + element.type.capitalize() + 'Action';
+                if (this[actionName] && typeof this[actionName] === 'function') this[actionName](element);
+            },
+            /**
+             * Go down folder
+             * @param element
+             */
+            executeFolderAction: function (element) {
+                location.hash = '#' + this.getFullPath(element);
+                this.currentFolderId = element._id;
+            },
+            /**
+             * Open the gallery
+             * @param element
+             */
+            executeFileAction: function (element) {
+                var files = this.getFiles(this.elements);
+                var index = this.findFileIndexById(element._id, files);
+                if (index == null) return;
+                this.$.gallery.selected = index;
+                this.$.gallery.open();
+                location.hash += element._id;
+                //Hints
+                var hs = document.querySelector('designmap-hint-system');
+                if (hs.isRunning) {
+                    hs.$.openFile.close(true);
+                    document.querySelector('designmap-gallery').darken = true;
+                }
+            },
+            /**
+             * Open element in gallery
+             */
+            openInGallery: function (e) {
+                this.$.gallery.open();
+                this.$.gallery.selected = this.findFileIndexById(e.detail._id, this.getFiles(this.elements));
+            },
+            /**
+             * When we go down we have to update
+             * at least one folder to update workarea
+             */
+            currentFolderIdChanged: function (currentFolderId) {
+                // Update view
+                this.updateView();
+                this.async(function () {
+                    this.$.fsElementsCustomScroll.calculate();
+                }, 100);
+            },
+            /**
+             * Get files only
+             * @param elements
+             */
+            getFiles: function (elements) {
+                return elements.filter(function (element) {
+                    return element.type === 'file';
+                });
+            },
+            /**
+             * Whether hidden panel should be opened
+             */
+            computeHiddenPanelState: function (length) {
+                return length > 1;
+            },
+            /**
+             * Remove selected elements
+             */
+            removeSelectedElements: function () {
+                if (this.trashMode) return this.$.removingSelectedConfirm.open();
+                this.selected.forEach(function (element) {
+                    this.fire('remove-' + element.type, {element: element, skip: true});
+                }, this);
+                this.showMessage('Selected elements was removed successfully');
+                this.cleanSelected();
+            },
+            /**
+             * Remove selected elements irretrievably
+             */
+            removeSelectedElementsIrretrievably: function () {
+                this.$.removingSelectedConfirm.close();
+                this.selected.forEach(function (element) {
+                    this.fire('remove-' + element.type + '-irretrievably', {element: element, skip: true});
+                }, this);
+                this.showMessage('Selected entities was removed from trash');
+                this.cleanSelected();
+            },
+            /**
+             * Restore selected elements
+             */
+            restoreSelectedElements: function () {
+                this.selected.forEach(function (element) {
+                    this.fire('restore-' + element.type, {element: element, skip: true});
+                }, this);
+                this.showMessage('Selected objects were restored.');
+            },
+            /**
+             * Close dialogs
+             */
+            suspendRemoving: function () {
+                this.$.removingSelectedConfirm.close();
+            },
+            /**
+             * Update template view...
+             */
+            updateView: function () {
+                var folder = ReduxStore.getState().folders[0];
+                if (!folder) return;
+                // Update
+                this.dispatch('_updateFolder', folder._id, folder);
+            },
+            /**
+             * Prevent context menu
+             * @param e
+             */
+            preventContext: function (e) {
+                e.preventDefault();
+            },
+            /**
+             * Drop file inside workarea
+             */
+            drop: function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+                this.$.uploader.buttonFiles = [].slice.call(e.dataTransfer.files, 0);
+                this.$.uploader.openForm();
+                this.classList.remove('dragged');
+            },
+            /**
+             * On drag over
+             * @param e
+             */
+            dragOver: function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+                this.classList.add('dragged');
+                e.dataTransfer.dropEffect = 'copy';
+            },
+            /**
+             * On drag leave
+             * @param e
+             */
+            dragLeave: function (e) {
+                this.classList.remove('dragged');
+            },
+            /**
+             * Compute elements state
+             */
+            computeElementsState: function (length) {
+                return !!length;
+            },
+            /**
+             * Open context menu here
+             * @param e
+             */
+            openContextMenu: function (e) {
+                this.fire('open-context-menu', e);
+            },
+            /**
+             * Compute icon depending on trash mode
+             * @param trashMode
+             * @returns {string}
+             */
+            computeWhiteSpaceIcon: function (trashMode) {
+                return !trashMode ? 'designmap-workspace-white-space:empty-project' : 'designmap-workspace-white-space:empty-bin'
+            },
+            /**
+             * ACL Accesses
+             * @returns {*|boolean}
+             */
+            doesUserHaveEditAccess: function () {
+                return this.can('update', 'project');
+            },
+            closeUploader: function () {
+            }
+        });
+    </script>
+</dom-module>

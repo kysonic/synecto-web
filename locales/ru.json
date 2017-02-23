@@ -1201,5 +1201,8 @@
   },
   "Add subtask": {
     "message": "Введите имя новой подзадачи"
+  },
+  "Google authorization went wrong.": {
+    "message": "Авторизация через Google не удалась..."
   }
 }

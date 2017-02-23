@@ -1,0 +1,483 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module is="designmap-fs-element">
+    <template>
+        <style include="context-menu-shared-styles">
+            :host {
+                user-select: none;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                display: block;
+                flex: 0 1 calc(100% / 5);
+                height: 230px;
+                box-sizing: border-box;
+
+                --fs-element-selected-color: var(--gray-lightern-color);
+                --fs-element-text: var(--gray-darky-color);
+                --fs-folder-color: var(--gray-lighty-color);
+                --fs-folder-line-color: var(--gray-saturate-color);
+            }
+
+            .element {
+                max-width: 250px;
+                min-width: 230px;
+                height: 160px;
+                position: relative;
+                padding: 20px 20px 45px 20px;
+            }
+
+            :host(.selected) .element {
+                background: var(--fs-element-selected-color);
+                transition: background .1s ease-in;
+            }
+
+            .element:first-child, .element.dropzone.alone {
+                margin-left: 0;
+            }
+
+            .element .content {
+                background: var(--fs-folder-color);
+                cursor: pointer;
+                position: relative;
+                overflow: hidden;
+                display: flex;
+                align-items: center;
+                width: 100%;
+                height: 100%;
+            }
+
+            .element .content.file {
+                background: url('/images/svg/three-dots-gray.svg') no-repeat center, repeating-linear-gradient(-45deg, var(--fs-folder-color), var(--fs-folder-line-color) 5px, rgba(256, 256, 256, 0.3) 5px, rgba(256, 256, 256, 0.3) 10px);
+            }
+
+            .type {
+                color: #c4c4c4;
+                text-align: center;
+            }
+
+            .element .content img {
+                width: 100%;
+            }
+
+            .element .label {
+                width: 45%;
+                height: 8px;
+                display: block;
+                background: var(--fs-folder-line-color);
+            }
+
+            .element .label.file {
+                opacity: 0;
+            }
+
+            .element .name {
+                color: var(--fs-element-text);
+                font-size: 16px;
+                font-family: 'Open Sans Light', 'Open Sans', sans-serif;
+                font-weight: 100;
+                margin-top: 10px;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+
+            .context-content {
+                background: var(--primary-darken-color);
+            }
+
+            @media screen and (min-width: 1420px) and (max-width: 1720px) {
+                :host {
+                    height: 210px;
+                    flex: 0 1 25%;
+                }
+
+                .element {
+                    max-width: 250px;
+                    min-width: 240px;
+                    height: 160px;
+                }
+            }
+
+            @media screen and (min-width: 1280px) and (max-width: 1420px) {
+                :host {
+                    height: 190px;
+                    flex: 0 1 25%;
+                }
+
+                .element {
+                    max-width: 220px;
+                    min-width: 180px;
+                    height: 130px;
+                }
+            }
+
+            @media screen and (min-width: 1024px) and (max-width: 1280px) {
+                :host {
+                    height: 190px;
+                    flex: 0 1 33.3%;
+                }
+
+                .element {
+                    max-width: 230px;
+                    min-width: 220px;
+                    height: 130px;
+                }
+            }
+
+        </style>
+        <!-- Element's markup -->
+        <div class="element" data-hint$="[[hintType]]">
+            <div class$="label [[item.type]]"></div>
+            <div class$="content [[item.type]]" data-hint$="[[item.type]]" on-contextmenu="openContextMenu"
+                 on-click="selectElement" data-id$="[[item._id]]">
+                <template is="dom-if" if="[[shouldViewImage(item)]]">
+                    <img src="[[computeImageSource(item)]]">
+                    <!--<div class="type">[[getExtensionWithoutDot(item.data.name)]]</div>-->
+                </template>
+            </div>
+            <div class="name">[[getElementName(item)]]</div>
+        </div>
+        <!-- Confirms -->
+        <designmap-confirm id="removingConfirm" message="AreYouSureThatYouWannaDeleteObject"
+                           on-continue="removeElementIrretrievably" on-suspend="suspendRemoving"></designmap-confirm>
+        <!-- Context menu -->
+        <designmap-context-menu id="contextMenu" previous>
+            <ul class="menu">
+                <template is="dom-if" if="[[!trashMode]]">
+                    <template is="dom-if" if="[[isFolder(item.type)]]">
+                        <li on-click="openAddFolderContext" hidden$="[[!doesUserHaveEditAccess(role,acl)]]">
+                            <i18-n msgid="AddSubFolder">AddSubFolder</i18-n>
+                        </li>
+                        <!-- Add folder -->
+                        <designmap-context-menu id="addFolderContext" previous>
+                            <div class="context-content">
+                                <iron-a11y-keys id="a11yAddFolder" keys="enter"
+                                                on-keys-pressed="addFolder"></iron-a11y-keys>
+                                <paper-input label="[[translate('Folder Name',language,i18Loaded)]]" auto-validate
+                                             pattern="[\w\dа-яА-ЯёЁ -]+"
+                                             error-message="[[translate('FolderNameError',language,i18Loaded)]]"
+                                             id="addFolder"></paper-input>
+                                <div class="button-container">
+                                    <button is="designmap-round-button" on-click="addFolder">
+                                        <iron-icon icon="icons:arrow-forward"></iron-icon>
+                                    </button>
+                                </div>
+                            </div>
+                        </designmap-context-menu>
+                        <!-- Add folder -->
+                        <li on-click="openRenameFolderContext" hidden$="[[!doesUserHaveEditAccess(role,acl)]]">
+                            <i18-n msgid="Rename">Rename</i18-n>
+                        </li>
+                        <!-- Rename folder -->
+                        <designmap-context-menu id="renameFolderContext" previous>
+                            <div class="context-content">
+                                <iron-a11y-keys id="a11yAddFolder" keys="enter"
+                                                on-keys-pressed="renameFolder"></iron-a11y-keys>
+                                <paper-input label="[[translate('Folder Name',language,i18Loaded)]]" auto-validate
+                                             pattern="[\w\dа-яА-ЯёЁ -]+"
+                                             error-message="[[translate('FolderNameError',language,i18Loaded)]]"
+                                             id="renameFolder"></paper-input>
+                                <div class="button-container">
+                                    <button is="designmap-round-button" on-click="renameFolder">
+                                        <iron-icon icon="icons:arrow-forward"></iron-icon>
+                                    </button>
+                                </div>
+                            </div>
+                        </designmap-context-menu>
+                        <!-- Open file uploader -->
+                        <li on-click="openFileUploader" hidden$="[[!doesUserHaveEditAccess(role,acl)]]">
+                            <i18-n msgid="Add file">Add file</i18-n>
+                        </li>
+                    </template>
+                    <template is="dom-if" if="[[isFile(item.type)]]">
+                        <li on-click="openInGallery">
+                            <i18-n msgid="Open">Open</i18-n>
+                        </li>
+                    </template>
+                </template>
+                <template is="dom-if" if="[[trashMode]]">
+                    <li on-click="restoreElement" hidden$="[[!doesUserHaveEditAccess(role,acl)]]">
+                        <i18-n msgid="Restore">Restore</i18-n>
+                    </li>
+                </template>
+                <li on-click="openInformation">
+                    <i18-n msgid="Information">Information</i18-n>
+                </li>
+                <li on-click="removeElement" hidden$="[[!isOwner(role,acl)]]">
+                    <i18-n msgid="Remove">Remove</i18-n>
+                </li>
+            </ul>
+        </designmap-context-menu>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-fs-element',
+            behaviors: [
+                Polymer.DesignMapWebAnimationBehavior,
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior
+                ReduxBehavior
+            ],
+            canBeDisplayedExt: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr", ".ppm", ".pbm"],
+            properties: {
+                /**
+                 * Element's data
+                 */
+                item: {
+                    type: Object,
+                    value: {}
+                },
+                /**
+                 * Element's data
+                 */
+                index: {
+                    type: Number
+                },
+                /**
+                 * Current folder id
+                 */
+                currentFolderId: {
+                    type: String,
+                    notify: true
+                },
+                /**
+                 * App language
+                 */
+                language: {
+                    type: String,
+                    statePath: 'language'
+                },
+                /**
+                 * Language was loaded
+                 */
+                i18Loaded: {
+                    type: String,
+                    statePath: 'i18Loaded'
+                },
+                /**
+                 * Trash mode
+                 */
+                trashMode: {
+                    type: Boolean,
+                    value: false
+                },
+                /**
+                 * ACL representation
+                 */
+                acl: {
+                    type: Array
+                },
+                /**
+                 * User's role
+                 */
+                role: {
+                    type: String
+                },
+                /**
+                 * Change hint label
+                 */
+                hintType: {
+                    type: String,
+                    value: 'folder'
+                }
+            },
+            playStaggerAnimation: function () {
+                this.style.opacity = 0;
+                this.slideFromTopAnimation(this, {
+                    fill: 'forwards',
+                    delay: this.index * 100,
+                    duration: 300,
+                    easing: 'cubic-bezier(.2,0,.2,1)'
+                }).play();
+            },
+            playAnimation: function () {
+                this.slideFromTopAnimation(this, {
+                    fill: 'forwards',
+                    duration: 300,
+                    easing: 'cubic-bezier(.2,0,.2,1)'
+                }).play();
+            },
+            /**
+             * Compute selected state for folder
+             */
+            computeSelectedClass: function (selected) {
+                return selected ? 'selected' : '';
+            },
+            /**
+             * Is there necessity to show image?
+             */
+            shouldViewImage: function (element) {
+                return element.type == 'file' && (this.canBeDisplayedExt.indexOf('.' + this.getExtensionWithoutDot(element.data.name).toLowerCase()) != -1 || element.data.preview);
+            },
+            /**
+             * Defines url for file
+             * @param trash
+             * @returns {*}
+             */
+            computeImageSource: function (element) {
+                if (element.type != 'file') return '';
+                return element.preview ? element.preview.url : element.data.url.replace('#SERVER#', Designmap.config.apiURL);
+            },
+            /**
+             * Get extension of the file without dot
+             */
+            getExtensionWithoutDot: function (name) {
+                if (!name) return null;
+                var splitter = name.split('.');
+                var ext = splitter[splitter.length - 1];
+                return ext;
+            },
+            /**
+             * Open context menu
+             */
+            openContextMenu: function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.$.contextMenu.toggle(e);
+            },
+            /**
+             * Open add folder context
+             */
+            openAddFolderContext: function (e) {
+                this.$$('#addFolderContext').toggle(e);
+            },
+            /**
+             * Add sub-folder to selected one
+             */
+            addFolder: function () {
+                //Validate
+                if (!this.nameChildUniqueValidation(this.$.addFolder.value, this.item._id)) return this.showErrorMessage('Name of the folder must be unique');
+                if (!this.$$('#addFolder').value) return this.showErrorMessage('Name can\'t be empty.');
+                if (!this.$$('#addFolder').validate()) return false;
+                // Close
+                this.async(function () {
+                    this.$$('#addFolderContext').close();
+                }, 50);
+                this.async(function () {
+                    this.$.contextMenu.close();
+                }, 200);
+                // Build data
+                var folder = {
+                    _id: this.generateUid(),
+                    name: this.$$('#addFolder').value,
+                    type: 'folder',
+                    path: this.getFullPath(this.item),
+                    parent: this.currentFolderId,
+                    color: '#82a5c4'
+                }
+                this.$$('#addFolder').value = '';
+                // Change folder
+                /*this.currentFolderId = this.item._id;*/
+                // Fire event
+                this.fire('add-folder', folder);
+            },
+            /**
+             * Open add folder context
+             */
+            openRenameFolderContext: function (e) {
+                this.$$('#renameFolder').value = this.item.name;
+                this.$$('#renameFolderContext').toggle(e);
+            },
+            /**
+             * Rename folder
+             */
+            renameFolder: function () {
+                // Validation
+                if (!this.$$('#renameFolder').value) return this.showErrorMessage('Name can\'t be empty.');
+                if (!this.nameChildUniqueValidation(this.$$('#renameFolder').value, this.item.parent)) return this.showErrorMessage('Name of the folder must be unique');
+                if (!this.$$('#renameFolder').validate()) return false;
+                // Close
+                this.async(function () {
+                    this.$$('#renameFolderContext').close();
+                }, 50);
+                this.async(function () {
+                    this.$.contextMenu.close();
+                }, 200);
+                if (this.item.name == this.$$('#renameFolder').value) return;
+                // Fire event
+                this.fire('update-folder', {
+                    path: this.getFullPath(this.item),
+                    oldName: this.item.name,
+                    data: {name: this.$$('#renameFolder').value}
+                });
+            },
+            /**
+             * Fire remove element event
+             */
+            removeElement: function () {
+                this.$.contextMenu.close();
+                if (this.trashMode) return this.$.removingConfirm.open();
+                this.fire('remove-' + this.item.type, {element: this.item, skip: false});
+            },
+            /**
+             * Fire remove element event
+             */
+            removeElementIrretrievably: function () {
+                this.$.removingConfirm.close();
+                this.fire('remove-' + this.item.type + '-irretrievably', {element: this.item, skip: false});
+            },
+            /**
+             * Fire remove element event
+             */
+            restoreElement: function () {
+                this.$.contextMenu.close();
+                this.fire('restore-' + this.item.type, {element: this.item, skip: false});
+            },
+            /**
+             * Open file uploader for
+             * current folder
+             */
+            openFileUploader: function () {
+                this.fire('open-file-uploader', {id: this.item._id})
+            },
+            /**
+             * Whether element is folder?
+             * @param type - element type
+             */
+            isFolder: function (type) {
+                return type === 'folder';
+            },
+            /**
+             * Whether element is file?
+             * @param type - element type
+             */
+            isFile: function (type) {
+                return type === 'file';
+            },
+            /**
+             * Open this file in gallery
+             */
+            openInGallery: function () {
+                this.$.contextMenu.close();
+                this.fire('open-in-gallery', {_id: this.item._id});
+            },
+            /**
+             * Open information for current element
+             */
+            openInformation: function () {
+                this.$.contextMenu.close();
+                document.querySelector('designmap-info').data = this.item;
+                this.fire('open-info');
+            },
+            /**
+             * Close dialogs
+             */
+            suspendRemoving: function () {
+                this.$.removingConfirm.close();
+            },
+            /**
+             * ACL Accesses
+             * @returns {*|boolean}
+             */
+            doesUserHaveEditAccess: function () {
+                return this.can('update', 'project');
+            },
+            /**
+             * Select element
+             */
+            selectElement: function (e) {
+                this.fire('select-element', {e: e, item: this.item});
+            }
+        })
+    </script>
+</dom-module>

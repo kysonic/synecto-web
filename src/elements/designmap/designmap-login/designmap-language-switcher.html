@@ -4,7 +4,7 @@
 <link rel="import" href="../../../redux/actions/combine-actions.html">
 <link rel="import" href="../../../redux/actions/user-actions.html">
 <!-- Mixins -->
-<link rel="import" href="../../../mixins/designmap-messages-mixin.html">
+<link rel="import" href="../../../behaviors/designmap-messages-behavior.html">
 <!-- Styles -->
 <link rel="import" href="../../../styles/shared-styles.html">
 
@@ -36,8 +36,8 @@
             is: 'designmap-language-switcher',
             behaviors: [
                 ReduxBehavior,
-                CombineActions(UserActions),
-                DesignMapMessagesMixin
+                Polymer.CombineActions(Polymer.UserActions),
+                Polymer.DesignMapMessagesBehavior
             ],
             properties: {
                 languages: {

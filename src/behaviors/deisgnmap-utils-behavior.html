@@ -3,7 +3,7 @@
      * Helpers
      * @type {{parents: Function}}
      */
-    const DesignMapUtilsMixin = {
+    Polymer.DesignMapUtilsBehavior = {
         cleanTextRegexp: /<\/?[^>]+(>|$)/g,
         UIDREGEXP: /[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}-/i,
         IMAGE_REGEXP: /images/,
@@ -119,7 +119,7 @@
          */
         computeUserName: function(user){
             if(typeof user == 'string' || !user) return '...';
-            return user?user.name&&user.lastName?user.name[0]+user.lastName[0]:user.local.email[0]:'XX';
+            return user?user.name&&user.lastName?user.name[0]+user.lastName[0]:user.local?user.local.email[0]:'XX':'XX';
         },
         /**
          * Compute avatar possible path

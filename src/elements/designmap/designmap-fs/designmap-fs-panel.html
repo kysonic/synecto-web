@@ -1,0 +1,325 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module is="designmap-fs-panel">
+    <template>
+        <style include="context-menu-shared-styles">
+            :host {
+                display: flex;
+                --designmap-circle-button-circle-mixin: {
+                    stroke-width: 4px !important;
+                    stroke: var(--blue-darky-color);
+                };
+                --designmap-circle-button-content-icon-mixin: {
+                    padding: 0px;
+                    width: 100%;
+                    height: 100%;
+                }
+            }
+            /** BUTTONS PANEL **/
+            .buttons-panel {
+                display: flex;
+                flex: 1;
+            }
+
+            .buttons-panel designmap-circle-button {
+                position: relative;
+                width: 50px;
+                height: 50px;
+            }
+
+            .left {
+                display: flex;
+                justify-content: flex-start;
+                margin-left: 5px;
+                margin-top: 5px;
+            }
+            .left designmap-circle-button{
+                margin-left: 15px;
+            }
+
+            .right {
+                display: flex;
+                justify-content: flex-end;
+                flex: 1;
+                margin-right: 20px;
+                margin-left: 5px;
+                margin-top: 5px;
+            }
+
+            .set {
+                display: flex;
+                justify-content: flex-end;
+            }
+
+            .trash-length {
+                font-size: 10px;
+                font-weight: bold;
+                color: var(--primary-color);
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                margin-left: -3px;
+                margin-top: -6px;
+            }
+
+
+        </style>
+        <!-- Confirms -->
+        <designmap-confirm id="removeAllConfirm" message="AreYouSureThatYouWannaDeleteAllObjects"
+                           on-continue="removeAllElements" on-suspend="suspendRemoving"></designmap-confirm>
+        <!-- Panel -->
+        <div class="buttons-panel">
+            <div class="left" hidden$="[[!doesUserHaveEditAccess(role,acl)]]">
+                <designmap-circle-button data-hint="create-folder"
+                                         x-tooltip$="[[translate('Add folder',language,i18Loaded)]]" data-cls="blue"
+                                         hidden$="[[trashMode]]" data-hint="create-folder" id="addFolderButton"
+                                         on-click="openAddFolderContext">
+                    <iron-icon icon="designmap-workspace:folder"></iron-icon>
+                </designmap-circle-button>
+                <!-- Add folder -->
+                <designmap-context-menu id="addFolderContext" previous>
+                    <div class="context-content">
+                        <iron-a11y-keys id="a11yAddFolder" keys="enter" on-keys-pressed="addFolder"></iron-a11y-keys>
+                        <paper-input label="[[translate('Folder Name',language,i18Loaded)]]" auto-validate
+                                     pattern="[\w\dа-яА-ЯёЁ -]+"
+                                     error-message="[[translate('FolderNameError',language,i18Loaded)]]"
+                                     id="addFolder"></paper-input>
+                        <div class="button-container">
+                            <button is="designmap-round-button" on-click="addFolder">
+                                <iron-icon icon="icons:arrow-forward"></iron-icon>
+                            </button>
+                        </div>
+                    </div>
+                </designmap-context-menu>
+                <!-- Add folder -->
+                <designmap-circle-button data-hint="upload-file"
+                                         x-tooltip$="[[translate('Upload file',language,i18Loaded)]]" data-cls="blue"
+                                         hidden$="[[trashMode]]" on-click="openFileUploader" data-hint="add-file">
+                    <iron-icon icon="designmap-workspace:file"></iron-icon>
+                </designmap-circle-button>
+                <!-- Trash mode -->
+                <designmap-circle-button x-tooltip$="[[translate('Restore all',language,i18Loaded)]]" data-cls="blue"
+                                         hidden$="[[!trashMode]]" class="trash" on-click="restoreAll">
+                    <iron-icon icon="designmap-workspace:restore"></iron-icon>
+                </designmap-circle-button>
+                <designmap-circle-button x-tooltip$="[[translate('Remove all',language,i18Loaded)]]" data-cls="blue"
+                                         hidden$="[[!canRemoveAll(trashMode,role)]]" class="trash" on-click="removeAll">
+                    <iron-icon icon="designmap-workspace:remove"></iron-icon>
+                </designmap-circle-button>
+            </div>
+            <div class="right">
+
+
+                <!--<designmap-circle-button class="sort-button" on-click="changeSort" data-sort="name">
+                  <iron-icon icon="designmap40:sort_name"></iron-icon>
+                </designmap-circle-button>
+                <designmap-circle-button class="sort-button" on-click="changeSort" data-sort="modified">
+                  <iron-icon icon="designmap40:sort_modified"></iron-icon>
+                </designmap-circle-button>-->
+
+                <div class="set" hidden$="[[!doesUserHaveEditAccess(role,acl)]]">
+                    <!--<designmap-circle-button  on-click="goToTaskManger">
+                      <iron-icon icon="designmap-workspace:task-manager"></iron-icon>
+                    </designmap-circle-button>
+                    <designmap-circle-button hidden$="[[trashMode]]" on-click="openAccessMenu">
+                      <iron-icon icon="designmap-workspace:accesses"></iron-icon>
+                    </designmap-circle-button>
+                    <designmap-circle-button hidden$="[[trashMode]]" on-click="goToTrashBox">
+                      <div class="trash-length">[[trashLength]]</div>
+                      <iron-icon icon="designmap-workspace:trash-box"></iron-icon>
+                    </designmap-circle-button>-->
+                </div>
+                <designmap-circle-button x-tooltip$="[[translate('Sort',language,i18Loaded)]]" data-cls="blue"
+                                         on-click="openMoreContext">
+                    <iron-icon icon="designmap-workspace:sort"></iron-icon>
+                </designmap-circle-button>
+                <designmap-context-menu id="moreContext" previous>
+                    <ul class="menu">
+                        <li class="sort-button" on-click="changeSort" data-sort="name">
+                            <i18-n msgid="Sort by name">Sort by name</i18-n>
+                        </li>
+                        <li class="sort-button" on-click="changeSort" data-sort="modified">
+                            <i18-n msgid="Sort by date">Sort by date</i18-n>
+                        </li>
+                    </ul>
+                </designmap-context-menu>
+                <designmap-circle-button x-tooltip$="[[translate('Info',language,i18Loaded)]]" data-cls="blue"
+                                         hidden$="[[infoOpened]]" on-click="openInfo" class="no-unselect">
+                    <iron-icon icon="designmap-workspace:info"></iron-icon>
+                </designmap-circle-button>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-fs-panel',
+            behaviors: [
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapACLBehavior,
+                Polymer.DesignMapFsFolderService,
+                ReduxBehavior
+            ],
+            properties: {
+                currentFolderId: {
+                    type: String
+                },
+                /**
+                 * Language
+                 */
+                language: {
+                    type: String,
+                    statePath: 'language'
+                },
+                i18Loaded: {
+                    type: String,
+                    statePath: 'i18Loaded'
+                },
+                /**
+                 * Sort way
+                 */
+                sortWay: {
+                    type: String,
+                    value: 'modified',
+                    notify: true
+                },
+                /**
+                 * Whether information panel is opened
+                 */
+                infoOpened: {
+                    type: Boolean,
+                    value: false
+                },
+                /**
+                 * User's role
+                 */
+                role: {
+                    type: String,
+                    statePath: 'role'
+                },
+                /**
+                 * ACL representation
+                 */
+                acl: {
+                    type: Array,
+                    statePath: 'acl'
+                },
+                trashMode: {
+                    type: Boolean
+                }
+            },
+            /**
+             * Open add folder context
+             * @param e
+             */
+            openAddFolderContext: function (e) {
+                this.$.addFolderContext.toggle(e);
+                this.async(function () {
+                    this.$.addFolder.focus();
+                }, 150);
+            },
+            /**
+             * Add folder
+             * @returns {*}
+             */
+            addFolder: function () {
+                //Validate
+                if (!this.nameChildUniqueValidation(this.$.addFolder.value, this.currentFolderId)) return this.showErrorMessage('Name of the folder must be unique');
+                if (!this.$.addFolder.value) return this.showErrorMessage('Name can\'t be empty.');
+                if (!this.$.addFolder.validate()) return false;
+                // Close
+                this.$.addFolderContext.close();
+                // Build data
+                var folder = {
+                    _id: this.generateUid(),
+                    name: this.$.addFolder.value,
+                    type: 'folder',
+                    path: this.getFullPath(this.findFolderById(this.currentFolderId)),
+                    parent: this.currentFolderId,
+                    color: '#82a5c4'
+                };
+                this.$.addFolder.value = '';
+                // Fire event
+                this.fire('add-folder', folder);
+            },
+            /**
+             * Open file uploader
+             */
+            openFileUploader: function () {
+                this.fire('open-file-uploader', {id: this.currentFolderId});
+            },
+            /**
+             * Open information panel
+             */
+            openInfo: function () {
+                this.fire('open-info');
+            },
+            /**
+             * Redirect to trash box
+             */
+            goToTrashBox: function () {
+                page.redirect('/trash/');
+            },
+            /**
+             * Redirect to task manager
+             */
+            goToTaskManger: function () {
+                page.redirect('/task-manager/');
+            },
+            /**
+             * Restore all elements
+             */
+            restoreAll: function () {
+                this.fire('restore-all');
+            },
+            /**
+             * Remove all elements
+             */
+            removeAllElements: function () {
+                this.$.removeAllConfirm.close();
+                this.fire('remove-all');
+            },
+            /**
+             * Remove all elements
+             */
+            removeAll: function () {
+                this.$.removeAllConfirm.open();
+            },
+            /**
+             * Close confirm dialog
+             */
+            suspendRemoving: function () {
+                this.$.removeAllConfirm.close();
+            },
+            /**
+             * Change sort
+             * @param e - event
+             */
+            changeSort: function (e) {
+                var target = this.parents(e.target, 'sort-button');
+                this.sortWay = target.dataset.sort;
+                this.$.moreContext.close();
+            },
+            /**
+             * Open "more" context menu
+             */
+            openMoreContext: function (e) {
+                this.$.moreContext.toggle(e);
+            },
+            /**
+             * ACL Accesses
+             * @returns {*|boolean}
+             */
+            doesUserHaveEditAccess: function () {
+                return this.can('update', 'project');
+            },
+            /**
+             * Could user remove all ?
+             * @returns {boolean|*}
+             */
+            canRemoveAll: function (trashMode) {
+                return this.isOwner() && trashMode;
+            }
+        })
+    </script>
+</dom-module>

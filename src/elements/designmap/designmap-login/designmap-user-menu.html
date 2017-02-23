@@ -3,8 +3,8 @@
 <link rel="import" href="../designmap-ui/designmap-dropdown.html">
 <link rel="import" href="./designmap-language-switcher.html">
 <!-- Mixins -->
-<link rel="import" href="../../../mixins/designmap-messages-mixin.html">
-<link rel="import" href="../../../mixins/deisgnmap-utils-mixin.html">
+<link rel="import" href="../../../behaviors/designmap-messages-behavior.html">
+<link rel="import" href="../../../behaviors/deisgnmap-utils-behavior.html">
 <!-- Redux -->
 <link rel="import" href="../../../redux/redux-store.html">
 <link rel="import" href="../../../redux/actions/combine-actions.html">
@@ -197,10 +197,10 @@
     Polymer({
       is: 'designmap-user-menu',
       behaviors: [
-                  DesignMapMessagesMixin,
-                  DesignMapUtilsMixin,
+                  Polymer.DesignMapMessagesBehavior,
+                  Polymer.DesignMapUtilsBehavior,
                   ReduxBehavior,
-                  CombineActions(UserActions)
+                  Polymer.CombineActions(Polymer.UserActions)
                  ],
       properties: {
         user: {

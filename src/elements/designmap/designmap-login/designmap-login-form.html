@@ -15,8 +15,8 @@
 <link rel="import" href="../../../redux/actions/combine-actions.html">
 <link rel="import" href="../../../redux/actions/user-actions.html">
 <!-- Mixins -->
-<link rel="import" href="../../../mixins/designmap-messages-mixin.html">
-<link rel="import" href="../../../mixins/deisgnmap-utils-mixin.html">
+<link rel="import" href="../../../behaviors/designmap-messages-behavior.html">
+<link rel="import" href="../../../behaviors/deisgnmap-utils-behavior.html">
 
 <dom-module id="designmap-login-form">
     <template>
@@ -48,7 +48,7 @@
                 };
             }
             .forgot-message {
-                margin-top: 50px;
+                margin-top: 15px;
                 text-align: center;
             }
             .forgot-button {
@@ -57,7 +57,7 @@
                 margin-bottom: 0 !important;
             }
             .wrapper {
-                width: 90%;
+                width: 100%;
                 max-width: 500px;
                 height: 556px;
                 overflow: hidden;
@@ -91,6 +91,9 @@
                 height: 117px;
                 z-index: 20;
                 background: var(--white-color);
+            }
+            .social .button-wrapper {
+                padding: 0 75px;
             }
             .social button {
                 margin-top: 39px;
@@ -131,7 +134,7 @@
                 font-size: 12px;
             }
             /** CONTENT **/
-            .wrapper >.content {
+            .wrapper > .content {
                 background: var(--designmap-login-form-content);
                 height: 100%;
                 padding: 20px 75px;
@@ -140,7 +143,7 @@
                 display: inline-block;
                 background: var(--blue-darker-color);
                 color: var(--white-color);
-                width: 350px;
+                width: 100%;
             }
             .wrapper > .content button:hover {
                 background: var(--blue-super-dark-color);
@@ -150,7 +153,7 @@
             }
             .wrapper > .content .button-set button {
                 display: inline-block;
-                width: 350px;
+                width: 100%;
             }
             .wrapper > .content .msg, .msg {
                 display: block;
@@ -183,7 +186,8 @@
                 position: absolute;
                 top: -50px;
                 z-index: 19;
-                background: transparent;
+                width: 100%;
+                background: var(--white-color);
                 transition: top .5s cubic-bezier(0.23, 1, 0.32, 1);
                 height: 325px;
             }
@@ -192,8 +196,8 @@
                 height: 100%;
                 padding: 20px 75px;
             }
-            .forgot-password-form .title, .approval-form .title {
-                width: 350px;
+            .forgot-password-form .panel-title, .approval-form .panel-title {
+                width: 100%;
                 text-align: center;
                 font-size: 22px;
             }
@@ -250,10 +254,12 @@
                 <div class="beta">beta 3.0</div>
             </div>
             <div class="social">
-                <button id="registerGoogleButton" is="designmap-loading-button"
-                        class="google-btn " on-click="googleRegister" thin>
-                    <i18-n msgid="Signin with Google">Signin with Google</i18-n>
-                </button>
+                <div class="button-wrapper">
+                    <button id="registerGoogleButton" is="designmap-loading-button"
+                            class="google-btn " on-click="googleAuth" thin>
+                        <i18-n msgid="Signin with Google">Signin with Google</i18-n>
+                    </button>
+                </div>
             </div>
             <div class="title">
                 <hr/>
@@ -264,7 +270,7 @@
             <!-- Forgot password form -->
             <div class="forgot-password-form" id="forgotPasswordForm">
                 <div class="content" id="forgotPasswordFormContent">
-                    <div class="title">
+                    <div class="panel-title">
                         <i18-n msgid="Forgot password">Forgot password?</i18-n>
                     </div>
                     <div class="forgot-message">
@@ -276,24 +282,25 @@
                     </div>
                     <template is="dom-if" if="[[!restoreMessageSent]]">
                         <paper-input id="restorePasswordEmail" required
-                                     pattern="[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*" value="{{restoreEmail::keyup}}"
+                                     pattern="[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*"
                                      label="E-mail" error-message="[[translate('EmailError',language,i18Loaded)]]"
                                      type="email"></paper-input>
+                        <iron-a11y-keys id="a11ForgotPassword" keys="enter" target="[[this.$.restorePasswordEmail]]"
+                                        on-keys-pressed="creteToken"></iron-a11y-keys>
                         <button is="designmap-loading-button" id="restoreLoadingButton" type="submit"
                                 class="forgot-button" thin on-click="creteToken">
                             <i18-n msgid="Send">Send</i18-n>
                         </button>
                     </template>
-                    <a class="msg" on-click="back">
+                    <a class="msg" on-click="closePanel" data-panel="forgotPasswordForm">
                         <i18-n msgid="return">return</i18-n>
                     </a>
                 </div>
             </div>
-            <!-- Forgot password form -->
             <!-- Send approving link -->
             <div class="approval-form" id="approvingForm">
                 <div class="content" id="approvingFormContent">
-                    <div class="title">
+                    <div class="panel-title">
                         <i18-n msgid="Approving link">Approving link</i18-n>
                     </div>
                     <div class="forgot-message">
@@ -305,20 +312,22 @@
                     </div>
                     <template is="dom-if" if="[[!approveMessageSent]]">
                         <paper-input id="approvingEmail" required pattern="[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*"
-                                     value="{{approvingEmail::keyup}}" label="E-mail"
+                                     label="E-mail"
                                      error-message="[[translate('EmailError',language,i18Loaded)]]"
                                      type="email"></paper-input>
+                        <iron-a11y-keys id="a11ApprovingEmail" keys="enter" target="[[this.$.approvingEmail]]"
+                                        on-keys-pressed="sendApprovingEmail"></iron-a11y-keys>
                         <button is="designmap-loading-button" id="approvingButton" type="submit" class="forgot-button"
                                 thin on-click="sendApprovingEmail">
                             <i18-n msgid="Send">Send</i18-n>
                         </button>
                     </template>
-                    <a class="msg" on-click="backApproving">
+                    <a class="msg" on-click="closePanel" data-panel="approvingForm">
                         <i18-n msgid="return">return</i18-n>
                     </a>
                 </div>
             </div>
-            <!-- Send approving link-->
+            <!-- Main form -->
             <div class="content" id="content">
                 <neon-animated-pages id="pages" class="flex" selected="[[selected]]"
                                      entry-animation="[[entryAnimation]]"
@@ -335,7 +344,7 @@
                                      error-message="[[translate('PasswordError',language,i18Loaded)]]"
                                      label="[[translate('Password',language,i18Loaded)]]"
                                      type="password"></paper-input>
-                        <a class="forgot-msg" on-click="restorePassword">
+                        <a class="forgot-msg" on-click="openPanel" data-panel="forgotPasswordForm">
                             <i18-n msgid="Forgot password?">Forgot password?</i18-n>
                         </a>
                         <div class="button-set">
@@ -362,7 +371,7 @@
                         <paper-input id="passwordSignup" required name="passwordSignup" on-input="checkoutPassword"
                                      pattern=".{4,}" error-message="[[translate('PasswordError',language,i18Loaded)]]"
                                      label="[[translate('Password',language,i18Loaded)]]" type="password"></paper-input>
-                        <a class="forgot-msg" on-click="openApprovingForm">
+                        <a class="forgot-msg" on-click="openPanel" data-panel="approvingForm">
                             <i18-n msgid="Send me approving link">Send me approving link</i18-n>
                         </a>
                         <div class="button-set">
@@ -390,9 +399,9 @@
             is: 'designmap-login-form',
             behaviors: [
                 ReduxBehavior,
-                CombineActions(UserActions),
-                DesignMapMessagesMixin,
-                DesignMapUtilsMixin
+                Polymer.CombineActions(Polymer.UserActions),
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior
             ],
             /**
              * Regular expression allowing to checkout how strong is password.
@@ -414,23 +423,6 @@
                 selected: {
                     type: Number,
                     value: 0
-                },
-                authEmail: {
-                    type: String,
-                    notify: true,
-                    observer: 'authEmailChanged'
-                },
-                registerEmail: {
-                    type: String,
-                    observer: 'registerEmailChanged'
-                },
-                restoreEmail: {
-                    type: String,
-                    observer: 'restoreEmailChanged'
-                },
-                approvingEmail: {
-                    type: String,
-                    observer: 'approvingEmailChanged'
                 },
                 token: {
                     type: String,
@@ -461,16 +453,17 @@
                 this.resolveQuery();
             },
             /**
-             * Resolve query
+             * If we get approve token we have to launch a process of
+             * checking. For instance - We get approve token, next approveTokenChanged
+             * has invoked, after that user will be able to login.
              */
             resolveQuery: function () {
                 var query = this.parseQuery();
-                //if (query.token) this.token = query.token;
+                if (query.token) this.token = query.token;
                 if (query.approveToken) this.approveToken = query.approveToken;
             },
             /**
-             * If token was changed, we have to send request to get
-             * temporary access
+             * Entering with temporary token
              */
             tokenChanged: function () {
                 if (!this.token || this.token.length < 12) return;
@@ -481,8 +474,8 @@
                 }.bind(this))
             },
             /**
-             * If we had approve token - send request
-             * to complete approving
+             * Approve token is needed for preventing of signing up with
+             * fake email
              */
             approveTokenChanged: function () {
                 if (!this.approveToken) return;
@@ -492,33 +485,23 @@
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));
             },
             /**
-             * Go to the sign-up form.
+             * To provide right-left animation in form
              */
             goToTheSignup: function () {
                 this.entryAnimation = 'slide-from-right-animation';
                 this.exitAnimation = 'slide-left-animation';
                 this.selected = 1;
-                // Form hooks
-                this.$['animatable' + (this.selected + 1)].style.position = 'absolute';
-                this.async(function () {
-                    this.$['animatable' + (this.selected + 1)].style.position = 'static';
-                }, 400)
             },
             /**
-             * Go to the signin form.
+             * To provide right-left animation in form
              */
             goToTheSignin: function () {
                 this.entryAnimation = 'slide-from-left-animation';
                 this.exitAnimation = 'slide-right-animation';
                 this.selected = 0;
-                // Form hooks
-                this.$['animatable' + (this.selected + 1)].style.position = 'absolute';
-                this.async(function () {
-                    this.$['animatable' + (this.selected + 1)].style.position = 'static';
-                }, 400)
             },
             /**
-             * Register new user. Validate fields at first.
+             * Sign up using form
              */
             register: function (e) {
                 e.preventDefault();
@@ -531,7 +514,7 @@
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));
             },
             /**
-             * Authorize user. Validate fields at first.
+             * Log in using form
              */
             login: function (e) {
                 e.preventDefault();
@@ -547,126 +530,74 @@
                     if (!response.success) return this.manageErrorResponse(response);
                     this.$.emailSignin.value = null;
                     this.$.passwordSignin.value = null;
-                    // Redirect
-                    window.history.pushState({}, null, '/');
                 }.bind(this)).catch(function (err) {
                     this.$.signInLoadingButton.loading = false;
                     this.manageErrorResponse(err);
                 }.bind(this));
             },
             /**
-             * Logout.
+             * Open panels
              */
-            logout: function () {
-                if (this.$$('#logout').disabled) return;
-                document.querySelector('designmap-project').loading = true;
-                this.dispatch('userLogout').then(function () {
-                    // this.showMessage('Good bye.');
-                    document.querySelector('designmap-project').loading = false;
-                }.bind(this)).catch(this.manageErrorResponse.bind(this));
+            openPanel: function (e) {
+                const panel = e.currentTarget.dataset.panel;
+                this.$[panel].style.top = '289px';
             },
             /**
-             * Restrictions to start validation
-             * @param value
+             * Close panels
              */
-            authEmailChanged: function (value) {
-                if (value.length > 4) {
-                    console.log(this.$.emailSignin);
-                    this.$.emailSignin.validate();
-                }
-            },
-            /**
-             * Restrictions to start validation
-             * @param value
-             */
-            registerEmailChanged: function (value) {
-                if (value.length > 4) this.$.emailSignup.validate();
-            },
-            /**
-             * Restrictions to start validation
-             * @param value
-             */
-            restoreEmailChanged: function (value) {
-                if (value.length > 4) this.$$('#restorePasswordEmail').validate();
-            },
-            /**
-             * Restrictions to start validation
-             * @param value
-             */
-            approvingEmailChanged: function (value) {
-                if (value.length > 4) this.$$('#approvingEmail').validate();
-            },
-            /**
-             * Open restore password form
-             */
-            restorePassword: function () {
-                this.$.forgotPasswordForm.style.top = '289px';
-                this.$.forgotPasswordFormContent.style.background = '#fff';
-            },
-            openApprovingForm: function () {
-                this.$.approvingForm.style.top = '289px';
-                this.$.approvingFormContent.style.background = '#fff';
-            },
-            back: function () {
-                this.restoreMessageSent = false;
-                this.$.forgotPasswordForm.style.top = '-50px';
-                this.$.forgotPasswordFormContent.style.background = 'transparent';
-            },
-            backApproving: function () {
+            closePanel: function (e) {
+                const panel = e.currentTarget.dataset.panel;
+                this.$[panel].style.top = '-50px';
                 this.approveMessageSent = false;
-                this.$.approvingForm.style.top = '-50px';
-                this.$.forgotPasswordFormContent.style.background = 'transparent';
+                this.restoreMessageSent = false;
             },
             /**
-             * Message if not allowed
-             */
-            notAllowed: function () {
-                this.showErrorMessage('Not allowed in beta');
-            },
-            /**
-             * Send request to create entry-token
-             * if you forgot a password
+             * Create token for entering if user
+             * forget a password
              */
             creteToken: function (e) {
                 e.preventDefault();
                 e.stopPropagation();
                 if (this.$$('#restoreLoadingButton').loading) return;
+                this.restoreEmail = this.$$('#restorePasswordEmail').value;
                 this.$$('#restoreLoadingButton').loading = true;
                 if (!this.$$('#restorePasswordEmail').validate()) {
                     this.$$('#restoreLoadingButton').loading = false;
                     return this.showErrorMessage('Email is not correct');
                 }
-                var promise = xhr.post(Designmap.config.apiURL + 'token/entry', {email: this.restoreEmail});
+                const promise = xhr.post(Designmap.config.apiURL + 'token/entry', {email: this.restoreEmail });
                 promise.then(function (response) {
                     this.$$('#restoreLoadingButton').loading = false;
-                    if (!response.success) return this.showErrorMessage(response.errors.message);
+                    if (!response.success) return this.manageErrorResponse(response);
                     this.restoreMessageSent = true;
-                    //this.showMessage('You will receive an email with further instructions on #EMAIL#',{'#EMAIL#':this.restoreEmail},5000);
-                    //this.back();
+                    //this.showMessage('You will receive an email with further instructions on #EMAIL#',{'#EMAIL#':this.restoreEmail },20000);
                 }.bind(this));
             },
             /**
-             * Google Registration
-             * @param e
-             * @returns {*}
+             * If didn't received a mail with approving link -
+             * resend it
              */
-            googleRegister: function (e) {
-                var googleUser = gapi.auth2.getAuthInstance()['currentUser'].get();
-                this.googleRegisterClicked = true;
-                //this.$.registerGoogleButton.loading = true;
-                if (googleUser && googleUser.w3) return this.registerWithGoogle(googleUser);
-                this.$.aware.signIn();
+            sendApprovingEmail: function () {
+                this.approvingEmail = this.$$('#approvingEmail').value;
+                this.$$('#approvingButton').loading = true;
+                this.dispatch('reapprove', this.approvingEmail, this.language).then(function (response) {
+                    this.$$('#approvingButton').loading = false;
+                    if (!response.success) return this.showErrorMessage(response.errors.message);
+                    this.approveMessageSent = true;
+                    //this.showMessage('A mail has been sent',{'#EMAIL#':this.approvingEmail });
+                }.bind(this)).catch(function (err) {
+                    this.$$('#approvingButton').loading = false;
+                    this.showErrorMessage(err);
+                }.bind(this))
             },
             /**
-             * Google sign in
-             * @param e
-             * @returns {*}
+             * Click on Google Sign In button
              */
-            googleSignin: function (e) {
+            googleAuth: function (e) {
                 var googleUser = gapi.auth2.getAuthInstance()['currentUser'].get();
-                this.googleSigninClicked = true;
-                this.$.siginGoogleButton.loading = true;
-                if (googleUser && googleUser.w3) return this.loginWithGoogle(googleUser);
+                if (googleUser && googleUser.w3) return this.signInWithGoogle(googleUser);
+                this.googleButtonPressed = true;
+                this.$.registerGoogleButton.loading = true;
                 this.$.aware.signIn();
             },
             /**
@@ -674,24 +605,23 @@
              */
             googleSigninSuccess: function () {
                 var googleUser = gapi.auth2.getAuthInstance()['currentUser'].get();
-                if (this.googleRegisterClicked == true) this.registerWithGoogle(googleUser);
-                if (this.googleSigninClicked == true) this.loginWithGoogle(googleUser);
-                this.googleRegisterClicked = false;
-                this.googleSigninClicked = false;
+                if(this.googleButtonPressed) this.signInWithGoogle(googleUser);
+                this.$.registerGoogleButton.loading = false;
+                this.googleButtonPressed = false;
             },
             /**
-             * Google sign in failure
+             * When google sign in went wrong
              */
             googleSigninFailure: function () {
                 this.showErrorMessage('Google authorization went wrong.');
-                this.googleRegisterClicked = false;
-                this.googleSigninClicked = false;
+                this.$.registerGoogleButton.loading = false;
+                this.googleButtonPressed = false;
             },
             /**
-             * Register with google
+             * Sign in with google
              * @param googleUser
              */
-            registerWithGoogle: function (googleUser) {
+            signInWithGoogle: function (googleUser) {
                 this.dispatch('userGoogleSignup', googleUser.w3).then(function (response) {
                     this.$.registerGoogleButton.loading = false;
                     if (!response.success) return this.showErrorMessage(response.errors.message);
@@ -699,37 +629,6 @@
                 }.bind(this)).catch(function (err) {
                     this.$.registerGoogleButton.loading = false;
                 }.bind(this));
-            },
-            /**
-             * Login with google
-             * @param googleUser
-             */
-            loginWithGoogle: function (googleUser) {
-                this.dispatch('userGoogleSignin', googleUser.w3).then(function (response) {
-                    this.$.siginGoogleButton.loading = false;
-                    if (!response.success) return this.showErrorMessage(response.errors.message);
-                }.bind(this)).catch(function (err) {
-                    this.$.siginGoogleButton.loading = false;
-                }.bind(this));
-            },
-            sendApprovingEmail: function () {
-                this.$$('#approvingButton').loading = true;
-                this.dispatch('reapprove', this.approvingEmail, this.language).then(function (response) {
-                    this.$$('#approvingButton').loading = false;
-                    if (!response.success) return this.showErrorMessage(response.errors.message);
-                    this.approveMessageSent = true;
-                    //this.showMessage('A mail has been sent',{'#EMAIL#':this.approvingEmail});
-                    //this.backApproving();
-                }.bind(this)).catch(function (err) {
-                    this.$$('#approvingButton').loading = false;
-                    this.showErrorMessage(err);
-                }.bind(this))
-            },
-            msgState: function (msg) {
-                return !!msg;
-            },
-            forgotMessage: function (forgotMSG) {
-                return forgotMSG ? forgotMSG : 'Restore message';
             }
         })
     </script>

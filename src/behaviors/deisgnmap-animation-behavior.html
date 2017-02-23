@@ -1,9 +1,11 @@
+<link rel="import" href="/bower_components/neon-animation/neon-animations.html">
+
 <script>
     /**
      * Animation set contains configurations for
      * different animations
      */
-    const DesignmapAnimationSet = {
+    Polymer.DesignmapAnimationSet = {
         properties: {
             defaultOpenAnimation: {
                 type: Object,
@@ -131,7 +133,7 @@
      * Web animation Mixin! Contains tools for web animation management.
      * @type {{defaultProps: {duration: number, easing: string, iterations: number, direction: string, delay: number, fill: string}, playStackAnimations: DesignMapWebAnimationBehavior.playStackAnimations, _processStack: DesignMapWebAnimationBehavior._processStack, shakeAnimation: DesignMapWebAnimationBehavior.shakeAnimation, fadeOutAnimation: DesignMapWebAnimationBehavior.fadeOutAnimation, slideFromTopAnimation: DesignMapWebAnimationBehavior.slideFromTopAnimation, scaleUpAnimation: DesignMapWebAnimationBehavior.scaleUpAnimation, scaleDownAnimation: DesignMapWebAnimationBehavior.scaleDownAnimation, fadeInAnimation: DesignMapWebAnimationBehavior.fadeInAnimation, fadeOutAnimation: DesignMapWebAnimationBehavior.fadeOutAnimation, shrinkDown: DesignMapWebAnimationBehavior.shrinkDown, shrinkUp: DesignMapWebAnimationBehavior.shrinkUp}}
      */
-    const DesignMapWebAnimationMixin = {
+    Polymer.DesignMapWebAnimationBehavior = {
         /**
          * Default animation properties
          * could be overwritten by props in ceratin

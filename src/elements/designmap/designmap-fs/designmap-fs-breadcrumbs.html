@@ -1,0 +1,188 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module is="designmap-fs-breadcrumbs">
+    <template>
+        <style>
+            :host {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                --breadcrumbs-text-color: var(--blue-color);
+                --breadcrumbs-selected-color: var(--blue-darky-color);
+            }
+            .project-name, .trash-name {
+                font-size: 26px;
+                font-weight: 100;
+                display: inline-block;
+                flex: 1;
+                cursor: pointer;
+                white-space: nowrap;
+                color: var(--breadcrumbs-selected-color);
+                margin-left: 29px;
+            }
+            .trash-name {
+                margin-left: 5px;
+            }
+            .trash-name > * {
+                display: inline-block;
+            }
+            .crumb {
+                display: inline-block;
+                margin-left: 25px;
+                font-weight: 100;
+                flex: 1;
+            }
+            .crumb .title{
+                cursor: pointer;
+                display: inline-block;
+                vertical-align: top;
+                font-size: 17px;
+                padding: 3px 10px;
+                position: relative;
+                top: 3px;
+                white-space: nowrap;
+                max-width: 150px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                color: var(--breadcrumbs-selected-color);
+            }
+            .crumb .title.selected {
+                border-radius: 3px;
+                background: var(--breadcrumbs-selected-color);
+                color: var(--white-color);
+            }
+
+            .crumb .line {
+                position: absolute;
+                top: 13px;
+                margin-left: -34px;
+                width: 40px;
+                height: 40px;
+            }
+            .crumb .line.first{
+                margin-left: -28px;
+            }
+            .crumb .line.main{
+                margin-left: -33px;
+            }
+            .crumb .line.last{
+                margin-left: -38px;
+            }
+
+
+        </style>
+        <div class$="project-name [[breadCrumbs(breadcrumbs.length)]]" hidden$="[[trashMode]]" on-click="goOnTop">
+            [[projectName]]
+        </div>
+        <div class="trash-name" hidden$="[[!trashMode]]">
+            <i18-n msgid="Trash bin">Trash bin</i18-n>
+            <i18-n msgid="of project">of project</i18-n>
+            <div class="project">&laquo;<span>[[project.name]]</span>&raquo;</div>
+        </div>
+        <template is="dom-repeat" items="[[breadcrumbs]]" as="crumb">
+            <div class="crumb">
+                <iron-icon class$="line [[isFirst(index,breadcrumbs)]]" icon="designmap:line"></iron-icon>
+                <div class$="title [[calculateSelectedCrumb(breadcrumbs.length,index)]]" on-click="goToParent">
+                    [[crumb.name]]
+                </div>
+            </div>
+        </template>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-fs-breadcrumbs',
+            behaviors: [
+                ReduxBehavior
+            ],
+            properties: {
+                project: {
+                    type: String,
+                    statePath: 'project'
+                },
+                currentFolderId: {
+                    type: String,
+                    value: null,
+                    notify: true
+                },
+                /**
+                 * Compute breadcrumbs
+                 */
+                breadcrumbs: {
+                    type: Array,
+                    value: [],
+                    computed: 'calculateCrumbs(currentFolderId)'
+                },
+                /**
+                 * Trash mode
+                 */
+                trashMode: {
+                    type: Boolean,
+                    value: false,
+                    observer: 'trashModeChanged'
+                }
+            },
+            attached: function () {
+                this.calculateCrumbs(this.currentFolderId);
+            },
+            /**
+             * Calculate bread crumbs
+             */
+            calculateCrumbs: function (parent) {
+                var crumbs = [];
+                var folder = this.findFolderById(parent);
+                if (!folder) return [];
+                while (folder) {
+                    crumbs.unshift(folder);
+                    folder = this.findFolderById(folder.parent);
+                }
+                return crumbs;
+            },
+            /**
+             * Calculate selected bread crumb.
+             * It will be a last one.
+             * @returns {string}
+             */
+            calculateSelectedCrumb: function (length, index) {
+                return (length - 1) == index ? 'selected' : '';
+            },
+            /**
+             * Go up
+             * @param e
+             */
+            goToParent: function (e) {
+                var folder = this.findFolderById(e.model.crumb._id);
+                //page.redirect('#'+this.getFullPath(folder));
+                this.currentFolderId = e.model ? e.model.crumb._id : null;
+                location.hash = '#' + this.getFullPath(folder);
+            },
+            /**
+             * Go on top
+             * @param e
+             */
+            goOnTop: function (e) {
+                location.hash = '#/';
+                this.currentFolderId = null;
+            },
+            /**
+             * Go on top
+             */
+            trashModeChanged: function () {
+                if (this.trashMode) this.currentFolderId = null;
+            },
+            /**
+             * Compute class if it is first crumb
+             * @param index
+             * @returns {string}
+             */
+            isFirst: function (index, breadcrumbs) {
+                if (index == 0 && breadcrumbs.length == 1) return 'main';
+                if ((breadcrumbs.length - 1) == index) return 'last';
+                return index === 0 ? 'first' : '';
+            },
+            breadCrumbs: function (length) {
+                return !length ? 'selected' : '';
+            }
+        })
+    </script>
+</dom-module>

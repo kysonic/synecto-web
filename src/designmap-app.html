@@ -26,8 +26,8 @@
 <link rel="import" href="redux/redux-store.html">
 <link rel="import" href="redux/actions/combine-actions.html">
 <link rel="import" href="redux/actions/user-actions.html">
-<!-- Mixins -->
-<link rel="import" href="mixins/designmap-messages-mixin.html">
+<!-- Behaviors -->
+<link rel="import" href="behaviors/designmap-messages-behavior.html">
 
 <dom-module id="designmap-app">
   <template>
@@ -99,6 +99,7 @@
             fallback-selection="designmap-404"
             role="main">
           <designmap-fs-view name="fs"></designmap-fs-view>
+          <designmap-settings-view name="settings"></designmap-settings-view>
           <designmap-gallery-view name="gallery"></designmap-gallery-view>
           <designmap-login-view name="login"></designmap-login-view>
           <designmap-404 name="404"></designmap-404>
@@ -112,13 +113,13 @@
     const HOME_VIEW = 'fs';
     const LOGIN_VIEW = 'login';
     // Routes
-    const SHOULD_AUTH_ROUTES = ['fs'];
+    const SHOULD_AUTH_ROUTES = ['fs','settings'];
     Polymer({
       is: 'designmap-app',
       behaviors: [
         ReduxBehavior,
-        CombineActions(UserActions),
-        DesignMapMessagesMixin
+        Polymer.CombineActions(Polymer.UserActions),
+        Polymer.DesignMapMessagesBehavior
       ],
       properties: {
         page: {
@@ -151,6 +152,7 @@
       },
 
       _routePageChanged: function(page) {
+        this.backURL = this.backURL || page;
         // Change page
         const currentPage = page || HOME_VIEW;
         // Check authorization
@@ -171,11 +173,12 @@
       },
 
       _userChanged: function(user){
-        this._routePageChanged(HOME_VIEW);
+        this._routePageChanged(this.backURL);
       },
 
       _showPage404: function() {
-        this.page = 'designmap-404';
+        this._setLayoutState(true);
+        this.page = '404';
       },
       /**
        * Login page should be without drawer

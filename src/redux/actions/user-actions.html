@@ -3,7 +3,7 @@
    * User actions
    * @type {{actions: {getData: (function(this:Polymer.UserActions))}}}
    */
-  const UserActions = {
+  Polymer.UserActions = {
     actions: {
       /**
        * Get data about all of user
@@ -70,7 +70,6 @@
             if(!response.success) return;
             dispatch({type:"CLEAN_USER"});
             dispatch({type:"CLEAN_NOTIFICATIONS"});
-            dispatch({type:'UPDATE_APP_IS_AUTH',isAuth:false});
           }.bind(this));
           return promise;
         }.bind(this);
@@ -84,8 +83,7 @@
           var promise = xhr.post(Designmap.config.apiURL+'user/login',{email: email, password: password});
           promise.then(function(response){
             if(!response.success) return;
-            dispatch({type:"UPDATE_USER",data:response.user});
-            dispatch({type:'UPDATE_APP_IS_AUTH',isAuth:true});
+            dispatch({type:"UPDATE_USER",user: response.user});
           }.bind(this));
           return promise;
         }.bind(this);
@@ -100,7 +98,6 @@
           promise.then(function(response){
             if(!response.success) return;
             dispatch({type:"UPDATE_USER",data:response.user});
-            dispatch({type:'UPDATE_APP_IS_AUTH',isAuth:true});
           }.bind(this));
           return promise;
         }.bind(this);
@@ -114,7 +111,6 @@
           promise.then(function(response){
             if(!response.success) return;
             dispatch({type:"UPDATE_USER",data:response.user});
-            dispatch({type:'UPDATE_APP_IS_AUTH',isAuth:true});
           }.bind(this));
           return promise;
         }.bind(this);
@@ -153,8 +149,7 @@
           var promise = xhr.post(Designmap.config.apiURL+'user/google-registration',{user:googleUser});
           promise.then(function(response){
             if(!response.success) return;
-            dispatch({type:"UPDATE_USER",data:response.user});
-            dispatch({type:'UPDATE_APP_IS_AUTH',isAuth:true});
+            dispatch({type:"UPDATE_USER",user:response.user});
           }.bind(this));
           return promise;
         }.bind(this);
@@ -168,7 +163,6 @@
           promise.then(function(response){
             if(!response.success) return;
             dispatch({type:"UPDATE_USER",data:response.user});
-            dispatch({type:'UPDATE_APP_IS_AUTH',isAuth:true});
           }.bind(this));
           return promise;
         }.bind(this);
@@ -213,7 +207,7 @@
         return function(dispatch) {
           var promise = xhr.put(Designmap.config.apiURL+'user/password',{password:password});
           promise.then(function(response){
-            if(!response.success) return;
+            if(!response.success) return false;
           }.bind(this));
           return promise;
         }.bind(this);

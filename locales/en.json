@@ -1174,5 +1174,8 @@
   },
   "Add subtask": {
     "message": "Enter new subtask name"
+  },
+  "Google authorization went wrong.": {
+    "message": "Google authorization went wrong."
   }
 }
