@@ -1,7 +1,7 @@
 <script>
     const ENV = location.href.indexOf('localhost')!=-1 || location.href.indexOf('192.168')!=-1 ? 'local' : 'remote';
     const LOCAL_NETWORK_ADDRESS = location.hostname;
-    const Designmap = {
+    var Designmap = {
         config:{
             apiURL: ENV=='local'?'http://'+LOCAL_NETWORK_ADDRESS+':4000/':'https://server.designmap.ru/',
             trueIP: 'http://52.59.115.60:3000/',
@@ -26,4 +26,6 @@
     // XHR
     xhr.opts.withCredentials = true;
     xhr.opts.preventCache = true;
+    // Undo manager
+    Designmap.undoManager = new UndoManager();
 </script>

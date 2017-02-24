@@ -1,4 +1,5 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="./designmap-fs-service.html">
 
 <dom-module is="designmap-fs-element">
     <template>
@@ -215,7 +216,8 @@
             behaviors: [
                 Polymer.DesignMapWebAnimationBehavior,
                 Polymer.DesignMapMessagesBehavior,
-                Polymer.DesignMapUtilsBehavior
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapFsService,
                 ReduxBehavior
             ],
             canBeDisplayedExt: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr", ".ppm", ".pbm"],
@@ -243,9 +245,13 @@
                 /**
                  * App language
                  */
+                user: {
+                    type: String,
+                    statePath: 'user'
+                },
                 language: {
                     type: String,
-                    statePath: 'language'
+                    computed: '_computeLanguage(user.language)'
                 },
                 /**
                  * Language was loaded
@@ -280,22 +286,6 @@
                     type: String,
                     value: 'folder'
                 }
-            },
-            playStaggerAnimation: function () {
-                this.style.opacity = 0;
-                this.slideFromTopAnimation(this, {
-                    fill: 'forwards',
-                    delay: this.index * 100,
-                    duration: 300,
-                    easing: 'cubic-bezier(.2,0,.2,1)'
-                }).play();
-            },
-            playAnimation: function () {
-                this.slideFromTopAnimation(this, {
-                    fill: 'forwards',
-                    duration: 300,
-                    easing: 'cubic-bezier(.2,0,.2,1)'
-                }).play();
             },
             /**
              * Compute selected state for folder

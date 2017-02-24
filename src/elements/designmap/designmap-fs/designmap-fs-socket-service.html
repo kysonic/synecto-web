@@ -1,0 +1,112 @@
+<script>
+    Polymer.DesignMapFsSocketService = {
+        /**
+         * Setup socket
+         */
+        setupSocket: function(id){
+          if(this.socket) this.socket.disconnect();
+          if(!this.socket) {
+            // Connect to appropriate room created specially for this project.
+            this.socket = io.connect(Designmap.config.apiURL,{query: 'room='+id});
+            Designmap.fsScoket = this.socket;
+            this.setupSocketSubscribers();
+          }else {
+            // Change room
+            this.socket.io.opts.query = 'room='+id;
+            this.socket.connect();
+          }
+        },
+        /**
+         * Socket subscribers
+         */
+        setupSocketSubscribers: function () {
+            this.socket.on('connect',function(){
+              console.log('DesignMap project socket is connected.');
+            });
+            /**
+             * Create folder
+             */
+            this.socket.on('createFolder', function (o) {
+                if (o.uid == this.uid) return;
+                ReduxStore.dispatch(o);
+            }.bind(this));
+            /**
+             * Delete folder
+             */
+            this.socket.on('deleteFolder', function (o) {
+                if (o.uid == this.uid) return;
+                ReduxStore.dispatch(o);
+            }.bind(this));
+            /**
+             * Update folder
+             */
+            this.socket.on('updateFolder', function (o) {
+                if (o.uid == this.uid) return;
+                ReduxStore.dispatch(o);
+            }.bind(this));
+            /**
+             * Create file
+             */
+            this.socket.on('createFile', function (o) {
+                if (o.uid == this.uid) return;
+                ReduxStore.dispatch(o);
+            }.bind(this));
+            /**
+             * Delete file
+             */
+            this.socket.on('deleteFile', function (o) {
+                if (o.uid == this.uid) return;
+                ReduxStore.dispatch(o);
+            }.bind(this));
+            /**
+             * Update file
+             */
+            this.socket.on('updateFile', function (o) {
+                if (o.uid == this.uid) return;
+                ReduxStore.dispatch(o);
+            }.bind(this));
+            /**
+             * Create file
+             */
+            this.socket.on('createSticker', function (o) {
+                if (o.uid == this.uid) return;
+                ReduxStore.dispatch(o);
+            }.bind(this));
+            /**
+             * Delete Sticker
+             */
+            this.socket.on('deleteSticker', function (o) {
+                if (o.uid == this.uid) return;
+                ReduxStore.dispatch(o);
+            }.bind(this));
+            /**
+             * Update Sticker
+             */
+            this.socket.on('updateSticker', function (o) {
+                if (o.uid == this.uid) return;
+                ReduxStore.dispatch(o);
+            }.bind(this));
+            /**
+             * Create task
+             */
+            this.socket.on('createTask', function (o) {
+              if (o.uid == this.uid) return;
+              ReduxStore.dispatch(o);
+            }.bind(this));
+            /**
+             * Delete task
+             */
+            this.socket.on('deleteTask', function (o) {
+              if (o.uid == this.uid) return;
+              ReduxStore.dispatch(o);
+            }.bind(this));
+            /**
+             * Update task
+             */
+            this.socket.on('updateTask', function (o) {
+              if (o.uid == this.uid) return;
+              ReduxStore.dispatch(o);
+            }.bind(this));
+        }
+    }
+</script>

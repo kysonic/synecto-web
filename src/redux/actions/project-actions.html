@@ -1,0 +1,86 @@
+<script>
+    Polymer.ProjectActions = {
+        actions: {
+            getProject: function (id) {
+                return function (dispatch) {
+                    var promise = xhr.get(Designmap.config.apiURL + 'project/' + id);
+                    promise.then(function (response) {
+                        if (!response.success) return;
+                        dispatch({type: 'SET_PROJECT_STATE', project: response.project});
+                    });
+                    return promise;
+                }
+            },
+            getProjects: function () {
+                return function (dispatch) {
+                    var promise = xhr.get(Designmap.config.apiURL + 'project/?list=true');
+                    promise.then(function (response) {
+                        if (!response.success) return;
+                        dispatch({type: 'SET_PROJECTS', projects: response.projects});
+                        dispatch({type: 'SET_SHARED', shared: response.shared});
+                    });
+                    return promise;
+                }
+            },
+            cleanProjects: function () {
+                return {
+                    type: 'CLEAN_PROJECTS'
+                }
+            },
+            createProject: function (data) {
+                return function (dispatch) {
+                    var promise = xhr.post(Designmap.config.apiURL + 'project', data);
+                    promise.then(function (response) {
+                        if (!response.success) return;
+                        dispatch({type: 'ADD_PROJECT', data: response.project});
+                    });
+                    return promise;
+                }
+            },
+            removeProject: function (id) {
+                return function (dispatch) {
+                    var promise = xhr.delete(Designmap.config.apiURL + 'project/' + id);
+                    promise.then(function (response) {
+                        if (!response.success) return;
+                        dispatch({type: 'REMOVE_PROJECT', index: this.findProjectIndexByID(id)});
+                        dispatch({type: 'UPDATE_SELECTED_PROJECT_ID', selectedProjectID: null});
+                        var project = ReduxStore.getState().projects[0];
+                        if (project) {
+                            page.redirect('/' + project._id + '/');
+                            return this.dispatch('userUpdate', {lastOpenedProject: project._id});
+                        }
+                        page.redirect('/');
+                        this.dispatch('userUpdate', {lastOpenedProject: null});
+                    }.bind(this));
+                    return promise;
+                }.bind(this)
+            },
+            updateProject: function (id, data) {
+                return function (dispatch) {
+                    var promise = xhr.put(Designmap.config.apiURL + 'project/' + id, data);
+                    promise.then(function (response) {
+                        if (!response.success) return;
+                        dispatch({
+                            type: 'UPDATE_PROJECT',
+                            index: this.findProjectIndexByID(id),
+                            data: response.project
+                        });
+                    }.bind(this));
+                    return promise;
+                }.bind(this)
+            },
+            setProjectState: function (project) {
+                return {
+                    type: 'SET_PROJECT_STATE',
+                    project: project
+                }
+            },
+            updateProjectState: function (data) {
+                return {
+                    type: 'UPDATE_PROJECT_STATE',
+                    data: data
+                }
+            }
+        }
+    }
+</script>

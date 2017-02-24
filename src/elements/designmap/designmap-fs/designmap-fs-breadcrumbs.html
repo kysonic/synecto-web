@@ -1,4 +1,5 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="./designmap-fs-service.html">
 
 <dom-module is="designmap-fs-breadcrumbs">
     <template>
@@ -11,6 +12,9 @@
                 --breadcrumbs-text-color: var(--blue-color);
                 --breadcrumbs-selected-color: var(--blue-darky-color);
             }
+            *[hidden] {
+                display: none !important;
+            }
             .project-name, .trash-name {
                 font-size: 26px;
                 font-weight: 100;
@@ -19,7 +23,7 @@
                 cursor: pointer;
                 white-space: nowrap;
                 color: var(--breadcrumbs-selected-color);
-                margin-left: 29px;
+                margin-left: 23px;
             }
             .trash-name {
                 margin-left: 5px;
@@ -93,12 +97,17 @@
         Polymer({
             is: 'designmap-fs-breadcrumbs',
             behaviors: [
-                ReduxBehavior
+                ReduxBehavior,
+                Polymer.DesignMapFsService
             ],
             properties: {
                 project: {
                     type: String,
                     statePath: 'project'
+                },
+                routerData: {
+                    type: Object,
+                    statePath: 'routerData'
                 },
                 currentFolderId: {
                     type: String,
@@ -152,17 +161,14 @@
              */
             goToParent: function (e) {
                 var folder = this.findFolderById(e.model.crumb._id);
-                //page.redirect('#'+this.getFullPath(folder));
-                this.currentFolderId = e.model ? e.model.crumb._id : null;
-                location.hash = '#' + this.getFullPath(folder);
+                document.querySelector('designmap-app').set('route.path',this.routerData.page+this.getFullPath(folder));
             },
             /**
              * Go on top
              * @param e
              */
             goOnTop: function (e) {
-                location.hash = '#/';
-                this.currentFolderId = null;
+                document.querySelector('designmap-app').set('route.path',this.routerData.page);
             },
             /**
              * Go on top

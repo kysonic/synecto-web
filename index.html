@@ -38,11 +38,11 @@
     <meta name="msapplication-TileColor" content="#3f51b5">
     <meta name="msapplication-tap-highlight" content="no">
 
-    <!-- Redux -->
     <script src="/node_modules/redux/dist/redux.min.js"></script>
     <script src="/node_modules/redux-thunk/dist/redux-thunk.min.js"></script>
-    <!-- XHR -->
     <script src="/bower_components/xhr/Xhr.js"></script>
+    <script src="/bower_components/undo-manager/lib/undomanager.js"></script>
+    <script src="/bower_components/socket.io-client/dist/socket.io.min.js"></script>
 
     <script>
       // Setup Polymer options
@@ -50,6 +50,21 @@
         dom: 'shadow',
         lazyRegister: true
       };
+
+      String.prototype.capitalize = function () {
+          return this && this[0].toUpperCase() + this.slice(1);
+      };
+
+      Array.prototype.clean = function() {
+          for (var i = 0; i < this.length; i++) {
+              if (!this[i]) {
+                  this.splice(i, 1);
+                  i--;
+              }
+          }
+          return this;
+      };
+
 
       // Load webcomponentsjs polyfill if browser does not support native
       // Web Components
@@ -92,7 +107,7 @@
     </script>
 
     <link rel="import" href="/src/designmap-app.html">
-    <link rel="import" href="/src/elements/plastic/plastic-snackbar/plastic-snackbar.html">
+    <link rel="import" href="/src/elements/designmap/designmap-snackbar/designmap-snackbar.html">
 
     <style>
       body {
@@ -106,7 +121,7 @@
     </style>
   </head>
   <body>
-    <plastic-snackbar id="snackbar" duration="8000"></plastic-snackbar>
+    <designmap-snackbar id="snackbar" duration="8000"></designmap-snackbar>
     <designmap-app></designmap-app>
     <!-- Built with love using Polymer Starter Kit -->
   </body>

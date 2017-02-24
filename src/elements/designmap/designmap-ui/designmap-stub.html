@@ -1,0 +1,131 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module id="designmap-stub">
+    <template>
+      <style>
+        :host {
+            display: block;
+            width:100%;
+            height: 100%;
+
+            --main-color: var(--gray-saturated-color);
+            --error-color: var(--expired);
+            --input-color: var(--gray-darky-color);
+        }
+
+        .wrapper {
+            width:100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .block {
+            width: 270px;
+            text-align: center;
+            position: relative;
+            bottom: 0px;
+        }
+        .block .message {
+            flex:1;
+            color: var(--gray-saturated-color);
+            font-weight: 100;
+            text-align: center;
+        }
+        :host([error]) {
+            color: var(--error-color);
+        }
+        .block .sloth {
+            margin: 0 auto;
+            width: 241px;
+            height: 267px;
+        }
+
+        input {
+            font-family: 'Open Sans', sans-sarif;
+            font-weight: 100;
+            font-size: 22px;
+            color: var(--input-color);
+            border: none;
+            outline: none;
+            text-align: center;
+            margin-top: 18px;
+        }
+
+        input:focus::-webkit-input-placeholder
+        {
+            color: var(--white-color);
+        }
+        input:focus::-moz-placeholder {
+            color: var(--white-color);
+        }
+
+        .icon {
+            width: 241px;
+            height: 267px;
+        }
+
+    </style>
+      <div class="wrapper">
+        <div class="block">
+          <div class="message"><i18-n msgid="[[message]]">[[message]]</i18-n></div>
+          <template is="dom-if" if="[[inputText]]" >
+            <iron-a11y-keys id="a11yEditor" keys="enter" on-keys-pressed="action"></iron-a11y-keys>
+            <input is="iron-input" id="input" placeholder="[[translate(inputText,language,i18Loaded)]]" on-blur="action" value="{{value::keyup}}" auto-validate pattern="[[pattern]]" error-message="{{translate(inputError,language,i18Loaded)}}"/>
+          </template>
+          <iron-icon class="icon" icon="[[image]]"></iron-icon>
+        </div>
+      </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-stub',
+            behaviors: [
+              Polymer.DesignMapMessagesBehavior,
+              ReduxBehavior
+            ],
+            properties: {
+              image: {
+                type: String,
+                value: 'designmap-taskmanager-whitespace:sloth'
+              },
+              message: {
+                type: String,
+                value: 'Some message here...'
+              },
+              inputText: {
+                type: String,
+                value: false
+              },
+              inputError: {
+                type: String,
+                value: false
+              },
+              value: {
+                type: String,
+                notify: true
+              },
+              pattern: {
+                type: Object,
+                value: /[\w\dа-яА-ЯёЁ ]+/
+              },
+              user: {
+                type: Object,
+                statePath: 'user'
+              },
+              language: {
+                type: String,
+                computed: '_computeLanguage(user.language)'
+              },
+              i18Loaded: {
+                type: Boolean,
+                statePath: 'i18Loaded'
+              }
+            },
+            action: function(){
+              this.fire('action',this.value);
+            }
+        })
+    </script>
+</dom-module>

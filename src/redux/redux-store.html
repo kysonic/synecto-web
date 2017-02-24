@@ -1,21 +1,34 @@
 <link rel="import" href="../../bower_components/polymer-redux/polymer-redux.html">
 <link rel="import" href="redux-ignore.html">
+<script>const Reducers = {};</script>
 <!-- Reducers -->
+<link rel="import" href="reducers/router-data-reducer.html">
 <link rel="import" href="reducers/user-reducer.html">
 <link rel="import" href="reducers/i18n-reducer.html">
 <link rel="import" href="reducers/notifications-reducer.html">
+<link rel="import" href="reducers/project-reducer.html">
+<link rel="import" href="reducers/projects-reducer.html">
+<link rel="import" href="reducers/folders-reducer.html">
 
 <script>
     const initialState = {
+        router: {},
         user: null,
         i18Loaded: false,
-        notifications: []
+        notifications: [],
+        project: null,
+        projects: [],
+        folders: []
     };
     // Combine reducers
     const reducer = Redux.combineReducers({
-       user: filterActions(UserReducer,['UPDATE_USER','CLEAN_USER']),
-       i18Loaded: filterActions(I18nLoadedReducer,['UPDATE_I18_LOADED']),
-       notifications: filterActions(NotificationsReducer,['ADD_NOTIFICATION','REMOVE_NOTIFICATION','UPDATE_NOTIFICATION','SET_NOTIFICATIONS','CLEAN_NOTIFICATIONS'])
+       routerData: filterActions(Reducers.RouterDataReducer,['SET_ROUTER_DATA','CLEAN_ROUTER_DATA']),
+       user: filterActions(Reducers.UserReducer,['UPDATE_USER','CLEAN_USER']),
+       i18Loaded: filterActions(Reducers.I18nLoadedReducer,['UPDATE_I18_LOADED']),
+       notifications: filterActions(Reducers.NotificationsReducer,['ADD_NOTIFICATION','REMOVE_NOTIFICATION','UPDATE_NOTIFICATION','SET_NOTIFICATIONS','CLEAN_NOTIFICATIONS']),
+       project: filterActions(Reducers.ProjectReducer,['SET_PROJECT_STATE','UPDATE_PROJECT_STATE']),
+       projects: filterActions(Reducers.ProjectsReducer,['ADD_PROJECT','REMOVE_PROJECT','UPDATE_PROJECT','SET_PROJECTS','CLEAN_PROJECTS']),
+       folders: filterActions(Reducers.FoldersReducer,['ADD_FOLDER','REMOVE_FOLDER','UPDATE_FOLDER','SET_FOLDERS','CLEAN_FOLDERS'])
     });
     // Build store
     const ReduxStore = Redux.createStore(reducer,Redux.applyMiddleware(ReduxThunk.default));

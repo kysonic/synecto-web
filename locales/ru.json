@@ -1204,5 +1204,8 @@
   },
   "Google authorization went wrong.": {
     "message": "Авторизация через Google не удалась..."
+  },
+  "There is no project with same id.": {
+    "message": "Не удалось найти проект..."
   }
 }

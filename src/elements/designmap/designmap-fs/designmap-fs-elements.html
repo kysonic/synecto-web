@@ -1,5 +1,14 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
-<dom-module is="designmap-fs-elements">
+<!-- Components -->
+<link rel="import" href="./designmap-fs-element.html">
+<link rel="import" href="../../plastic/plastic-custom-scroll.html">
+<!-- Redux -->
+<link rel="import" href="../../../redux/actions/folders-actions.html">
+<!-- Services -->
+<link rel="import" href="./designmap-fs-service.html">
+<link rel="import" href="./designmap-fs-socket-service.html">
+
+<dom-module id="designmap-fs-elements">
     <template>
         <style>
             :host {
@@ -101,13 +110,13 @@
                 color: var(--gray-saturated-color);
             }
             .white-space .wrapper .text a {
-                color: var(--primary-darky-color);
+                color: var(--blue-darkest-color);
             }
 
 
         </style>
         <!-- Associated components -->
-        <designmap-hidden-panel target="[[document.body]]" position="top"
+        <!--<designmap-hidden-panel target="[[document.body]]" position="top"
                                 disabled="[[!doesUserHaveEditAccess(role,acl)]]" cancel-auto-closing
                                 opened="[[computeHiddenPanelState(selected.length)]]">
             <div class="select-panel-content">
@@ -128,7 +137,7 @@
                     </button>
                 </div>
             </div>
-        </designmap-hidden-panel>
+        </designmap-hidden-panel>-->
         <!-- Confirms -->
         <designmap-confirm id="removingSelectedConfirm" message="AreYouSureThatYouWannaDeleteSelectedObjects"
                            on-continue="removeSelectedElementsIrretrievably"
@@ -140,40 +149,44 @@
                                  parent="folder" _id="[[currentFolderId]]" files="[[getFiles(elements)]]"
                                  allowed-extension='[[allowedExtensions]]'></designmap-file-uploader>
         <!-- Elements -->
-        <div class="elements">
-            <x-custom-scroll id="fsElementsCustomScroll" fit>
-                <template id="elementsRepeater" restamp is="dom-repeat" items="[[elements]]"
-                          sort="[[elementsSort(sortWay)]]">
-                    <designmap-fs-element item="[[item]]"
-                                          id="element-[[index]]"
-                                          index="[[index]]"
-                                          trash-mode="[[trashMode]]"
-                                          role="[[role]]"
-                                          acl="[[acl]]"
-                                          data-element-id$="[[item._id]]"
-                                          current-folder-id="{{currentFolderId}}"
-                                          on-dblclick="applyAction"></designmap-fs-element>
-                </template>
-            </x-custom-scroll>
-        </div>
-        <div class="white-space" hidden$="[[computeElementsState(elements.length)]]">
-            <div class="wrapper">
-                <div class="text" hidden$="[[trashMode]]">
-                    <i18-n msgid="Drag files here"></i18-n>
-                    <a href="#" on-click="openContextMenu">
-                        <i18-n msgid="create"></i18-n>
-                    </a>
-                    <i18-n msgid="new folder"></i18-n>
-                </div>
-                <div class="text" hidden$="[[!trashMode]]">
-                    <i18-n msgid="Trash bin is empty..."></i18-n>
-                </div>
-                <iron-icon icon="[[computeWhiteSpaceIcon(trashMode)]]"></iron-icon>
-                <!--<div class="text" hidden$="[[!trashMode]]">
-                  <i18-n msgid="Your elements has been recycled"></i18-n>
-                </div>-->
+        <template is="dom-if" if="[[elements.length]]">
+            <div class="elements" hidden$="[[!elements.length]]">
+                <plastic-custom-scroll id="fsElementsCustomScroll" fit>
+                    <template id="elementsRepeater" restamp is="dom-repeat" items="[[elements]]"
+                              sort="[[elementsSort(sortWay)]]">
+                        <designmap-fs-element item="[[item]]"
+                                              id="element-[[index]]"
+                                              index="[[index]]"
+                                              trash-mode="[[trashMode]]"
+                                              role="[[role]]"
+                                              acl="[[acl]]"
+                                              data-element-id$="[[item._id]]"
+                                              current-folder-id="{{currentFolderId}}"
+                                              on-dblclick="applyAction"></designmap-fs-element>
+                    </template>
+                </plastic-custom-scroll>
             </div>
-        </div>
+        </template>
+        <template is="dom-if" if="[[!elements.length]]">
+            <div class="white-space">
+                <div class="wrapper">
+                    <div class="text" hidden$="[[trashMode]]">
+                        <i18-n msgid="Drag files here"></i18-n>
+                        <a href="#" on-click="openContextMenu">
+                            <i18-n msgid="create"></i18-n>
+                        </a>
+                        <i18-n msgid="new folder"></i18-n>
+                    </div>
+                    <div class="text" hidden$="[[!trashMode]]">
+                        <i18-n msgid="Trash bin is empty..."></i18-n>
+                    </div>
+                    <iron-icon icon="[[computeWhiteSpaceIcon(trashMode)]]"></iron-icon>
+                    <!--<div class="text" hidden$="[[!trashMode]]">
+                      <i18-n msgid="Your elements has been recycled"></i18-n>
+                    </div>-->
+                </div>
+            </div>
+        </template>
         <!-- Drag zone -->
         <!--<div class$="element dropzone [[computeAlone(elements.length)]]" hidden$="[[trashMode]]" on-drop="drop" on-dragover="dragOver" on-contextmenu="preventContext">
           <div class="label file"></div>
@@ -188,16 +201,11 @@
             colors: ['#82a5c4', '#82c4b9', '#82c48c', '#b5c482', '#cccc85', '#ddab91', '#d6a971', '#cc8f8f', '#b695c5'],
             persistColors: ['#82a5c4', '#82c4b9', '#82c48c', '#b5c482', '#cccc85', '#ddab91', '#d6a971', '#cc8f8f', '#b695c5'],
             behaviors: [
-                Polymer.IronResizableBehavior,
                 Polymer.DesignMapMessagesBehavior,
                 Polymer.DesignMapUtilsBehavior,
-                Polymer.DesignMapACLBehavior,
-                Polymer.DesignMapFsFolderService,
-                Polymer.DesignMapFsFileService,
+                Polymer.DesignMapFsService,
                 ReduxBehavior,
-                Polymer.CombineActions(
-                    Polymer.FoldersActions,
-                    Polymer.FilesActions)
+                Polymer.CombineActions(Polymer.FoldersActions)
             ],
             properties: {
                 /**
@@ -205,8 +213,11 @@
                  */
                 currentFolderId: {
                     type: String,
-                    notify: true,
-                    observer: 'currentFolderIdChanged'
+                    notify: true
+                },
+                routerData: {
+                    type: Object,
+                    statePath: 'routerData'
                 },
                 /**
                  * Allowed extionsions to upload
@@ -243,12 +254,6 @@
                     type: Array
                 },
                 /**
-                 * User's role
-                 */
-                role: {
-                    type: String
-                },
-                /**
                  * Elements
                  */
                 elements: {
@@ -259,9 +264,9 @@
                         var folders = state.folders.filter(function (folder) {
                             return this.trashMode ? folder.removed : String(folder.parent) == String(parent) && !folder.removed;
                         }.bind(this));
-                        var files = state.files.filter(function (file) {
+                        var files = []; /*state.files.filter(function (file) {
                             return this.trashMode ? file.removed : String(file.folder) == String(parent) && !file.removed && !(state.user && (state.user._id !== file.owner && file.locked));
-                        }.bind(this));
+                        }.bind(this));*/
                         return folders.concat(files);
                     }
                 }
@@ -280,8 +285,8 @@
                 this.addEventListener('dragleave', this.dragLeave.bind(this));
                 this.addEventListener('drop', this.drop.bind(this));
                 // Resizer
-                this.resizerShouldNotify(this);
-                this.assignParentResizable(this);
+                /*this.resizerShouldNotify(this);
+                this.assignParentResizable(this);*/
             },
             /**
              * Execute stagger animation
@@ -343,10 +348,12 @@
              * because of repeater stamps
              */
             selectedChanged: function () {
-                var elements = this.querySelectorAll('designmap-fs-element');
-                if (elements) [].forEach.call(elements, function (element) {
-                    element.classList.remove('selected');
-                });
+                const repeater = this.$$('#elementsRepeater');
+                if (repeater) [].forEach.call(repeater.items, function (element) {
+                    var node = this.$$('*[data-element-id="' + element._id + '"]');
+                    if (node) node.classList.remove('selected');
+                }, this);
+
                 this.selected.forEach(function (element) {
                     var node = this.$$('*[data-element-id="' + element._id + '"]');
                     if (node) node.classList.add('selected');
@@ -380,8 +387,7 @@
              * @param element
              */
             executeFolderAction: function (element) {
-                location.hash = '#' + this.getFullPath(element);
-                this.currentFolderId = element._id;
+                document.querySelector('designmap-app').set('route.path',this.routerData.page+this.getFullPath(element));
             },
             /**
              * Open the gallery
@@ -407,17 +413,6 @@
             openInGallery: function (e) {
                 this.$.gallery.open();
                 this.$.gallery.selected = this.findFileIndexById(e.detail._id, this.getFiles(this.elements));
-            },
-            /**
-             * When we go down we have to update
-             * at least one folder to update workarea
-             */
-            currentFolderIdChanged: function (currentFolderId) {
-                // Update view
-                this.updateView();
-                this.async(function () {
-                    this.$.fsElementsCustomScroll.calculate();
-                }, 100);
             },
             /**
              * Get files only
@@ -472,15 +467,6 @@
                 this.$.removingSelectedConfirm.close();
             },
             /**
-             * Update template view...
-             */
-            updateView: function () {
-                var folder = ReduxStore.getState().folders[0];
-                if (!folder) return;
-                // Update
-                this.dispatch('_updateFolder', folder._id, folder);
-            },
-            /**
              * Prevent context menu
              * @param e
              */
@@ -515,12 +501,6 @@
                 this.classList.remove('dragged');
             },
             /**
-             * Compute elements state
-             */
-            computeElementsState: function (length) {
-                return !!length;
-            },
-            /**
              * Open context menu here
              * @param e
              */
@@ -533,7 +513,7 @@
              * @returns {string}
              */
             computeWhiteSpaceIcon: function (trashMode) {
-                return !trashMode ? 'designmap-workspace-white-space:empty-project' : 'designmap-workspace-white-space:empty-bin'
+                return !trashMode ? 'designmap-workspace-stub:empty-project' : 'designmap-workspace-stub:empty-bin'
             },
             /**
              * ACL Accesses
@@ -543,6 +523,7 @@
                 return this.can('update', 'project');
             },
             closeUploader: function () {
+
             }
         });
     </script>

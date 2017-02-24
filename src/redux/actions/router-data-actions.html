@@ -1,0 +1,21 @@
+<script>
+    /**
+     * Router data actions
+     * @type {{actions: {setRouter: Polymer.RouterActions.actions.setRouter, cleanUser: Polymer.RouterActions.actions.cleanUser}}}
+     */
+    Polymer.RouterDataActions = {
+        actions: {
+            setRouterData: function (routerData) {
+                return {
+                    type: 'SET_ROUTER_DATA',
+                    routerData: routerData
+                }
+            },
+            cleanRouterData: function () {
+                return {
+                    type: 'CLEAN_ROUTER_DATA'
+                }
+            }
+        }
+    }
+</script>

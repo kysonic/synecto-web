@@ -1,9 +1,9 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 
-<dom-module id="plastic-toast">
+<dom-module id="designmap-toast">
   <style>
     :host {
-      font-family: 'Open Sans';
+      font-family: var(--font-family);
       background: #4d92ea;
       color: #f1f1f1;
       padding: 12px 24px 12px;
@@ -153,7 +153,7 @@
 (function() {
 
   Polymer({
-    is: 'plastic-toast',
+    is: 'designmap-toast',
     properties: {
       /**
        * The duration in milliseconds to show the toast.
@@ -283,13 +283,7 @@
      * Undo
      */
     makeUndo: function(){
-      Designmap.app.undo();
-    },
-    /**
-     * Redo
-     */
-    makeRedo: function(){
-      if(Designmap.undoManager.hasRedo()) Designmap.app.redo();
+      Designmap.undoManager.undo();
     },
     /**
      * Type

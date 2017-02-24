@@ -1,0 +1,16 @@
+<script>
+    Reducers.RouterDataReducer = function(state,action) {
+        if(!state) state = {};
+        switch(action.type) {
+            case "SET_ROUTER_DATA":
+                return Object.assign({},state,action.routerData);
+                break;
+            case "CLEAN_ROUTER_DATA":
+                return {};
+                break;
+            default:
+                return state;
+                break;
+        }
+    }
+</script>

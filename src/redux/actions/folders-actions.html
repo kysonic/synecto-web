@@ -1,0 +1,151 @@
+<script>
+  Polymer.FoldersActions = {
+    actions: {
+      /**
+       * Get all folders for certain project from the server
+       * @returns {function(this:Polymer.FoldersActions)}
+       */
+      getFolders: function(query){
+        return function(dispatch) {
+          var promise = xhr.get(Designmap.config.apiURL+'folder/'+this.objectToQueryString(query));
+          promise.then(function(response){
+            if(!response.success) return;
+            dispatch({type:'SET_FOLDERS',folders:response.folders});
+          });
+          return promise;
+        }.bind(this)
+      },
+      /**
+       * Update folders bunch
+       * @param folders
+       * @returns {{type: string, folders: *}}
+       */
+      setFolders: function(folders){
+        return {
+          type: 'SET_FOLDERS',
+          folders: folders
+        }
+      },
+      /**
+       * Clean folders bunch
+       */
+      cleanFolders: function(){
+        return {
+          type: 'CLEAN_FOLDERS'
+        }
+      },
+      /**
+       * Add folder with undo\redo
+       * @param folder
+       * @returns {*}
+       */
+      $addFolder: function(folder){
+        Designmap.undoManager.add({
+          undo: function() {
+            this.dispatch('updateFolder',this.getFullPath(folder),{removed:true});
+          }.bind(this),
+          redo: function() {
+            this.dispatch('updateFolder',this.getFullPath(folder),{removed:false});
+          }.bind(this)
+        });
+        return this.actions.addFolder.call(this,folder);
+      },
+      /**
+       * Add folder
+       * @param folder - folder data
+       * @returns {function(this:Polymer.FoldersActions)}
+       */
+      addFolder: function(folder){
+        return function(dispatch){
+          var state = ReduxStore.getState();
+          dispatch({type:'ADD_FOLDER',data:folder});
+          var promise = xhr.post(Designmap.config.apiURL+'folder/', {path:folder.path,data:folder,projectID:state.project._id});
+          promise.then(function(response){
+            if(!response.success) throw new Error(response.errors.message);
+            Designmap.fsScoket.emit('createFolder',{type:'ADD_FOLDER',data:response.folder,uid:Designmap.uid});
+            dispatch({type:'UPDATE_FOLDER',data:response.folder,index:this.findFolderIndexById(folder._id)});
+          }.bind(this)).catch(function(err){
+            var index = this.findFolderIndexById(folder._id);
+            dispatch({type:'REMOVE_FOLDER',index:index});
+          }.bind(this));
+          return promise;
+        }.bind(this);
+      },
+      /**
+       * Update folder with undo/redo
+       * @param path - folder full path
+       * @param data - folder data
+       * @returns {*}
+       */
+      $updateFolder: function(path,data){
+        var historyData = this.findFolderByPath(path);
+        Designmap.undoManager.add({
+          undo: function() {
+            if(data.name) path = this.findParentPath(path) || Designmap.config.separator + data.name + Designmap.config.separator;
+            this.dispatch('updateFolder',path,historyData);
+          }.bind(this),
+          redo: function() {
+            if(historyData.name) path = this.findParentPath(path) || Designmap.config.separator + historyData.name + Designmap.config.separator;
+            this.dispatch('updateFolder',path,data);
+          }.bind(this)
+        });
+        return this.actions.updateFolder.call(this,path,data);
+      },
+      /**
+       * Update folder
+       * @param path - full path
+       * @param data - folder data
+       * @returns {function(this:Polymer.FoldersActions)}
+       */
+      updateFolder: function(path,data){
+        var historyData = Object.assign({},this.findFolderByPath(path));
+        return function(dispatch){
+          var index = this.findFolderIndexByPath(path);
+          dispatch({type:'UPDATE_FOLDER',data:data,index:index});
+          var promise = xhr.put(Designmap.config.apiURL+'folder/', {path:path,data:data,projectID:ReduxStore.getState().project._id});
+          promise.then(function(response){
+            if(!response.success) throw new Error(response.errors.message);
+            if(data.name) this.updatePaths(path,historyData.name,data.name);
+            Designmap.fsScoket.emit('updateFolder',{type:'UPDATE_FOLDER',data:response.folder,index:this.findFolderIndexByPath(this.getFullPath(response.folder)),uid:Designmap.uid});
+            dispatch({type:'UPDATE_FOLDER',data:response.folder,index:this.findFolderIndexByPath(this.getFullPath(response.folder))});
+          }.bind(this)).catch(function(err){
+            // Return old values
+            if(data.name) path = this.findParentPath(path) + data.name + Designmap.config.separator;
+            var index = this.findFolderIndexByPath(path);
+            dispatch({type:'UPDATE_FOLDER',data:historyData,index:index});
+          }.bind(this));
+          return promise;
+        }.bind(this);
+      },
+      /**
+       * Update only state tree
+       */
+      _updateFolder: function(path,data){
+        var index = this.findFolderIndexByPath(path);
+        return {type:'UPDATE_FOLDER',data:data,index:index};
+      },
+      /**
+       * Update folder
+       * @param path - full path
+       * @param data - folder data
+       * @returns {function(this:Polymer.FoldersActions)}
+       */
+      removeFolder: function(path){
+        return function(dispatch){
+          var state = ReduxStore.getState();
+          var index = this.findFolderIndexByPath(path);
+          var historyData = Object.assign({},this.findFolderByPath(path));
+          dispatch({type:'REMOVE_FOLDER',index:index});
+          var promise = xhr.delete(Designmap.config.apiURL+'folder/', {path:path,projectID:state.project._id});
+          promise.then(function(response){
+            if(!response.success) throw new Error();
+            Designmap.fsScoket.emit('deleteFolder',{type:'REMOVE_FOLDER',index: index,uid:Designmap.uid});
+          }.bind(this)).catch(function(err){
+            dispatch({type:'ADD_FOLDER',data:historyData});
+          }.bind(this));
+          return promise;
+        }.bind(this);
+      }
+    }
+  }
+</script>

@@ -1,7 +1,7 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
-<link rel="import" href="plastic-toast.html">
+<link rel="import" href="designmap-toast.html">
 
-<dom-module is="plastic-snackbar">
+<dom-module id="designmap-snackbar">
     <style>
         :host {
             z-index: 200;
@@ -29,12 +29,12 @@
     </style>
     <template>
         <template is="dom-repeat" items="{{toasts}}" as="toast">
-            <plastic-toast oid="{{index}}" on-hide="remove" type="[[toast.type]]" sender="[[toast.sender]]" notify="[[toast.notify]]" undo="[[toast.undo]]" error="[[toast.error]]" text="[[toast.text]]" duration="[[resolveDuration(toast)]]"></plastic-toast>
+            <designmap-toast oid="{{index}}" on-hide="remove" type="[[toast.type]]" sender="[[toast.sender]]" notify="[[toast.notify]]" undo="[[toast.undo]]" error="[[toast.error]]" text="[[toast.text]]" duration="[[resolveDuration(toast)]]"></designmap-toast>
         </template>
     </template>
     <script>
         Polymer({
-            is: 'plastic-snackbar',
+            is: 'designmap-snackbar',
             properties: {
                 toasts: {
                     type: Array,

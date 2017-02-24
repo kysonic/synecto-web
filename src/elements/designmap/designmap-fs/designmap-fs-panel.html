@@ -1,19 +1,30 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../designmap-buttons/designmap-circle-button.html">
+<link rel="import" href="../designmap-buttons/designmap-round-button.html">
+<link rel="import" href="./designmap-fs-service.html">
+
+<link rel="import" href="../../../styles/context-menu-shared-styles.html">
 
 <dom-module is="designmap-fs-panel">
     <template>
         <style include="context-menu-shared-styles">
             :host {
                 display: flex;
+
                 --designmap-circle-button-circle-mixin: {
-                    stroke-width: 4px !important;
+                    stroke-width: 2px !important;
                     stroke: var(--blue-darky-color);
                 };
+
                 --designmap-circle-button-content-icon-mixin: {
-                    padding: 0px;
+                    padding: 0;
                     width: 100%;
                     height: 100%;
-                }
+                };
+            }
+            *[hidden] {
+                display: none !important;
             }
             /** BUTTONS PANEL **/
             .buttons-panel {
@@ -62,7 +73,6 @@
                 margin-top: -6px;
             }
 
-
         </style>
         <!-- Confirms -->
         <designmap-confirm id="removeAllConfirm" message="AreYouSureThatYouWannaDeleteAllObjects"
@@ -98,37 +108,15 @@
                     <iron-icon icon="designmap-workspace:file"></iron-icon>
                 </designmap-circle-button>
                 <!-- Trash mode -->
-                <designmap-circle-button x-tooltip$="[[translate('Restore all',language,i18Loaded)]]" data-cls="blue"
-                                         hidden$="[[!trashMode]]" class="trash" on-click="restoreAll">
+                <designmap-circle-button x-tooltip$="[[translate('Restore all',language,i18Loaded)]]" data-cls="blue" hidden$="[[!trashMode]]" class="trash" on-click="restoreAll">
                     <iron-icon icon="designmap-workspace:restore"></iron-icon>
                 </designmap-circle-button>
                 <designmap-circle-button x-tooltip$="[[translate('Remove all',language,i18Loaded)]]" data-cls="blue"
-                                         hidden$="[[!canRemoveAll(trashMode,role)]]" class="trash" on-click="removeAll">
+                                         hidden$="[[!trashMode]]" class="trash" on-click="removeAll">
                     <iron-icon icon="designmap-workspace:remove"></iron-icon>
                 </designmap-circle-button>
             </div>
             <div class="right">
-
-
-                <!--<designmap-circle-button class="sort-button" on-click="changeSort" data-sort="name">
-                  <iron-icon icon="designmap40:sort_name"></iron-icon>
-                </designmap-circle-button>
-                <designmap-circle-button class="sort-button" on-click="changeSort" data-sort="modified">
-                  <iron-icon icon="designmap40:sort_modified"></iron-icon>
-                </designmap-circle-button>-->
-
-                <div class="set" hidden$="[[!doesUserHaveEditAccess(role,acl)]]">
-                    <!--<designmap-circle-button  on-click="goToTaskManger">
-                      <iron-icon icon="designmap-workspace:task-manager"></iron-icon>
-                    </designmap-circle-button>
-                    <designmap-circle-button hidden$="[[trashMode]]" on-click="openAccessMenu">
-                      <iron-icon icon="designmap-workspace:accesses"></iron-icon>
-                    </designmap-circle-button>
-                    <designmap-circle-button hidden$="[[trashMode]]" on-click="goToTrashBox">
-                      <div class="trash-length">[[trashLength]]</div>
-                      <iron-icon icon="designmap-workspace:trash-box"></iron-icon>
-                    </designmap-circle-button>-->
-                </div>
                 <designmap-circle-button x-tooltip$="[[translate('Sort',language,i18Loaded)]]" data-cls="blue"
                                          on-click="openMoreContext">
                     <iron-icon icon="designmap-workspace:sort"></iron-icon>
@@ -156,8 +144,7 @@
             behaviors: [
                 Polymer.DesignMapMessagesBehavior,
                 Polymer.DesignMapUtilsBehavior,
-                Polymer.DesignMapACLBehavior,
-                Polymer.DesignMapFsFolderService,
+                Polymer.DesignMapFsService,
                 ReduxBehavior
             ],
             properties: {
@@ -167,9 +154,13 @@
                 /**
                  * Language
                  */
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
                 language: {
                     type: String,
-                    statePath: 'language'
+                    computed: '_computeLanguage(user.language)'
                 },
                 i18Loaded: {
                     type: String,

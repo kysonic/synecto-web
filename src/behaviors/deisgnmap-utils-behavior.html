@@ -6,6 +6,7 @@
     Polymer.DesignMapUtilsBehavior = {
         cleanTextRegexp: /<\/?[^>]+(>|$)/g,
         UIDREGEXP: /[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}-/i,
+        objectIDRegexp: /^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/i,
         IMAGE_REGEXP: /images/,
         shareRegexp: /share/,
         /**
@@ -185,15 +186,6 @@
             return animationOn?animationName:'none';
         },
         /**
-         * Redirect on element using projects or share id
-         */
-        redirect: function(where){
-            var tree = ReduxStore.getState();
-            if(!tree.selectedProjectID && !tree.shareID) return page.redirect('/');
-            page.redirect((tree.shareID?'/share/':'/')+(tree.selectedProjectID||'')+where);
-            if(where=='/') page.redirect('#/');
-        },
-        /**
          * Get url of the app
          * @returns {string}
          */
@@ -206,6 +198,13 @@
         getElementName: function(element){
             if(!Object.keys(element).length) return '';
             return  element.name || element.data.name.replace(element.folder+'-','').replace(this.UIDREGEXP,'');
+        },
+        /**
+         * Check object id
+         * @param str
+         */
+        isObjectID: function(str){
+            return this.objectIDRegexp.test(str);
         }
     }
 </script>

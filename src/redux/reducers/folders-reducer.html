@@ -1,23 +1,23 @@
 <script>
-    Reducers.NotificationsReducer = function(state,action) {
+    Reducers.FoldersReducer = function(state,action) {
         if(!state) state = [];
         switch(action.type) {
-            case "ADD_NOTIFICATION":
+            case "ADD_FOLDER":
                 return state.concat([action.data]);
                 break;
-            case "REMOVE_NOTIFICATION":
+            case "REMOVE_FOLDER":
                 return state.slice(0,action.index)
                     .concat(state.slice(action.index+1));
                 break;
-            case "UPDATE_NOTIFICATION":
+            case "UPDATE_FOLDER":
                 return state.slice(0,action.index)
                     .concat([Object.assign({},state[action.index],action.data)])
                     .concat(state.slice(action.index+1));
                 break;
-            case "SET_NOTIFICATIONS":
-                return action.notifications;
+            case "SET_FOLDERS":
+                return state.concat(action.folders);
                 break;
-            case "CLEAN_NOTIFICATIONS":
+            case "CLEAN_FOLDERS":
                 return [];
                 break;
             default:

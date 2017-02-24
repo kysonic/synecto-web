@@ -1,23 +1,23 @@
 <script>
-    Reducers.NotificationsReducer = function(state,action) {
-        if(!state) state = [];
+    Reducers.ProjectsReducer = function(state, action) {
+        state = state || [];
         switch(action.type) {
-            case "ADD_NOTIFICATION":
+            case "ADD_PROJECT":
                 return state.concat([action.data]);
                 break;
-            case "REMOVE_NOTIFICATION":
+            case "REMOVE_PROJECT":
                 return state.slice(0,action.index)
                     .concat(state.slice(action.index+1));
                 break;
-            case "UPDATE_NOTIFICATION":
+            case "UPDATE_PROJECT":
                 return state.slice(0,action.index)
                     .concat([Object.assign({},state[action.index],action.data)])
                     .concat(state.slice(action.index+1));
                 break;
-            case "SET_NOTIFICATIONS":
-                return action.notifications;
+            case "SET_PROJECTS":
+                return action.projects;
                 break;
-            case "CLEAN_NOTIFICATIONS":
+            case "CLEAN_PROJECTS":
                 return [];
                 break;
             default:
@@ -25,5 +25,4 @@
                 break;
         }
     }
-
 </script>

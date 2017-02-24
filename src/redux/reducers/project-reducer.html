@@ -1,0 +1,16 @@
+<script>
+    Reducers.ProjectReducer = function(state, action) {
+        state = state || null;
+        switch(action.type) {
+            case "SET_PROJECT_STATE":
+                return action.project;
+                break;
+            case "UPDATE_PROJECT_STATE":
+                return Object.assign({},state,action.data);
+                break;
+            default:
+                return state;
+                break;
+        }
+    }
+</script>
