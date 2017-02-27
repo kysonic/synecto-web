@@ -1,6 +1,7 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <!-- Components -->
 <link rel="import" href="./designmap-fs-element.html">
+<link rel="import" href="../designmap-ui/designmap-hidden-panel.html">
 <link rel="import" href="../../plastic/plastic-custom-scroll.html">
 <!-- Redux -->
 <link rel="import" href="../../../redux/actions/folders-actions.html">
@@ -10,17 +11,19 @@
 
 <dom-module id="designmap-fs-elements">
     <template>
-        <style>
+        <style include="context-menu-shared-styles">
             :host {
                 display: block;
+                position: relative;
                 border: 2px dashed transparent;
                 resize: both;
                 width: calc(100% - 24px);
                 height: calc(100% - 14px);
+
                 --designmap-hidden-panel: {
-                    height: 77px !important;
-                    background: #8ECCFF;
-                    z-index: 8;
+                    height: var(--header-height);
+                    background: var(--blue-color);
+                    z-index: 99;
                 };
                 --x-custom-scroll-content-mixin: {
                     display: flex;
@@ -40,12 +43,16 @@
                 --designmap-circle-button-content-icon-mixin: {
                     padding: 40px;
                 }
-
+                --designmap-circle-button-circle-mixin: {
+                    stroke: #fff !important;
+                    stroke-width: 1px;
+                }
             }
 
             :host(.dragged) {
                 border: 2px dashed var(--gray-color);
             }
+
             /** ELEMENTS **/
             x-custom-scroll {
                 width: 100%;
@@ -73,13 +80,14 @@
                 display: flex;
                 align-items: center;
             }
+
             .dropzone .content .text {
                 display: inline-block;
                 vertical-align: middle;
                 width: 100%;
             }
 
-            .dropzone .label{
+            .dropzone .label {
                 width: 45%;
                 height: 5%;
                 display: block;
@@ -94,65 +102,38 @@
                 align-items: center;
                 justify-content: center;
             }
+
             .white-space .wrapper {
                 width: 245px;
                 height: 270px;
             }
+
             .white-space .wrapper iron-icon {
                 width: 200px;
                 height: 100%;
                 position: relative;
                 left: 42px;
             }
+
             .white-space .wrapper .text {
                 font-weight: 100;
                 text-align: center;
                 color: var(--gray-saturated-color);
             }
+
             .white-space .wrapper .text a {
                 color: var(--blue-darkest-color);
             }
 
-
+            .elements {
+                position: relative;
+            }
         </style>
-        <!-- Associated components -->
-        <!--<designmap-hidden-panel target="[[document.body]]" position="top"
-                                disabled="[[!doesUserHaveEditAccess(role,acl)]]" cancel-auto-closing
-                                opened="[[computeHiddenPanelState(selected.length)]]">
-            <div class="select-panel-content">
-                <designmap-circle-button class="cancel-selecting" on-click="cancelSelecting">
-                    <iron-icon icon="designmap40:add" style="transform: rotate(45deg)"></iron-icon>
-                </designmap-circle-button>
-                <div class="selected">
-                    [[selected.length]]
-                    <i18-n msgid="selected">selected</i18-n>
-                </div>
-                <div class="button-set">
-                    <button is="designmap-button" class="no-unselect" hidden="[[!trashMode]]"
-                            on-click="restoreSelectedElements" thin>
-                        <i18-n msgid="Restore">Restore</i18-n>
-                    </button>
-                    <button is="designmap-button" class="no-unselect" on-click="removeSelectedElements" thin>
-                        <i18-n msgid="Remove">Remove</i18-n>
-                    </button>
-                </div>
-            </div>
-        </designmap-hidden-panel>-->
-        <!-- Confirms -->
-        <designmap-confirm id="removingSelectedConfirm" message="AreYouSureThatYouWannaDeleteSelectedObjects"
-                           on-continue="removeSelectedElementsIrretrievably"
-                           on-suspend="suspendRemoving"></designmap-confirm>
-        <!-- Gallery -->
-        <designmap-gallery id="gallery" folder="[[currentFolderId]]" files="[[getFiles(elements)]]"></designmap-gallery>
-        <!-- Uploader -->
-        <designmap-file-uploader id="uploader" animation-on="[[user.config.animationOn]]" on-done="closeUploader"
-                                 parent="folder" _id="[[currentFolderId]]" files="[[getFiles(elements)]]"
-                                 allowed-extension='[[allowedExtensions]]'></designmap-file-uploader>
         <!-- Elements -->
         <template is="dom-if" if="[[elements.length]]">
-            <div class="elements" hidden$="[[!elements.length]]">
+            <div id="elementsWrapper" class="elements" hidden$="[[!elements.length]]">
                 <plastic-custom-scroll id="fsElementsCustomScroll" fit>
-                    <template id="elementsRepeater" restamp is="dom-repeat" items="[[elements]]"
+                    <template id="elementsRepeater" is="dom-repeat" items="[[elements]]"
                               sort="[[elementsSort(sortWay)]]">
                         <designmap-fs-element item="[[item]]"
                                               id="element-[[index]]"
@@ -160,12 +141,81 @@
                                               trash-mode="[[trashMode]]"
                                               role="[[role]]"
                                               acl="[[acl]]"
+                                              current-element="{{currentElement}}"
                                               data-element-id$="[[item._id]]"
                                               current-folder-id="{{currentFolderId}}"
                                               on-dblclick="applyAction"></designmap-fs-element>
                     </template>
                 </plastic-custom-scroll>
             </div>
+            <!-- Context menu -->
+            <designmap-context-menu id="contextMenu" previous>
+                <ul class="menu">
+                    <template is="dom-if" if="[[!trashMode]]">
+                        <template is="dom-if" if="[[isFolder(currentElement.type)]]">
+                            <li on-click="openAddFolderContext">
+                                <i18-n msgid="AddSubFolder">AddSubFolder</i18-n>
+                            </li>
+                            <!-- Add folder -->
+                            <designmap-context-menu id="addFolderContext" previous>
+                                <div class="context-content">
+                                    <iron-a11y-keys id="a11yAddFolder" keys="enter"
+                                                    on-keys-pressed="addFolderFromMenu"></iron-a11y-keys>
+                                    <paper-input label="[[translate('Folder Name',language,i18Loaded)]]" auto-validate
+                                                 pattern="[\w\dа-яА-ЯёЁ -]+"
+                                                 error-message="[[translate('FolderNameError',language,i18Loaded)]]"
+                                                 id="addFolder"></paper-input>
+                                    <div class="button-container">
+                                        <button is="designmap-round-button" on-click="addFolderFromMenu">
+                                            <iron-icon icon="icons:arrow-forward"></iron-icon>
+                                        </button>
+                                    </div>
+                                </div>
+                            </designmap-context-menu>
+                            <li on-click="openRenameFolderContext">
+                                <i18-n msgid="Rename">Rename</i18-n>
+                            </li>
+                            <!-- Rename Folder -->
+                            <designmap-context-menu id="renameFolderContext" previous>
+                                <div class="context-content">
+                                    <iron-a11y-keys id="a11yAddFolder" keys="enter"
+                                                    on-keys-pressed="renameFolder"></iron-a11y-keys>
+                                    <paper-input label="[[translate('Folder Name',language,i18Loaded)]]" auto-validate
+                                                 pattern="[\w\dа-яА-ЯёЁ -]+"
+                                                 error-message="[[translate('FolderNameError',language,i18Loaded)]]"
+                                                 id="renameFolder"></paper-input>
+                                    <div class="button-container">
+                                        <button is="designmap-round-button" on-click="renameFolder">
+                                            <iron-icon icon="icons:arrow-forward"></iron-icon>
+                                        </button>
+                                    </div>
+                                </div>
+                            </designmap-context-menu>
+                            <!-- Open file uploader -->
+                            <li on-click="openFileUploader">
+                                <i18-n msgid="Add file">Add file</i18-n>
+                            </li>
+                        </template>
+                        <template is="dom-if" if="[[isFile(currentElement.type)]]">
+                            <li on-click="openInGallery">
+                                <i18-n msgid="Open">Open</i18-n>
+                            </li>
+                        </template>
+                    </template>
+                    <template is="dom-if" if="[[trashMode]]">
+                        <li on-click="restoreElement">
+                            <i18-n msgid="Restore">Restore</i18-n>
+                        </li>
+                    </template>
+                    <li on-click="openInformation">
+                        <i18-n msgid="Information">Information</i18-n>
+                    </li>
+                    <li on-click="removeElement">
+                        <i18-n msgid="Remove">Remove</i18-n>
+                    </li>
+                </ul>
+            </designmap-context-menu>
+            <!-- Context menu -->
         </template>
         <template is="dom-if" if="[[!elements.length]]">
             <div class="white-space">
@@ -187,13 +237,41 @@
                 </div>
             </div>
         </template>
-        <!-- Drag zone -->
-        <!--<div class$="element dropzone [[computeAlone(elements.length)]]" hidden$="[[trashMode]]" on-drop="drop" on-dragover="dragOver" on-contextmenu="preventContext">
-          <div class="label file"></div>
-          <div class="content">
-            <div class="text"><i18-n msgid="Drag files here">Drag files here</i18-n></div>
-          </div>
-        </div>-->
+        <!-- Associated components -->
+        <designmap-hidden-panel target="[[bodyNode]]" position="top"
+                                cancel-auto-closing
+                                opened="[[computeHiddenPanelState(selected.length)]]">
+            <div class="select-panel-content">
+                <designmap-circle-button class="cancel-selecting" on-click="cleanSelected">
+                    <iron-icon icon="designmap:add" style="transform: rotate(45deg)"></iron-icon>
+                </designmap-circle-button>
+                <div class="selected">
+                    [[selected.length]]
+                    <i18-n msgid="selected">selected</i18-n>
+                </div>
+                <div class="button-set">
+                    <button is="designmap-button" class="no-unselect" hidden="[[!trashMode]]"
+                            on-click="restoreSelectedElements" thin>
+                        <i18-n msgid="Restore">Restore</i18-n>
+                    </button>
+                    <button is="designmap-button" class="no-unselect" on-click="removeSelectedElements" thin>
+                        <i18-n msgid="Remove">Remove</i18-n>
+                    </button>
+                </div>
+            </div>
+        </designmap-hidden-panel>
+        <!-- Confirms -->
+        <designmap-confirm id="removingSelectedConfirm" message="AreYouSureThatYouWannaDeleteSelectedObjects"
+                           on-continue="removeSelectedElementsIrretrievably"
+                           on-suspend="suspendRemoving"></designmap-confirm>
+        <designmap-confirm id="removingConfirm" message="AreYouSureThatYouWannaDeleteObject"
+                           on-continue="removeElementIrretrievably" on-suspend="suspendRemoving"></designmap-confirm>
+        <!-- Gallery -->
+        <designmap-gallery id="gallery" folder="[[currentFolderId]]" files="[[getFiles(elements)]]"></designmap-gallery>
+        <!-- Uploader -->
+        <designmap-file-uploader id="uploader" animation-on="[[user.config.animationOn]]" on-done="closeUploader"
+                                 parent="folder" _id="[[currentFolderId]]" files="[[getFiles(elements)]]"
+                                 allowed-extension='[[allowedExtensions]]'></designmap-file-uploader>
     </template>
     <script>
         Polymer({
@@ -247,11 +325,14 @@
                     type: String,
                     value: 'modified'
                 },
-                /**
-                 * ACL representation
-                 */
-                acl: {
-                    type: Array
+                bodyNode: {
+                    type: Object,
+                    value: function () {
+                        return document.body;
+                    }
+                },
+                currentElement: {
+                  type: Object
                 },
                 /**
                  * Elements
@@ -260,19 +341,13 @@
                     type: Array,
                     value: [],
                     statePath: function (state) {
-                        var parent = this.currentFolderId || null;
-                        var folders = state.folders.filter(function (folder) {
-                            return this.trashMode ? folder.removed : String(folder.parent) == String(parent) && !folder.removed;
-                        }.bind(this));
-                        var files = []; /*state.files.filter(function (file) {
-                            return this.trashMode ? file.removed : String(file.folder) == String(parent) && !file.removed && !(state.user && (state.user._id !== file.owner && file.locked));
-                        }.bind(this));*/
-                        return folders.concat(files);
+                        return this._countElements(state);
                     }
                 }
             },
             listeners: {
                 'open-in-gallery': 'openInGallery',
+                'open-element-context-menu': 'openElementContextMenu',
                 'select-element': 'selectElement'
             },
             observers: [
@@ -286,7 +361,24 @@
                 this.addEventListener('drop', this.drop.bind(this));
                 // Resizer
                 /*this.resizerShouldNotify(this);
-                this.assignParentResizable(this);*/
+                 this.assignParentResizable(this);*/
+            },
+
+            _countElements: function (state) {
+                const startTime = Date.now();
+                const parent = this.currentFolderId || null;
+                const folders = state.folders.filter(function (folder) {
+                    return this.trashMode ? folder.removed : String(folder.parent) == String(parent) && !folder.removed;
+                }.bind(this));
+                const files = [];
+                /*state.files.filter(function (file) {
+                 return this.trashMode ? file.removed : String(file.folder) == String(parent) && !file.removed && !(state.user && (state.user._id !== file.owner && file.locked));
+                 }.bind(this));*/
+                return folders.concat(files);
+            },
+
+            update: function () {
+                this.set('elements', this._countElements(ReduxStore.getState()))
             },
             /**
              * Execute stagger animation
@@ -332,7 +424,8 @@
                 var e = event.detail.e;
                 var item = event.detail.item;
                 e.stopPropagation();
-                var multiMode = !!e.ctrlKey;
+                var key = e.keyCode || e.charCode || 0;
+                var multiMode = !!(e.ctrlKey || e.metaKey);
                 if (!multiMode && this.selected.length) this.cleanSelected();
                 this.push('selected', item);
             },
@@ -358,6 +451,7 @@
                     var node = this.$$('*[data-element-id="' + element._id + '"]');
                     if (node) node.classList.add('selected');
                 }, this);
+
                 // Setup new information
                 if (document.querySelector('designmap-info')) {
                     document.querySelector('designmap-info').data = this.selected.length ? this.selected[this.selected.length - 1] : null;
@@ -386,26 +480,20 @@
              * Go down folder
              * @param element
              */
-            executeFolderAction: function (element) {
-                document.querySelector('designmap-app').set('route.path',this.routerData.page+this.getFullPath(element));
+            executeFolderAction: function (folder) {
+                document.querySelector('designmap-app').set('subroute.path', this.getFullPath(folder));
             },
             /**
              * Open the gallery
              * @param element
              */
             executeFileAction: function (element) {
-                var files = this.getFiles(this.elements);
-                var index = this.findFileIndexById(element._id, files);
-                if (index == null) return;
-                this.$.gallery.selected = index;
-                this.$.gallery.open();
-                location.hash += element._id;
-                //Hints
-                var hs = document.querySelector('designmap-hint-system');
-                if (hs.isRunning) {
-                    hs.$.openFile.close(true);
-                    document.querySelector('designmap-gallery').darken = true;
-                }
+                /*var files = this.getFiles(this.elements);
+                 var index = this.findFileIndexById(element._id, files);
+                 if (index == null) return;
+                 this.$.gallery.selected = index;
+                 this.$.gallery.open();
+                 location.hash += element._id;*/
             },
             /**
              * Open element in gallery
@@ -521,9 +609,6 @@
              */
             doesUserHaveEditAccess: function () {
                 return this.can('update', 'project');
-            },
-            closeUploader: function () {
-
             }
         });
     </script>

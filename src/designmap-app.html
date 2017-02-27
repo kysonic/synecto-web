@@ -134,6 +134,11 @@
                     reflectToAttribute: true,
                     observer: '_pageChanged',
                 },
+                path: {
+                    type: String,
+                    reflectToAttribute: true,
+                    observer: '_pathChanged',
+                },
                 user: {
                     type: Object,
                     statePath: 'user',
@@ -147,6 +152,7 @@
 
             observers: [
                 '_routePageChanged(routeData.page)',
+                '_pathChanged(subroute.path)'
             ],
 
             ready: function () {
@@ -159,8 +165,8 @@
             },
 
             _routePageChanged: function (page) {
-                // Set router data
-                this.dispatch('setRouterData',Object.assign(this.routeData,this.subroute));
+                const routerData = ReduxStore.getState().routerData;
+                if(routerData.page!==page) this.dispatch('setRouterData',{page:page});
                 // Back url
                 this.backURL = this.backURL || page;
                 // Change page
@@ -174,6 +180,12 @@
                 if (!this.$.drawer.persistent) {
                     this.$.drawer.close();
                 }
+            },
+
+
+            _pathChanged: function(path){
+                const routerData = ReduxStore.getState().routerData;
+                if(routerData.path!==path) this.dispatch('setRouterData',{path:path});
             },
 
             _shodBeAuth: function (page) {

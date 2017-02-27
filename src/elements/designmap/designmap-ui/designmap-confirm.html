@@ -1,0 +1,131 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-doalog/paper-dialog.html">
+<link rel="import" href="../designmap-icons/designmap-confirm-icons.html">
+
+<dom-module is="designmap-confirm">
+    <template>
+        <style>
+            :host {
+                z-index: 120 !important;
+            }
+            /** CONFIRMS **/
+            paper-dialog {
+                z-index: 120 !important;
+                white-space: normal;
+            }
+            paper-dialog .content {
+                max-width: 320px;
+                margin: 0 !important;
+                color: var(--white-color);
+                padding: 20px;
+                font-size: 16px;
+                text-align: center;
+                background: var(--blue-color);
+            }
+            paper-dialog .content button {
+                display: inline-block;
+                min-width: 150px;
+                width: 40%;
+                margin-left: 10px;
+            }
+            paper-dialog .content button:first-child {
+                margin-left: 0px;
+            }
+            .popup-icon {
+                display: block;
+                width: 92px;
+                height: 95px;
+                margin: 15px auto;
+                margin-bottom: 11px;
+            }
+            .message {
+                font-weight: 300;
+            }
+            paper-dialog  .content {
+
+            }
+            paper-dialog  .content .title {
+                color: var(--white-color);
+                text-align: center;
+                font-size: 22px;
+                font-weight: 300;
+                margin-bottom: 10px;
+            }
+            .button.alert {
+                background: var(--orange-color);
+                color: var(--white-color);
+            }
+
+        </style>
+        <paper-dialog id="dialog" modal entry-animation="scale-up-animation"
+                      exit-animation="scale-down-animation">
+            <div class="content">
+                <div class="title">
+                    <i18-n msgid="[[computeTitle(title,language)]]">Confirm</i18-n>
+                </div>
+                <iron-icon class="popup-icon" icon="[[computeIcon(icon)]]"></iron-icon>
+                <div class="message">
+                    <i18-n msgid="[[message]]">[[message]]</i18-n>
+                </div>
+                <div class="button-set">
+                    <button is="designmap-button" class$="[[computeAlertClass(alertYes)]]" thin on-click="forward">
+                        <i18-n msgid="Yes">Yes</i18-n>
+                    </button>
+                    <button is="designmap-button" thin on-click="suspend">
+                        <i18-n msgid="No">No</i18-n>
+                    </button>
+                </div>
+            </div>
+        </paper-dialog>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-confirm',
+            behaviors: [Polymer.DesignMapUtilsBehavior, ReduxBehavior],
+            properties: {
+                message: String,
+                title: {
+                    type: String,
+                    value: null
+                },
+                language: {
+                    type: String,
+                    statePath: 'language'
+                },
+                alertYes: Boolean,
+                icon: {
+                    type: String,
+                    value: null
+                },
+                animationOn: {
+                    type: Boolean,
+                    value: true
+                }
+            },
+            open: function () {
+                this.$.dialog.open();
+            },
+            close: function () {
+                this.$.dialog.close();
+            },
+            toggle: function () {
+                this.$.dialog.toggle();
+            },
+            forward: function () {
+                this.fire('continue');
+            },
+            suspend: function () {
+                this.fire('suspend');
+            },
+            computeAlertClass: function (alertYes) {
+                return alertYes ? 'alert' : '';
+            },
+            computeIcon: function (icon) {
+                return icon || 'designmap-confirm:question-man';
+            },
+            computeTitle: function (title) {
+                return title || 'Confirm';
+            }
+        })
+    </script>
+</dom-module>

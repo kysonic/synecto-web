@@ -246,7 +246,7 @@
                 },
                 currentFolderId: {
                     type: String,
-                    value: null
+                    value: undefined
                 },
                 /**
                  * If trash mode is on -
@@ -263,7 +263,7 @@
                 }
             },
             observers: [
-                'pathChanged(routerData.path)'
+                '_pathChanged(routerData.path)'
             ],
             listeners: {
                 'add-folder': 'addFolder',
@@ -299,7 +299,7 @@
              */
             openContextMenu: function (e) {
                 e.preventDefault();
-                if (!this.selectedProjectID) return;
+                if (!this.project._id) return;
                 this.$$('#contextMenu').toggle(e);
             },
             /**
@@ -367,7 +367,8 @@
                     // 1. id from url
                     // 2. first project
                     // 3. There is no project
-                    const projectID = this.routerData.page || response.projects[0] && response.projects[0]._id || null;
+                    if(this.routerData.page) return false;
+                    const projectID = response.projects[0] && response.projects[0]._id || null;
                     if (!projectID) return false;
                     // Get current project data | Read project
                     document.querySelector('designmap-app').set('route.path', '/' + projectID);
@@ -409,7 +410,10 @@
              * Get all project data
              */
             getProjectData: function () {
-                 this.dispatch('getFolders', {scope: this.project._id});
+                 this.dispatch('getFolders', {scope: this.project._id}).then(function(response){
+                    this._pathChanged(this.routerData.path);
+                     this.$$('#elements').update();
+                 }.bind(this));
                 /*this.dispatch('getFiles', {project: this.project._id});
                  this.dispatch('getStickers', {project: this.project._id});
                  this.dispatch('getShare');*/
@@ -456,10 +460,19 @@
             shouldWeShowError: function (project) {
                 return project && project.error && !project.loading;
             },
-            pathChanged: function(path){
+            _routePageChanged: function(){
+              console.log('asd');
+            },
+            /**
+             * Observe router changes and
+             * react on it
+             * @param path
+             * @returns {null}
+             */
+            _pathChanged: function(path){
                 if(!path) return this.currentFolderId = null;
                 var pathArray = path.split('/').clean();
-                var folder = this.findFolderByPath(pathArray.join('/'))
+                var folder = this.findFolderByPath(pathArray.join('/'));
                 this.currentFolderId = folder ? folder._id : null;
             }
         });

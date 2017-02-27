@@ -105,10 +105,6 @@
                     type: String,
                     statePath: 'project'
                 },
-                routerData: {
-                    type: Object,
-                    statePath: 'routerData'
-                },
                 currentFolderId: {
                     type: String,
                     value: null,
@@ -161,14 +157,14 @@
              */
             goToParent: function (e) {
                 var folder = this.findFolderById(e.model.crumb._id);
-                document.querySelector('designmap-app').set('route.path',this.routerData.page+this.getFullPath(folder));
+                document.querySelector('designmap-app').set('subroute.path',this.getFullPath(folder));
             },
             /**
              * Go on top
              * @param e
              */
             goOnTop: function (e) {
-                document.querySelector('designmap-app').set('route.path',this.routerData.page);
+                document.querySelector('designmap-app').set('subroute.path','');
             },
             /**
              * Go on top

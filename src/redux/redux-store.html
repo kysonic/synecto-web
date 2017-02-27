@@ -30,8 +30,11 @@
        projects: filterActions(Reducers.ProjectsReducer,['ADD_PROJECT','REMOVE_PROJECT','UPDATE_PROJECT','SET_PROJECTS','CLEAN_PROJECTS']),
        folders: filterActions(Reducers.FoldersReducer,['ADD_FOLDER','REMOVE_FOLDER','UPDATE_FOLDER','SET_FOLDERS','CLEAN_FOLDERS'])
     });
+    // Debug
+    const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+    console.log();
     // Build store
-    const ReduxStore = Redux.createStore(reducer,Redux.applyMiddleware(ReduxThunk.default));
+    const ReduxStore = Redux.createStore(reducer,composeEnhancers(Redux.applyMiddleware(ReduxThunk.default)));
     const ReduxBehavior = PolymerRedux(ReduxStore);
 
 </script>

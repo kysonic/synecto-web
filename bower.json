@@ -26,7 +26,8 @@
     "iron-dropdown": "^1.5.5",
     "undo-manager": "^1.0.5",
     "iron-icons": "^1.2.0",
-    "socket.io-client": "^1.7.2"
+    "socket.io-client": "^1.7.2",
+    "paper-dialog": "^1.1.0"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"

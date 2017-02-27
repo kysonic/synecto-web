@@ -1,0 +1,134 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module is="designmap-hidden-panel">
+    <template>
+        <style>
+            :host {
+                display: none;
+                position: fixed;
+                left: 0px;
+                background: rgba(0,0,0,0.4);
+                z-index: 11;
+                @apply(--designmap-hidden-panel);
+
+            }
+            :host(.left) {
+                height: 100%;
+                width: 170px;
+            }
+            :host(.right) {
+                height: 100%;
+                width: 170px;
+            }
+            :host(.top){
+                width: 100%;
+                height: var(--header-height);
+            }
+
+        </style>
+        <content></content>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-hidden-panel',
+            isAnimating: false,
+            behaviors: [Polymer.DesignMapUtilsBehavior],
+            animations: {
+                open: {
+                    left: function(computedStyles) {
+                        var width = parseInt(computedStyles.width) || 0;
+                        return [{left:-width+'px'},{left:0+'px'}];
+                    },
+                    right: function(computedStyles) {
+                      var width = parseInt(computedStyles.width) || 0;
+                      var screenWidth = window.innerWidth;
+                      return [{left:screenWidth+'px'},{left:screenWidth-width+'px'}];
+                    },
+                    top: function(computedStyles) {
+                        var height = parseInt(computedStyles.height) || 0;
+                        return [{top:-height+'px'},{top:0+'px'}];
+                    }
+                },
+                close: {
+                    left: function(computedStyles) {
+                        var width = parseInt(computedStyles.width) || 0;
+                        return [{left:0},{left:-width+'px'}];
+                    },
+                    right: function(computedStyles) {
+                      var width = parseInt(computedStyles.width) || 0;
+                      var screenWidth = window.innerWidth;
+                      return [{left:screenWidth-width+'px'},{left:screenWidth+'px'}];
+                    },
+                    top: function(computedStyles) {
+                        var height = parseInt(computedStyles.height) || 0;
+                        return [{top:0+'px'},{top:-height+'px'}];
+                    }
+                }
+            },
+            animationProperties: {duration:200,fill:'forwards'},
+            properties: {
+                opened: {
+                    type: Boolean,
+                    value: false,
+                    notify: true,
+                    observer: 'openedChanged'
+                },
+                cancelAutoClosing: {
+                    type: Boolean,
+                    value: false
+                },
+                position: {
+                    type: String,
+                    value: 'left'
+                },
+                animationOn: {
+                  type: Boolean,
+                  value: true
+                },
+                disabled: {
+                  type: Boolean,
+                  value: false
+                }
+            },
+            ready: function(){
+                if(this.target) this.async(function(){this.target.appendChild(this)},1000);
+                this.classList.add(this.position);
+            },
+            attached: function(){
+                this.openedChanged();
+            },
+            openedChanged: function(){
+                if(this.disabled) return;
+                this.opened?this.open():this.close();
+            },
+            open: function(){
+                if(!this.position) return;
+                var computedStyles = getComputedStyle(this);
+                if(this.animationOn) this.animate(this.animations.open[this.position](computedStyles),this.animationProperties);
+                this.isAnimating = true;
+                this.style.display = 'block';
+                if(this.animationOn) this.async(function(){this.isAnimating=false},this.animationProperties.duration);
+                document.body.addEventListener('click',this.clickOutta.bind(this));
+            },
+            close: function(){
+                if(!this.position) return;
+                var computedStyles = getComputedStyle(this);
+                if(this.animationOn) {
+                  this.animate(this.animations.close[this.position](computedStyles),this.animationProperties);
+                }else {
+                  this.style.display = 'none';
+                }
+                this.isAnimating = true;
+                if(this.animationOn) this.async(function(){this.isAnimating=false;this.style.display = 'none';},this.animationProperties.duration);
+                document.body.removeEventListener('click',this.clickOutta.bind(this));
+            },
+            toggle: function(){
+                this.opened = !this.opened;
+            },
+            clickOutta: function(e){
+                if(this.cancelAutoClosing) return;
+                if(this.opened && !this.isAnimating && !this.parents(e.target,'designmap-hidden-panel-0')) this.opened = false;
+            }
+        })
+    </script>
+</dom-module>

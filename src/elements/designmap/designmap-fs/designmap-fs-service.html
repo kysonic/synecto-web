@@ -42,7 +42,7 @@
      * @returns {*}
      */
     addFolder: function(e){
-      this.dispatch('$addFolder', e.detail).then(function(response){
+        this.dispatch('$addFolder', e.detail).then(function(response){
         if(!response.success) throw new Error(response.errors.message);
         // Message
         this.showUndoMessage('Folder adding had been successful.');
@@ -363,7 +363,7 @@
       addFolderManually: function(){
           var addFolderInput = this.$$('#addFolder');
           //Validate
-          if(!this.nameChildUniqueValidation(addFolderInput.value,this.currentFolderID)) return this.showErrorMessage('Name of the folder must be unique');
+          if(!this.nameChildUniqueValidation(addFolderInput.value,this.currentFolderId)) return this.showErrorMessage('Name of the folder must be unique');
           if(!addFolderInput.value) return this.showErrorMessage('Name can\'t be empty.');
           if(!addFolderInput.validate()) return false;
           // Close
@@ -374,8 +374,8 @@
               _id: this.generateUid(),
               name: addFolderInput.value,
               type:'folder',
-              path: this.getFullPath(this.findFolderById(this.currentFolderID)),
-              parent: this.currentFolderID,
+              path: this.getFullPath(this.findFolderById(this.currentFolderId)),
+              parent: this.currentFolderId,
               color:'#82a5c4'
           };
           addFolderInput.value = '';
@@ -418,6 +418,145 @@
               if(project.name==name) error = 'Cannot create project with same name';
           });
           return error;
+      },
+      /**
+       * Open context menu
+       */
+      openElementContextMenu: function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          this.currentElement = e.detail.item;
+          this.$$('#contextMenu').toggle(e.detail.e);
+      },
+      /**
+       * Whether element is folder?
+       * @param type - element type
+       */
+      isFolder: function (type) {
+          return type === 'folder';
+      },
+      /**
+       * Whether element is file?
+       * @param type - element type
+       */
+      isFile: function (type) {
+          return type === 'file';
+      },
+      /**
+       * Open add folder context
+       */
+      openAddFolderContext: function (e) {
+          this.$$('#addFolderContext').toggle(e);
+      },
+      /**
+       * Add sub-folder to selected one
+       */
+      addFolderFromMenu: function () {
+          //Validate
+          if (!this.nameChildUniqueValidation(this.$$('#addFolder').value, this.currentElement._id)) return this.showErrorMessage('Name of the folder must be unique');
+          if (!this.$$('#addFolder').value) return this.showErrorMessage('Name can\'t be empty.');
+          if (!this.$$('#addFolder').validate()) return false;
+          // Close
+          this.async(function () {
+              this.$$('#addFolderContext').close();
+          }, 50);
+          this.async(function () {
+              this.$$('#contextMenu').close();
+          }, 200);
+          // Build data
+          var folder = {
+              _id: this.generateUid(),
+              name: this.$$('#addFolder').value,
+              type: 'folder',
+              path: this.getFullPath(this.currentElement),
+              parent: this.currentFolderId,
+              color: '#82a5c4'
+          }
+          this.$$('#addFolder').value = '';
+          // Change folder
+          /*this.currentFolderId = this.currentElement._id;*/
+          // Fire event
+          this.fire('add-folder', folder);
+      },
+      /**
+       * Open add folder context
+       */
+      openRenameFolderContext: function (e) {
+          this.$$('#renameFolder').value = this.currentElement.name;
+          this.$$('#renameFolderContext').toggle(e);
+      },
+      /**
+       * Rename folder
+       */
+      renameFolder: function () {
+          // Validation
+          if (!this.$$('#renameFolder').value) return this.showErrorMessage('Name can\'t be empty.');
+          if (!this.nameChildUniqueValidation(this.$$('#renameFolder').value, this.currentElement.parent)) return this.showErrorMessage('Name of the folder must be unique');
+          if (!this.$$('#renameFolder').validate()) return false;
+          // Close
+          this.async(function () {
+              this.$$('#renameFolderContext').close();
+          }, 50);
+          this.async(function () {
+              this.$$('#contextMenu').close();
+          }, 200);
+          if (this.currentElement.name == this.$$('#renameFolder').value) return;
+          // Fire event
+          this.fire('update-folder', {
+              path: this.getFullPath(this.currentElement),
+              oldName: this.currentElement.name,
+              data: {name: this.$$('#renameFolder').value}
+          });
+      },
+      /**
+       * Fire remove element event
+       */
+      removeElement: function () {
+          this.$$('#contextMenu').close();
+          if (this.trashMode) return this.$.removingConfirm.open();
+          this.fire('remove-' + this.currentElement.type, {element: this.currentElement, skip: false});
+      },
+      /**
+       * Fire remove element event
+       */
+      removeElementIrretrievably: function () {
+          this.$.removingConfirm.close();
+          this.fire('remove-' + this.currentElement.type + '-irretrievably', {element: this.currentElement, skip: false});
+      },
+      /**
+       * Fire remove element event
+       */
+      restoreElement: function () {
+          this.$$('#contextMenu').close();
+          this.fire('restore-' + this.currentElement.type, {element: this.currentElement, skip: false});
+      },
+      /**
+       * Open file uploader for
+       * current folder
+       */
+      openFileUploader: function () {
+          this.fire('open-file-uploader', {id: this.currentElement._id})
+      },
+      /**
+       * Open this file in gallery
+       */
+      openInGallery: function () {
+          this.$$('#contextMenu').close();
+          this.fire('open-in-gallery', {_id: this.currentElement._id});
+      },
+      /**
+       * Open information for current element
+       */
+      openInformation: function () {
+          this.$$('#contextMenu').close();
+          document.querySelector('designmap-info').data = this.currentElement;
+          this.fire('open-info');
+      },
+      /**
+       * Close dialogs
+       */
+      suspendRemoving: function () {
+          this.$.removingConfirm.close();
       }
   }
 </script>

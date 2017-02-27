@@ -2,6 +2,7 @@
     Polymer.DesignMapMessagesBehavior = {
         ready: function(){
             this.snackbar = document.querySelector('designmap-snackbar');
+            this.i18nDomain = document.querySelector('designmap-app').$.i18nDomain;
         },
         /**
          * Show usual message.
@@ -62,7 +63,7 @@
          */
         translate: function(msg,language,i18Loaded) {
           if(!msg) return msg;
-          this.i18nDomain = this.i18nDomain || document.querySelector('designmap-app').$.i18nDomain;
+          //this.i18nDomain = this.i18nDomain || document.querySelector('designmap-app').$.i18nDomain;
           return !this.i18nDomain ? msg : this.i18nDomain.getMsg(msg) || msg;
         },
         /**
