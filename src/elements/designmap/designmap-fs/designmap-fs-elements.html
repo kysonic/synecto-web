@@ -2,9 +2,12 @@
 <!-- Components -->
 <link rel="import" href="./designmap-fs-element.html">
 <link rel="import" href="../designmap-ui/designmap-hidden-panel.html">
+<link rel="import" href="../designmap-ui/designmap-file-uploader.html">
 <link rel="import" href="../../plastic/plastic-custom-scroll.html">
+
 <!-- Redux -->
 <link rel="import" href="../../../redux/actions/folders-actions.html">
+<link rel="import" href="../../../redux/actions/files-actions.html">
 <!-- Services -->
 <link rel="import" href="./designmap-fs-service.html">
 <link rel="import" href="./designmap-fs-socket-service.html">
@@ -267,11 +270,10 @@
         <designmap-confirm id="removingConfirm" message="AreYouSureThatYouWannaDeleteObject"
                            on-continue="removeElementIrretrievably" on-suspend="suspendRemoving"></designmap-confirm>
         <!-- Gallery -->
-        <designmap-gallery id="gallery" folder="[[currentFolderId]]" files="[[getFiles(elements)]]"></designmap-gallery>
+        <!--<designmap-gallery id="gallery" folder="[[currentFolderId]]" files="[[getFiles(elements)]]"></designmap-gallery>-->
         <!-- Uploader -->
-        <designmap-file-uploader id="uploader" animation-on="[[user.config.animationOn]]" on-done="closeUploader"
-                                 parent="folder" _id="[[currentFolderId]]" files="[[getFiles(elements)]]"
-                                 allowed-extension='[[allowedExtensions]]'></designmap-file-uploader>
+        <designmap-file-uploader id="uploader" parent="folder" _id="[[currentFolderId]]"
+                                 files="[[getFiles(elements)]]" allowed-extension='[[allowedExtensions]]'></designmap-file-uploader>
     </template>
     <script>
         Polymer({
@@ -283,7 +285,7 @@
                 Polymer.DesignMapUtilsBehavior,
                 Polymer.DesignMapFsService,
                 ReduxBehavior,
-                Polymer.CombineActions(Polymer.FoldersActions)
+                Polymer.CombineActions(Polymer.FoldersActions,Polymer.FilesActions)
             ],
             properties: {
                 /**
@@ -365,15 +367,14 @@
             },
 
             _countElements: function (state) {
-                const startTime = Date.now();
                 const parent = this.currentFolderId || null;
                 const folders = state.folders.filter(function (folder) {
                     return this.trashMode ? folder.removed : String(folder.parent) == String(parent) && !folder.removed;
                 }.bind(this));
-                const files = [];
-                /*state.files.filter(function (file) {
-                 return this.trashMode ? file.removed : String(file.folder) == String(parent) && !file.removed && !(state.user && (state.user._id !== file.owner && file.locked));
-                 }.bind(this));*/
+                const files = state.files.filter(function (file) {
+                    return this.trashMode ? file.removed : String(file.folder) == String(parent) && !file.removed && !(state.user && (state.user._id !== file.owner && file.locked));
+                }.bind(this));
+
                 return folders.concat(files);
             },
 

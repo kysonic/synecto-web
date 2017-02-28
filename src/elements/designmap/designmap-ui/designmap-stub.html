@@ -71,8 +71,9 @@
         <div class="block">
           <div class="message"><i18-n msgid="[[message]]">[[message]]</i18-n></div>
           <template is="dom-if" if="[[inputText]]" >
-            <iron-a11y-keys id="a11yEditor" keys="enter" on-keys-pressed="action"></iron-a11y-keys>
-            <input is="iron-input" id="input" placeholder="[[translate(inputText,language,i18Loaded)]]" on-blur="action" value="{{value::keyup}}" auto-validate pattern="[[pattern]]" error-message="{{translate(inputError,language,i18Loaded)}}"/>
+            <iron-a11y-keys id="a11yEditor" keys="enter" on-keys-pressed="blurInput"></iron-a11y-keys>
+            <input is="iron-input" id="input" placeholder="[[translate(inputText,language,i18Loaded)]]"
+                   on-blur="action" value="{{value::keyup}}" auto-validate pattern="[[pattern]]" error-message="{{translate(inputError,language,i18Loaded)}}"/>
           </template>
           <iron-icon class="icon" icon="[[image]]"></iron-icon>
         </div>
@@ -123,7 +124,10 @@
                 statePath: 'i18Loaded'
               }
             },
-            action: function(){
+            blurInput: function(){
+                this.$$('#input').blur();
+            },
+            action: function(e){
               this.fire('action',this.value);
             }
         })

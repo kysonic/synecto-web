@@ -60,6 +60,11 @@
                 width: 100%;
             }
 
+            .element .content img.portrait {
+                height: 100%;
+                width: auto;
+            }
+
             .element .label {
                 width: 45%;
                 height: 8px;
@@ -94,7 +99,7 @@
             <div class$="label [[item.type]]"></div>
             <div class$="content [[item.type]]" on-click="selectElement" on-contextmenu="openContextMenu" data-hint$="[[item.type]]" data-id$="[[item._id]]">
                 <template is="dom-if" if="[[shouldViewImage(item)]]">
-                    <img src="[[computeImageSource(item)]]">
+                    <img class$="[[item.orientation]]" src="[[computeImageSource(item)]]">
                     <!--<div class="type">[[getExtensionWithoutDot(item.data.name)]]</div>-->
                 </template>
             </div>

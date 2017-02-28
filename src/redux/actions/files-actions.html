@@ -1,0 +1,163 @@
+<script>
+    Polymer.FilesActions = {
+        actions: {
+            /**
+             * Get all folders for certain project from the server
+             * @returns {function(this:Polymer.FoldersActions)}
+             */
+            getFiles: function(query){
+                return function(dispatch) {
+                    var state = ReduxStore.getState();
+                    query.project = state.project._id;
+                    var promise = xhr.get(Designmap.config.apiURL+'file/'+this.objectToQueryString(query));
+                    promise.then(function(response){
+                        if(!response.success) return;
+                        dispatch({type:'SET_FILES',files:response.files});
+                    });
+                    return promise;
+                }.bind(this)
+            },
+            /**
+             * Update folders bunch
+             * @param folders
+             * @returns {{type: string, folders: *}}
+             */
+            setFiles: function(files){
+                return {
+                    type: 'SET_FILES',
+                    files: files
+                }
+            },
+            /**
+             * Clean folders bunch
+             */
+            cleanFiles: function(){
+                return {
+                    type: 'CLEAN_FILES'
+                }
+            },
+            /**
+             * Add folder
+             * @param folder - folder data
+             * @returns {function(this:Polymer.FoldersActions)}
+             */
+            addFile: function(browsersFile,storage,parent){
+                return function(dispatch){
+                    var state = ReduxStore.getState();
+                    // formData mode=on
+                    xhr.opts.formData = true;
+                    // Use form data to provide file uploading
+                    var formData = new FormData();
+                    formData.append("file", browsersFile);
+                    formData.append("storage", storage);
+                    formData.append("id", parent.id);
+                    // Create request
+                    var promise = xhr.post(Designmap.config.apiURL+'file/?project='+state.project._id+'&'+parent.field+'='+parent.id,formData);
+                    promise.then(function(response){
+                        if(!response.success) return;
+                        // Create file view
+                        dispatch({type:'ADD_FILE',data:response.file});
+                        Designmap.fsScoket.emit('createFile',{type:'ADD_FILE',data: response.file,uid:Designmap.uid});
+                        // UNDO\REDO
+                        Designmap.undoManager.add({
+                            undo: function() {
+                                this.dispatch('updateFile',response.file._id,{removed:true});
+                            }.bind(this),
+                            redo: function() {
+                                this.dispatch('updateFile',response.file._id,{removed:false});
+                            }.bind(this)
+                        });
+                        // Upload preview if it is exist
+                        if(response.file.data.preview) {
+                            this.actions.uploadPreview.call(this,response.file);
+                        }
+                    }.bind(this));
+                    // formData mode=off
+                    xhr.opts.formData = false;
+                    return promise;
+                }.bind(this);
+            },
+            /**
+             * Update file with undo\redo
+             */
+            $updateFile: function(id,data){
+                var historyData = this.findFileById(id);
+                Designmap.undoManager.add({
+                    undo: function() {
+                        this.dispatch('updateFile',id,historyData);
+                    }.bind(this),
+                    redo: function() {
+                        this.dispatch('updateFile',id,data);
+                    }.bind(this)
+                });
+                return this.actions.updateFile.call(this,id,data);
+            },
+            /**
+             * Update file
+             * @param id - file id
+             * @param data - data to extend current file
+             */
+            updateFile: function(id,data){
+                var historyData = this.findFileById(id);
+                return function(dispatch){
+                    var state = ReduxStore.getState();
+                    dispatch({type:'UPDATE_FILE',data:data,index:this.findFileIndexById(id)});
+                    var promise = xhr.put(Designmap.config.apiURL+'file/'+id, {data:data,project:state.project._id});
+                    promise.then(function(response){
+                        if(!response.success) throw new Error(response.errors.message);
+                        var fileIndex = this.findFileIndexById(id);
+                        Designmap.fsScoket.emit('updateFile',{type:'UPDATE_FILE',data:response.file,index:fileIndex,uid:Designmap.uid});
+                        dispatch({type:'UPDATE_FILE',data:response.file,index:fileIndex});
+                    }.bind(this)).catch(function(err){
+                        dispatch({type:'UPDATE_FILE',data:historyData,index:this.findFileIndexById(id)});
+                    }.bind(this));
+                    return promise;
+                }.bind(this);
+            },
+            /**
+             * Update state tree only
+             */
+            _updateFile: function(id,data){
+                return {type:'UPDATE_FILE',data:data,index:this.findFileIndexById(id)};
+            },
+            /**
+             * Remove File
+             * @returns {function(this:Polymer.FoldersActions)}
+             */
+            removeFile: function(id){
+                return function(dispatch){
+                    var state = ReduxStore.getState();
+                    var index = this.findFileIndexById(id);
+                    var historyData = this.findFileById(id);
+                    dispatch({type:'REMOVE_FILE',index:index});
+                    var promise = xhr.delete(Designmap.config.apiURL+'file/'+id, {project:state.project._id});
+                    promise.then(function(response){
+                        if(!response.success) throw new Error();
+                        Designmap.fsScoket.emit('deleteFile',{type:'REMOVE_FILE',index:index,uid:Designmap.uid});
+                    }.bind(this)).catch(function(err){
+                        dispatch({type:'ADD_FILE',data:historyData});
+                    }.bind(this));
+                    return promise;
+                }.bind(this);
+            },
+            /**
+             * Upload preview
+             * @returns {function(this:Polymer.FilesActions)}
+             */
+            uploadPreview: function(file){
+                var state = ReduxStore.getState();
+                var promise = xhr.put(Designmap.config.apiURL+'file/preview/'+file._id,{scope:state.project._id});
+                promise.then(function(response){
+                    if(!response.success) throw new Error();
+                    var fileIndex = this.findFileIndexById(response.file._id);
+                    Designmap.fsScoket.emit('updateFile',{type:'UPDATE_FILE',data:response.file,index:fileIndex,uid:Designmap.uid});
+                    ReduxStore.dispatch({type:'UPDATE_FILE',data:response.file,index:fileIndex});
+                }.bind(this)).catch(function(err){
+                    throw new Error(err);
+                }.bind(this));
+                return promise;
+            }
+        }
+    }
+</script>
+

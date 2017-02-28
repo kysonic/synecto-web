@@ -1,0 +1,28 @@
+<script>
+    Reducers.FilesReducer = function(state,action) {
+        if(!state) state = [];
+        switch(action.type) {
+            case "ADD_FILE":
+                return state.concat([action.data]);
+                break;
+            case "REMOVE_FILE":
+                return state.slice(0,action.index)
+                    .concat(state.slice(action.index+1));
+                break;
+            case "UPDATE_FILE":
+                return state.slice(0,action.index)
+                    .concat([Object.assign({},state[action.index],action.data)])
+                    .concat(state.slice(action.index+1));
+                break;
+            case "SET_FILES":
+                return state.concat(action.files);
+                break;
+            case "CLEAN_FILES":
+                return [];
+                break;
+            default:
+                return state;
+                break;
+        }
+    }
+</script>

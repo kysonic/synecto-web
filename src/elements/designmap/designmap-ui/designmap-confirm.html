@@ -1,5 +1,5 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
-<link rel="import" href="/bower_components/paper-doalog/paper-dialog.html">
+<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../designmap-icons/designmap-confirm-icons.html">
 
 <dom-module is="designmap-confirm">
@@ -20,7 +20,7 @@
                 padding: 20px;
                 font-size: 16px;
                 text-align: center;
-                background: var(--blue-color);
+                background: var(--blue-darkest-color);
             }
             paper-dialog .content button {
                 display: inline-block;
@@ -57,7 +57,7 @@
             }
 
         </style>
-        <paper-dialog id="dialog" modal entry-animation="scale-up-animation"
+        <paper-dialog id="dialog" entry-animation="scale-up-animation"
                       exit-animation="scale-down-animation">
             <div class="content">
                 <div class="title">
@@ -81,25 +81,29 @@
     <script>
         Polymer({
             is: 'designmap-confirm',
-            behaviors: [Polymer.DesignMapUtilsBehavior, ReduxBehavior],
+            behaviors: [
+                ReduxBehavior,
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior
+            ],
             properties: {
                 message: String,
                 title: {
                     type: String,
                     value: null
                 },
+                user: {
+                    type: String,
+                    statePath: 'user'
+                },
                 language: {
                     type: String,
-                    statePath: 'language'
+                    computed: '_computeLanguage(user.language)'
                 },
                 alertYes: Boolean,
                 icon: {
                     type: String,
                     value: null
-                },
-                animationOn: {
-                    type: Boolean,
-                    value: true
                 }
             },
             open: function () {

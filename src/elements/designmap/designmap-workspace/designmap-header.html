@@ -1,0 +1,252 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../designmap-ui/designmap-dropdown.html">
+<link rel="import" href="../designmap-fs/designmap-fs-service.html">
+<link rel="import" href="../designmap-workspace/designmap-projects-list.html">
+
+<dom-module id="designmap-header">
+    <template>
+        <style>
+            :host {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                height: calc(var(--header-height) + 5px);
+
+                --header-color: var(--gray-lightern-color);
+                --header-line-color: var(--gray-color);
+                --header-text-color: var(--gray-darky-color);
+                --header-text-color-hovered: var(--gray-darky-hovered-color);
+
+                --designmap-dropdown-triangle-mixin: {
+                    margin-left: -18px;
+                    border-color: transparent transparent var(--white-color) transparent !important;
+                };
+                --designmap-dropdown-triangle-border-mixin: {
+                    margin-left: -20px;
+                    margin-top: -2px;
+                    border-color: transparent transparent var(--header-line-color) transparent !important;
+                }
+            }
+
+            /** MIDDLE ITEMS **/
+            .left {
+                flex: 11;
+                display: flex;
+                height: 100%;
+                align-items: center;
+            }
+            .center {
+                flex: 2;
+                display: flex;
+                align-items: center;
+            }
+            .right {
+                flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                height: 100%;
+            }
+            .left-content iron-icon {
+                cursor: pointer;
+                width: 24px;
+                height: 24px;
+            }
+            .left-content iron-icon {
+                /*  margin-left: 10px;*/
+            }
+
+            /** MENU BUTTON **/
+            #menuButton, .phantom-icon {
+                display: none;
+            }
+            #menuButton {
+                margin-right: 5px;
+            }
+            .project-button-set {
+                display: flex;
+                align-items: center;
+            }
+            .item {
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+            }
+            .item:not(:first-child) {
+                margin-left: 10px;
+            }
+            .item .text {
+                margin-left: 5px;
+            }
+            .message {
+                text-align: center;
+                padding: 10px 0;
+            }
+            .create-project, .open-projects {
+                display: inline-block;
+                padding: 0 10px;
+                font-size: 16px;
+                font-family: var(--font-family);
+                font-weight: 100;
+                height: calc(var(--header-height) + 5px);
+                line-height: calc(var(--header-height) + 10px);
+                vertical-align: top;
+                color: var(--gray-saturated-color);
+                cursor: pointer;
+                transition: .2s background ease-in;
+            }
+            .create-project:hover, .open-projects:hover {
+                background: var(--gray-lightenest-color);
+                transition: .2s background ease-in;
+            }
+
+            .create-project {
+                padding-left: 5px;
+            }
+
+            paper-dialog {
+                z-index: 105;
+                background: var(--blue-darkest-color);
+            }
+
+            paper-dialog .content {
+                display: block;
+                padding: 20px;
+                min-width: 250px;
+                margin: 0 !important;
+            }
+
+            paper-dialog .content .title {
+                color: var(--white-color);
+                text-align: center;
+                font-size: 22px;
+                font-weight: 300;
+                margin-bottom: 20px;
+            }
+
+            paper-dialog .popup-icon {
+                display: block;
+                width: 95px;
+                height: 95px;
+                margin: 0 auto;
+            }
+
+
+        </style>
+
+        <!-- Add project -->
+        <paper-dialog id="projectFormDialog" entry-animation="scale-up-animation"
+                      exit-animation="scale-down-animation">
+            <paper-dialog-scrollable class="content">
+                <div class="title">
+                    <i18-n msgid="New project">New project</i18-n>
+                </div>
+                <iron-icon class="popup-icon" icon="designmap-confirm:new-file"></iron-icon>
+                <paper-input id="projectName" auto-validate pattern="[\w\dа-яА-ЯёЁ ]+" required
+                             label="[[translate('Project Name',language,i18Loaded)]]"
+                             error-message="[[translate('Project name error',language,i18Loaded)]]"
+                             type="text"></paper-input>
+                <iron-a11y-keys id="a11yCreateProject" keys="enter"
+                                on-keys-pressed="onCreateProject"></iron-a11y-keys>
+                <button is="designmap-button" thin fit on-click="onCreateProject">
+                    <i18-n msgid="Create">Create</i18-n>
+                </button>
+            </paper-dialog-scrollable>
+        </paper-dialog>
+
+        <div class="left">
+            <div class="left-content" data-hint="project-menu">
+                <div class="create-project" on-click="openProjectMenu"><i18-n msgid="Create Project">Create Project</i18-n></div>
+                <!-- Add project -->
+                <div class="open-projects" on-click="openProjectList">
+                    <i18-n msgid="Open Project">Open Project</i18-n>
+                </div>
+                <!-- Project-list -->
+                <designmap-dropdown vertical-offset="80" horizontal-offset="-60" tri-border previous
+                                    id="projectList">
+                    <designmap-projects-list></designmap-projects-list>
+                </designmap-dropdown>
+            </div>
+        </div>
+        <div class="center">
+
+        </div>
+        <div class="right">
+            <designmap-user-menu></designmap-user-menu>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-header',
+            behaviors: [
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapFsService,
+                ReduxBehavior,
+                Polymer.CombineActions(Polymer.UserActions, Polymer.ProjectActions, Polymer.UserActions)
+            ],
+            properties: {
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.language)'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    statePath: 'i18Loaded'
+                },
+                verticalOffset: {
+                    type: Number,
+                    value: 60
+                },
+                horizontalOffset: {
+                    type: Number,
+                    value: 130
+                },
+                projects: {
+                    type: Array,
+                    statePath: 'projects'
+                },
+                opened: {
+                    notify: true,
+                    type: Boolean
+                },
+                showLogin: {
+                    type: Boolean,
+                    value: false
+                }
+            },
+            listeners: {
+                'close-project-list': 'closeProjectList'
+            },
+            attached: function () {
+                this.async(function () {
+                    this.showLogin = true;
+                }, 1000);
+            },
+            openProjectMenu: function () {
+                this.$.projectFormDialog.open();
+            },
+            onCreateProject: function () {
+                const projectName = this.$.projectName.value;
+                if (!projectName) return this.showErrorMessage('Project name cannot be empty');
+                //Validation
+                if (!/[\w\dа-яА-ЯёЁ -]+/.test(projectName)) return this.showErrorMessage('Project name is not correct');
+                // Close dialog
+                this.$.projectFormDialog.close();
+                //Dispatch
+                this.createProject(projectName);
+            },
+            openProjectList: function () {
+                this.$.projectList.open();
+            },
+            closeProjectList: function () {
+                this.$.projectList.close();
+            }
+        })
+    </script>
+</dom-module>

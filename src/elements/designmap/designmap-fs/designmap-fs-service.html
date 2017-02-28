@@ -7,20 +7,14 @@
     /**
      * Create project
      */
-    createProject: function(){
-      this.dispatch('createProject', {name: this.projectName})
+    createProject: function(projectName){
+      this.dispatch('createProject', {name: projectName})
         .then(function() {
-          this.projectName = '';
-          this.dispatch('setStores', this.user.storages || {});
-          this.async(function(){this.showMessage('Project was created successful');},100);
-          // Open confirm tutorial dialog if user came here first time
-          if(this.projects.length==1 && !this.user.firstVisitIsDone) {
-            this.async(function(){
-              this.dispatch('userUpdate',{firstVisitIsDone:true,language: ReduxStore.getState().language});
-              document.querySelector('designmap-hint-system').start();
-            },2000);
-          }
-        }.bind(this)).catch(this.manageErrorResponse.bind(this));
+            this.showMessage('Project was created successful');
+        }.bind(this)).catch(function(err){
+            this.loading = false;
+            this.manageErrorResponse(err);
+        }.bind(this));
     },
     /**
      * Remove

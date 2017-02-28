@@ -1,0 +1,469 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../designmap-icons/designmap-confirm-icons.html">
+<link rel="import" href="../../../redux/actions/files-actions.html">
+<link rel="import" href="../designmap-buttons/designmap-file-button.html">
+
+<dom-module id="designmap-file-uploader">
+    <template>
+        <style>
+            :host {
+                text-align: center;
+            }
+
+            *[hidden] {
+                display: none !important;
+            }
+
+            paper-dialog {
+                color: var(--white-color);
+                background: var(--blue-darkest-color);
+            }
+
+            paper-dialog .content .message {
+                padding: 10px;
+                font-size: 16px;
+            }
+
+            /** Storage selector **/
+            designmap-storage-selector {
+                display: block;
+                text-align: center;
+            }
+
+            designmap-file-button {
+
+            }
+
+            /** FILE LIST ITEMS **/
+            .files-list-item {
+                text-align: center;
+            }
+
+            .files-list-item .name {
+                display: inline-flex;
+            }
+
+            .files-list-item iron-icon#close-icon {
+                --iron-icon-width: 16px;
+                --iron-icon-height: 16px;
+                cursor: pointer;
+            }
+
+            .files-list-item iron-icon#loading-icon {
+                --iron-icon-width: 20px;
+                --iron-icon-height: 16px;
+            }
+
+            .files-list-item .file-list-right {
+                display: inline-flex;
+                height: 16px;
+                vertical-align: middle;
+            }
+
+            .message {
+                font-size: 16px;font-weight: 300;
+                text-align: center;
+                margin: 5px;
+            }
+            .link {
+                cursor: pointer;
+                font-size: 16px;font-weight: 300;
+                text-align: center;
+                margin: 5px;
+            }
+            .link:hover {
+                text-decoration: underline;
+            }
+
+            .popup-icon {
+                display: block;
+                width: 95px;
+                height: 95px;
+                margin: 0 auto;
+            }
+            #form.content {
+                min-width: 250px;
+            }
+            #form .content .title {
+                color: var(--white-color);
+                text-align: center;
+                font-size: 22px;
+                font-weight: 300;
+                margin-bottom: 20px;
+            }
+
+            paper-dialog {
+                background: var(--blue-color);
+            }
+
+            paper-dialog .content button {
+                display: inline-block;
+                min-width: 110px;
+                width: 190px;
+                margin-left: 10px;
+            }
+            paper-dialog .content button:first-child {
+                margin-left: 0px;
+            }
+            .file-title {
+                margin-bottom: 10px;
+            }
+            .msg {
+                max-width: 300px;
+                font-weight: 300;
+            }
+            .warning {
+                max-width: 300px;
+                font-weight: 300;
+                margin: 20px auto;
+                margin-bottom: 0px;
+                color: #000;
+            }
+            .title-mini {
+                margin-top: 20px;
+                font-size: 16px;
+                font-weight: 100;
+                margin-bottom: 10px;
+            }
+
+        </style>
+        <!-- Add File Dialog -->
+        <paper-dialog id="form"
+                      entry-animation="scale-up-animation"
+                      exit-animation="scale-down-animation">
+            <div class="content">
+                <div class="wrapper">
+                    <div class="start" hidden$="[[computeStart(buttonFiles.length,fileUploadLoading)]]">
+                        <div class="title">
+                            <i18-n msgid="Upload file">Upload file</i18-n>
+                        </div>
+                        <iron-icon class="popup-icon" icon="designmap-confirm:new-file"></iron-icon>
+                    </div>
+                    <template is="dom-if" if="[[storages.length]]">
+                        <designmap-file-button thin hidden$="[[fileUploadLoading]]" name="files[]"
+                                               files="{{buttonFiles}}"
+                                               allowed-extension="[[allowedExtension]]"
+                                               on-notallowed="showFilesNotAllowedError" multiple="multiple" id="files">
+                            <i18-n msgid="Select File">Select File</i18-n>
+                        </designmap-file-button>
+                        <div class="msg" hidden$="[[!computeLength(buttonFiles.length)]]">
+                            <i18-n msgid="You can upload">You can upload files with following extensions:
+                                .jpg,.png,.psd,.ai,.eps... File cannot weight over than 150 MB.
+                            </i18-n>
+                        </div>
+                        <div id="message" hidden$="[[!fileUploadLoading]]">
+                            <i18-n msgid="Files loading in progress">Files loading in progress</i18-n>
+                        </div>
+                        <!-- Files here -->
+                        <div class="title-mini" style="margin-top: 8px" hidden$="[[!buttonFiles.length]]">
+                            <i18-n msgid="Files to upload">Files to upload:</i18-n>
+                        </div>
+                        <template is="dom-repeat" items="[[buttonFiles]]" as="file">
+                            <!--<div class="file-title">
+                              <i18-n msgid="File list">File list</i18-n>:
+                            </div>-->
+                            <div class="files-list-item">
+                                <div class="name">{{file.name}}</div>
+                                <div class="file-list-right">
+                                    <iron-icon id="close-icon" hidden$="[[fileUploadLoading]]" icon="icons:close"
+                                               on-click="removeFileFromList"></iron-icon>
+                                    <iron-icon id="loading-icon"
+                                               class$="{{fileUploadLoadingClasses(fileUploadLoading)}}"
+                                               icon="designmap-loading:three-dots"></iron-icon>
+                                </div>
+                            </div>
+                        </template>
+                        <!--<div id="warning" class="warning" hidden$="[[!computeWarning(storage,buttonFiles.length)]]">
+                            <i18-n msgid="Designmap storage in demo mode">Attention! Currently Designmap storage is in
+                                beta. DO NOT Store important files here. It can be removed automatically.
+                            </i18-n>
+                        </div>-->
+                        <!-- Selector -->
+                        <!--<div class="title-mini" hidden$="[[computeStorageState(buttonFiles.length,fileUploadLoading)]]">
+                            <i18-n msgid="Storage to upload in">Storage to upload in:</i18-n>
+                        </div>-->
+                        <!--<designmap-storage-selector
+                                hidden$="[[computeStorageState(buttonFiles.length,fileUploadLoading)]]"
+                                id="storageSelector" selected="{{storage}}"></designmap-storage-selector>-->
+                        <template is="dom-if" if="[[computeButtons(buttonFiles.length)]]">
+                            <div class="button-set">
+                                <button thin hidden$="[[fileUploadLoading]]" is="designmap-button"
+                                        on-click="uploadFiles">
+                                    <i18-n msgid="Upload">Upload</i18-n>
+                                </button>
+                                <button thin hidden$="[[fileUploadLoading]]" is="designmap-button"
+                                        on-click="cancelUpload">
+                                    <i18-n msgid="Cancel">Cancel</i18-n>
+                                </button>
+                            </div>
+                        </template>
+                    </template>
+                    <template is="dom-if" if="[[!storages.length]]" restamp>
+                        <div class="message">
+                            <i18-n msgid="[[computeMessage(role)]]">There are no any connected stores in your account
+                            </i18-n>
+                        </div>
+                        <div class="link" on-click="goToTheAccounts" hidden$="[[!computeLinkState(role)]]">
+                            <i18-n msgid="Click to add one">Click to add one</i18-n>
+                        </div>
+                    </template>
+                </div>
+                <!--<iron-icon class$="{{fileUploadLoadingClasses(fileUploadLoading)}}" icon="designmap-loading:three-dots"></iron-icon>-->
+            </div>
+        </paper-dialog>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-file-uploader',
+            behaviors: [
+                ReduxBehavior,
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.FilesActions
+            ],
+            storageNames: {
+                'dropBox': 'Dropbox',
+                'googleDrive': 'Google Drive'
+            },
+            properties: {
+                /**
+                 * Entity that will be a parent for file
+                 * folder|task|portfolio
+                 */
+                parent: String,
+                /**
+                 * Parent entity id
+                 */
+                _id: String,
+                /**
+                 * Extensions to transmitting into file button
+                 */
+                allowedExtension: String,
+                /**
+                 * Indicator which can show us loading of files
+                 */
+                fileUploadLoading: {
+                    type: Boolean,
+                    value: false
+                },
+                /**
+                 * Current Selected Storage For files
+                 */
+                storage: {
+                    type: String,
+                    value: 'designmap'
+                },
+                /**
+                 * Current files added to input type="file" button in uploading dialog
+                 */
+                buttonFiles: {
+                    type: Array,
+                    value: []
+                },
+                /**
+                 * Files transmitted from top
+                 */
+                files: {
+                    type: Array,
+                    value: []
+                },
+                /**
+                 * Storages bound to current user
+                 */
+                storages: {
+                    type: Array,
+                    statePath: function (state) {
+                        /*var stores = Object.keys(state.stores).filter(function (store) {
+                            return state.stores[store];
+                        }).concat(['designmap']).map(function (store) {
+                            return {code: store, name: this.storageNames[store]}
+                        }.bind(this));
+                        this.selected = stores && stores[0] ? stores[0].code : null;*/
+                        return ['designmap'];
+                    }
+                },
+                role: {
+                    type: String,
+                    statePath: 'role'
+                }
+            },
+            observers: [
+                'buttonFilesChanged(buttonFiles.length)'
+            ],
+            attached: function () {
+                this.project = document.querySelector('designmap-project');
+            },
+            /**
+             * Show error.
+             */
+            showFilesNotAllowedError: function (e) {
+                this.showErrorMessage('Extension is not allowed');
+            },
+            /**
+             * Open file form dialog
+             */
+            openForm: function () {
+                this.$.form.open();
+            },
+            /**
+             * Close file form dialog
+             */
+            closeForm: function () {
+                this.$.form.close();
+            },
+            /**
+             * Change files count and consist
+             */
+            buttonFilesChanged: function () {
+                this.async(function(){
+                    this.$.form.refit();
+                });
+            },
+            /**
+             * Cancel file uploading
+             */
+            cancelUpload: function () {
+                this.$.form.refit();
+                this.$.form.close();
+                this.buttonFiles = [];
+                if (this.$$('#files')) this.$$('#files').reset();
+            },
+            /**
+             * Upload selected files.
+             */
+            uploadFiles: function () {
+                this.fileUploadLoading = true;
+                this.async(function () {this.$.form.refit();});
+                var counter = 0;
+                var length = this.buttonFiles.length;
+                var haveError = false;
+                var uploadedFiles = [];
+                this.buttonFiles.forEach(function (file, key) {
+                    if (haveError) return this.showErrorMessage('This folder has file with doubled names. Choose another one or change file name.');
+                    // If we have file with same name, cancel upload
+                    if (this.isThereFileWithSameName(this._id + '-' + file.name)) {
+                        this.fileUploadLoading = false;
+                        this.async(function () {
+                            this.$.form.refit();
+                        });
+                        haveError = true;
+                        return this.showErrorMessage('This folder has file with name. Choose another one or change file name.', {"#NAME#": file.name});
+                    }
+                    // Create file
+                    this.dispatch('addFile', file, this.storage, {
+                        field: this.parent,
+                        id: this._id
+                    }).then(function (response) {
+                        if (!response.success) throw new Error(response.errors.details && response.errors.details.message || response.errors.message);
+                        this.showMessage('File was added successful.', {"#FILE#": file.name});
+                        // Real time
+                        uploadedFiles.push(response.file);
+                        // Remove file from list
+                        this.splice('buttonFiles', this.getFileKeyByName(file.name), 1);
+                        // Check whether uploading is finished
+                        counter++;
+                        if (counter == length) this.fileUploadingIsEnded(uploadedFiles);
+                    }.bind(this)).catch(function (err) {
+                        this.manageErrorResponse.bind(this)(err);
+                        // Check whether uploading is finished
+                        counter++;
+                        if (counter == length) this.fileUploadingIsEnded(uploadedFiles);
+                    }.bind(this));
+                }, this);
+            },
+            /**
+             * When file uploading is ended we have to change state of loading
+             */
+            fileUploadingIsEnded: function (uploadedFiles) {
+                this.fileUploadLoading = false;
+                this.async(function () {
+                    this.$.form.refit();
+                }, 10);
+                this.fire('done');
+                this.closeForm();
+            },
+            /**
+             * Checkout all files in current folder regarding names matches.
+             */
+            isThereFileWithSameName: function (name) {
+                var match = false;
+                this.files.forEach(function (file) {
+                    if (file.data && file.data.name == name) match = true;
+                }, this);
+                return match;
+            },
+            /**
+             * Get file index in designmap-file-button list
+             */
+            getFileKeyByName: function (name) {
+                var match = null;
+                this.buttonFiles.forEach(function (file, key) {
+                    if (file.name == name) match = key;
+                }, this);
+                return match;
+            },
+            /**
+             * Remove from list in file button
+             * @param e
+             */
+            removeFileFromList: function (e) {
+                this.splice('buttonFiles', e.model.index, 1);
+                if (!this.buttonFiles.length) {
+                    this.$$('#files').reset();
+                    this.async(function () {
+                        this.$.form.refit();
+                    });
+                }
+            },
+            /**
+             * Classes of wrapper in file upload form
+             */
+            fileUploadClasses: function () {
+                return (this.fileUploadLoading ? 'hide' : '');
+            },
+            /**
+             * Classes for loading svg icon
+             * @returns {string}
+             */
+            fileUploadLoadingClasses: function () {
+                return (!this.fileUploadLoading ? 'hide' : '');
+            },
+            /**
+             * Define whether buttons should be hidden or not
+             * @param filesLength
+             * @returns {*|Number}
+             */
+            computeButtons: function (filesLength) {
+                return filesLength;
+            },
+            /**
+             * Define whether buttons should be hidden or not
+             * @param filesLength
+             * @returns {*|Number}
+             */
+            computeStart: function (filesLength, fileUploadLoading) {
+                return !!(filesLength && !fileUploadLoading);
+            },
+            computeStorageState: function (filesLength, fileUploadLoading) {
+                return !!(!filesLength || fileUploadLoading);
+            },
+            goToTheAccounts: function () {
+                this.$.form.close();
+            },
+            computeMessage: function (role) {
+                this.project = this.project || document.querySelector('designmap-fs');
+                return role == 'owner' && !this.project.shareID ? 'There are no any connected stores in your account' : 'The owner of project did not connect cloud drives'
+            },
+            computeLinkState: function (role) {
+                return role == 'owner';
+            },
+            computeLength: function (length) {
+                return !length;
+            },
+            computeWarning: function (storage, buttonFilesLength) {
+                return storage == 'designmap' && buttonFilesLength;
+            }
+        })
+    </script>
+</dom-module>

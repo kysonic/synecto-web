@@ -27,7 +27,7 @@
             /** BASE **/
             .dashboard {
                 width: 100%;
-                height: 45px;
+                height: var(--panel-height);
                 display: flex;
                 align-items: center;
                 background: var(--white-color);
@@ -37,7 +37,7 @@
             .workarea {
                 flex: 1;
                 width: 100%;
-                height: calc(100vh - 115px);
+                height: calc(100vh - 120px);
             }
 
             .pre-button {
@@ -78,7 +78,7 @@
 
             .arrow-back {
                 border-radius: 50%;
-                margin-left: 18px;
+                margin-left: 9px;
                 cursor: pointer;
                 transition: background .2s ease-in;
             }
@@ -93,7 +93,7 @@
                 height: 50px;
                 transform: rotate(223deg);
                 --iron-icon-components-mixin: {
-                    stroke: var(--primary-color) !important;
+                    stroke: var(--blue-color) !important;
                     stroke-width: 2px !important;
                 }
             }
@@ -174,13 +174,14 @@
                 </div>
             </template>
             <template is="dom-if" if="[[shouldWeShowError(project)]]">
-                <designmap-stub image="designmap-workspace-stub:error" message="[[project.error]]" error></designmap-stub>
+                <designmap-stub image="designmap-workspace-stub:error" message="[[project.error]]"
+                                error></designmap-stub>
             </template>
             <template is="dom-if" if="[[shouldWeShowEmptyMessage(project)]]">
                 <designmap-stub value="{{projectName}}" on-action="onCreateProject"
-                                    image="designmap-workspace-stub:project"
-                                    message="There is no selected project yet..." input-text="Create project"
-                                    input-error="ProjectNameError"></designmap-stub>
+                                image="designmap-workspace-stub:project"
+                                message="There is no selected project yet..." input-text="Create project"
+                                input-error="ProjectNameError"></designmap-stub>
             </template>
         </div>
     </template>
@@ -197,13 +198,17 @@
                 Polymer.DesignMapFsSocketService,
                 // Redux
                 ReduxBehavior,
-                Polymer.CombineActions(Polymer.UserActions, Polymer.ProjectActions, Polymer.FoldersActions)
+                Polymer.CombineActions(Polymer.UserActions, Polymer.ProjectActions, Polymer.FoldersActions, Polymer.FilesActions)
             ],
             properties: {
                 user: {
                     type: Object,
-                    statePath: 'user',
-                    observer: '_userChanged'
+                    statePath: 'user'
+                },
+                isAuth: {
+                    type: Boolean,
+                    computed: '_computedAuth(user)',
+                    observer: '_isAuthChanged'
                 },
                 /**
                  * Uniq session id to provide socket updating
@@ -231,10 +236,15 @@
                     type: Object,
                     statePath: 'routerData'
                 },
-                selectedProjectId: {
+                page: {
                     type: String,
-                    computed: 'computeSelectedProjectId(routerData.page)',
-                    observer: 'selectedProjectIdChanged'
+                    computed: '_computePage(routerData.page)',
+                    observer: '_pageChanged'
+                },
+                path: {
+                    type: String,
+                    computed: '_computePath(routerData.path)',
+                    observer: '_pathChanged'
                 },
                 project: {
                     type: Object,
@@ -262,12 +272,8 @@
                     value: 'modified'
                 }
             },
-            observers: [
-                '_pathChanged(routerData.path)'
-            ],
             listeners: {
                 'add-folder': 'addFolder',
-                'add-file': 'addFile',
                 'update-folder': 'updateFolder',
                 'remove-folder': 'removeFolder',
                 'remove-folder-irretrievably': 'removeFolderIrretrievably',
@@ -321,14 +327,14 @@
              * Go on project page
              */
             goBack: function () {
-                console.log('Go back');
+                document.querySelector('designmap-app').set('subroute.path', '/');
             },
             /**
              * Change sort
              * @param e - event
              */
             changeSort: function (e) {
-                var target = this.parents(e.target, 'sort-button');
+                const target = this.parents(e.target, 'sort-button');
                 this.sortWay = target.dataset.sort;
                 this.$$('#contextMenu').close();
             },
@@ -350,16 +356,20 @@
              * Create project
              */
             onCreateProject: function () {
+                this.dispatch('updateProjectState',{loading:true});
                 if (!this.projectName) return;
                 if (!PROJECT_NAME_REGEXP.test(this.projectName)) return this.showErrorMessage('Project name is not correct');
-                this.createProject();
+                this.createProject(this.projectName);
+            },
+            _computedAuth: function(user) {
+              return !!user;
             },
             /**
              * If user would be changed we would have to request
              * projects data for current user.
              */
-            _userChanged: function (user) {
-                if (!user) return this.cleanUp();
+            _isAuthChanged: function (isAuth) {
+                if (!isAuth) return this.cleanUp();
                 // Get user's projects
                 this.dispatch('getProjects').then(function (response) {
                     if (!response.success) return;
@@ -367,36 +377,49 @@
                     // 1. id from url
                     // 2. first project
                     // 3. There is no project
-                    if(this.routerData.page) return false;
+                    if (this.routerData.page) return false;
                     const projectID = response.projects[0] && response.projects[0]._id || null;
                     if (!projectID) return false;
                     // Get current project data | Read project
-                    document.querySelector('designmap-app').set('route.path', '/' + projectID);
+                    //document.querySelector('designmap-app').set('route.path', '/' + projectID);
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));
             },
-            /**
-             * Find current page id.
-             * If it is object id only
-             */
-            computeSelectedProjectId: function(page){
-                if(!this.isObjectID(page)) return null;
+            _computePage: function (page) {
                 return page;
+            },
+            _computePath: function (path) {
+                return path;
             },
             /**
              * When selected project ID is changed
              * we have to update project data and etc
              */
-            selectedProjectIdChanged: function (selectedProjectID) {
+            _pageChanged: function (page) {
+                console.log(page);
                 this.cleanProjectData();
-                if (!selectedProjectID) return;
+                if (!page) return;
                 // Get project data
-                this.dispatch('getProject', selectedProjectID).then(function (response) {
+                this.dispatch('getProject', page).then(function (response) {
                     if (!response.success) throw response.errors;
                     this.updateProject(response.project);
                 }.bind(this)).catch(function (err) {
                     const errorMessage = err.message || err + (err.stack ? err.stack : '');
-                    this.dispatch('updateProjectState',{error:errorMessage,loading:false});
+                    this.dispatch('updateProjectState', {error: errorMessage, loading: false});
                 }.bind(this));
+            },
+            /**
+             * Observe router changes and
+             * react on it
+             * @param path
+             * @returns {null}
+             */
+            _pathChanged: function (path) {
+                if (!path) return this.currentFolderId = null;
+                const pathArray = path.split('/').clean();
+                if (pathArray.length && pathArray[0] === 'trash') return this.trashMode = true;
+                this.trashMode = false;
+                const folder = this.findFolderByPath(pathArray.join('/'));
+                this.currentFolderId = folder ? folder._id : null;
             },
             /**
              * Update project
@@ -410,12 +433,12 @@
              * Get all project data
              */
             getProjectData: function () {
-                 this.dispatch('getFolders', {scope: this.project._id}).then(function(response){
+                this.dispatch('getFolders', {scope: this.project._id}).then(function (response) {
                     this._pathChanged(this.routerData.path);
-                     this.$$('#elements').update();
-                 }.bind(this));
-                /*this.dispatch('getFiles', {project: this.project._id});
-                 this.dispatch('getStickers', {project: this.project._id});
+                    this.$$('#elements').update();
+                }.bind(this));
+                this.dispatch('getFiles', {project: this.project._id});
+                /*this.dispatch('getStickers', {project: this.project._id});
                  this.dispatch('getShare');*/
             },
             /**
@@ -423,9 +446,9 @@
              * with current user
              */
             cleanUp: function () {
-                 this.dispatch('cleanProjects');
-                 this.dispatch('cleanUser');
-                 this.dispatch('cleanUsers');
+                this.dispatch('cleanProjects');
+                this.dispatch('cleanUser');
+                this.dispatch('cleanUsers');
                 /*this.dispatch('cleanShared');
                  this.dispatch('cleanNotifications');
                  this.dispatch('cleanStores');
@@ -436,9 +459,10 @@
              * associated with current project
              */
             cleanProjectData: function () {
-                 this.dispatch('cleanFolders');
-                /*this.dispatch('cleanFiles');
-                 this.dispatch('cleanStickers');
+                this.dispatch('cleanProjectState');
+                this.dispatch('cleanFolders');
+                this.dispatch('cleanFiles');
+                /*this.dispatch('cleanStickers');
                  this.dispatch('cleanStores');
                  this.dispatch('cleanShare');*/
             },
@@ -459,21 +483,6 @@
             },
             shouldWeShowError: function (project) {
                 return project && project.error && !project.loading;
-            },
-            _routePageChanged: function(){
-              console.log('asd');
-            },
-            /**
-             * Observe router changes and
-             * react on it
-             * @param path
-             * @returns {null}
-             */
-            _pathChanged: function(path){
-                if(!path) return this.currentFolderId = null;
-                var pathArray = path.split('/').clean();
-                var folder = this.findFolderByPath(pathArray.join('/'));
-                this.currentFolderId = folder ? folder._id : null;
             }
         });
     </script>

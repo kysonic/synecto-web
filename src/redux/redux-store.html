@@ -8,7 +8,9 @@
 <link rel="import" href="reducers/notifications-reducer.html">
 <link rel="import" href="reducers/project-reducer.html">
 <link rel="import" href="reducers/projects-reducer.html">
+<link rel="import" href="reducers/shared-projects-reducer.html">
 <link rel="import" href="reducers/folders-reducer.html">
+<link rel="import" href="reducers/files-reducer.html">
 
 <script>
     const initialState = {
@@ -18,23 +20,28 @@
         notifications: [],
         project: null,
         projects: [],
-        folders: []
+        shared: [],
+        folders: [],
+        files: []
     };
     // Combine reducers
     const reducer = Redux.combineReducers({
-       routerData: filterActions(Reducers.RouterDataReducer,['SET_ROUTER_DATA','CLEAN_ROUTER_DATA']),
+       routerData: filterActions(Reducers.RouterDataReducer,['UPDATE_ROUTER_DATA','CLEAN_ROUTER_DATA']),
        user: filterActions(Reducers.UserReducer,['UPDATE_USER','CLEAN_USER']),
        i18Loaded: filterActions(Reducers.I18nLoadedReducer,['UPDATE_I18_LOADED']),
        notifications: filterActions(Reducers.NotificationsReducer,['ADD_NOTIFICATION','REMOVE_NOTIFICATION','UPDATE_NOTIFICATION','SET_NOTIFICATIONS','CLEAN_NOTIFICATIONS']),
        project: filterActions(Reducers.ProjectReducer,['SET_PROJECT_STATE','UPDATE_PROJECT_STATE']),
        projects: filterActions(Reducers.ProjectsReducer,['ADD_PROJECT','REMOVE_PROJECT','UPDATE_PROJECT','SET_PROJECTS','CLEAN_PROJECTS']),
-       folders: filterActions(Reducers.FoldersReducer,['ADD_FOLDER','REMOVE_FOLDER','UPDATE_FOLDER','SET_FOLDERS','CLEAN_FOLDERS'])
+       sharedProjects: filterActions(Reducers.SharedProjectsReducer,['UPDATE_SHARED_PROJECT','SET_SHARED_PROJECTS','CLEAN_SHARED_PROJECTS']),
+       folders: filterActions(Reducers.FoldersReducer,['ADD_FOLDER','REMOVE_FOLDER','UPDATE_FOLDER','SET_FOLDERS','CLEAN_FOLDERS']),
+       files: filterActions(Reducers.FilesReducer,['ADD_FILE','REMOVE_FILE','UPDATE_FILE','SET_FILES','CLEAN_FILES'])
     });
     // Debug
-    const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-    console.log();
+    const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
+    let middleware = Redux.applyMiddleware(ReduxThunk.default);
+    if(composeEnhancers) middleware = composeEnhancers(Redux.applyMiddleware(ReduxThunk.default));
     // Build store
-    const ReduxStore = Redux.createStore(reducer,composeEnhancers(Redux.applyMiddleware(ReduxThunk.default)));
+    const ReduxStore = Redux.createStore(reducer,middleware);
     const ReduxBehavior = PolymerRedux(ReduxStore);
 
 </script>

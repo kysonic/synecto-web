@@ -1,0 +1,22 @@
+<script>
+    Reducers.SharedProjectsReducer = function(state, action) {
+        state = state || [];
+        switch(action.type) {
+            case "UPDATE_SHARED_PROJECT":
+                return state.slice(0,action.index)
+                    .concat([Object.assign({},state[action.index],action.data)])
+                    .concat(state.slice(action.index+1));
+                break;
+            case "SET_SHARED_PROJECTS":
+                return action.sharedProjects;
+                break;
+            case "CLEAN_SHARED_PROJECTS":
+                return [];
+                break;
+            default:
+                return state;
+                break;
+        }
+    }
+
+</script>

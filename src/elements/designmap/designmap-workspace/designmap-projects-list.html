@@ -1,0 +1,337 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../../plastic/plastic-custom-scroll.html">
+<link rel="import" href="../designmap-ui/designmap-context-menu.html">
+<link rel="import" href="../../../styles/context-menu-shared-styles.html">
+<link rel="import" href="../designmap-ui/designmap-confirm.html">
+<link rel="import" href="../designmap-fs/designmap-fs-service.html">
+
+<dom-module is="designmap-projects-list">
+    <template>
+        <style include="context-menu-shared-styles">
+            :host {
+                display: block;
+                font-family: var(--font-family);
+                font-weight: 300;
+                color: var(--designmap-project-text-color);
+                white-space: nowrap;
+                background: var(--white-color);
+
+                --designmap-project-text-color: var(--gray-darkend-color);
+                --designmap-project-list-hover: var(--gray-lightern-color);
+                --designmap-project-list-hover-icon: var(--gray-lightenest-color);
+                --designmap-tab-background: var(--primary-color);
+                --designmap-tab-color: var(--white-color);
+            }
+            *[hidden] {
+                display: none !important;
+            }
+            /** TABS **/
+            .tabs {
+                display: flex;
+                cursor: pointer;
+            }
+            .tabs .title {
+                flex: 1;
+                font-weight: 100;
+                text-align: center;
+                padding: 15px;
+                cursor: pointer;
+                pointer-events: auto;
+            }
+            .tabs .title[disabled] {
+                opacity: 0.4;
+            }
+            .tabs .title.selected {
+                background: var(--white-color);
+                color: var(--designmap-project-text-color);
+                font-weight: bold;
+            }
+            /** LISTS **/
+            .list {
+                text-align: left;
+                font-size: 16px;
+                font-weight: 100;
+                padding: 0 0 0 0;
+                list-style: none;
+            }
+            .list li {
+                padding: 10px 15px;
+                cursor: pointer;
+                transition: background .2s ease-in;
+            }
+            .list li:hover {
+                background: var(--designmap-project-list-hover);
+                color: var(--designmap-project-text-color);
+                transition: background .2s ease-in;
+            }
+
+            .list li.selected {
+                font-weight: bold;
+                transition: background .2s ease-in;
+            }
+
+            .list li.selected:hover {
+                background: var(--designmap-project-list-hover);
+                color: var(--designmap-project-text-color);
+                transition: background .2s ease-in;
+            }
+
+            .project-name {
+                width: 100%;
+            }
+            /** SCROLLERS **/
+
+            .scroller {
+                max-height: calc(100vh - 140px);
+            }
+            /** PROJECTS **/
+            .your-projects li {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .your-projects li iron-icon {
+                width: 30px;
+                height: 30px;
+            }
+
+            .your-projects li iron-icon:hover {
+                border-radius: 50%;
+                background: var(--designmap-project-list-hover-icon);
+            }
+        </style>
+
+        <div class="tabs">
+            <div on-click="selectTab" disabled?="[[projects.length]]" class$="title [[computeSelectedTab(selectedTab,0)]]" data-id="0">
+                <i18-n msgid="Mine">Mine</i18-n>
+            </div>
+            <div on-click="selectTab" disabled?="[[sharedProjects.length]]" class$="title [[computeSelectedTab(selectedTab,1)]]"
+                 disabled$="[[!sharedProjects.length]]" data-id="1">
+                <i18-n msgid="Available">Available</i18-n>
+            </div>
+        </div>
+
+        <plastic-custom-scroll class="scroller" hidden$="[[hideUnselected(selectedTab,0)]]" fit>
+            <ul class="list your-projects">
+                <template is="dom-repeat" items="[[projects]]" as="project">
+                    <li class$="[[computeSelected(selectedProjectID,project)]]">
+                        <div class="project-name" on-click="selectProject">[[project.name]]</div>
+                        <iron-icon icon="designmap-workspace:more" on-click="openContext"></iron-icon>
+                    </li>
+                </template>
+            </ul>
+        </plastic-custom-scroll>
+
+        <plastic-custom-scroll class="scroller" hidden$="[[hideUnselected(selectedTab,1)]]" fit>
+            <ul class="list available-projects">
+                <template is="dom-repeat" items="[[sharedProjects]]" as="share">
+                    <li on-click="selectShare" class$="[[computeSelected(selectedProjectID,share)]]">
+                        {{share.projectData.name}}
+                    </li>
+                </template>
+            </ul>
+        </plastic-custom-scroll>
+        <!-- Context menu -->
+        <designmap-confirm id="removeProjectConfirm" message="AreYouSureThatYouWannaRemoveProject"
+                           on-continue="removeIt" on-suspend="suspendRemoving"></designmap-confirm>
+        <!-- Context -->
+        <designmap-context-menu id="projectContextMenu" previous>
+            <ul class="menu">
+                <li on-click="openRenameProjectContext">
+                    <i18-n msgid="Rename">Rename</i18-n>
+                </li>
+                <!-- Rename project -->
+                <designmap-context-menu id="renameProjectContext" previous>
+                    <div class="context-content">
+                        <iron-a11y-keys id="a11yAddFolder" keys="enter" on-keys-pressed="renameIt"></iron-a11y-keys>
+                        <paper-input label$="[[translate('Project Name',language,i18Loaded)]]"
+                                     value="{{renameProjectName}}" auto-validate pattern="[\w\dа-яА-ЯёЁ -]+"
+                                     error-message="[[translate('ProjectNameError',language,i18Loaded)]]"
+                                     id="renameProject"></paper-input>
+                        <div class="button-container">
+                            <button is="designmap-round-button" on-click="renameIt">
+                                <iron-icon icon="icons:arrow-forward"></iron-icon>
+                            </button>
+                        </div>
+                    </div>
+                </designmap-context-menu>
+                <li on-click="openRemoveProjectConfirm">
+                    <i18-n msgid="Remove">Remove</i18-n>
+                </li>
+            </ul>
+        </designmap-context-menu>
+        <!-- Context -->
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-projects-list',
+            behaviors: [
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapFsService,
+                ReduxBehavior,
+                Polymer.CombineActions(Polymer.ProjectActions, Polymer.UserActions, Polymer.UserActions)
+            ],
+            properties: {
+                selectedTab: {
+                    type: Number,
+                    value: 0
+                },
+                /**
+                 * Designmap user
+                 */
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                /**
+                 * APP Language
+                 */
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.language)'
+                },
+                /**
+                 * When i18 is loaded
+                 */
+                i18Loaded: {
+                    type: Boolean,
+                    statePath: 'i18Loaded'
+                },
+                /**
+                 * Project
+                 */
+                project: {
+                    type: Object,
+                    statePath: 'project'
+                },
+                /**
+                 * Projects list for current user
+                 */
+                projects: {
+                    type: Array,
+                    statePath: 'projects'
+                },
+                /**
+                 * Shared projects list for current user
+                 */
+                sharedProjects: {
+                    type: Array,
+                    statePath: 'sharedProjects'
+                },
+                /**
+                 * Temp name for project
+                 */
+                renameProjectName: {
+                    type: String,
+                    value: null
+                }
+            },
+            /**
+             * Select certain project
+             * @param e
+             */
+            selectProject: function (e) {
+                const app = document.querySelector('designmap-app');
+                this.fire('close-project-list');
+                app.set('route.path','/' + e.model.project._id + '/');
+            },
+            /**
+             * Select certain project
+             * @param e
+             */
+            selectShare: function (e) {
+                if (document.querySelector('designmap-fs').loading || document.querySelector('designmap-fs').project ? document.querySelector('designmap-fs').project._id == e.model.share._id : false) return;
+                this.fire('close-project-list');
+                this.dispatch('updateProjectLoading', true);
+                this.async(function () {
+                    document.querySelector('designmap-fs').breadcrumbs = [];
+                    page.redirect('/share/' + e.model.share._id + '/');
+                }, 200);
+            },
+            /**
+             * Compute selected state
+             * @param selectedProjectID
+             */
+            computeSelected: function (selectedProjectID, project) {
+                return selectedProjectID === project._id ? 'selected' : ''
+            },
+            /**
+             * Compute selected tabs
+             * @param selectedTab
+             * @param tabID
+             * @returns {string}
+             */
+            computeSelectedTab: function (selectedTab, tabID) {
+                return selectedTab == tabID ? 'selected' : '';
+            },
+            /**
+             * Select concrete tab
+             * @param e
+             */
+            selectTab: function (e) {
+                this.selectedTab = !e.currentTarget.dataset.id ? !!this.projects.length : !!this.sharedProjects.length;
+            },
+            /**
+             * Hide content of unselected tab
+             * @param selected - current selected tab
+             * @param id - id of tab content
+             * @returns {boolean}
+             */
+            hideUnselected: function (selected, id) {
+                return selected != id;
+            },
+            /**
+             * Open context for
+             * current selected project
+             */
+            openContext: function (e) {
+                this.projectID = e.model.project._id;
+                this.renameProjectName = e.model.project.name;
+                this.$.projectContextMenu.toggle(e);
+            },
+            /**
+             * Open rename project context
+             */
+            openRenameProjectContext: function (e) {
+                this.$.renameProjectContext.toggle(e);
+                this.async(function () {
+                    this.$.renameProject.focus()
+                }, 150);
+            },
+            /**
+             * Open rename project context
+             */
+            openRemoveProjectConfirm: function (e) {
+                this.$.removeProjectConfirm.open();
+            },
+            /**
+             * Rename current project
+             */
+            renameIt: function () {
+                // Validation
+                if (!this.renameProjectName) return this.showErrorMessage('Name can\'t be empty.');
+                // Close
+                this.$.projectContextMenu.close();
+                // Fire event
+                this.renameProject(this.project._id, this.renameProjectName).then(function () {
+                    this.fire('close-project-list');
+                }.bind(this));
+            },
+            /**
+             * Remove current project
+             */
+            removeIt: function () {
+                this.$.removeProjectConfirm.close();
+                this.$.projectContextMenu.close();
+                this.removeProject(this.project._id).then(function () {this.fire('close-project-list');}.bind(this));
+            },
+            /**
+             * Cancel project removing
+             */
+            suspendRemoving: function () {
+                this.$.removeProjectConfirm.close();
+            }
+        });
+    </script>
+</dom-module>
