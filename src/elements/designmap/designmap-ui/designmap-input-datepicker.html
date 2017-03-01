@@ -1,0 +1,113 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module id="designmap-input-datepicker">
+    <template>
+        <style>
+            :host {
+                --paper-date-picker: {
+                    margin-top: 0 !important;
+                    padding: 0;
+                };
+                --paper-input-container-input: {
+                    cursor: pointer;
+                    color: var(--blue-darkest-color);
+                }
+            }
+
+            paper-input {
+                cursor: pointer;
+            }
+
+            .input-wrapper {
+                position: relative;
+            }
+
+            .input-wrapper iron-icon {
+                cursor: pointer;
+                --iron-icon-components-mixin: {
+                    stroke: var(--blue-color) !important;
+                };
+                position: absolute;
+                left: 100%;
+                width: 20px;
+                height: 20px;
+                margin-left: -22px;
+                top: 30px;
+            }
+
+            #datePickerDialog paper-button {
+                color: var(--white-color);
+            }
+
+        </style>
+        <div class="input-wrapper">
+            <paper-input id="input" value="[[trickyFormatDate(date)]]" label="[[label]]" readonly
+                         on-click="openDatePicker"></paper-input>
+            <iron-icon hidden$="[[!icon]]" icon="designmap-task-manager:date" on-click="openDatePicker"></iron-icon>
+        </div>
+        <!-- Date Picker -->
+        <paper-dialog id="datePickerDialog" modal
+                      entry-animation="[[computeAnimationState('scale-up-animation',animationOn)]]"
+                      exit-animation="[[computeAnimationState('scale-down-animation',animationOn)]]">
+            <paper-date-picker id="datePicker" min-date="April 1, 1940" max-date="June 30, 2017" locale="[[language]]"
+                               force-narrow date="{{date}}"></paper-date-picker>
+            <div class="buttons">
+                <paper-button dialog-dismiss>
+                    <i18-n msgid="Cancel">Cancel</i18-n>
+                </paper-button>
+                <paper-button dialog-confirm on-click="selectDate">
+                    <i18-n msgid="Select">Select</i18-n>
+                </paper-button>
+            </div>
+        </paper-dialog>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-input-datepicker',
+            behaviors: [Polymer.DesignMapUtilsBehavior, ReduxBehavior],
+            properties: {
+                date: {
+                    type: Date,
+                    observer: 'dateChanged'
+                },
+                defaultDate: {
+                    type: Date
+                },
+                label: String,
+                language: {
+                    type: String,
+                    statePath: 'language'
+                },
+                wasSelected: Boolean,
+                icon: {
+                    type: Boolean,
+                    value: false
+                },
+                animationOn: {
+                    type: Boolean,
+                    value: true
+                }
+            },
+            ready: function () {
+                if (this.defaultDate) this.date = moment(this.defaultDate).toDate();
+            },
+            openDatePicker: function () {
+                this.$.datePickerDialog.toggle();
+                this.async(function () {
+                    this.$.datePicker.$.calendar._resizeHandler();
+                }, 0);
+            },
+            dateChanged: function () {
+                this.fire('date-changed', this.date);
+            },
+            selectDate: function () {
+                this.wasSelected = true;
+                if (!this.$.input.value) this.$.input.value = this.formatDate(this.date);
+            },
+            trickyFormatDate: function (date) {
+                if (!this.wasSelected) return '';
+                return this.formatDate(date);
+            }
+        })
+    </script>
+</dom-module>

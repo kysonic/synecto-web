@@ -22,14 +22,17 @@
                 --designmap-tab-background: var(--primary-color);
                 --designmap-tab-color: var(--white-color);
             }
+
             *[hidden] {
                 display: none !important;
             }
+
             /** TABS **/
             .tabs {
                 display: flex;
                 cursor: pointer;
             }
+
             .tabs .title {
                 flex: 1;
                 font-weight: 100;
@@ -38,14 +41,17 @@
                 cursor: pointer;
                 pointer-events: auto;
             }
+
             .tabs .title[disabled] {
                 opacity: 0.4;
             }
+
             .tabs .title.selected {
                 background: var(--white-color);
                 color: var(--designmap-project-text-color);
                 font-weight: bold;
             }
+
             /** LISTS **/
             .list {
                 text-align: left;
@@ -54,11 +60,13 @@
                 padding: 0 0 0 0;
                 list-style: none;
             }
+
             .list li {
                 padding: 10px 15px;
                 cursor: pointer;
                 transition: background .2s ease-in;
             }
+
             .list li:hover {
                 background: var(--designmap-project-list-hover);
                 color: var(--designmap-project-text-color);
@@ -79,11 +87,13 @@
             .project-name {
                 width: 100%;
             }
+
             /** SCROLLERS **/
 
             .scroller {
                 max-height: calc(100vh - 140px);
             }
+
             /** PROJECTS **/
             .your-projects li {
                 display: flex;
@@ -103,10 +113,12 @@
         </style>
 
         <div class="tabs">
-            <div on-click="selectTab" disabled?="[[projects.length]]" class$="title [[computeSelectedTab(selectedTab,0)]]" data-id="0">
+            <div on-click="selectTab" disabled?="[[projects.length]]"
+                 class$="title [[computeSelectedTab(selectedTab,0)]]" data-id="0">
                 <i18-n msgid="Mine">Mine</i18-n>
             </div>
-            <div on-click="selectTab" disabled?="[[sharedProjects.length]]" class$="title [[computeSelectedTab(selectedTab,1)]]"
+            <div on-click="selectTab" disabled?="[[sharedProjects.length]]"
+                 class$="title [[computeSelectedTab(selectedTab,1)]]"
                  disabled$="[[!sharedProjects.length]]" data-id="1">
                 <i18-n msgid="Available">Available</i18-n>
             </div>
@@ -234,7 +246,7 @@
             selectProject: function (e) {
                 const app = document.querySelector('designmap-app');
                 this.fire('close-project-list');
-                app.set('route.path','/' + e.model.project._id + '/');
+                app.set('route.path', '/' + e.model.project._id + '/');
             },
             /**
              * Select certain project
@@ -324,7 +336,11 @@
             removeIt: function () {
                 this.$.removeProjectConfirm.close();
                 this.$.projectContextMenu.close();
-                this.removeProject(this.project._id).then(function () {this.fire('close-project-list');}.bind(this));
+                this.dispatch('removeProject',this.project._id).then(function () {
+                    this.fire('close-project-list');
+                    if(this.projects && this.projects[0]) return page.redirect('/'+this.projects[0]._id);
+                    page.redirect('/');
+                }.bind(this));
             },
             /**
              * Cancel project removing

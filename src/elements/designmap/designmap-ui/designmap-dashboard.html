@@ -1,0 +1,101 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module is="designmap-dashboard">
+    <template>
+        <style>
+            :host {
+                display: flex;
+                width: 100%;
+                height: 45px;
+                align-items: center;
+                background: var(--white-color);
+                position: relative;
+
+                --designmap-dashborad-icon-color: var(--primary-color);
+                --designmap-dashborad-arrow-hover: var(--gray-lightern-color);
+                --designmap-dashborad-title-color: var(--blue-darky-color);
+
+                --designmap-circle-button-circle-mixin: {
+                    stroke-width: 4px !important;
+                    stroke: var(--blue-darky-color) !important;
+                };
+
+                --designmap-circle-button-content-icon-mixin: {
+                    padding: 0;
+                    width: 100%;
+                    height: 100%;
+                    stroke: var(--blue-darkest-color) !important;
+                };
+
+                --iron-icon-components-mixin: {
+                    stroke: var(--blue-color) !important;
+                    stroke-width: 2px !important;
+                }
+            }
+
+            ::content .title {
+                font-size: 26px;
+                font-weight: 100;
+                display: inline-block;
+                flex: 1;
+                cursor: pointer;
+                white-space: nowrap;
+                color: var(--designmap-dashborad-title-color);
+                margin-left: 5px;
+            }
+
+            .arrow-back, ::content .arrow-back {
+                border-radius: 50%;
+                margin-left: 18px;
+                cursor: pointer;
+                transition: background .2s ease-in;
+            }
+
+            .arrow-back:hover, ::content .arrow-back:hover {
+                background: var(--designmap-dashborad-arrow-hover);
+                transition: background .2s ease-in;
+            }
+
+            .arrow-back iron-icon, :host ::content .arrow-back iron-icon {
+                width: 50px;
+                height: 50px;
+                transform: rotate(223deg);
+
+            }
+
+            :host ::content designmap-circle-button {
+                position: relative;
+                width: 50px;
+                height: 50px;
+                margin-left: 15px;
+            }
+
+
+        </style>
+        <div class="arrow-back" hidden$="[[!back]]" on-click="goBack">
+            <iron-icon icon="designmap-workspace:open"></iron-icon>
+        </div>
+        <content></content>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-dashboard',
+            behaviors: [
+                Polymer.DesignMapUtilsBehavior
+            ],
+            properties: {
+                back: {
+                    type: Boolean,
+                    value: false
+                },
+                backUrl: {
+                    type: String,
+                    value: '/'
+                }
+            },
+            goBack: function () {
+                this.backUrl == '/' ? this.redirect(this.backUrl) : page.redirect(this.backUrl);
+            }
+        })
+    </script>
+</dom-module>

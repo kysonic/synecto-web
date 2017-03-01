@@ -19,6 +19,7 @@
 <link rel="import" href="elements/designmap/designmap-icons/designmap-logo-icons.html">
 <link rel="import" href="elements/designmap/designmap-workspace/designmap-advanced-menu.html">
 <link rel="import" href="elements/designmap/designmap-workspace/designmap-header.html">
+<link rel="import" href="elements/designmap/designmap-workspace/designmap-info.html">
 <!-- Configs -->
 <link rel="import" href="config/designmap-app-config.html">
 <!-- Styles -->
@@ -28,9 +29,10 @@
 <link rel="import" href="redux/redux-store.html">
 <link rel="import" href="redux/actions/combine-actions.html">
 <link rel="import" href="redux/actions/user-actions.html">
-<link rel="import" href="redux/actions/router-data-actions.html">
+<link rel="import" href="redux/actions/project-actions.html">
 <!-- Behaviors -->
 <link rel="import" href="behaviors/designmap-messages-behavior.html">
+<link rel="import" href="deisgnmap-routing.html">
 
 <dom-module id="designmap-app">
     <template>
@@ -38,6 +40,7 @@
             :host {
                 display: block;
             }
+
 
             app-header {
                 color: #fff;
@@ -54,6 +57,13 @@
                 --app-drawer-width: var(--sidebar-width);
             }
 
+            app-drawer#right {
+                --app-drawer-scrim-background: rgba(256,256,256,0.5);
+                --app-drawer-content-container: {
+                    border-left: 1px solid var(--gray-color);
+                }
+            }
+
             app-drawer app-toolbar {
                 background-color: var(--blue-lighty-color);
                 height: var(--header-height);
@@ -67,12 +77,13 @@
                 display: inherit;
                 width: 100%;
             }
-        </style>
 
-        <!-- Router -->
-        <app-location route="{{route}}"></app-location>
-        <app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
-        <!-- Router -->
+            designmap-info {
+                height: calc(100vh - var(--header-height));
+                margin-top: var(--header-height);
+            }
+
+        </style>
 
         <!-- i18-n -->
         <i18-n-domain id="i18nDomain" locale="[[language]]" messages-url="/locales"></i18-n-domain>
@@ -104,44 +115,50 @@
                         fallback-selection="designmap-404"
                         role="main">
                     <designmap-fs-view name="fs"></designmap-fs-view>
-                    <designmap-settings-view name="settings"></designmap-settings-view>
+                    <designmap-profile-view name="profile"></designmap-profile-view>
                     <designmap-gallery-view name="gallery"></designmap-gallery-view>
                     <designmap-login-view name="login"></designmap-login-view>
                     <designmap-404 name="404"></designmap-404>
                 </iron-pages>
+                <!-- Info -->
+                <app-drawer id="right" align="end">
+                    <designmap-info id="info"></designmap-info>
+                </app-drawer>
             </app-header-layout>
         </app-drawer-layout>
     </template>
 
     <script>
-        // Defaults
-        const HOME_VIEW = 'fs';
-        const LOGIN_VIEW = 'login';
-        // Routes
-        const SHOULD_AUTH_ROUTES = ['fs', 'settings'];
         Polymer({
             is: 'designmap-app',
             behaviors: [
                 ReduxBehavior,
-                Polymer.CombineActions(Polymer.RouterDataActions, Polymer.UserActions),
+                Polymer.CombineActions(Polymer.UserActions, Polymer.ProjectActions),
                 Polymer.DesignMapUtilsBehavior,
-                Polymer.DesignMapMessagesBehavior
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignmapRouting
             ],
             properties: {
                 page: {
                     type: String,
-                    reflectToAttribute: true,
-                    observer: '_pageChanged',
+                    observer: '_pageChanged'
+                },
+                projectId: {
+                    type: String,
+                    observer: '_projectIdChanged'
                 },
                 path: {
                     type: String,
-                    reflectToAttribute: true,
-                    observer: '_pathChanged',
+                    observer: '_pathChanged'
                 },
                 user: {
                     type: Object,
                     statePath: 'user',
                     observer: '_userChanged'
+                },
+                trashMode: {
+                    type: Boolean,
+                    observer: '_trashModeChanged'
                 },
                 language: {
                     type: String,
@@ -149,10 +166,9 @@
                 }
             },
 
-            observers: [
-                '_routePageChanged(routeData.page)',
-                '_pathChanged(subroute.path)'
-            ],
+            listeners: {
+                'open-info': 'openInfo'
+            },
 
             ready: function () {
                 // Get possible current user
@@ -163,48 +179,30 @@
                 });
             },
 
-            _routePageChanged: function (page) {
-                const routerData = ReduxStore.getState().routerData;
-                if(routerData.page!==page) this.dispatch('updateRouterData',{page:page});
-                // Back url
-                this.backURL = this.backURL || page;
-                // Change page
-                let currentPage = page || HOME_VIEW;
-                if (this.isObjectID(page)) currentPage = 'fs';
-                // Check authorization
-                if (!this.user && this._shodBeAuth(currentPage))  return this.page = LOGIN_VIEW;
-                // Setup page
-                this.page = currentPage;
-                // Close drawer if so
-                if (!this.$.drawer.persistent) {
-                    this.$.drawer.close();
-                }
-            },
-
-
-            _pathChanged: function(path){
-                const routerData = ReduxStore.getState().routerData;
-                if(routerData.path!==path) this.dispatch('updateRouterData',{path:path});
-            },
-
-            _shodBeAuth: function (page) {
-                return SHOULD_AUTH_ROUTES.indexOf(page) !== -1 || this.isObjectID(page);
-            },
-
             _pageChanged: function (page) {
-                // If page param is ObjectID then it is project id
-                this._setLayoutState(page === LOGIN_VIEW);
+                this._setLayoutState(page === 'login');
                 // Load page import on demand. Show 404 page if fails
                 const resolvedPageUrl = this.resolveUrl('designmap-' + page + '-view.html');
                 this.importHref(resolvedPageUrl, null, this._showPage404, true);
             },
 
+            _projectIdChanged: function (projectId) {
+                this.dispatch('updateProjectId', projectId);
+            },
+
+            _pathChanged: function (path) {
+                this.dispatch('updatePath', path);
+            },
+
+            _trashModeChanged: function (trashMode) {
+                this.dispatch('updateTrashMode', trashMode);
+            },
+
             _userChanged: function (user) {
-                this._routePageChanged(this.backURL);
+                page.redirect(this.previousPath);
             },
 
             _showPage404: function () {
-                this._setLayoutState(true);
                 this.page = '404';
             },
             /**
@@ -216,6 +214,10 @@
                 this.$.drawer.hidden = nude;
                 this.$.header.hidden = nude;
                 window.dispatchEvent(new Event('resize'));
+            },
+
+            openInfo: function(){
+                this.$.right.open();
             }
         });
     </script>

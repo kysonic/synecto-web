@@ -1,0 +1,13 @@
+<script>
+    Reducers.TrashModeReducer = function(state,action) {
+        if(!state) state = false;
+        switch(action.type) {
+            case "UPDATE_TRASH_MODE":
+                return action.trashMode;
+                break;
+            default:
+                return state;
+                break;
+        }
+    }
+</script>

@@ -38,8 +38,7 @@
                     promise.then(function (response) {
                         if (!response.success) return;
                         dispatch({type: 'ADD_PROJECT', data: response.project});
-                        const app = document.querySelector('designmap-app');
-                        app.set('route.path','/'+response.project._id)
+                        page.redirect('/'+response.project._id);
                     });
                     return promise;
                 }
@@ -82,6 +81,24 @@
                 return {
                     type: 'UPDATE_PROJECT_STATE',
                     data: data
+                }
+            },
+            updateProjectId: function (projectId) {
+                return {
+                    type: 'UPDATE_PROJECT_ID',
+                    projectId: projectId
+                }
+            },
+            updatePath: function (path) {
+                return {
+                    type: 'UPDATE_PATH',
+                    path: path
+                }
+            },
+            updateTrashMode: function (trashMode) {
+                return {
+                    type: 'UPDATE_TRASH_MODE',
+                    trashMode: trashMode
                 }
             }
         }

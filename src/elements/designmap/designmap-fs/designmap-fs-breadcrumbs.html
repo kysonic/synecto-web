@@ -105,6 +105,10 @@
                     type: String,
                     statePath: 'project'
                 },
+                projectId: {
+                    type: String,
+                    statePath: 'projectId'
+                },
                 currentFolderId: {
                     type: String,
                     value: null,
@@ -123,8 +127,7 @@
                  */
                 trashMode: {
                     type: Boolean,
-                    value: false,
-                    observer: 'trashModeChanged'
+                    value: false
                 }
             },
             attached: function () {
@@ -134,8 +137,8 @@
              * Calculate bread crumbs
              */
             calculateCrumbs: function (parent) {
-                var crumbs = [];
-                var folder = this.findFolderById(parent);
+                const crumbs = [];
+                let folder = this.findFolderById(parent);
                 if (!folder) return [];
                 while (folder) {
                     crumbs.unshift(folder);
@@ -156,21 +159,15 @@
              * @param e
              */
             goToParent: function (e) {
-                var folder = this.findFolderById(e.model.crumb._id);
-                document.querySelector('designmap-app').set('subroute.path',this.getFullPath(folder));
+                const folder = this.findFolderById(e.model.crumb._id);
+                page.redirect('/'+this.projectId+this.getFullPath(folder));
             },
             /**
              * Go on top
              * @param e
              */
             goOnTop: function (e) {
-                document.querySelector('designmap-app').set('subroute.path','');
-            },
-            /**
-             * Go on top
-             */
-            trashModeChanged: function () {
-                if (this.trashMode) this.currentFolderId = null;
+                page.redirect('/'+this.projectId);
             },
             /**
              * Compute class if it is first crumb

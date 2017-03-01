@@ -295,9 +295,9 @@
                     type: String,
                     notify: true
                 },
-                routerData: {
-                    type: Object,
-                    statePath: 'routerData'
+                projectId: {
+                   type: 'projectId',
+                   statePath: 'projectId'
                 },
                 /**
                  * Allowed extionsions to upload
@@ -378,9 +378,6 @@
                 return folders.concat(files);
             },
 
-            update: function () {
-                this.set('elements', this._countElements(ReduxStore.getState()))
-            },
             /**
              * Execute stagger animation
              */
@@ -422,12 +419,13 @@
              * Select element
              */
             selectElement: function (event) {
-                var e = event.detail.e;
-                var item = event.detail.item;
+                const e = event.detail.e;
+                const item = event.detail.item;
                 e.stopPropagation();
-                var key = e.keyCode || e.charCode || 0;
-                var multiMode = !!(e.ctrlKey || e.metaKey);
+                const key = e.keyCode || e.charCode || 0;
+                const multiMode = !!(e.ctrlKey || e.metaKey);
                 if (!multiMode && this.selected.length) this.cleanSelected();
+                document.querySelector('designmap-app').$.info.data = item;
                 this.push('selected', item);
             },
             /**
@@ -482,7 +480,7 @@
              * @param element
              */
             executeFolderAction: function (folder) {
-                document.querySelector('designmap-app').set('subroute.path', this.getFullPath(folder));
+                page.redirect('/'+this.projectId+this.getFullPath(folder));
             },
             /**
              * Open the gallery

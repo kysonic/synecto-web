@@ -229,9 +229,9 @@
                     type: Array,
                     statePath: 'projects'
                 },
-                selectedProjectID: {
+                projectId: {
                     type: String,
-                    statePath: 'selectedProjectID'
+                    statePath: 'projectId'
                 },
                 trashLength: {
                     type: Number,
@@ -254,7 +254,7 @@
                 this.$.projectList.toggle(e);
             },
             goToTheProject: function (e) {
-                document.querySelector('designmap-app').set('subroute.path', '/');
+                page.redirect('/'+(this.projectId||''));
             },
             goToTaskManager: function (e) {
                 if (e.currentTarget.getAttribute('disabled') != undefined) return this.showErrorMessage('You do not have access to make it');
@@ -262,7 +262,7 @@
             },
             goToTrashBox: function (e) {
                 if (e.currentTarget.getAttribute('disabled') != undefined) return this.showErrorMessage('You do not have access to make it');
-                document.querySelector('designmap-app').set('subroute.path', '/trash/');
+                page.redirect('/'+this.projectId+'/trash');
             },
             openedChanged: function (opened) {
                 this.classList[opened ? 'add' : 'remove']('opened');

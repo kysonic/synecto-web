@@ -1,0 +1,13 @@
+<script>
+    Reducers.ProjectIdReducer = function(state,action) {
+        if(!state) state = null;
+        switch(action.type) {
+            case "UPDATE_PROJECT_ID":
+                return action.projectId;
+                break;
+            default:
+                return state;
+                break;
+        }
+    }
+</script>

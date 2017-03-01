@@ -1,0 +1,692 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+<link rel="import" href="/bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="/bower_components/paper-checkbox/paper-checkbox.html">
+
+<link rel="import" href="../designmap-buttons/designmap-circle-button.html">
+<link rel="import" href="../designmap-buttons/designmap-loading-button.html">
+<link rel="import" href="../designmap-buttons/designmap-button.html">
+
+<link rel="import" href="../designmap-icons/designmap-icons.html">
+<link rel="import" href="../designmap-icons/designmap-workspace-icons.html">
+
+<link rel="import" href="../designmap-ui/designmap-dashboard.html">
+<link rel="import" href="../designmap-ui/designmap-input-datepicker.html">
+
+<link rel="import" href="../../plastic/plastic-custom-scroll.html">
+<!-- Animation -->
+<link rel="import" href="/bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="/bower_components/neon-animation/neon-animatable.html">
+<link rel="import" href="/bower_components/neon-animation/neon-animations.html">
+
+<dom-module id="designmap-profile">
+    <template>
+        <style>
+            :host {
+                --designmap-profile-main-color: var(--gray-saturated-color);
+                /** X-CUSTOM-SCROLL **/
+                --plastic-custom-scroll-bar-mixin: {
+                    margin-left: -13px;
+                };
+                /** INPUT **/
+                --paper-input-container-color: var(--gray-darkend-color);
+                --paper-input-container-focus-color: var(--gray-darkend-color);
+                --paper-input-container-input: {
+                    color: var(--gray-darkend-color);
+                    font-size: 20px;
+                    padding: 5px 0;
+                    font-family: 'Open Sans';
+                    font-weight: 300;
+                };
+                --paper-input-container-label: {
+                    color: var(--gray-darkend-color);
+                    font-size: 20px;
+                    padding: 5px 0;
+                    font-family: var(--font-family);
+                    font-weight: 300;
+                };
+                --paper-input-container-label-floating: {
+                    top: 10px;
+                    color: var(--gray-darky-color);
+                };
+                /** DROPDOWN **/
+                --dropdown-color: var(--blue-darky-color);
+                --dropdown-line-color: var(--blue-darken-color);
+                /** TABS **/
+                --paper-tabs-selection-bar-color: var(--primary-color);
+                --paper-tabs: {
+                    font-family: var(--font-family);
+                    font-weight: 100;
+                    font-size: 18px;
+                };
+                --paper-tab-content-unselected: {
+                    font-weight: 100;
+                    color: var(--designmap-profile-main-color);
+                };
+                --paper-tabs-selection-bar: {
+                    font-weight: 100;
+                };
+                /** SLIDER **/
+                --paper-slider-active-color: var(--gray-darkend-color);
+                --paper-slider-knob-color: var(--gray-darkend-color);
+                --paper-slider-pin-color: var(--designmap-profile-main-color);
+                --paper-slider-knob-mixin: {
+                    width: 40px;
+                    height: 40px;
+                    top: -5px;
+                };
+                /** CHECKBOX **/
+                --paper-checkbox-unchecked-color: var(--gray-darkend-color);
+            }
+
+            .content {
+                max-width: 830px;
+                width: 90%;
+                margin: 0 auto;
+                display: block;
+                overflow: hidden;
+            }
+
+            .arrow-back iron-icon {
+                --iron-icon-components-mixin: {
+                    stroke: var(--primary-color) !important;
+                    stroke-width: 2px;
+                }
+            }
+
+            designmap-input-datepicker {
+                --paper-input-container-color: var(--gray-darkend-color);
+                --paper-input-container-focus-color: var(--gray-darkend-color);
+                --paper-input-container-input: {
+                    color: var(--gray-darkend-color);
+                    font-size: 22px;
+                    padding: 5px 0;
+                    font-family: 'Open Sans';
+                    font-weight: 300;
+                    cursor: pointer;
+                }
+            }
+
+            .tabs-row {
+                margin-bottom: 5px;
+            }
+
+            paper-tabs paper-tab {
+                --paper-icon-button-ink-color: var(--white-color);
+                width: calc(23vw + 2px);
+            }
+
+            paper-tabs {
+                width: 100%;
+            }
+
+            form {
+                margin-top: 10px;
+                overflow: hidden;
+            }
+
+            neon-animated-pages .iron-selected {
+                position: static;
+            }
+
+            /** TITLE **/
+            .content .title {
+                margin: 10px 0;
+            }
+
+            designmap-avatar {
+                margin: 10px auto 0px auto;
+            }
+
+            .button-set {
+                margin-top: 30px;
+                display: flex;
+                justify-content: center;
+            }
+
+            .button-set.abs {
+                position: absolute;
+                left: 50%;
+                margin-left: -130px;
+            }
+
+            button.save-button {
+                background: var(--blue-color);
+                border: 1px solid var(--blue-color);
+                width: 260px;
+                font-size: 17px;
+                display: block;
+                margin: 30px auto;
+            }
+
+            button:hover {
+                background: var(--blue-darkest-color);
+            }
+
+            paper-tab {
+                width: 33.3%;
+            }
+
+            /** PASSWORD BUTTON **/
+            .password-button {
+                margin: 0;
+                background: transparent;
+                border: 1px solid var(--designmap-profile-main-color);
+                color: var(--gray-darkend-color);
+                margin-bottom: 6px;
+            }
+
+            .password-button:hover {
+                background: rgba(0, 0, 0, 0.05);
+            }
+
+            .password-col {
+                display: flex;
+                justify-content: flex-end;
+            }
+
+            /** TITLE **/
+            .content .title {
+                font-size: 20px;
+                color: var(--gray-darkend-color);
+                text-align: center;
+                font-weight: 300;
+                margin: 15px 0;
+            }
+
+            /** PAPER SLIDER **/
+            paper-slider {
+                width: 350px;
+                margin: 10px auto;
+            }
+
+            .slider-wrapper {
+                max-width: 350px;
+                position: relative;
+                margin-right: 22px;
+            }
+
+            .flexer {
+                display: flex;
+                align-items: flex-end;
+            }
+
+            .min-sticker, .min-day {
+                top: -5px;
+                left: 0%;
+                margin-left: 12px;
+                position: absolute;
+                font-size: 14px;
+                color: var(--designmap-profile-main-color);
+                z-index: 1;
+            }
+
+            .max-sticker, .max-day {
+                top: -5px;
+                left: 100%;
+                margin-left: -30px;
+                position: absolute;
+                font-size: 14px;
+                color: var(--designmap-profile-main-color);
+                z-index: 1;
+            }
+
+            /** EMAIL SETTINGS **/
+            .checkbox-label {
+                font-size: 16px;
+                font-weight: 300;
+                color: var(--gray-darkend-color);
+                margin: 10px 0;
+            }
+
+            .centred {
+                display: flex;
+                justify-content: center;
+            }
+
+            .remove-mobile {
+                display: none;
+            }
+
+            .col {
+                padding: 5px 40px;
+            }
+
+            .pad {
+                padding-top: 0px;
+                padding-bottom: 0px;
+            }
+
+            .msg * {
+                display: inline-block;
+            }
+
+            .msg {
+                font-weight: 300;
+                color: var(--orange-color);
+                display: inline-block;
+                text-align: center;
+            }
+
+            .msg a {
+                cursor: pointer;
+                color: var(--blue-darkest-color);
+            }
+
+            plastic-custom-scroll {
+                max-height: calc(100vh - 200px);
+            }
+
+        </style>
+        <designmap-dashboard>
+            <div class="arrow-back" data-hint="back" on-click="goBack">
+                <iron-icon icon="designmap-workspace:open"></iron-icon>
+            </div>
+            <div class="title">
+                <i18-n msgid="Profile settings">Profile settings</i18-n>
+            </div>
+        </designmap-dashboard>
+        <div class="content">
+            <div class="row tabs-row">
+                <div class="col col-md-12 pad" on-mousedown="saveButtonPos">
+                    <paper-tabs no-slide="[[!user.config.animationOn]]" noink selected="{{selector}}">
+                        <paper-tab>
+                            <i18-n msgid="Profile">Profile</i18-n>
+                        </paper-tab>
+                        <paper-tab>
+                            <i18-n msgid="Account">Account</i18-n>
+                        </paper-tab>
+                        <paper-tab>
+                            <i18-n msgid="Settings">Settings</i18-n>
+                        </paper-tab>
+                    </paper-tabs>
+                </div>
+            </div>
+            <plastic-custom-scroll max-height="[[maxHeight]]" wheel-target="[[bodyNode]]">
+                <neon-animated-pages id="pages" cancel-bubble selected="[[selector]]"
+                                     entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
+                    <neon-animatable id="profile">
+                        <form id="profile-form" is="iron-form">
+                            <div class="row">
+                                <designmap-avatar id="avatar"></designmap-avatar>
+                            </div>
+                            <div class="row">
+                                <div class="col col-md-6 col-xs-12">
+                                    <paper-input value="{{user.name::change}}" required
+                                                 error-message="[[translate('Cannot contain special symbols or tags',language,i18Loaded)]]"
+                                                 pattern="[\w\dа-яА-ЯёЁ ]+"
+                                                 label="[[translate('First name',language,i18Loaded)]]"></paper-input>
+                                </div>
+                                <div class="col col-md-6 col-xs-12">
+                                    <paper-input value="{{user.lastName::change}}" required
+                                                 error-message="[[translate('Cannot contain special symbols or tags',language,i18Loaded)]]"
+                                                 pattern="[\w\dа-яА-ЯёЁ ]+"
+                                                 label="[[translate('Last name',language,i18Loaded)]]"></paper-input>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col col-md-6 col-xs-12">
+                                    <designmap-input-datepicker id="datePicker"
+                                                                animation-on="[[user.config.animationOn]]"
+                                                                on-date-changed="changeBirthDate"
+                                                                label="[[translate('Birth date',language,i18Loaded)]]"></designmap-input-datepicker>
+                                </div>
+                                <div class="col col-md-6 col-xs-12">
+                                    <paper-input value="{{user.company::change}}"
+                                                 label="[[translate('Company',language,i18Loaded)]]"></paper-input>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col col-md-12 col-xs-12">
+                                    <plastic-paper-textarea id="editor" value="{{user.aboutMe::change}}" max-rows="4"
+                                                      label="[[translate('About me',language,i18Loaded)]]"></plastic-paper-textarea>
+                                </div>
+                            </div>
+                            <button class="save-button" data-form="profile-form" id="saveProfileButton"
+                                    is="designmap-loading-button" thin on-click="save">
+                                <i18-n msgid="Save Settings">Save Settings</i18-n>
+                            </button>
+                        </form>
+                    </neon-animatable>
+                    <neon-animatable id="account">
+                        <form id="account-form" is="iron-form">
+                            <div class="row">
+                                <!--<div class="col-md-12">
+                      <div class="title"><i18-n msgid="Add cloud drives">Add cloud drives</i18-n></div>
+                        </div>-->
+                                <div class="col-md-12 col-xs-12">
+                                    <!--<designmap-file-stores data-hint="storages"></designmap-file-stores>-->
+                                </div>
+                            </div>
+                            <div class="row">
+                                <!--<div class="col-md-12">
+                      <div class="title"><i18-n msgid="Change email or password">Change email or password</i18-n></div>
+                        </div>-->
+                                <div class="col col-md-6 col-xs-12">
+                                    <paper-input value="{{user.local.email::change}}" disabled required
+                                                 error-message="[[translate('Invalid email',language,i18Loaded)]]"
+                                                 pattern="\w*.\w*@\w*.\w.\S*"
+                                                 label="[[translate('E-mail',language,i18Loaded)]]"></paper-input>
+                                </div>
+                                <div class="col col-md-6 col-xs-12 password-col">
+                                    <button hidden$="[[editPassword]]" fit on-click="changePassword"
+                                            is="designmap-button" thin class="password-button">
+                                        <i18-n msgid="Change password">Change password</i18-n>
+                                    </button>
+                                    <div hidden$="[[!editPassword]]" class="password-fields">
+                                        <paper-input id="password" value="{{password::change}}" type="password"
+                                                     auto-validate
+                                                     error-message="[[translate('Password should contain at least 3 symbols',language,i18Loaded)]]"
+                                                     label="[[translate('Enter new password',language,i18Loaded)]]"
+                                                     pattern=".{3,}"></paper-input>
+                                        <paper-input id="confirmPassword" value="{{retypePassword::change}}"
+                                                     auto-validate type="password"
+                                                     label="[[translate('Confirm new password',language,i18Loaded)]]"
+                                                     pattern=".{3,}"></paper-input>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- APPROVED -->
+                            <template is="dom-if" if="[[!user.approved]]">
+                                <div class="row">
+                                    <div class="col col-md-12 col-xs-12 msg">
+                                        <span><i18-n
+                                                msgid="Your e-mail wasn't approved">Your e-mail wasn't approved!</i18-n></span>
+                                        <a on-click="sendApproveMile">
+                                            <i18-n msgid="Click here">Click here</i18-n>
+                                        </a>
+                                        <span><i18-n msgid="to send a letter with link to approve">to send a mail with link to approve it.</i18-n></span>
+                                    </div>
+                                </div>
+                            </template>
+                            <!-- APPROVED -->
+                            <button class="save-button" id="saveAccountButton" is="designmap-loading-button"
+                                    data-form="account-form" thin on-click="save">
+                                <i18-n msgid="Save Settings">Save Settings</i18-n>
+                            </button>
+                        </form>
+                    </neon-animatable>
+                    <neon-animatable id="settings">
+                        <form id="settings-form" is="iron-form">
+                            <div class="row">
+                                <div class="col-md-12 col-xs-12">
+                                    <div class="title">
+                                        <i18-n msgid="Stickers and Notifications">Stickers and Notifications</i18-n>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 col-xs-12" style="margin-top: 25px;">
+                                    <div class="checkbox-label lbl">
+                                        <i18-n msgid="Particular user">Particular user</i18-n>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-xs-12 flexer" style="margin-top: 20px;">
+                                    <div class="slider-wrapper">
+                                        <paper-slider pin min="[[stickerCountMin]]" max="[[stickerCountMax]]"
+                                                      value="{{user.config.stickersCount::change}}"></paper-slider>
+                                        <div class="min-sticker">[[stickerCountMin]]</div>
+                                        <div class="max-sticker">[[stickerCountMax]]</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 col-xs-12" style="margin-top: 25px;">
+                                    <div class="checkbox-label lbl">
+                                        <i18-n msgid="Total stickers count">Total stickers count</i18-n>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-xs-12 flexer" style="margin-top: 20px;">
+                                    <div class="slider-wrapper">
+                                        <paper-slider pin min="[[totalStickersCountMin]]"
+                                                      max="[[totalStickersCountMax]]"
+                                                      value="{{user.config.totalStickersCount::change}}"></paper-slider>
+                                        <div class="min-day">[[totalStickersCountMin]]
+                                            <!-- <i18-n class="hide-on-mobile" msgid="days">days</i18-n>--></div>
+                                        <div class="max-day">[[totalStickersCountMax]]
+                                            <!--<i18-n class="hide-on-mobile" msgid="days">days</i18-n>--></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12 col-xs-12">
+                                    <div class="title">
+                                        <i18-n msgid="Email settings">Email settings</i18-n>
+                                    </div>
+                                </div>
+                                <div class="col-md-11 col-xs-10 centred">
+                                    <i18-n class="checkbox-label" msgid="Receive designmap news">Receive designmap
+                                        news
+                                    </i18-n>
+                                </div>
+                                <div class="col-md-1 col-xs-2 centred right">
+                                    <paper-checkbox checked="{{user.config.designmapNews::change}}"></paper-checkbox>
+                                </div>
+                                <div class="col-md-11 col-xs-10 centred ">
+                                    <i18-n class="checkbox-label" msgid="Receive notifications">Receive notifications
+                                    </i18-n>
+                                </div>
+                                <div class="col-md-1 col-xs-2 centred right">
+                                    <paper-checkbox checked="{{user.config.notifier::change}}"></paper-checkbox>
+                                </div>
+                                <!--<div class="col-md-11 col-xs-10 centred"><i18-n class="checkbox-label" msgid="Receive system alerts">Receive system alerts</i18-n></div>
+                                <div class="col-md-1 col-xs-2 centred right"><paper-checkbox checked="{{user.config.systemAlerts::change}}"></paper-checkbox></div>-->
+                            </div>
+                            <!--<div class="row">
+                              <div class="col-md-12 col-xs-12">
+                                <div class="title"><i18-n msgid="Extra">Extra</i18-n></div>
+                              </div>
+                              <div class="col-md-11 col-xs-10 centred" ><span style="max-width: 90px" x-tooltip$="[[translate('Animation desc',language,i18Loaded)]]"><i18-n class="checkbox-label" msgid="Animation">Animation</i18-n></span></div>
+                              <div class="col-md-1 col-xs-2 centred right"><paper-checkbox checked="{{user.config.animationOn::change}}"></paper-checkbox></div>
+                            </div>-->
+                            <button class="save-button" id="saveSettingsButton" is="designmap-loading-button"
+                                    data-form="settings-form" thin on-click="save">
+                                <i18-n msgid="Save Settings">Save Settings</i18-n>
+                            </button>
+                        </form>
+                    </neon-animatable>
+                </neon-animated-pages>
+            </plastic-custom-scroll>
+        </div>
+        </form>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-profile',
+            ignoreFields: ['_id', 'lastOpenedProject'],
+            limits: {'name': 30, 'lastName': 30, 'company': 30, 'aboutMe': 200},
+            behaviors: [
+                Polymer.IronResizableBehavior,
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                ReduxBehavior,
+                Polymer.UserActions
+            ],
+            properties: {
+                user: {
+                    type: Object,
+                    statePath: 'user',
+                    observer: 'userChanged'
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.language)'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    statePath: 'i18Loaded'
+                },
+                selector: {
+                    type: Number,
+                    value: 0,
+                    observer: "selectedChanged"
+                },
+                animating: {
+                    type: Boolean,
+                    value: false
+                },
+                password: String,
+                retypePassword: String,
+                editPassword: {
+                    type: Boolean,
+                    value: false,
+                    observer: 'editPasswordChanged'
+                },
+                totalStickersCountMin: {type: Number, value: 10},
+                totalStickersCountMax: {type: Number, value: 30},
+                stickerCountMin: {type: Number, value: 1},
+                stickerCountMax: {type: Number, value: 10},
+                maxHeight: {
+                    type: Number,
+                    value: 300
+                },
+                bodyNode: {
+                    type: Object,
+                    value: function () {
+                        return document.body
+                    }
+                }
+            },
+            listeners: {
+                'iron-resize': 'onResize'
+            },
+            /**
+             * Save user information
+             */
+            save: function (e) {
+                e.preventDefault();
+                var target = this.parents(e.target, 'save-button');
+                var formName = target.dataset.form.split('-')[0].capitalize();
+                if (!this.$[target.dataset.form].validate()) return this.showErrorMessage('Some of form fields is not valid');
+                this.cleanUser();
+                if (this.editPassword) {
+                    if (this.password != this.retypePassword) {
+                        this.$.confirmPassword.invalid = true;
+                        this.$.password.invalid = true;
+                        return this.showErrorMessage('Passwords are not matched');
+                    }
+                    this.dispatch('userUpdatePassword', this.password);
+                    this.editPassword = false;
+                    this.password = '';
+                    this.retypePassword = '';
+                    this.showMessage('User was updated.');
+                    return;
+                }
+                delete this.user.local.password;
+                this.$['save' + formName + 'Button'].loading = true;
+                this.dispatch('userUpdate', this.user).then(function (response) {
+                    this.$['save' + formName + 'Button'].loading = false;
+                    if (!response.success) return this.manageErrorResponse(response);
+                    this.showMessage(response.message);
+                }.bind(this)).catch(this.manageErrorResponse.bind(this));
+            },
+            /**
+             * Clean user fields
+             */
+            cleanUser: function () {
+                for (var p in this.user) {
+                    if (typeof this.user[p] === 'string' && this.ignoreFields.indexOf(p) == -1) {
+                        this.user[p] = this.user[p].replace(this.cleanTextRegexp, '');
+                        if (this.limits[p] < this.user[p].length) this.user[p] = this.user[p].substr(0, this.limits[p]);
+                    }
+                }
+            },
+            /**
+             * When user was changed we
+             * have to change datepicker data
+             */
+            userChanged: function () {
+                if (!(this.user && this.user.birthDate)) return;
+                this.$.datePicker.wasSelected = true;
+                this.$.datePicker.date = new Date(this.user.birthDate);
+            },
+            /**
+             * When birth date was changed
+             * we have to change user.birthDate
+             * @param e
+             */
+            changeBirthDate: function (e) {
+                if (!this.user) return;
+                this.user.birthDate = e.detail;
+            },
+            saveButtonPos: function () {
+                // this.prevButtonTop = this.$.buttonSet.getBoundingClientRect().top;
+            },
+            /**
+             * Sub router page animation configuration
+             * @param n - new page number
+             * @param o - old page number
+             */
+            selectedChanged: function (n, o) {
+                this.animating = true;
+                this.exitAnimation = n > o ? 'slide-right-animation' : 'slide-left-animation';
+                this.entryAnimation = n > o ? 'slide-from-left-animation' : 'slide-from-right-animation';
+                // Sub routes
+                var duration = 500;
+                if (this.subRoutes) {
+                    this.async(function () {
+                        this.animating = false;
+                        location.hash = this.subRoutes[n];
+                    }, duration);
+                }
+            },
+            /**
+             * Switch on edit password mode
+             */
+            changePassword: function (e) {
+                e.preventDefault();
+                this.editPassword = true;
+            },
+            /**
+             * Change password mode.
+             * @param editPassword
+             */
+            editPasswordChanged: function (editPassword) {
+                if (!this.$.password || !this.$.retypePassword) return;
+                this.$.password.$.input.required = !editPassword;
+                this.$.retypePassword.$.input.required = !editPassword;
+            },
+            /**
+             * Special class during animation
+             * @param a
+             * @returns {string}
+             */
+            computeAbsClass: function (a) {
+                return a ? 'abs' : '';
+            },
+            removeAvatar: function () {
+                this.$.avatar.removeAvatar();
+            },
+            changeData: function (e, detail) {
+                var target = Polymer.dom(e).localTarget;
+                this.user[target.dataset.field] = target.value;
+            },
+            onResize: function () {
+                this.maxHeight = window.innerHeight - 130;
+            },
+            animationDuration: function (on) {
+                this.$.pages.duration = on ? 400 : 0;
+            },
+            sendApproveMile: function () {
+                this.dispatch('reapprove', this.user.local.email, this.language).then(function (response) {
+                    if (!response.success) return this.showErrorMessage(response.errors.message);
+                    this.showMessage('A mail has been sent', {'#EMAIL#': this.user.local.email});
+                }.bind(this)).catch(function (err) {
+                    this.showErrorMessage(err);
+                }.bind(this))
+            },
+            changeRoute: function (e) {
+                var route = e.currentTarget.dataset.route;
+                location.hash = route;
+            },
+            goBack: function () {
+                this.redirect('/');
+                // Hints
+                var hs = document.querySelector('designmap-hint-system');
+                if (hs.isRunning) hs.$.backToProject.close(true);
+            }
+        })
+    </script>
+</dom-module>

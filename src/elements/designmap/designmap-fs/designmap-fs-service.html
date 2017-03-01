@@ -543,7 +543,7 @@
        */
       openInformation: function () {
           this.$$('#contextMenu').close();
-          document.querySelector('designmap-info').data = this.currentElement;
+          document.querySelector('designmap-app').$.info.data = this.currentElement;
           this.fire('open-info');
       },
       /**

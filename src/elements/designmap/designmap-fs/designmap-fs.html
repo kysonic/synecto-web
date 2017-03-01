@@ -24,6 +24,10 @@
                 height: 100%;
             }
 
+            *[hidden] {
+                display: none !important;
+            }
+
             /** BASE **/
             .dashboard {
                 width: 100%;
@@ -117,7 +121,7 @@
             }
 
         </style>
-        <div class="dashboard" hidden="[[!selectedProjectID]]">
+        <div class="dashboard" hidden$="[[!projectId]]">
             <div class="arrow-back" hidden$="[[!trashMode]]" on-click="goBack">
                 <iron-icon icon="designmap-workspace:open"></iron-icon>
             </div>
@@ -222,28 +226,14 @@
                     type: String,
                     statePath: 'i18Loaded'
                 },
-                acl: {
-                    type: Array,
-                    statePath: 'acl'
-                },
-                /**
-                 * Data from router. Including
-                 * page - page name
-                 * prefix - /pagename
-                 * path - subroute
-                 */
-                routerData: {
-                    type: Object,
-                    statePath: 'routerData'
-                },
-                page: {
+                projectId: {
                     type: String,
-                    computed: '_computePage(routerData.page)',
-                    observer: '_pageChanged'
+                    statePath: 'projectId',
+                    observer: '_projectIdChanged'
                 },
                 path: {
                     type: String,
-                    computed: '_computePath(routerData.path)',
+                    statePath: 'path',
                     observer: '_pathChanged'
                 },
                 project: {
@@ -264,8 +254,7 @@
                  */
                 trashMode: {
                     type: Boolean,
-                    value: false,
-                    observer: 'trashModeChanged'
+                    statePath: 'trashMode'
                 },
                 sortWay: {
                     type: String,
@@ -327,7 +316,7 @@
              * Go on project page
              */
             goBack: function () {
-                document.querySelector('designmap-app').set('subroute.path', '/');
+                page.redirect('/'+this.projectId);
             },
             /**
              * Change sort
@@ -346,19 +335,12 @@
                 this.$$('#elements').$.uploader.openForm();
             },
             /**
-             * If trash mode has been changed
-             * we have to update view
-             */
-            trashModeChanged: function () {
-                //if(this.$$('#elements')) this.$$('#elements').updateView();
-            },
-            /**
              * Create project
              */
             onCreateProject: function () {
-                this.dispatch('updateProjectState',{loading:true});
                 if (!this.projectName) return;
                 if (!PROJECT_NAME_REGEXP.test(this.projectName)) return this.showErrorMessage('Project name is not correct');
+                this.dispatch('updateProjectState',{loading:true});
                 this.createProject(this.projectName);
             },
             _computedAuth: function(user) {
@@ -377,29 +359,22 @@
                     // 1. id from url
                     // 2. first project
                     // 3. There is no project
-                    if (this.routerData.page) return false;
-                    const projectID = response.projects[0] && response.projects[0]._id || null;
-                    if (!projectID) return false;
-                    // Get current project data | Read project
-                    //document.querySelector('designmap-app').set('route.path', '/' + projectID);
+                    if (this.projectId) return false;
+                    const projectId = response.projects[0] && response.projects[0]._id || null;
+                    if (!projectId) return false;
+                    // Redirect to open new project
+                    page.redirect('/'+projectId);
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));
-            },
-            _computePage: function (page) {
-                return page;
-            },
-            _computePath: function (path) {
-                return path;
             },
             /**
              * When selected project ID is changed
              * we have to update project data and etc
              */
-            _pageChanged: function (page) {
-                console.log(page);
+            _projectIdChanged: function (projectId) {
                 this.cleanProjectData();
-                if (!page) return;
+                if (!projectId) return;
                 // Get project data
-                this.dispatch('getProject', page).then(function (response) {
+                this.dispatch('getProject', projectId).then(function (response) {
                     if (!response.success) throw response.errors;
                     this.updateProject(response.project);
                 }.bind(this)).catch(function (err) {
@@ -415,10 +390,7 @@
              */
             _pathChanged: function (path) {
                 if (!path) return this.currentFolderId = null;
-                const pathArray = path.split('/').clean();
-                if (pathArray.length && pathArray[0] === 'trash') return this.trashMode = true;
-                this.trashMode = false;
-                const folder = this.findFolderByPath(pathArray.join('/'));
+                const folder = this.findFolderByPath(path);
                 this.currentFolderId = folder ? folder._id : null;
             },
             /**
@@ -434,8 +406,7 @@
              */
             getProjectData: function () {
                 this.dispatch('getFolders', {scope: this.project._id}).then(function (response) {
-                    this._pathChanged(this.routerData.path);
-                    this.$$('#elements').update();
+                    this.async(function(){this._pathChanged(this.path);});
                 }.bind(this));
                 this.dispatch('getFiles', {project: this.project._id});
                 /*this.dispatch('getStickers', {project: this.project._id});
