@@ -1,0 +1,146 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../../plastic/plastic-custom-scroll.html">
+
+<dom-module is="designmap-preset-avatars">
+    <template>
+        <style>
+            :host {
+                display: block;
+                text-align: center;
+                --plastic-custom-scroll-content-mixin: {
+                    display: flex;
+                    flex-wrap: wrap;
+                    width: 233px;
+                    margin: 0 auto;
+                };
+                --plastic-custom-scroll-bar-mixin: {
+                    margin-left: -3px;
+                };
+                --plastic-custom-scroll-bar-hover-mixin: {
+                    margin-left: -5px;
+                }
+
+            }
+
+            button {
+                display: inline-block;
+                margin-bottom: 0px;
+            }
+
+            .avatars {
+                margin: 0 auto;
+            }
+
+            .avatar {
+                display: inline-block;
+                width: 64px;
+                height: 64px;
+                border-radius: 50%;
+                overflow: hidden;
+                margin-top: 10px;
+                border: 2px solid transparent;
+                cursor: pointer;
+            }
+
+            .avatar:not(:nth-child(3n+1)) {
+                margin-left: 10px;
+            }
+
+            .avatar:hover {
+                border: 2px solid rgba(30, 255, 220, 0.4);
+            }
+
+            .avatar.selected {
+                border: 2px solid var(--white-color);
+            }
+
+            .avatar img {
+                width: 100%;
+                height: 100%;
+                max-width: 100%;
+            }
+
+            .phantom-button {
+                display: inline-block;
+                width: 100%;
+                height: 60px;
+            }
+
+
+        </style>
+        <plastic-custom-scroll small-bar id="customScroll" max-height="234" fit>
+            <template is="dom-repeat" items="[[avatars]]" as="avatar">
+                <div class$="avatar [[computeSelectedClass(avatar,selectedAvatar)]]">
+                    <img src="[[avatar.src]]" title="[[avatar.name]]" on-click="selectAvatar">
+                </div>
+            </template>
+        </plastic-custom-scroll>
+        <!-- <div class="phantom-button" hidden$="[[selectedAvatar]]"></div>-->
+        <button hidden$="[[!selectedAvatar]]" class="save" is="designmap-button" thin on-click="save">
+            <i18-n msgid="Save">Save</i18-n>
+        </button>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-preset-avatars',
+            behaviors: [ReduxBehavior, Polymer.UserActions],
+            properties: {
+                avatars: {
+                    type: Array,
+                    value: [
+                        {id: 1, name: '1', src: '/images/preset/design_map_avatar_100_01.svg'},
+                        {id: 2, name: '2', src: '/images/preset/design_map_avatar_100_02.svg'},
+                        {id: 3, name: '3', src: '/images/preset/design_map_avatar_100_03.svg'},
+                        {id: 4, name: '4', src: '/images/preset/design_map_avatar_100_04.svg'},
+                        {id: 5, name: '5', src: '/images/preset/design_map_avatar_100_05.svg'},
+                        {id: 6, name: '6', src: '/images/preset/design_map_avatar_100_06.svg'},
+                        {id: 7, name: '1', src: '/images/preset/design_map_avatar_100_07.svg'},
+                        {id: 8, name: '1', src: '/images/preset/design_map_avatar_100_08.svg'},
+                        {id: 9, name: '1', src: '/images/preset/design_map_avatar_100_09.svg'},
+                        {id: 10, name: '10', src: '/images/preset/design_map_avatar_100_10.svg'},
+                        {id: 11, name: '11', src: '/images/preset/design_map_avatar_100_11.svg'},
+                        {id: 12, name: '12', src: '/images/preset/design_map_avatar_100_12.svg'}
+                    ]
+                },
+                selectedAvatar: {
+                    type: Object,
+                    value: null,
+                    observer: 'selectedAvatarChanged'
+                },
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                avatar: {
+                    type: String,
+                    observer: 'avatarChanged'
+                }
+            },
+            selectAvatar: function (e) {
+                this.selectedAvatar = e.model.avatar;
+            },
+            save: function (e) {
+                e.preventDefault();
+                if (this.selectedAvatar) {
+                    this.user.avatar = this.selectedAvatar.src;
+                    this.dispatch('userUpdate', this.user);
+                    this.fire('avatar-loaded');
+                }
+            },
+            computeSelectedClass: function (avatar, selectedAvatar) {
+                if (!avatar || !selectedAvatar) return '';
+                return selectedAvatar.id == avatar.id ? 'selected' : ''
+            },
+            avatarChanged: function (avatar) {
+                var found = null;
+                this.avatars.forEach(function (ava) {
+                    if (ava.src == avatar) found = ava;
+                });
+                this.selectedAvatar = found;
+            },
+            selectedAvatarChanged: function () {
+                this.fire('avatar-selected', this.selectedAvatar)
+            }
+        })
+    </script>
+</dom-module>

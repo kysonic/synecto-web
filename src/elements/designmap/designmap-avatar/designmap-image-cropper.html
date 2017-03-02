@@ -1,0 +1,515 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../designmap-buttons/designmap-file-button.html">
+
+<dom-module id="designmap-image-cropper">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+
+            img {
+                max-width: 100%;
+                max-height: calc(70vh - 66px);
+                min-width: 120px;
+                min-height: 60px;
+                object-fit: contain;
+                position: relative;
+            }
+
+            .cannot-drag {
+                -webkit-touch-callout: none; /* iOS Safari */
+                -webkit-user-select: none; /* Chrome/Safari/Opera */
+                -khtml-user-select: none; /* Konqueror */
+                -moz-user-select: none; /* Firefox */
+                -ms-user-select: none; /* Internet Explorer/Edge */
+                user-select: none;
+                -webkit-user-drag: none; /* Prevents dragging of images/divs etc */
+                user-drag: none;
+            }
+
+            .loading {
+                min-width: 120px;
+                min-height: 60px;
+                width: 245px;
+                height: 275px;
+                background: url('http://localhost:5000/images/svg/three-dots.svg') no-repeat center;
+            }
+
+            .wrapper {
+                position: relative;
+                overflow: hidden;
+                margin: 0 auto;
+                display: flex;
+            }
+
+            .cropper {
+                border: 1px solid var(--primary-color);
+                cursor: move;
+                position: absolute;
+                z-index: 1000;
+            }
+
+            .circle {
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                overflow: hidden;
+                position: relative;
+            }
+
+            .backdrop {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.6);
+                z-index: 999;
+            }
+
+            .marker {
+                border-radius: 50%;
+                background: var(--primary-color);
+                width: 8px;
+                height: 8px;
+                position: absolute;
+                left: 0;
+                top: 0;
+                cursor: hand;
+                z-index: 1000;
+            }
+
+            #marker1 {
+                margin-left: -4px;
+                margin-top: -4px;
+                cursor: nw-resize;
+            }
+
+            #marker2 {
+                left: 50%;
+                margin-left: -4px;
+                margin-top: -4px;
+                cursor: n-resize;
+            }
+
+            #marker3 {
+                left: 100%;
+                margin-left: -4px;
+                margin-top: -4px;
+                cursor: ne-resize;
+            }
+
+            #marker4 {
+                left: 100%;
+                top: 50%;
+                margin-left: -4px;
+                margin-top: -4px;
+                cursor: e-resize;
+            }
+
+            #marker5 {
+                left: 100%;
+                top: 100%;
+                margin-left: -4px;
+                margin-top: -4px;
+                cursor: se-resize;
+            }
+
+            #marker6 {
+                left: 50%;
+                top: 100%;
+                margin-left: -4px;
+                margin-top: -4px;
+                cursor: n-resize;
+            }
+
+            #marker7 {
+                left: 0%;
+                top: 100%;
+                margin-left: -4px;
+                margin-top: -4px;
+                cursor: sw-resize;
+            }
+
+            #marker8 {
+                left: 0%;
+                top: 50%;
+                margin-left: -4px;
+                margin-top: -4px;
+                cursor: e-resize;
+            }
+
+            #tmpFile {
+                z-index: 999;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+
+            #phantomFile {
+                position: absolute;
+                top: 0;
+                left: 0;
+                max-width: inherit;
+                max-height: inherit;
+                z-index: 999;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+
+            .button-set button {
+                width: 49%;
+            }
+
+            .button-set button.save {
+                float: right;
+            }
+
+
+        </style>
+        <div class="loading" hidden$="[[!loading]]"></div>
+        <div class="content" hidden$="[[loading]]">
+            <template is='dom-if' if="[[tmpFile]]">
+                <div class="wrapper" id="wrapper" draggable="false" draggable="false">
+                    <img id="tmpFile" class="cannot-drag" draggable='false' ondragstart="return false;"
+                         src="[[getFilePath(tmpFile)]]">
+                    <div class="backdrop cannot-drag" on-mousedown="startNewSelection"></div>
+                    <div class="cropper cannot-drag" draggable="false" id="cropper" on-mousedown="move">
+                        <div class="circle cannot-drag">
+                            <img id="phantomFile" draggable='false' ondragstart="return false;"
+                                 src="[[getFilePath(tmpFile)]]">
+                        </div>
+                        <div class="marker cannot-drag" id="marker1" on-mousedown="resize"
+                             data-direction="left-top"></div>
+                        <div class="marker cannot-drag" id="marker2" on-mousedown="resize"
+                             data-direction="center-top"></div>
+                        <div class="marker cannot-drag" id="marker3" on-mousedown="resize"
+                             data-direction="right-top"></div>
+                        <div class="marker cannot-drag" id="marker4" on-mousedown="resize"
+                             data-direction="right-center"></div>
+                        <div class="marker cannot-drag" id="marker5" on-mousedown="resize"
+                             data-direction="right-bottom"></div>
+                        <div class="marker cannot-drag" id="marker6" on-mousedown="resize"
+                             data-direction="center-bottom"></div>
+                        <div class="marker cannot-drag" id="marker7" on-mousedown="resize"
+                             data-direction="left-bottom"></div>
+                        <div class="marker cannot-drag" id="marker8" on-mousedown="resize"
+                             data-direction="left-center"></div>
+                    </div>
+                </div>
+                <div class="button-set">
+                    <button class="cancel" is="designmap-button" thin on-click="cancel">
+                        <i18-n msgid="Cancel">Cancel</i18-n>
+                    </button>
+                    <button class="save" is="designmap-button" thin on-click="save">
+                        <i18-n msgid="Save">Save</i18-n>
+                    </button>
+                </div>
+            </template>
+            <template is='dom-if' if="[[!tmpFile]]">
+                <designmap-file-button thin id="fileButton" label="[[translate('Upload file',language)]]" name="files[]"
+                                       files="{{buttonFiles}}" on-change="buttonFilesChanged"
+                                       allowed-extension="[[allowedExtension]]" on-notallowed="showNotAllowedError">
+                    <i18-n msgid="Select File">Select File</i18-n>
+                </designmap-file-button>
+            </template>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-image-cropper',
+            behaviors: [
+                ReduxBehavior,
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.IronResizableBehavior
+            ],
+            properties: {
+                allowedExtension: {
+                    type: Array,
+                    value: ['.jpg', '.png', '.gif']
+                },
+                language: {
+                    type: String,
+                    statePath: 'language'
+                },
+                buttonFiles: {
+                    type: Array,
+                    value: []
+                },
+                tmpFile: {
+                    type: Object,
+                    value: null
+                },
+                loading: {
+                    type: Boolean,
+                    value: false
+                },
+                cropper: {
+                    type: Object,
+                    value: {x: 0, y: 0, width: 100, height: 100}
+                },
+                animationOn: {
+                    type: Boolean,
+                    value: true
+                }
+            },
+            observers: ['setStyles(cropper.*)'],
+            listeners: {
+                'iron-resize': 'onIronResize'
+            },
+            buttonFilesChanged: function () {
+                var file = this.buttonFiles[0];
+                // formData mode=on
+                xhr.opts.formData = true;
+                // Use form data to provide file uploading
+                var formData = new FormData();
+                formData.append("file", file);
+                // Create request
+                this.loading = true;
+                this.fire('refit');
+                xhr.post(Designmap.config.apiURL + 'user/upload-avatar', formData).then(function (response) {
+                    this.tmpFile = response.file;
+                    xhr.opts.formData = false;
+                    // Wait to apply changes
+                    this.async(function () {
+                        this.loading = false;
+                        this.onIronResize();
+                        this.fire('file-loaded');
+                    }, 500);
+                }.bind(this)).catch(this.manageErrorResponse.bind(this));
+            },
+            setStyles: function () {
+                var cropper = this.$$('#cropper');
+                if (cropper) {
+                    cropper.style.left = this.cropper.x + 'px';
+                    cropper.style.top = this.cropper.y + 'px';
+                    cropper.style.width = this.cropper.width + 'px';
+                    cropper.style.height = this.cropper.height + 'px';
+                }
+                var tmpFile = this.$$('#tmpFile');
+                var phantomFile = this.$$('#phantomFile');
+                var wrapper = this.$$('#wrapper');
+                if (tmpFile) {
+                    var tmpFileBound = tmpFile.getBoundingClientRect();
+                    var phantomFileBound = phantomFile.getBoundingClientRect();
+                    wrapper.style.width = tmpFileBound.width + 'px';
+                    wrapper.style.height = tmpFileBound.height + 'px';
+                    phantomFile.style.width = tmpFileBound.width + 'px';
+                    phantomFile.style.height = tmpFileBound.height + 'px';
+                    phantomFile.style.left = -this.cropper.x + 'px';
+                    phantomFile.style.top = -this.cropper.y + 'px';
+                }
+            },
+            dragger: function (e, cb) {
+                this.lastPageY = e.pageY;
+                this.lastPageX = e.pageX;
+
+                document.addEventListener('mousemove', _drag);
+                document.addEventListener('mouseup', _stop);
+
+                var _this = this;
+
+                function _drag(e) {
+                    var deltaX = e.pageX - _this.lastPageX;
+                    _this.lastPageX = e.pageX;
+                    var deltaY = e.pageY - _this.lastPageY;
+                    _this.lastPageY = e.pageY;
+                    cb(deltaX, deltaY);
+                }
+
+                function _stop(e) {
+                    document.removeEventListener('mousemove', _drag);
+                    document.removeEventListener('mouseup', _stop);
+                }
+
+                return false;
+            },
+            move: function (e) {
+                this.dragger(e, function (deltaX, deltaY) {
+                    this.cropper.x += deltaX;
+                    this.cropper.y += deltaY;
+                    if (!this.checkX()) this.cropper.x -= deltaX;
+                    if (!this.checkY()) this.cropper.y -= deltaY;
+                    this.setStyles();
+                }.bind(this))
+            },
+            resize: function (e) {
+                const target = e.currentTarget;
+                this.dragger(e, function (deltaX, deltaY) {
+                    let can = true;
+                    switch (target.dataset.direction) {
+                        case 'left-top' :
+                            this.cropper.x += deltaX;
+                            this.cropper.y += deltaX;
+                            this.cropper.width -= deltaX;
+                            this.cropper.height = this.cropper.width;
+                            if (!this.checkX() || !this.checkY()) {
+                                this.cropper.x -= deltaX;
+                                this.cropper.y -= deltaX;
+                                this.cropper.width += deltaX;
+                                this.cropper.height = this.cropper.width;
+                            }
+                            break;
+                        case 'center-top' :
+                            this.cropper.y += deltaY;
+                            this.cropper.x += deltaY / 2;
+                            this.cropper.width -= deltaY;
+                            this.cropper.height = this.cropper.width;
+                            if (!this.checkY() || !this.checkX()) {
+                                this.cropper.y -= deltaY;
+                                this.cropper.x -= deltaY / 2;
+                                this.cropper.width += deltaY;
+                                this.cropper.height = this.cropper.width;
+                            }
+                            break;
+                        case 'right-top' :
+                            this.cropper.x -= 0;
+                            this.cropper.y -= deltaX;
+                            this.cropper.width += deltaX;
+                            this.cropper.height = this.cropper.width;
+                            if (!this.checkX() || !this.checkY()) {
+                                this.cropper.y += deltaX;
+                                this.cropper.width -= deltaX;
+                                this.cropper.height = this.cropper.width;
+                            }
+                            break;
+                        case 'right-center' :
+                            this.cropper.x += 0;
+                            this.cropper.y -= deltaX / 2;
+                            this.cropper.width += deltaX;
+                            this.cropper.height = this.cropper.width;
+                            if (!this.checkX() || !this.checkY()) {
+                                this.cropper.x += 0;
+                                this.cropper.y += deltaX / 2;
+                                this.cropper.width -= deltaX;
+                                this.cropper.height = this.cropper.width;
+                            }
+                            break;
+                        case 'right-bottom' :
+                            this.cropper.width += deltaX;
+                            this.cropper.height = this.cropper.width;
+                            if (!this.checkX() || !this.checkY()) {
+                                this.cropper.width -= deltaX;
+                                this.cropper.height = this.cropper.width;
+                            }
+                            break;
+                        case 'center-bottom' :
+                            this.cropper.y += 0;
+                            this.cropper.x -= deltaY / 2;
+                            this.cropper.width += deltaY;
+                            this.cropper.height = this.cropper.width;
+                            if (!this.checkY() || !this.checkX()) {
+                                this.cropper.y += 0;
+                                this.cropper.x += deltaY / 2;
+                                this.cropper.width -= deltaY;
+                                this.cropper.height = this.cropper.width;
+                            }
+                            break;
+                        case 'left-bottom' :
+                            //var delta = deltaX<deltaY?deltaX:deltaY;
+                            this.cropper.x += deltaX;
+                            this.cropper.y += 0;
+                            this.cropper.width -= deltaX;
+                            this.cropper.height = this.cropper.width;
+                            if (!this.checkX() || !this.checkY()) {
+                                this.cropper.x -= deltaX;
+                                this.cropper.width += deltaX;
+                                this.cropper.height = this.cropper.width;
+                            }
+                            break;
+                        case 'left-center' :
+                            //deltaX = -deltaX;
+                            this.cropper.x += deltaX;
+                            this.cropper.y += deltaX / 2;
+                            this.cropper.width -= deltaX;
+                            this.cropper.height = this.cropper.width;
+                            if (!this.checkX() || !this.checkY()) {
+                                this.cropper.x -= deltaX;
+                                this.cropper.y -= deltaX / 2;
+                                this.cropper.width += deltaX;
+                                this.cropper.height = this.cropper.width;
+                            }
+                            break;
+                    }
+                    //this.setStyles();
+                }.bind(this));
+            },
+            checkX: function () {
+                var img = this.$$('#tmpFile');
+                var imgBound = img.getBoundingClientRect();
+                if (this.cropper.x + this.cropper.width > (imgBound.width - 1)) return false;
+                if (this.cropper.x < 0) return false;
+                if (this.cropper.width < 50) return false;
+                return true;
+            },
+            checkY: function () {
+                var img = this.$$('#tmpFile');
+                var imgBound = img.getBoundingClientRect();
+                if (this.cropper.y < -1) return false;
+                if (this.cropper.y + this.cropper.height > imgBound.height) return false;
+                if (this.cropper.width < 50) return false;
+                return true;
+            },
+            getFilePath: function (file) {
+                if (!file) return '';
+                return Designmap.config.apiURL.substring(0, Designmap.config.apiURL.length - 1) + file.path + '?v=' + this.generateUid();
+            },
+            onIronResize: function () {
+                var wrapper = this.$$('#wrapper');
+                if (!wrapper) return;
+                wrapper.style.width = 'auto';
+                wrapper.style.height = 'auto';
+                var tmpFile = this.$$('#tmpFile');
+                var tmpFileBound = tmpFile.getBoundingClientRect();
+                if (!this.checkX() || !this.checkY()) {
+                    this.cropper.x = 0;
+                    this.cropper.y = 0;
+                    this.cropper.width = this.cropper.height = tmpFileBound.width / 2;
+                }
+                this.async(function () {
+                    this.setStyles();
+                });
+            },
+            cancel: function (e) {
+                this.fire('cancel');
+                e.preventDefault();
+                this.$$('#fileButton').reset();
+                xhr.get(Designmap.config.apiURL + 'user/remove-avatar/?path=' + decodeURI(this.tmpFile.path)).catch(this.manageErrorResponse.bind(this));
+                this.tmpFile = null;
+            },
+            save: function (e) {
+                e.preventDefault();
+                var cData = this.processCropData(this.cropper);
+                var rData = this.processResizeData(cData);
+                this.loading = true;
+                this.$$('#fileButton').reset();
+                this.fire('pre-loaded');
+                xhr.post(Designmap.config.apiURL + 'user/crop-avatar/', {
+                    pth: this.tmpFile.path,
+                    crop: cData,
+                    resize: rData
+                }).then(function (response) {
+                    this.tmpFile = null;
+                    this.fire('avatar-loaded', response.src);
+                    this.loading = false;
+                }.bind(this)).catch(this.manageErrorResponse.bind(this));
+            },
+            processCropData: function (cropper) {
+                var tmpFile = this.$$('#tmpFile');
+                var tmpFileBound = tmpFile.getBoundingClientRect();
+                var naturalData = {width: tmpFile.naturalWidth, height: tmpFile.naturalHeight};
+                var k = (naturalData.width / tmpFileBound.width).toFixed(4);
+                return {x: cropper.x * k, y: cropper.y * k, width: cropper.width * k, height: cropper.height * k};
+            },
+            processResizeData: function (cropData) {
+                return {
+                    width: cropData.width > 512 ? 512 : cropData.width
+                }
+            },
+            showNotAllowedError: function () {
+                this.showErrorMessage('File with this extension is not allowed');
+            }
+        })
+    </script>
+</dom-module>

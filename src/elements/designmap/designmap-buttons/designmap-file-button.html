@@ -95,6 +95,7 @@
                     if(this.allowedExtension && this.allowedExtension.length && this.allowedExtension.indexOf(ext.toLowerCase())==-1) return this.fire('notallowed',{ext:ext});
                     this.push('files',file);
                 }.bind(this));
+                this.fire('change');
             },
             /**
              * Reset file input.

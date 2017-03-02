@@ -1,4 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="../designmap-ui/designmap-date-picker.html">
 
 <dom-module id="designmap-input-datepicker">
     <template>
@@ -35,9 +37,14 @@
                 top: 30px;
             }
 
+            paper-dialog {
+                background: var(--blue-darkest-color);
+            }
+
             #datePickerDialog paper-button {
                 color: var(--white-color);
             }
+
 
         </style>
         <div class="input-wrapper">
@@ -46,25 +53,24 @@
             <iron-icon hidden$="[[!icon]]" icon="designmap-task-manager:date" on-click="openDatePicker"></iron-icon>
         </div>
         <!-- Date Picker -->
-        <paper-dialog id="datePickerDialog" modal
+        <paper-dialog id="datePickerDialog"
                       entry-animation="[[computeAnimationState('scale-up-animation',animationOn)]]"
                       exit-animation="[[computeAnimationState('scale-down-animation',animationOn)]]">
-            <paper-date-picker id="datePicker" min-date="April 1, 1940" max-date="June 30, 2017" locale="[[language]]"
-                               force-narrow date="{{date}}"></paper-date-picker>
+            <designmap-date-picker id="datePicker" min-date="April 1, 1940" max-date="June 30, 2017" locale="[[language]]"
+                               force-narrow date="{{date}}"></designmap-date-picker>
             <div class="buttons">
-                <paper-button dialog-dismiss>
-                    <i18-n msgid="Cancel">Cancel</i18-n>
-                </paper-button>
-                <paper-button dialog-confirm on-click="selectDate">
-                    <i18-n msgid="Select">Select</i18-n>
-                </paper-button>
+                <paper-button dialog-dismiss><i18-n msgid="Cancel">Cancel</i18-n></paper-button>
+                <paper-button dialog-confirm on-click="selectDate"><i18-n msgid="Select">Select</i18-n></paper-button>
             </div>
         </paper-dialog>
     </template>
     <script>
         Polymer({
             is: 'designmap-input-datepicker',
-            behaviors: [Polymer.DesignMapUtilsBehavior, ReduxBehavior],
+            behaviors: [
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapMessagesBehavior,
+                ReduxBehavior],
             properties: {
                 date: {
                     type: Date,
@@ -74,9 +80,13 @@
                     type: Date
                 },
                 label: String,
+                user: {
+                    type: String,
+                    statePath: 'user'
+                },
                 language: {
                     type: String,
-                    statePath: 'language'
+                    computed: '_computeLanguage(user.language)'
                 },
                 wasSelected: Boolean,
                 icon: {

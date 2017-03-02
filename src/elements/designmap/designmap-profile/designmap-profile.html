@@ -1,11 +1,14 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-form/iron-form.html">
 <link rel="import" href="/bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="/bower_components/paper-input/paper-input.html">
 <link rel="import" href="/bower_components/paper-slider/paper-slider.html">
 <link rel="import" href="/bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="/bower_components/i18-n/i18-n.html">
 
 <link rel="import" href="../designmap-buttons/designmap-circle-button.html">
 <link rel="import" href="../designmap-buttons/designmap-loading-button.html">
+<link rel="import" href="../designmap-buttons/designmap-file-button.html">
 <link rel="import" href="../designmap-buttons/designmap-button.html">
 
 <link rel="import" href="../designmap-icons/designmap-icons.html">
@@ -14,7 +17,12 @@
 <link rel="import" href="../designmap-ui/designmap-dashboard.html">
 <link rel="import" href="../designmap-ui/designmap-input-datepicker.html">
 
+<link rel="import" href="../designmap-avatar/designmap-avatar.html">
+
 <link rel="import" href="../../plastic/plastic-custom-scroll.html">
+<link rel="import" href="../../plastic/plastic-paper-textarea.html">
+
+<link rel="import" href="../../../styles/flex-grid-shared-styles.html">
 <!-- Animation -->
 <link rel="import" href="/bower_components/neon-animation/neon-animated-pages.html">
 <link rel="import" href="/bower_components/neon-animation/neon-animatable.html">
@@ -22,7 +30,7 @@
 
 <dom-module id="designmap-profile">
     <template>
-        <style>
+        <style include="flex-grid-shared-styles">
             :host {
                 --designmap-profile-main-color: var(--gray-saturated-color);
                 /** X-CUSTOM-SCROLL **/
@@ -52,9 +60,9 @@
                 };
                 /** DROPDOWN **/
                 --dropdown-color: var(--blue-darky-color);
-                --dropdown-line-color: var(--blue-darken-color);
+                --dropdown-line-color: var(--blue-darkest-color);
                 /** TABS **/
-                --paper-tabs-selection-bar-color: var(--primary-color);
+                --paper-tabs-selection-bar-color: var(--blue-color);
                 --paper-tabs: {
                     font-family: var(--font-family);
                     font-weight: 100;
@@ -66,6 +74,9 @@
                 };
                 --paper-tabs-selection-bar: {
                     font-weight: 100;
+                };
+                --paper-tab: {
+                    color: var(--designmap-profile-main-color);
                 };
                 /** SLIDER **/
                 --paper-slider-active-color: var(--gray-darkend-color);
@@ -90,7 +101,7 @@
 
             .arrow-back iron-icon {
                 --iron-icon-components-mixin: {
-                    stroke: var(--primary-color) !important;
+                    stroke: var(--blue-color) !important;
                     stroke-width: 2px;
                 }
             }
@@ -102,7 +113,7 @@
                     color: var(--gray-darkend-color);
                     font-size: 22px;
                     padding: 5px 0;
-                    font-family: 'Open Sans';
+                    font-family: var(--font-family);
                     font-weight: 300;
                     cursor: pointer;
                 }
@@ -340,7 +351,7 @@
                             <div class="row">
                                 <div class="col col-md-12 col-xs-12">
                                     <plastic-paper-textarea id="editor" value="{{user.aboutMe::change}}" max-rows="4"
-                                                      label="[[translate('About me',language,i18Loaded)]]"></plastic-paper-textarea>
+                                                            label="[[translate('About me',language,i18Loaded)]]"></plastic-paper-textarea>
                                 </div>
                             </div>
                             <button class="save-button" data-form="profile-form" id="saveProfileButton"
@@ -518,6 +529,10 @@
                     type: Boolean,
                     statePath: 'i18Loaded'
                 },
+                projectId: {
+                    type: String,
+                    statePath: 'projectId'
+                },
                 selector: {
                     type: Number,
                     value: 0,
@@ -682,10 +697,7 @@
                 location.hash = route;
             },
             goBack: function () {
-                this.redirect('/');
-                // Hints
-                var hs = document.querySelector('designmap-hint-system');
-                if (hs.isRunning) hs.$.backToProject.close(true);
+                page.redirect('/'+(this.projectId||''));
             }
         })
     </script>

@@ -1,0 +1,301 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="./designmap-image-cropper.html">
+<link rel="import" href="./designmap-preset-avatars.html">
+
+<!-- Redux -->
+<link rel="import" href="../../../redux/redux-store.html">
+<link rel="import" href="../../../redux/actions/combine-actions.html">
+<link rel="import" href="../../../redux/actions/user-actions.html">
+
+<dom-module is="designmap-avatar">
+    <template>
+        <style>
+            :host {
+                width: 128px;
+                height: 128px;
+                border: 3px solid var(--gray-saturate-color);
+                border-radius: 50%;
+                font-family: var(--font-family);
+                font-weight: 300;
+                color: var(--white-color);
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+            }
+
+            .initials {
+                line-height: 24px;
+                text-align: center;
+                font-size: 20px;
+                color: var(--gray-darkend-color);
+                position: relative;
+                top: 3px;
+            }
+
+            :host(:hover) {
+                background: rgba(0, 0, 0, 0.05);
+                tranistions: background .2s;
+            }
+
+            paper-dialog {
+                z-index: 999;
+                background: var(--blue-darkest-color);
+                overflow: hidden;
+            }
+
+            paper-dialog .content {
+                padding: 10px;
+                overflow: hidden;
+            }
+
+            .content {
+                margin: 0;
+            }
+
+            designmap-image-cropper {
+                max-height: 70vh;
+                max-width: 70vw;
+            }
+
+            .avatar {
+                width: 100%;
+                height: 100%;
+                max-width: 100%;
+            }
+
+            .backdrop {
+                cursor: pointer;
+                display: none;
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                left: 0;
+                border-radius: 50%;
+                justify-content: center;
+                align-items: center;
+                background: rgba(0, 0, 0, 0.3);
+                tranistions: background .2s;
+                text-align: center;
+            }
+
+            .wrapper {
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                overflow: hidden;
+            }
+
+            .wrapper:hover .backdrop, :host(:hover) .remove {
+                display: flex;
+                opacity: 1;
+                tranistions: opacity .2s;
+            }
+
+            .remove {
+                opacity: 0;
+                width: 30px;
+                height: 30px;
+                background: rgba(0, 0, 0, 0.4);
+                position: absolute;
+                justify-content: center;
+                align-items: center;
+                left: 100%;
+                margin-left: -35px;
+                border-radius: 50%;
+                top: 0px;
+                tranistions: opacity .2s;
+            }
+
+            .remove:hover {
+                cursor: pointer;
+                background: rgba(0, 0, 0, 0.6);
+            }
+
+            neon-animated-pages .iron-selected {
+                position: static;
+            }
+
+            designmap-image-cropper {
+                min-height: 234px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .sub-title {
+                color: var(--white-color);
+                font-weight: 300;
+                text-align: center;
+                cursor: pointer;
+                margin: 5px 0;
+            }
+
+            .sub-title:hover {
+                text-decoration: underline;
+            }
+
+            .upload {
+                min-width: 233px;
+                min-height: 234px;
+            }
+
+            .upload.selected designmap-image-cropper {
+                min-height: 290px;
+            }
+
+
+        </style>
+        <template is='dom-if' if="[[!user.avatar]]">
+            <div class="initials" on-click="openDialog">
+                <i18-n msgid="Select avatar">Select avatar</i18-n>
+            </div>
+        </template>
+        <template is='dom-if' if="[[user.avatar]]">
+            <div class="wrapper">
+                <img class="avatar" id="img" src="[[computeAvatarPath(user.avatar)]]">
+                <div class="backdrop" on-click="openDialog">
+                    <i18-n msgid="Change avatar">Change avatar</i18-n>
+                </div>
+            </div>
+            <div class="remove" on-click="removeAvatar">
+                <iron-icon icon="designmap:add" style="transform: rotate(45deg)"></iron-icon>
+            </div>
+        </template>
+        <!-- Popup -->
+        <paper-dialog id="avatarDialog" entry-animation="scale-up-animation"
+                      exit-animation="scale-down-animation">
+            <div class="content">
+                <neon-animated-pages id="pages" cancel-bubble selected="[[selectedPage]]"
+                                     entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
+                    <neon-animatable>
+                        <div class$="upload [[computeUploadClass(presetSelected)]]">
+                            <designmap-image-cropper id="cropper" on-cancel="cancel" on-pre-loaded="refit"
+                                                     on-refit="refitDialog" on-file-loaded="fileWasLoaded"
+                                                     on-avatar-loaded="avatarWasLoaded"></designmap-image-cropper>
+                            <div class="sub-title" hidden$="[[!hideLink]]" on-click="goToPreset">
+                                <i18-n msgid="Or select one of preset avatars">Or select one of preset avatars</i18-n>
+                            </div>
+                        </div>
+                    </neon-animatable>
+                    <neon-animatable>
+                        <div class="preset">
+                            <designmap-preset-avatars id="preset" avatar="[[user.avatar]]"
+                                                      on-avatar-loaded="presetAvatarLoaded"
+                                                      on-avatar-selected="presetAvatarSelected"></designmap-preset-avatars>
+                            <div class="sub-title hide-on-mobile" hidden$="[[!hideLink]]" on-click="goToUploading">
+                                <i18-n msgid="Return to uploading">Return to uploading</i18-n>
+                            </div>
+                        </div>
+                    </neon-animatable>
+                </neon-animated-pages>
+            </div>
+        </paper-dialog>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-avatar',
+            behaviors: [
+                ReduxBehavior,
+                Polymer.UserActions,
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior
+            ],
+            properties: {
+                allowedExtension: '[".jpg",".png",".gif",".bmp"]',
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                selectedPage: {
+                    type: Number,
+                    value: 0,
+                    observer: 'selectedPageChanged'
+                },
+                hideLink: {
+                    type: Boolean,
+                    value: true
+                },
+                presetSelected: {
+                    type: Boolean,
+                    value: false
+                },
+                animationOn: {
+                    type: Boolean,
+                    value: true
+                }
+            },
+            openDialog: function () {
+                this.$.cropper.lng();
+                this.$.avatarDialog.toggle();
+            },
+            showNotAllowedError: function () {
+                this.showErrorMessage('File with this extension is not allowed');
+            },
+            refitDialog: function () {
+                this.$.avatarDialog.refit();
+            },
+            fileWasLoaded: function () {
+                this.$.avatarDialog.refit();
+                /*this.$.avatarDialog.modal = true;*/
+                this.hideLink = false;
+            },
+            avatarWasLoaded: function (e) {
+                this.$.avatarDialog.close();
+                this.$.avatarDialog.modal = false;
+                this.hideLink = true;
+                this.user.avatar = e.detail;
+                this.dispatch('userUpdate', this.user);
+                if (this.$$('#img')) this.$$('#img').src = Designmap.config.apiURL + e.detail + '?v=' + this.generateUid();
+            },
+            presetAvatarLoaded: function (e) {
+                this.$.avatarDialog.refit();
+                this.$.avatarDialog.close();
+                this.$.avatarDialog.modal = false;
+                this.hideLink = true;
+            },
+            presetAvatarSelected: function (e) {
+                this.presetSelected = e.detail.id ? true : false;
+                this.$.avatarDialog.refit();
+            },
+            cancel: function () {
+                this.$.avatarDialog.modal = false;
+                this.hideLink = true;
+                this.$.avatarDialog.refit();
+                this.$.avatarDialog.close();
+            },
+            refit: function () {
+                this.$.avatarDialog.refit();
+            },
+            computeAvatarPath: function (path) {
+                if (!path) return '';
+                if (/images/.test(path)) return path + '?v=' + this.generateUid();
+                return Designmap.config.apiURL + path + '?v=' + this.generateUid();
+            },
+            removeAvatar: function () {
+                const promise = xhr.get(Designmap.config.apiURL + 'user/remove-avatar/?path=' + decodeURI(this.user.avatar));
+                promise.then(function (response) {
+                    this.user.avatar = null;
+                    this.dispatch('userUpdate', this.user);
+                }.bind(this)).catch(this.manageErrorResponse.bind(this));
+            },
+            goToPreset: function () {
+                this.selectedPage = 1;
+                this.$.preset.$.customScroll.calculate();
+            },
+            goToUploading: function () {
+                this.selectedPage = 0;
+            },
+            selectedPageChanged: function (n, o) {
+                this.exitAnimation = n > o ? 'slide-right-animation' : 'slide-left-animation';
+                this.entryAnimation = n > o ? 'slide-from-left-animation' : 'slide-from-right-animation';
+            },
+            computeUploadClass: function (presetSelected) {
+                return presetSelected ? 'selected' : '';
+            }
+        })
+    </script>
+</dom-module>

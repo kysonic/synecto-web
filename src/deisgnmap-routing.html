@@ -22,8 +22,8 @@
                 this.page = 'gallery';
             }.bind(this));
 
-            page('/profile', function(ctx,next){
-                this.page = 'profile';
+            page('/settings', this._isAuth.bind(this), function(ctx,next){
+                this.page = 'settings';
             }.bind(this));
 
             page('/:id', this._isAuth.bind(this), function(ctx,next){

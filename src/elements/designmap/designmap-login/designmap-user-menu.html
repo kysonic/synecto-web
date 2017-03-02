@@ -248,11 +248,8 @@
         this.$$("#dropdown").open();
       },
       goToProfile: function(){
-        page.redirect('/settings/#account');
+        page.redirect('/settings/');
         this.$$("#dropdown").close();
-        //Hints
-        var hs = document.querySelector('designmap-hint-system');
-        if(hs.isRunning) hs.$.accountSettings.close(true);
       },
       goToNotification: function(){
         //page.redirect('/notifications/');
