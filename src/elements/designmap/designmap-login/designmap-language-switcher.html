@@ -57,20 +57,24 @@
                 },
                 language: {
                     type: String,
-                    computed: '_computeLanguage(user.language)'
+                    computed: '_computeLanguage(user.system.language)',
+                    observer: '_languageChanged'
                 }
             },
             checkLanguage: function (e) {
                 this.selected = e.model.index;
-                this.dispatch('updateLanguage', e.model.lang.code);
-                this.dispatch('userUpdate', {language: e.model.lang.code});
+                this.user.system.language = e.model.lang.code;
+                this.dispatch('userUpdate', this.user);
             },
             computeClass: function (index, selected) {
                 return index == selected ? 'selected language-button' : 'language-button';
             },
-            languageChanged: function () {
+            _computeLanguage: function(language){
+              return language;
+            },
+            _languageChanged: function (language) {
                 this.languages.forEach(function (lng, index) {
-                    if (lng.code == this.language) {
+                    if (lng.code == language) {
                         this.selected = index;
                     }
                 }.bind(this));

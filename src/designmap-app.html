@@ -15,11 +15,15 @@
 <link rel="import" href="../bower_components/iron-iconset-svg/iron-iconset-svg.html">
 <!-- Components -->
 <link rel="import" href="../bower_components/i18-n/i18-n-domain.html">
+<link rel="import" href="../bower_components/i18-n/i18-n.html">
 <link rel="import" href="elements/designmap/designmap-login/designmap-user-menu.html">
 <link rel="import" href="elements/designmap/designmap-icons/designmap-logo-icons.html">
+<link rel="import" href="elements/designmap/designmap-icons/designmap-workspace-icons.html">
 <link rel="import" href="elements/designmap/designmap-workspace/designmap-advanced-menu.html">
 <link rel="import" href="elements/designmap/designmap-workspace/designmap-header.html">
 <link rel="import" href="elements/designmap/designmap-workspace/designmap-info.html">
+<link rel="import" href="elements/designmap/designmap-buttons/designmap-circle-button.html">
+<link rel="import" href="elements/designmap/designmap-notifications/designmap-notifier.html">
 <!-- Configs -->
 <link rel="import" href="config/designmap-app-config.html">
 <!-- Styles -->
@@ -41,7 +45,6 @@
                 display: block;
             }
 
-
             app-header {
                 color: #fff;
                 background-color: var(--gray-lightern-color);
@@ -58,7 +61,7 @@
             }
 
             app-drawer#right {
-                --app-drawer-scrim-background: rgba(256,256,256,0.5);
+                --app-drawer-scrim-background: rgba(256, 256, 256, 0.5);
                 --app-drawer-content-container: {
                     border-left: 1px solid var(--gray-color);
                 }
@@ -84,7 +87,7 @@
             }
 
         </style>
-
+        <designmap-notifier id="notifier"></designmap-notifier>
         <!-- i18-n -->
         <i18-n-domain id="i18nDomain" locale="[[language]]" messages-url="/locales"></i18-n-domain>
         <!-- i18-n -->
@@ -93,11 +96,11 @@
             <!-- Drawer content -->
             <app-drawer id="drawer">
                 <app-toolbar>
-                    <a href="/">
+                    <a style="text-decoration: none" href="/">
                         <iron-icon class="designmap-logo" icon="designmap-logo:logo"></iron-icon>
                     </a>
                 </app-toolbar>
-                <designmap-advanced-menu></designmap-advanced-menu>
+                <designmap-advanced-menu path="[[path]]" page="[[page]]"></designmap-advanced-menu>
             </app-drawer>
 
             <!-- Main content -->
@@ -117,6 +120,9 @@
                     <designmap-fs-view name="fs"></designmap-fs-view>
                     <designmap-settings-view name="settings"></designmap-settings-view>
                     <designmap-gallery-view name="gallery"></designmap-gallery-view>
+                    <designmap-support-view name="support"></designmap-support-view>
+                    <designmap-docs-view name="docs"></designmap-docs-view>
+                    <designmap-notifications-view name="notifications"></designmap-notifications-view>
                     <designmap-login-view name="login"></designmap-login-view>
                     <designmap-404 name="404"></designmap-404>
                 </iron-pages>
@@ -129,6 +135,7 @@
     </template>
 
     <script>
+        const NO_HEADER_PAGES = ['login','404','gallery'];
         Polymer({
             is: 'designmap-app',
             behaviors: [
@@ -147,6 +154,10 @@
                     type: String,
                     observer: '_projectIdChanged'
                 },
+                fileId: {
+                    type: String,
+                    observer: '_fileIdChanged'
+                },
                 path: {
                     type: String,
                     observer: '_pathChanged'
@@ -156,13 +167,18 @@
                     statePath: 'user',
                     observer: '_userChanged'
                 },
+                isAuth: {
+                    type: Boolean,
+                    computed: '_computeIsAuth(user)',
+                    observer: '_isAuthChanged'
+                },
                 trashMode: {
                     type: Boolean,
                     observer: '_trashModeChanged'
                 },
                 language: {
                     type: String,
-                    computed: '_computeLanguage(user.language)'
+                    computed: '_computeLanguage(user.system.language)'
                 }
             },
 
@@ -171,6 +187,7 @@
             },
 
             ready: function () {
+                this.uid = Designmap.uid = this.generateUid();
                 // Get possible current user
                 this.dispatch('getCurrentUser');
                 // Update languages
@@ -180,9 +197,9 @@
             },
 
             _pageChanged: function (page) {
-                this._setLayoutState(page === 'login');
+                this._setLayoutState(NO_HEADER_PAGES.indexOf(page)!==-1);
                 // Load page import on demand. Show 404 page if fails
-                const resolvedPageUrl = this.resolveUrl('designmap-' + page + '-view.html');
+                const resolvedPageUrl = this.resolveUrl('./views/designmap-' + page + '-view.html');
                 this.importHref(resolvedPageUrl, null, this._showPage404, true);
             },
 
@@ -194,12 +211,20 @@
                 this.dispatch('updatePath', path);
             },
 
+            _fileIdChanged: function (fileId) {
+                this.dispatch('updateFileId', fileId);
+            },
+
             _trashModeChanged: function (trashMode) {
                 this.dispatch('updateTrashMode', trashMode);
             },
 
             _userChanged: function (user) {
                 page.redirect(this.previousPath);
+            },
+
+            _isAuthChanged: function(isAuth){
+                if(isAuth) this.dispatch('getProjects');
             },
 
             _showPage404: function () {
@@ -216,7 +241,11 @@
                 window.dispatchEvent(new Event('resize'));
             },
 
-            openInfo: function(){
+            _computeIsAuth: function(user){
+                 return user && user._id;
+            },
+
+            openInfo: function () {
                 this.$.right.open();
             }
         });

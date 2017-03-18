@@ -32,6 +32,7 @@
                 align-items: center;
                 justify-content: center;
                 font-weight: 300;
+                min-width: 450px;
                 color: var(--designmap-login-form-color);
 
                 --paper-input-container-color:  var(--designmap-login-form-color);
@@ -46,6 +47,12 @@
                 --iron-overlay-backdrop-opened: {
                     z-index: 10;
                 };
+            }
+            *[hidden] {
+                display: none !important;
+            }
+            :host([fake-support]) {
+                background: transparent;
             }
             .forgot-message {
                 margin-top: 15px;
@@ -240,6 +247,10 @@
                 font-size: 12px;
                 font-weight: 100;
             }
+            .fake-signup-title {
+                text-align: center;
+                padding-top: 33px;
+            }
         </style>
         <google-signin-aware id="aware"
                              on-google-signin-aware-success="googleSigninSuccess"
@@ -352,9 +363,12 @@
                                 <i18-n msgid="SignIn">Sign In</i18-n>
                             </button>
                         </div>
-                        <a class="msg" on-click="goToTheSignup">
+                        <a class="msg" hidden$="[[fakeSupport]]" on-click="goToTheSignup">
                             <i18-n msgid="DidNotHaveAccount">Do not have account?</i18-n>
                             <i18-n class="sign-up" msgid="Sign-up">Sign-up!</i18-n>
+                        </a>
+                        <a class="msg" hidden$="[[!fakeSupport]]" on-click="goToTheFakeSignUp">
+                            <i18-n class="sign-up" msgid="return">Return</i18-n>
                         </a>
                         <!--<a href="https://goo.gl/PbeJAo" target="_blank" class="msg">
                           <i18-n msgid="RequestTestingAccount">Request testing account</i18-n>
@@ -375,7 +389,7 @@
                             <i18-n msgid="Send me approving link">Send me approving link</i18-n>
                         </a>
                         <div class="button-set">
-                            <button is="designmap-button" thin on-click="register">
+                            <button is="designmap-loading-button" id="registerButton" thin on-click="register">
                                 <i18-n msgid="SignUp">Sign Up</i18-n>
                             </button>
                         </div>
@@ -385,10 +399,30 @@
                             <i18-n msgid="frm"></i18-n>
                         </a>
                     </neon-animatable>
+                    <!-- Fake login -->
+                    <neon-animatable id="animatable3">
+                        <div class="fake-signup-title">
+                            <i18-n msgid="Enter your name we want to know you a little bit closer"></i18-n>
+                        </div>
+                        <paper-input id="nameFakeSignup" required
+                                     value="{{fakeName::keyup}}"
+                                     label="[[translate('Enter your name',language,i18Loaded)]]"
+                                     type="text"></paper-input>
+                        <div class="button-set">
+                            <button is="designmap-loading-button" id="fakeSignupButton" thin on-click="fakeSignUp">
+                                <i18-n msgid="Enter">Enter</i18-n>
+                            </button>
+                        </div>
+                        <a class="msg"  on-click="goToTheSignin">
+                            <i18-n msgid="GoToTheLogin"></i18-n>
+                            <i18-n class="sign-up" msgid="Authorization"></i18-n>
+                            <i18-n msgid="frm"></i18-n>
+                        </a>
+                    </neon-animatable>
                 </neon-animated-pages>
             </div>
         </div>
-        <div class="linkers">
+        <div hidden="[[fakeSupport]]" class="linkers">
             <a href="https://vk.com/designmap" target="_blank">
                 <i18-n msgid="Join us VK">Join us VK</i18-n>
             </a>
@@ -414,7 +448,7 @@
                 },
                 language: {
                     type: String,
-                    computed: '_computeLanguage(user.language)'
+                    computed: '_computeLanguage(user.system.language)'
                 },
                 i18Loaded: {
                     type: Boolean,
@@ -447,10 +481,20 @@
                 approveMessageSent: {
                     type: Boolean,
                     value: false
+                },
+                fakeSupport: {
+                    type: Boolean,
+                    value: false
                 }
             },
             ready: function () {
                 this.resolveQuery();
+                if(this.fakeSupport) {
+                    this.selected = 2;
+                    if(this.user) return;
+                    const user = JSON.parse(localStorage.getItem('designmap:user'));
+                    if(user && user._id) this.dispatch('_userUpdate', user);
+                }
             },
             /**
              * If we get approve token we have to launch a process of
@@ -458,7 +502,7 @@
              * has invoked, after that user will be able to login.
              */
             resolveQuery: function () {
-                var query = this.parseQuery();
+                const query = this.parseQuery();
                 if (query.token) this.token = query.token;
                 if (query.approveToken) this.approveToken = query.approveToken;
             },
@@ -495,6 +539,14 @@
             /**
              * To provide right-left animation in form
              */
+            goToTheFakeSignUp: function () {
+                this.entryAnimation = 'slide-from-right-animation';
+                this.exitAnimation = 'slide-left-animation';
+                this.selected = 2;
+            },
+            /**
+             * To provide right-left animation in form
+             */
             goToTheSignin: function () {
                 this.entryAnimation = 'slide-from-left-animation';
                 this.exitAnimation = 'slide-right-animation';
@@ -505,13 +557,18 @@
              */
             register: function (e) {
                 e.preventDefault();
+                if (this.$.registerButton.loading) return;
                 if (!(this.$.emailSignup.validate() && this.$.passwordSignup.validate())) return this.showErrorMessage('AuthorizationFormWasFilledNotCorrectly');
+                this.$.registerButton.loading=true;
                 this.dispatch('userSignup', this.$.emailSignup.value, this.$.passwordSignup.value).then(function (response) {
                     if (!response.success) return this.manageErrorResponse(response);
                     this.$.emailSignup.value = null;
                     this.$.passwordSignup.value = null;
-                    this.showMessage('Welcome to the DesignMap!', {centered:true}, 20000);
-                }.bind(this)).catch(this.manageErrorResponse.bind(this));
+                    this.$.registerButton.loading=false;
+                }.bind(this)).catch(function(err){
+                    this.$.registerButton.loading=true;
+                    this.manageErrorResponse(err)
+                }.bind(this));
             },
             /**
              * Log in using form
@@ -622,6 +679,7 @@
              * @param googleUser
              */
             signInWithGoogle: function (googleUser) {
+                this.$.registerGoogleButton.loading = true;
                 this.dispatch('userGoogleSignup', googleUser.w3).then(function (response) {
                     this.$.registerGoogleButton.loading = false;
                     if (!response.success) return this.showErrorMessage(response.errors.message);
@@ -629,6 +687,26 @@
                 }.bind(this)).catch(function (err) {
                     this.$.registerGoogleButton.loading = false;
                 }.bind(this));
+            },
+            /**
+             * Sign up with fake data when
+             * user does not have possibility to login with
+             * its own account
+             */
+            fakeSignUp: function(){
+                const unknownName = this.$.nameFakeSignup.value;
+                if (!unknownName) return;
+                const nameParts = unknownName.split(' ');
+                const user = {
+                    _id: this.generateObjectId(),
+                    fake: true,
+                    profile: {
+                        name: nameParts[0],
+                        lastName: nameParts[1] || ''
+                    }
+                };
+                this.dispatch('_userUpdate', user);
+                localStorage.setItem('designmap:user', JSON.stringify(user));
             }
         })
     </script>

@@ -1,0 +1,424 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../../plastic/plastic-custom-scroll.html">
+<link rel="import" href="../designmap-ui/designmap-dashboard.html">
+<link rel="import" href="../designmap-ui/designmap-stub.html">
+<link rel="import" href="../designmap-icons/designmap-notify-icons.html">
+<!-- Redux -->
+<link rel="import" href="../../../redux/actions/notifications-actions.html">
+
+<dom-module is="designmap-notifications">
+    <template>
+        <style>
+            :host {
+                --plastic-custom-scroll-bar-mixin: {
+                    margin-left: 5px;
+                };
+
+                --designmap-notifications-icon-color: var(--blue-darky-color);
+                --designmap-notifications-date-color: var(--blue-color);
+                --designmap-notifications-not-read: var(--gray-lightenest-color);
+                --designmap-notifications-indicator-color: var(--orange-color);
+            }
+
+            *[hidden] {
+                display: none !important;
+            }
+
+            .wrapper {
+                padding: 0;
+            }
+
+            .content {
+                margin: 0 auto;
+                width: 100%;
+                max-width: 750px;
+                font-weight: 100;
+                height: calc(100vh - 150px);
+            }
+
+            /** NOTIFICATION **/
+            .notification {
+                font-family: var(--font-family);
+                font-weight: 100;
+                text-align: left;
+                margin-top: 5px;
+                background: var(--white-color);
+                padding: 15px;
+            }
+
+            .flex-wrapper {
+                display: flex;
+                position: relative;
+            }
+
+            .notification.not-read {
+                background: var(--designmap-notifications-not-read);
+            }
+
+            .mark {
+                display: none;
+            }
+
+            .notification.not-read .mark {
+                position: absolute;
+                top: -3px;
+                left: 0px;
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: var(--designmap-notifications-indicator-color);
+                display: block;
+            }
+
+            .notification:first-child {
+                margin-top: 0px;
+            }
+
+            .notification .icon {
+                flex: 1;
+                flex-basis: 25px;
+                display: flex;
+                justify-content: center;
+            }
+
+            .notification .icon iron-icon {
+                width: 50px;
+                height: 50px;
+                position: relative;
+                bottom: 6px;
+                --iron-icon-stroke-color: var(--designmap-notifications-icon-color) !important;
+            }
+
+            .notification iron-icon {
+                --iron-icon-components-mixin: {
+                    stroke: var(--blue-color) !important;
+                    stroke-width: 1px !important;
+                };
+            }
+
+            .notification .data {
+                margin-left: 16px;
+                flex: 48;
+            }
+
+            .notification .header {
+                text-align: left;
+                height: 30px;
+            }
+
+            .notification iron-icon {
+                display: inline-block;
+                width: 30px;
+                height: 30px;
+            }
+
+            .notification .type {
+                display: inline-block;
+                font-size: 22px;
+                margin-left: 4px;
+                position: relative;
+                top: 3px;
+                color: var(--blue-darkest-color);
+            }
+
+            .notification .date {
+                display: block;
+                color: var(--designmap-notifications-date-color);
+                margin-left: 10px;
+                text-transform: lowercase;
+                vertical-align: middle;
+            }
+
+            .notification .text {
+                font-size: 16px;
+                text-align: left;
+                margin-left: 5px;
+                margin-top: 20px;
+                color: var(--gray-darkend-color);
+
+            }
+
+            .notification .info {
+                display: flex;
+                margin-top: 14px;
+            }
+
+            .notification .info .phantom {
+                width: 61px;
+            }
+
+            .notification .info .data {
+                margin-top: 7px;
+                margin-left: 10px;
+                display: flex;
+                align-items: center;
+            }
+
+            .notification .info-item {
+                display: block;
+                line-height: 10px;
+                text-align: left;
+                font-size: 14px;
+                color: var(--gray-darkend-color);
+                white-space: nowrap;
+            }
+
+            .info-item-link {
+                display: block;
+                line-height: 10px;
+                text-align: left;
+                font-size: 14px;
+                color: var(--orange-color);
+                white-space: nowrap;
+                margin-left: 10px;
+                cursor: pointer;
+                font-weight: 700;
+            }
+
+            .notification .info-item:not(:first-child) {
+                margin-left: 5px;
+            }
+
+            /** REMOVE **/
+            .notification .remove {
+                flex-basis: 30px;
+                display: flex;
+                /*align-items: center;*/
+                justify-content: center;
+            }
+
+            .notification .remove-icon {
+                cursor: pointer;
+                width: 40px;
+                height: 40px;
+                transform: rotate(45deg);
+            }
+
+            .content .message {
+                text-align: center;
+                font-size: 18px;
+                margin: 5px 0;
+                color: var(--gray-saturated-color);
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .message iron-icon {
+                display: block;
+                margin: 0 auto;
+                width: 241px;
+                height: 267px;
+            }
+
+        </style>
+        <div class="wrapper">
+            <designmap-dashboard back back-url="[[_computeBackUrl(projectId)]]">
+                <div class="title">
+                    <i18-n msgid="Notifications"></i18-n>
+                </div>
+            </designmap-dashboard>
+            <div class="content">
+                <plastic-custom-scroll fit max-height="[[maxHeight]]" wheel-target="[[bodyNode]]">
+                    <template is="dom-repeat" items="[[notifications]]" as="notification"
+                              sort="[[notifySorter(notifications)]]">
+                        <div class$="notification [[computeReadClass(notification)]]">
+                            <div class="flex-wrapper">
+                                <div class="icon" on-click="readNotification">
+                                    <iron-icon icon="[[computeNotificationIcon(notification.type)]]"></iron-icon>
+                                    <div class="mark"></div>
+                                </div>
+                                <div class="data" on-click="readNotification">
+                                    <div class="header">
+                                        <div class="type">[[computeNotificationTypeText(notification.type)]]</div>
+                                    </div>
+                                    <div class="text">
+                                        <span>[[computeNotificationText(notification.text)]]</span>
+                                    </div>
+                                </div>
+                                <div class="remove" on-click="removeNotification">
+                                    <iron-icon class="remove-icon" icon="designmap-workspace:add"></iron-icon>
+                                </div>
+                            </div>
+                            <div class="info">
+                                <div class="phantom"></div>
+                                <div class="data">
+                                    <div class="info-item">
+                                        <i18-n msgid="From"></i18-n>
+                                        : <b class="name">[[computeOwnerName(notification.sender)]]</b></div>
+                                    <!--<div class="info-item"><i18-n msgid="Date"></i18-n>: <b class="name"></b></div>-->
+                                    <template is="dom-if" if="[[notification.text.info]]">
+                                        <template is="dom-repeat" items="[[getItems(notification.text.info)]]" as="info"
+                                                  sort="[[nameSort()]]">
+                                            <template is="dom-if" if="[[isThatLink(info)]]">
+                                                <a class="info-item-link"
+                                                   data-link$="[[notification.text.info.xlink]]"
+                                                   on-click="applyLink">
+                                                    <i18-n msgid="[[info]]">[[info]]</i18-n>
+                                                </a>
+                                            </template>
+                                            <template is="dom-if" if="[[!isThatLink(info)]]">
+                                                <div class="info-item">
+                                                    <i18-n msgid="[[info]]">[[info]]</i18-n>
+                                                    : <b>[[getText(notification.text.info,info)]]</b></div>
+                                            </template>
+                                        </template>
+                                    </template>
+                                </div>
+                            </div>
+                            <div class="info">
+                                <div class="phantom"></div>
+                                <div class="date"><span>[[computeDate(notification.created)]]</span></div>
+                            </div>
+                        </div>
+                    </template>
+                </plastic-custom-scroll>
+                <div class="message" hidden$="[[computeNotificationsLength(notifications.length)]]">
+                    <designmap-stub image="designmap-workspace-stub:postbox"
+                                    message="There is no any notifications"></designmap-stub>
+                    <!--<div class="block">
+                      <i18-n msgid="There is no any notifications"></i18-n>
+                      <iron-icon icon="designmap-taskmanager-whitespace:postbox"></iron-icon>
+                    </div>-->
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-notifications',
+            behaviors: [
+                ReduxBehavior,
+                Polymer.NotificationsActions,
+                Polymer.IronResizableBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapMessagesBehavior
+            ],
+            urlRegex: /(http(s|)\:\/\/(.*?)\/)/i,
+            properties: {
+                notifications: {
+                    type: Array,
+                    statePath: 'notifications'
+                },
+                projectId: {
+                    type: String,
+                    statePath: 'projectId'
+                },
+                user: {
+                    type: String,
+                    statePath: 'user'
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
+                },
+                bodyNode: {
+                    type: Object,
+                    value: function () {
+                        return document.body
+                    }
+                },
+                maxHeight: Number
+            },
+            goBack: function () {
+                return page.redirect('/'+(this.projectId||''));
+            },
+            /**
+             * Define icon which will be displayed
+             * in a header of notification
+             */
+            computeNotificationIcon: function (type) {
+                return 'designmap-notify:' + type || 'new-sticker';
+            },
+            /**
+             * Resolve notification text. Make special replacement.
+             */
+            computeNotificationTypeText: function (text) {
+                return this.translate(text ? text.replace('-', ' ').capitalize() : 'Unknown');
+            },
+            /**
+             * Resolve notification text. Make special replacement.
+             */
+            computeNotificationText: function (text) {
+                if (!text.replacement) return text.message || text;
+                Object.keys(text.replacement).forEach(function (key) {
+                    text.message = this.translate(text.message).replace(key, text.replacement[key]);
+                }.bind(this));
+                return text.message;
+            },
+            computeReadClass: function (notification) {
+                return !notification.read ? 'not-read' : ''
+            },
+            readNotification: function (e) {
+                this.dispatch('readNotifications', [e.model.notification]);
+            },
+            removeNotification: function (e) {
+                this.dispatch('removeNotification', e.model.notification._id);
+            },
+            nameSort: function () {
+                return function (a, b) {
+                    return a > b;
+                }
+            },
+            /**
+             * Service method allowing to find index by notification id
+             * @param id - notification id
+             * @returns {*}
+             */
+            findNotificationIndexById: function (id) {
+                var found = null;
+                ReduxStore.getState().notifications.forEach(function (notification, index) {
+                    if (notification._id == id) found = index;
+                }, this);
+                return found;
+            },
+            /**
+             * Sort function
+             * @returns {Function}
+             */
+            notifySorter: function () {
+                return function (a, b) {
+                    return moment(b.created) - moment(a.created);
+                }
+            },
+            computeDate: function (created) {
+                moment.locale(this.language);
+                return moment(created).format('LLLL');
+            },
+            computeNotificationsLength: function (length) {
+                return !!length;
+            },
+            /**
+             * Get items
+             * @param info
+             * @returns {Array}
+             */
+            getItems: function (info) {
+                return info ? Object.keys(info) : [];
+            },
+            /**
+             * Get text of info
+             * @returns {*}
+             */
+            getText: function (info, name) {
+                return this.getElementName({data: {name: info[name]}});
+            },
+            /**
+             * Is that link?!
+             * @param info
+             * @returns {boolean}
+             */
+            isThatLink: function (info) {
+                return info == 'xlink';
+            },
+            applyLink: function (e) {
+                const target = e.currentTarget;
+                page.redirect(target.dataset.link);
+            },
+            _computeBackUrl: function(projectId){
+                return '/'+(projectId||'');
+            }
+        })
+    </script>
+</dom-module>

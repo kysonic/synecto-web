@@ -122,7 +122,7 @@
             save: function (e) {
                 e.preventDefault();
                 if (this.selectedAvatar) {
-                    this.user.avatar = this.selectedAvatar.src;
+                    this.user.profile.avatar = this.selectedAvatar.src;
                     this.dispatch('userUpdate', this.user);
                     this.fire('avatar-loaded');
                 }

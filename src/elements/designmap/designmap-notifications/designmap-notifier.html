@@ -1,0 +1,57 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../../../redux/actions/notifications-actions.html">
+<link rel="import" href="../../../behaviors/deisgnmap-utils-behavior.html">
+<link rel="import" href="../../../behaviors/designmap-socket-behavior.html">
+
+<dom-module id="designmap-notifier">
+    <template></template>
+    <script>
+        Polymer({
+            is: 'designmap-notifier',
+            behaviors: [
+                ReduxBehavior,
+                Polymer.NotificationsActions,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignmapSocketBehavior
+            ],
+            properties: {
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                isAuth: {
+                    type: Boolean,
+                    computed: '_computeIsAuth(user)',
+                    observer:'_isAuthChanged'
+                }
+            },
+            /**
+             * When user is changed
+             * update notifications collection
+             */
+            _isAuthChanged: function () {
+                if (!this.user) return;
+                this.dispatch('getNotifications', {recipient: this.user._id});
+                this.setupSocket(this.user._id,'notification');
+                this.addSocketSubscriber('notify',function(o){
+                    this.dispatch('_addNotification', o);
+                    this.notify(o.text.message, o.type, o.text.replacement, o.sender, 20000);
+                }.bind(this));
+            },
+            _computeIsAuth: function(user){
+                return user && user._id;
+            },
+            /**
+             * Create notification
+             * @param data
+             */
+            create: function (data) {
+                this.dispatch('addNotification', data).then(function (response) {
+                    response.notification.sender = this.user;
+                    this.socket.emit('notify', response.notification);
+                }.bind(this));
+            }
+        });
+    </script>
+</dom-module>

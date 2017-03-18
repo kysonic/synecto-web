@@ -11,10 +11,13 @@
 <link rel="import" href="./designmap-fs-elements.html">
 <!-- Services -->
 <link rel="import" href="./designmap-fs-service.html">
-<link rel="import" href="./designmap-fs-socket-service.html">
+<link rel="import" href="../../../behaviors/designmap-socket-behavior.html">
 <!-- Redux -->
 <link rel="import" href="../../../redux/actions/project-actions.html">
 <link rel="import" href="../../../redux/actions/folders-actions.html">
+<link rel="import" href="../../../redux/actions/files-actions.html">
+<link rel="import" href="../../../redux/actions/stickers-actions.html">
+<link rel="import" href="../../../redux/actions/comments-action.html">
 
 <dom-module id="designmap-fs">
     <template>
@@ -121,7 +124,7 @@
             }
 
         </style>
-        <div class="dashboard" hidden$="[[!projectId]]">
+        <div class="dashboard" hidden$="[[_computePanelState(projectId, project.error)]]">
             <div class="arrow-back" hidden$="[[!trashMode]]" on-click="goBack">
                 <iron-icon icon="designmap-workspace:open"></iron-icon>
             </div>
@@ -199,10 +202,10 @@
                 Polymer.DesignMapUtilsBehavior,
                 // Services
                 Polymer.DesignMapFsService,
-                Polymer.DesignMapFsSocketService,
+                Polymer.DesignmapSocketBehavior,
                 // Redux
                 ReduxBehavior,
-                Polymer.CombineActions(Polymer.UserActions, Polymer.ProjectActions, Polymer.FoldersActions, Polymer.FilesActions)
+                Polymer.CombineActions(Polymer.UserActions, Polymer.ProjectActions, Polymer.FoldersActions, Polymer.FilesActions, Polymer.StickersActions, Polymer.CommentsActions)
             ],
             properties: {
                 user: {
@@ -220,7 +223,7 @@
                 uid: String,
                 language: {
                     type: String,
-                    computed: '_computeLanguage(user.language)'
+                    computed: '_computeLanguage(user.system.language)'
                 },
                 i18Loaded: {
                     type: String,
@@ -246,7 +249,8 @@
                 },
                 currentFolderId: {
                     type: String,
-                    value: undefined
+                    value: undefined,
+                    observer: '_currentFolderIdChanged'
                 },
                 /**
                  * If trash mode is on -
@@ -258,7 +262,7 @@
                 },
                 sortWay: {
                     type: String,
-                    value: 'modified'
+                    value: 'name'
                 }
             },
             listeners: {
@@ -275,9 +279,6 @@
                 'open-file-uploader': 'openFileUploader',
                 'open-context-menu': 'openContextMenuEvent',
                 'apply-route': 'applyRouteManually'
-            },
-            ready: function () {
-                this.uid = Designmap.uid = this.generateUid();
             },
             doesUserHaveEditAccess: function () {
                 return true
@@ -333,6 +334,12 @@
             openFileUploaderManually: function (e) {
                 this.$$('#elements').$.uploader._id = this.currentFolderId;
                 this.$$('#elements').$.uploader.openForm();
+            },
+            /**
+             * Change folder id
+             */
+            _currentFolderIdChanged: function(id){
+                this.dispatch('updateFolderId',id);
             },
             /**
              * Create project
@@ -398,7 +405,7 @@
              */
             updateProject: function (project) {
                 if (!project) return;
-                this.setupSocket(project._id);
+                this.setupSocket(project._id,'project');
                 this.getProjectData();
             },
             /**
@@ -409,8 +416,8 @@
                     this.async(function(){this._pathChanged(this.path);});
                 }.bind(this));
                 this.dispatch('getFiles', {project: this.project._id});
-                /*this.dispatch('getStickers', {project: this.project._id});
-                 this.dispatch('getShare');*/
+                this.dispatch('getStickers', {project: this.project._id});
+                this.dispatch('getComments', {project: this.project._id});
             },
             /**
              * Remove all data associated
@@ -420,10 +427,7 @@
                 this.dispatch('cleanProjects');
                 this.dispatch('cleanUser');
                 this.dispatch('cleanUsers');
-                /*this.dispatch('cleanShared');
-                 this.dispatch('cleanNotifications');
-                 this.dispatch('cleanStores');
-                 this.dispatch('updateSelectedProjectID', null);*/
+                this.dispatch('updateProjectId',null);
             },
             /**
              * Remove all data from redux store
@@ -433,9 +437,8 @@
                 this.dispatch('cleanProjectState');
                 this.dispatch('cleanFolders');
                 this.dispatch('cleanFiles');
-                /*this.dispatch('cleanStickers');
-                 this.dispatch('cleanStores');
-                 this.dispatch('cleanShare');*/
+                this.dispatch('cleanStickers');
+                this.dispatch('cleanComments');
             },
             /**
              * Screen state depends on a few things:
@@ -454,6 +457,9 @@
             },
             shouldWeShowError: function (project) {
                 return project && project.error && !project.loading;
+            },
+            _computePanelState: function(id,error){
+                return !id || error;
             }
         });
     </script>

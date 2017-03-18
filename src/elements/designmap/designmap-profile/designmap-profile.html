@@ -4,6 +4,7 @@
 <link rel="import" href="/bower_components/paper-input/paper-input.html">
 <link rel="import" href="/bower_components/paper-slider/paper-slider.html">
 <link rel="import" href="/bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="/bower_components/paper-input/paper-textarea.html">
 <link rel="import" href="/bower_components/i18-n/i18-n.html">
 
 <link rel="import" href="../designmap-buttons/designmap-circle-button.html">
@@ -16,17 +17,19 @@
 
 <link rel="import" href="../designmap-ui/designmap-dashboard.html">
 <link rel="import" href="../designmap-ui/designmap-input-datepicker.html">
+<link rel="import" href="../designmap-ui/designmap-storage-bar.html">
 
 <link rel="import" href="../designmap-avatar/designmap-avatar.html">
 
 <link rel="import" href="../../plastic/plastic-custom-scroll.html">
-<link rel="import" href="../../plastic/plastic-paper-textarea.html">
 
 <link rel="import" href="../../../styles/flex-grid-shared-styles.html">
 <!-- Animation -->
 <link rel="import" href="/bower_components/neon-animation/neon-animated-pages.html">
 <link rel="import" href="/bower_components/neon-animation/neon-animatable.html">
 <link rel="import" href="/bower_components/neon-animation/neon-animations.html">
+
+<!-- TODO: Split forms to different components -->
 
 <dom-module id="designmap-profile">
     <template>
@@ -89,6 +92,7 @@
                 };
                 /** CHECKBOX **/
                 --paper-checkbox-unchecked-color: var(--gray-darkend-color);
+                --paper-checkbox-checked-color: var(--blue-color);
             }
 
             .content {
@@ -289,6 +293,10 @@
                 max-height: calc(100vh - 200px);
             }
 
+            designmap-storage-bar {
+                margin: 20px 0;
+            }
+
         </style>
         <designmap-dashboard>
             <div class="arrow-back" data-hint="back" on-click="goBack">
@@ -300,7 +308,7 @@
         </designmap-dashboard>
         <div class="content">
             <div class="row tabs-row">
-                <div class="col col-md-12 pad" on-mousedown="saveButtonPos">
+                <div class="col col-md-12 pad">
                     <paper-tabs no-slide="[[!user.config.animationOn]]" noink selected="{{selector}}">
                         <paper-tab>
                             <i18-n msgid="Profile">Profile</i18-n>
@@ -315,7 +323,7 @@
                 </div>
             </div>
             <plastic-custom-scroll max-height="[[maxHeight]]" wheel-target="[[bodyNode]]">
-                <neon-animated-pages id="pages" cancel-bubble selected="[[selector]]"
+                <neon-animated-pages id="pages" cancel-bubble selected="[[selectedRoute]]"
                                      entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
                     <neon-animatable id="profile">
                         <form id="profile-form" is="iron-form">
@@ -324,13 +332,13 @@
                             </div>
                             <div class="row">
                                 <div class="col col-md-6 col-xs-12">
-                                    <paper-input value="{{user.name::change}}" required
+                                    <paper-input value="{{user.profile.name::change}}" required
                                                  error-message="[[translate('Cannot contain special symbols or tags',language,i18Loaded)]]"
                                                  pattern="[\w\dа-яА-ЯёЁ ]+"
                                                  label="[[translate('First name',language,i18Loaded)]]"></paper-input>
                                 </div>
                                 <div class="col col-md-6 col-xs-12">
-                                    <paper-input value="{{user.lastName::change}}" required
+                                    <paper-input value="{{user.profile.lastName::change}}" required
                                                  error-message="[[translate('Cannot contain special symbols or tags',language,i18Loaded)]]"
                                                  pattern="[\w\dа-яА-ЯёЁ ]+"
                                                  label="[[translate('Last name',language,i18Loaded)]]"></paper-input>
@@ -344,14 +352,14 @@
                                                                 label="[[translate('Birth date',language,i18Loaded)]]"></designmap-input-datepicker>
                                 </div>
                                 <div class="col col-md-6 col-xs-12">
-                                    <paper-input value="{{user.company::change}}"
+                                    <paper-input value="{{user.profile.company::change}}"
                                                  label="[[translate('Company',language,i18Loaded)]]"></paper-input>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col col-md-12 col-xs-12">
-                                    <plastic-paper-textarea id="editor" value="{{user.aboutMe::change}}" max-rows="4"
-                                                            label="[[translate('About me',language,i18Loaded)]]"></plastic-paper-textarea>
+                                    <paper-input id="editor" value="{{user.profile.aboutMe::change}}" max-rows="4"
+                                                 label="[[translate('About me',language,i18Loaded)]]"></paper-input>
                                 </div>
                             </div>
                             <button class="save-button" data-form="profile-form" id="saveProfileButton"
@@ -366,8 +374,10 @@
                                 <!--<div class="col-md-12">
                       <div class="title"><i18-n msgid="Add cloud drives">Add cloud drives</i18-n></div>
                         </div>-->
-                                <div class="col-md-12 col-xs-12">
+                                <div class="col col-md-12 col-xs-12">
                                     <!--<designmap-file-stores data-hint="storages"></designmap-file-stores>-->
+                                    <div class="title"><i18-n msgid="Data space">Data space</i18-n></div>
+                                    <designmap-storage-bar></designmap-storage-bar>
                                 </div>
                             </div>
                             <div class="row">
@@ -399,7 +409,7 @@
                                 </div>
                             </div>
                             <!-- APPROVED -->
-                            <template is="dom-if" if="[[!user.approved]]">
+                            <template is="dom-if" if="[[!user.system.approved]]">
                                 <div class="row">
                                     <div class="col col-md-12 col-xs-12 msg">
                                         <span><i18-n
@@ -418,8 +428,8 @@
                             </button>
                         </form>
                     </neon-animatable>
-                    <neon-animatable id="settings">
-                        <form id="settings-form" is="iron-form">
+                    <neon-animatable id="config">
+                        <form id="config-form" is="iron-form">
                             <div class="row">
                                 <div class="col-md-12 col-xs-12">
                                     <div class="title">
@@ -492,8 +502,8 @@
                               <div class="col-md-11 col-xs-10 centred" ><span style="max-width: 90px" x-tooltip$="[[translate('Animation desc',language,i18Loaded)]]"><i18-n class="checkbox-label" msgid="Animation">Animation</i18-n></span></div>
                               <div class="col-md-1 col-xs-2 centred right"><paper-checkbox checked="{{user.config.animationOn::change}}"></paper-checkbox></div>
                             </div>-->
-                            <button class="save-button" id="saveSettingsButton" is="designmap-loading-button"
-                                    data-form="settings-form" thin on-click="save">
+                            <button class="save-button" id="saveConfigButton" is="designmap-loading-button"
+                                    data-form="config-form" thin on-click="save">
                                 <i18-n msgid="Save Settings">Save Settings</i18-n>
                             </button>
                         </form>
@@ -504,7 +514,9 @@
         </form>
     </template>
     <script>
-        Polymer({
+        const ROUTES = ['profile', 'account', 'config'];
+        Polymer
+        ({
             is: 'designmap-profile',
             ignoreFields: ['_id', 'lastOpenedProject'],
             limits: {'name': 30, 'lastName': 30, 'company': 30, 'aboutMe': 200},
@@ -521,9 +533,14 @@
                     statePath: 'user',
                     observer: 'userChanged'
                 },
+                path: {
+                    type: String,
+                    statePath: 'path',
+                    observer: '_pathChanged'
+                },
                 language: {
                     type: String,
-                    computed: '_computeLanguage(user.language)'
+                    computed: '_computeLanguage(user.system.language)'
                 },
                 i18Loaded: {
                     type: Boolean,
@@ -626,9 +643,6 @@
                 if (!this.user) return;
                 this.user.birthDate = e.detail;
             },
-            saveButtonPos: function () {
-                // this.prevButtonTop = this.$.buttonSet.getBoundingClientRect().top;
-            },
             /**
              * Sub router page animation configuration
              * @param n - new page number
@@ -638,14 +652,7 @@
                 this.animating = true;
                 this.exitAnimation = n > o ? 'slide-right-animation' : 'slide-left-animation';
                 this.entryAnimation = n > o ? 'slide-from-left-animation' : 'slide-from-right-animation';
-                // Sub routes
-                var duration = 500;
-                if (this.subRoutes) {
-                    this.async(function () {
-                        this.animating = false;
-                        location.hash = this.subRoutes[n];
-                    }, duration);
-                }
+                page.redirect('/settings/'+ROUTES[n]);
             },
             /**
              * Switch on edit password mode
@@ -692,12 +699,12 @@
                     this.showErrorMessage(err);
                 }.bind(this))
             },
-            changeRoute: function (e) {
-                var route = e.currentTarget.dataset.route;
-                location.hash = route;
-            },
             goBack: function () {
-                page.redirect('/'+(this.projectId||''));
+                page.redirect('/' + (this.projectId || ''));
+            },
+            _pathChanged: function (path) {
+                const index = ROUTES.indexOf(path);
+                this.selectedRoute = (index > 0 && index < 3) ? index : 0;
             }
         })
     </script>

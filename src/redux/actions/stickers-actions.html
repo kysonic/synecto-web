@@ -1,0 +1,116 @@
+<script>
+    Polymer.StickersActions = {
+        actions: {
+            /**
+             * Get all stickers for certain project from the server
+             * @returns {function(this:Polymer.FoldersActions)}
+             */
+            getStickers: function (query) {
+                return function (dispatch) {
+                    var state = ReduxStore.getState();
+                    var promise = xhr.get(Designmap.config.apiURL + 'sticker/' + this.objectToQueryString(query));
+                    promise.then(function (response) {
+                        if (!response.success) return;
+                        dispatch({type: 'SET_STICKERS', stickers: response.stickers});
+                    });
+                    return promise;
+                }.bind(this)
+            },
+            /**
+             * Update stickers bunch
+             * @param strickers
+             * @returns {{type: string, folders: *}}
+             */
+            setStickers: function (strickers) {
+                return {
+                    type: 'SET_STICKERS',
+                    Stickers: strickers
+                }
+            },
+            /**
+             * Clean folders bunch
+             */
+            cleanStickers: function () {
+                return {
+                    type: 'CLEAN_STICKERS'
+                }
+            },
+            addSticker: function (data) {
+                return function (dispatch) {
+                    dispatch({type: 'ADD_STICKER', data: data});
+                    var promise = xhr.post(Designmap.config.apiURL + 'sticker/', {data: data});
+                    var owner = data.owner;
+                    promise.then(function (response) {
+                        if (!response.success) throw new Error(response.errors.message);
+                        // Save sticker owner data to avoid population
+                        response.sticker.owner = owner;
+                        dispatch({
+                            type: 'UPDATE_STICKER',
+                            data: response.sticker,
+                            index: this.findStickerIndexById(data._id)
+                        });
+                        // Real time
+                        this.socket.emit('action', {type: 'ADD_STICKER', data: response.sticker, uid: Designmap.uid});
+                    }.bind(this)).catch(function (err) {
+                        var index = this.findStickerIndexById(data._id);
+                        dispatch({type: 'REMOVE_STICKER', index: index});
+                    }.bind(this));
+                    return promise;
+                }.bind(this)
+            },
+            /**
+             * Update Sticker
+             * @param id - Sticker id
+             * @param data - data to extend current Sticker
+             */
+            updateSticker: function (id, data) {
+                var historyData = this.findStickerById(id);
+                return function (dispatch) {
+                    var state = ReduxStore.getState();
+                    dispatch({type:'UPDATE_STICKER',data:data,index:this.findStickerIndexById(id)});
+                    var promise = xhr.put(Designmap.config.apiURL + 'sticker/' + id, {
+                        data: data,
+                        project: historyData.project
+                    });
+                    promise.then(function (response) {
+                        if (!response.success) throw new Error(response.errors.message);
+                        response.sticker.owner = historyData.owner;
+                        dispatch({type:'UPDATE_STICKER',data:response.sticker,index:this.findStickerIndexById(id)});
+                        // Real time
+                        this.socket.emit('action', {type: 'UPDATE_STICKER', data: response.sticker, index: this.findStickerIndexById(id), uid: Designmap.uid});
+                    }.bind(this)).catch(function () {
+                         dispatch({type:'UPDATE_STICKER',data:historyData,index:this.findStickerIndexById(id)});
+                    }.bind(this));
+                    return promise;
+                }.bind(this);
+            },
+            /**
+             * Update sticker without saving
+             */
+            _updateSticker: function (id, data) {
+                return {type: 'UPDATE_STICKER', data: data, index: this.findStickerIndexById(id)};
+            },
+            /**
+             * Remove Sticker
+             * @returns {function(this:Polymer.FoldersActions)}
+             */
+            removeSticker: function (id) {
+                return function (dispatch) {
+                    var state = ReduxStore.getState();
+                    var index = this.findStickerIndexById(id);
+                    var historyData = this.findStickerById(id);
+                    dispatch({type: 'REMOVE_STICKER', index: index});
+                    var promise = xhr.delete(Designmap.config.apiURL + 'sticker/' + id, {project: historyData?historyData.project:null});
+                    promise.then(function (response) {
+                        if (!response.success) throw new Error();
+                        // Real time
+                        this.socket.emit('action', {type: 'REMOVE_STICKER', index: index, uid: Designmap.uid});
+                    }.bind(this)).catch(function (e) {
+                        dispatch({type: 'ADD_STICKER', data: historyData});
+                    }.bind(this));
+                    return promise;
+                }.bind(this);
+            }
+        }
+    }
+</script>

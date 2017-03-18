@@ -47,10 +47,10 @@
             }
 
         </style>
-        <template is="dom-if" if="[[user.avatar]]">
-            <img src="[[computeAvatarPath(user.avatar)]]" title="[[user.local.email]]">
+        <template is="dom-if" if="[[user.profile.avatar]]">
+            <img src="[[computeAvatarPath(user.profile.avatar)]]" title="[[user.local.email]]">
         </template>
-        <template is="dom-if" if="[[!user.avatar]]">
+        <template is="dom-if" if="[[!user.profile.avatar]]">
             <div class="text"> [[computeName(user)]]</div>
         </template>
     </template>
@@ -71,7 +71,7 @@
             },
             computeName: function (user) {
                 if (typeof user == 'string') return '...';
-                return user ? user.name && user.lastName ? user.name[0] + user.lastName[0] : user.local.email[0] : 'XX';
+                return user ? user.profile.name && user.lastName ? user.profile.name[0] + user.profile.lastName[0] : user.local.email[0] : 'XX';
             }
         })
     </script>

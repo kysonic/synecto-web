@@ -18,12 +18,41 @@
                 this.page = 'fs';
             }.bind(this));
 
-            page('/gallery', function(ctx,next){
+            page('/gallery/:id', function(ctx,next){
                 this.page = 'gallery';
+                this.fileId = ctx.params.id;
             }.bind(this));
 
             page('/settings', this._isAuth.bind(this), function(ctx,next){
                 this.page = 'settings';
+                this.path = 'profile';
+            }.bind(this));
+
+            page('/notifications', this._isAuth.bind(this), function(ctx,next){
+                this.page = 'notifications';
+            }.bind(this));
+
+            page('/support', this._isAuth.bind(this), function(ctx,next){
+                this.page = 'support';
+            }.bind(this));
+
+            page('/support/docs', this._isAuth.bind(this), function(ctx,next){
+                this.page = 'docs';
+            }.bind(this));
+
+            page('/settings/profile', this._isAuth.bind(this), function(ctx,next){
+                this.page = 'settings';
+                this.path = 'profile';
+            }.bind(this));
+
+            page('/settings/account', this._isAuth.bind(this), function(ctx,next){
+                this.page = 'settings';
+                this.path = 'account';
+            }.bind(this));
+
+            page('/settings/config', this._isAuth.bind(this), function(ctx,next){
+                this.page = 'settings';
+                this.path = 'config';
             }.bind(this));
 
             page('/:id', this._isAuth.bind(this), function(ctx,next){

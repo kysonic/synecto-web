@@ -1,0 +1,246 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../designmap-ui/designmap-dashboard.html">
+<link rel="import" href="../designmap-buttons/designmap-circle-button.html">
+<link rel="import" href="../designmap-icons/designmap-support-icons.html">
+
+<dom-module id="designmap-support">
+    <template>
+        <style>
+            :host {
+                font-family: var(--font-family);
+                font-weight: 300;
+                --designmap-circle-button-circle-mixin: {
+                    stroke: var(--blue-color);
+                };
+                --paper-dialog-scrollable: {
+                    padding: 0;
+                };
+                --iron-icon-components-mixin: {
+                    stroke: var(--blue-darky-color) !important;
+                }
+            }
+
+            .wrapper {
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: calc(100vh - 120px);
+            }
+
+            .content {
+                max-width: 1100px;
+                display: flex;
+                margin: 0 auto;
+                margin-top: -120px;
+            }
+
+            .content .item {
+                text-align: center;
+                flex: 1;
+            }
+
+            .content .item .title {
+                font-size: 28px;
+                color: var(--blue-darky-color);
+                margin-top: 18px;
+                font-weight: 100;
+            }
+
+            .content .item .desc {
+                font-size: 16px;
+                font-weight: 300;
+                color: var(--gray-saturated-color);
+                margin-top: 20px;
+            }
+
+            .content .item .icon {
+                margin-top: 10px;
+            }
+
+            .content .item .icon designmap-circle-button {
+                margin: 0 auto;
+            }
+
+            designmap-circle-button {
+                --designmap-circle-button-content-icon-mixin: {
+                    padding: 0;
+                }
+            }
+
+            .content .item .icon designmap-circle-button iron-icon {
+                width: 50px;
+                height: 50px;
+                padding: 6px;
+            }
+
+            /** KEYS **/
+            paper-dialog-scrollable {
+                margin: 0;
+            }
+
+            paper-dialog {
+                min-width: 580px;
+            }
+
+            .keys {
+                color: var(--white-color);
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .keys .item {
+                display: flex;
+                background: var(--blue-color);
+                padding: 10px 0;
+            }
+
+            .keys .item .shortcut {
+                text-align: right;
+                padding-right: 40px;
+            }
+
+            .keys .item:nth-child(2n) {
+                background: var(--blue-lighty-color);
+            }
+
+            .keys .item .key {
+                display: inline-block;
+                border: 1px solid var(--white-color);
+                padding: 3px 5px;
+                border-radius: 3px;
+            }
+
+            .keys .shortcut .plus {
+                display: inline-block;
+                margin: 0 5px;
+            }
+
+            .keys .shortcut, .keys .transcription {
+                flex: 1;
+            }
+
+            .keys .transcription {
+                line-height: 28px;
+            }
+
+
+        </style>
+        <designmap-dashboard back back-url="[[_computeBackUrl(projectId)]]">
+            <div class="title">
+                <i18-n msgid="Support">Support</i18-n>
+            </div>
+        </designmap-dashboard>
+        <div class="wrapper">
+            <div class="content">
+                <div class="item">
+                    <div class="title">
+                        <i18-n msgid="Documentation">Documentation</i18-n>
+                    </div>
+                    <div class="desc">
+                        <i18-n msgid="Documentation description">Detailed description</i18-n>
+                    </div>
+                    <div class="icon">
+                        <designmap-circle-button on-click="goToDocs">
+                            <iron-icon icon="designmap-support:book"></iron-icon>
+                        </designmap-circle-button>
+                    </div>
+                </div>
+                <div class="item">
+                    <div class="title">
+                        <i18-n msgid="Shortcuts">Shortcuts</i18-n>
+                    </div>
+                    <div class="desc">
+                        <i18-n msgid="Shortcuts description">Shortcuts description</i18-n>
+                    </div>
+                    <div class="icon">
+                        <designmap-circle-button on-click="openShortcutsDialog">
+                            <iron-icon icon="designmap-support:rocket"></iron-icon>
+                        </designmap-circle-button>
+                    </div>
+                </div>
+                <div class="item">
+                    <div class="title">
+                        <i18-n msgid="Video tutorials">Video tutorials</i18-n>
+                    </div>
+                    <div class="desc">
+                        <i18-n msgid="Video tutorials description">Video tutorials description</i18-n>
+                    </div>
+                    <div class="icon">
+                        <designmap-circle-button on-click="notSupported">
+                            <iron-icon icon="designmap-support:play"></iron-icon>
+                        </designmap-circle-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <paper-dialog id="shortcutsDialog"
+                      entry-animation="scale-up-animation"
+                      exit-animation="scale-down-animation">
+            <div class="keys dialog-content">
+                <div class="item">
+                    <div class="shortcut">
+                        <div class="key">CTRL</div>
+                        <div class="plus">+</div>
+                        <div class="key">Z</div>
+                    </div>
+                    <div class="transcription">
+                        <i18-n msgid="Undo">Undo</i18-n>
+                    </div>
+                </div>
+                <div class="item">
+                    <div class="shortcut">
+                        <div class="key">CTRL</div>
+                        <div class="plus">+</div>
+                        <div class="key">SHIFT</div>
+                        <div class="plus">+</div>
+                        <div class="key">Z</div>
+                    </div>
+                    <div class="transcription">
+                        <i18-n msgid="Redo">Redo</i18-n>
+                    </div>
+                </div>
+                <div class="item">
+                    <div class="shortcut">
+                        <div class="key">ENTER</div>
+                        <div class="plus">/</div>
+                        <div class="key">CTRL</div>
+                        <div class="plus">+</div>
+                        <div class="key">ENTER</div>
+                    </div>
+                    <div class="transcription">
+                        <i18-n msgid="Next">Next</i18-n>
+                    </div>
+                </div>
+            </div>
+        </paper-dialog>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-support',
+            behaviors: [ReduxBehavior, Polymer.DesignMapUtilsBehavior, Polymer.DesignMapMessagesBehavior],
+            properties: {
+                projectId: {
+                    type: String,
+                    statePath: 'projectId'
+                }
+            },
+            goBack: function () {
+                return page.redirect('/' + (this.projectId || ''));
+            },
+            goToDocs: function () {
+                page.redirect('/support/docs');
+            },
+            openShortcutsDialog: function () {
+                this.$.shortcutsDialog.open();
+            },
+            notSupported: function () {
+                this.showErrorMessage('Temporary not supported');
+            },
+            _computeBackUrl: function (projectId) {
+                return '/' + (projectId || '');
+            }
+        })
+    </script>
+</dom-module>

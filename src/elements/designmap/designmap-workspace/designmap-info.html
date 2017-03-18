@@ -123,9 +123,9 @@
 
         </style>
         <div class="information" hidden$="[[!computeInfoState(data)]]">
-            <div class="circle" hidden$="[[!isFile(data)]]">
+           <!-- <div class="circle" hidden$="[[!isFile(data)]]">
                 <iron-icon class$="store-icon [[data.data.storage]]" icon="designmap:designmap"></iron-icon>
-            </div>
+            </div>-->
             <div class="circle">
                 <div class="folder-wrapper" hidden$="[[isFile(data)]]">
                     <div class="label"></div>
@@ -135,9 +135,9 @@
                     [[getExtension(data.data.name)]]
                 </div>
             </div>
-            <div class="circle" hidden$="[[!isFile(data)]]">
+           <!-- <div class="circle" hidden$="[[!isFile(data)]]">
                 <div class="size">[[computeFileSize(data.data.size)]]</div>
-            </div>
+            </div>-->
             <div class="name" title="[[computeName(data)]]">[[computeName(data)]]</div>
             <!-- Information -->
             <div class="info">

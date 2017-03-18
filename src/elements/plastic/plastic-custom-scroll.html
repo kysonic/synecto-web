@@ -53,6 +53,12 @@
                 @apply(--plastic-custom-scroll-bar-hover-mixin);
             }
 
+            :host([small-bar]) .bar.grabbed{
+                width: 8px;
+                margin-left: 8px;
+                @apply(--plastic-custom-scroll-bar-grabbed-mixin);
+            }
+
             .bar.grabbed {
                 background: rgba(0, 0, 0, .35);
                 transition: opacity 0.25s linear;

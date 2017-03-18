@@ -1,0 +1,58 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-progress/paper-progress.html">
+
+<dom-module id="designmap-storage-bar">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                --paper-progress-container-color: var(--blue-darky-color);
+                --paper-progress-active-color: var(--orange-color);
+                --paper-progress-container: {
+                    height: 20px !important;
+                    border-radius: 3px;
+                }
+            }
+            paper-progress {
+                width: 100%;
+            }
+            .numbers {
+                color: var(--white-color);
+                position: absolute;
+                top: -2px;
+                left: 50%;
+                margin-left: -45px;
+            }
+        </style>
+        <paper-progress value="[[_computeProgress(user.system.s3Uploads)]]"></paper-progress>
+        <div class="numbers">[[_computeNumbers(user.system.s3Uploads,max)]]</div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-storage-bar',
+            behaviors: [
+                ReduxBehavior
+            ],
+            properties: {
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                max: {
+                    type: Number,
+                    computed: '_computeMax(user.isPremium)'
+                }
+            },
+            _computeProgress: function(s3Uploads){
+                return 100 - ((s3Uploads*100)/this.max);
+            },
+            _computeMax: function(isPremium){
+                return !isPremium ? '100' : '3000';
+            },
+            _computeNumbers: function(s3Uploads,max){
+                return s3Uploads?s3Uploads.toFixed(2)+'/'+max+ ' MB':'---';
+            }
+        })
+    </script>
+</dom-module>

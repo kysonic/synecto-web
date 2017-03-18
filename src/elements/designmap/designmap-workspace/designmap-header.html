@@ -1,4 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+<link rel="import" href="../designmap-buttons/designmap-button.html">
 <link rel="import" href="../designmap-ui/designmap-dropdown.html">
 <link rel="import" href="../designmap-fs/designmap-fs-service.html">
 <link rel="import" href="../designmap-workspace/designmap-projects-list.html">
@@ -193,7 +195,7 @@
                 },
                 language: {
                     type: String,
-                    computed: '_computeLanguage(user.language)'
+                    computed: '_computeLanguage(user.system.language)'
                 },
                 i18Loaded: {
                     type: Boolean,

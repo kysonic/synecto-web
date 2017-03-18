@@ -23,6 +23,12 @@
             }
             return found;
         },
+        generateObjectId: function () {
+            var timestamp = (new Date().getTime() / 1000 | 0).toString(16);
+            return timestamp + 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, function() {
+                    return (Math.random() * 16 | 0).toString(16);
+                }).toLowerCase();
+        },
         /**
          * Capitalize first letter of string.
          * @param string - String
@@ -106,21 +112,21 @@
          */
         computeOwnerName: function(owner){
             if(!owner) return 'xxx';
-            return owner.name&&owner.lastName?owner.name+ ' '+ owner.lastName:owner.name?owner.name: owner.login? owner.login : owner.local&&owner.local.email?owner.local.email: 'xxx';
+            return owner.profile.name&&owner.profile.lastName?owner.profile.name+ ' '+ owner.profile.lastName:owner.profile.name?owner.profile.name: owner.local&&owner.local.email?owner.local.email: 'xxx';
         },
         /**
          * Remove folder name from appearance of file.
          */
         cutFileName: function(file){
-            if(!file.data.name || (!file.folder && !file.task)) return;
-            return file.data.name.replace((file.folder||file.task)+'-','');
+            if(!file || !file.data || !file.data.name) return;
+            return file.data.name.replace((file.folder=="null"?file.data.uid:file.folder)+"-","");
         },
         /**
          * Compute user name
          */
         computeUserName: function(user){
             if(typeof user == 'string' || !user) return '...';
-            return user?user.name&&user.lastName?user.name[0]+user.lastName[0]:user.local?user.local.email[0]:'XX':'XX';
+            return user?user.profile.name&&user.profile.lastName?user.profile.name[0]+user.profile.lastName[0]:user.local?user.local.email[0]:'XX':'XX';
         },
         /**
          * Compute avatar possible path

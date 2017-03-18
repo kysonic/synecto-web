@@ -2,12 +2,15 @@
   "entrypoint": "index.html",
   "shell": "src/designmap-app.html",
   "fragments": [
-    "src/designmap-fs-view.html",
-    "src/designmap-login-view.html",
-    "src/designmap-profile-view.html",
-    "src/designmap-gallery-view.html",
-    "src/designmap-settings-view.html",
-    "src/designmap-404-view.html"
+    "src/views/designmap-fs-view.html",
+    "src/views/designmap-login-view.html",
+    "src/views/designmap-profile-view.html",
+    "src/views/designmap-gallery-view.html",
+    "src/views/designmap-settings-view.html",
+    "src/views/designmap-notifications-view.html",
+    "src/views/designmap-support-view.html",
+    "src/views/designmap-docs-view.html",
+    "src/views/designmap-404-view.html"
   ],
   "sources": [
     "src/**/*",

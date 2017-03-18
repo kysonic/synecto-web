@@ -277,7 +277,8 @@
      * Compute sticker owner's name.
      */
     computeOwnerName: function(owner){
-      return owner.name&&owner.lastName?owner.name+ ' '+ owner.lastName:owner.name?owner.name: owner.login? owner.login : owner.local&&owner.local.email?owner.local.email: 'xxx';
+      return owner.profile.name&&owner.profile.lastName?owner.profile.name+ ' '+ owner.profile.lastName:owner.profile.name
+              ?owner.profile.name: owner.login? owner.login : owner.local&&owner.local.email?owner.local.email: 'xxx';
     },
     /**
      * Undo
@@ -290,7 +291,7 @@
      * @param text
      */
     computeType: function(text){
-      return document.querySelector('designmap-notifier').translate(text?text.replace('-',' ').capitalize() : 'Unknown');
+      return document.querySelector('designmap-app').$.notifier.translate(text?text.replace('-',' ').capitalize() : 'Unknown');
     }
   });
 

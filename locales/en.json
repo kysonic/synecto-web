@@ -44,6 +44,9 @@
   "ReturnToTheLogin": {
     "message": "Return to the"
   },
+  "GoToTheLogin": {
+    "message": "Go to the "
+  },
   "frm": {
     "message": " form."
   },
@@ -855,7 +858,7 @@
     "message": "New Project"
   },
   "Open Project": {
-    "message": "Open Project"
+    "message": "Open Projects"
   },
   "Your projects": {
     "message": "My projects"
@@ -864,7 +867,7 @@
     "message": "Available"
   },
   "New sticker": {
-    "message": "New sticker"
+    "message": "New comment"
   },
   "New access": {
     "message": "New access"
@@ -1014,7 +1017,7 @@
     "message":"Click"
   },
   "to send a letter with link to approve": {
-    "message":"to send a mail for approving."
+    "message":"to send a mail for approving. Otherwise your account will be removed during 3 days."
   },
   "Approve message sent": {
     "message":"A mail was send on "
@@ -1180,5 +1183,59 @@
   },
   "There is no project with same id.": {
     "message": "There is no project with same id..."
+  },
+  "Files": {
+    "message": "Files"
+  },
+  "Project is not selected": {
+    "message": "Project is not selected"
+  },
+  "Select project": {
+    "message": "Select a project:"
+  },
+  "You cannot create more than 3 projects without premium.": {
+    "message": "You cannot create more than 3 projects. This function is allowed only for premium users."
+  },
+  "You cannot upload files more that 10MB. This function is allowed only for premium users.": {
+    "message": "You cannot upload files more that 10MB. This function is allowed only for premium users."
+  },
+  "You cannot upload more that 100 MB files here. This function is allowed only for premium users.": {
+    "message": "You cannot upload more that 100 MB in designmap. This function is allowed only for premium users."
+  },
+  "Data space": {
+    "message": "Data space:"
+  },
+  "Post a comment": {
+    "message": "Добавить комментарий"
+  },
+  "Edit a comment": {
+    "message": "Edit a comment"
+  },
+  "Apply to protocol": {
+    "message": "Apply to protocol"
+  },
+  "Edit": {
+    "message": "Edit"
+  },
+  "Write a comment": {
+    "message": "Write a comment"
+  },
+  "AreYouSureThatYouWantToRemoveWholeConversation": {
+    "message": "Are you sure that you want to remove whole comment?"
+  },
+  "It is not your comment. You cannot drag it": {
+    "message": "It is not your comment. You cannot drag it."
+  },
+  "Enter your name we want to know you a little bit closer": {
+    "message": "To continue a work, enter your name please or log in if you have an account"
+  },
+  "Enter": {
+    "message": "Enter"
+  },
+  "Enter your name": {
+    "message": "Enter your name"
+  },
+  "Click to add a comment": {
+    "message": "Click to add a comment"
   }
 }

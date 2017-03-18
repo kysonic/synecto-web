@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 19.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Слой_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 128.8 64.5" style="enable-background:new 0 0 128.8 64.5;" xml:space="preserve">
+<g>
+	<path style="opacity:0.5;" d="M96.8,64.5h-64c-17.7,0-32-14.3-32-32l0,0c0-17.7,14.3-32,32-32h64c17.7,0,32,14.3,32,32l0,0
+		C128.8,50.2,114.5,64.5,96.8,64.5z"/>
+	<g>
+		<g>
+			<circle style="opacity:0.5;fill:#79B9EF;" cx="96.8" cy="32.5" r="32"/>
+		</g>
+	</g>
+	<g>
+		
+			<line style="fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;" x1="95.7" y1="25.5" x2="109.9" y2="11.3"/>
+		
+			<line style="fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;" x1="111.1" y1="13.7" x2="109.9" y2="11.3"/>
+		
+			<line style="fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;" x1="101.6" y1="32.7" x2="115.8" y2="18.4"/>
+		
+			<line style="fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;" x1="111.1" y1="13.7" x2="114.6" y2="14.3"/>
+		
+			<line style="fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;" x1="114.6" y1="14.3" x2="115.8" y2="18.4"/>
+		
+			<line style="fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;" x1="98" y1="29.1" x2="100.4" y2="28.5"/>
+		
+			<line style="fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;" x1="100.4" y1="28.5" x2="101.6" y2="32.7"/>
+		
+			<line style="fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;" x1="98" y1="29.1" x2="97.4" y2="26.7"/>
+		
+			<line style="fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;" x1="95.7" y1="25.5" x2="97.4" y2="26.7"/>
+	</g>
+	<path style="fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;" d="M112,22.5c4,0,4.9,1,4.9,5
+		v13c0,4-1,5-5,5l-29.1,0c-4.1,0-5.9-1-5.9-5v-13c0-4,1.9-5,6-5h0h15"/>
+	<rect x="84.8" y="29.5" style="fill:none;" width="21" height="26"/>
+	<text transform="matrix(1 0 0 1 84.8333 38.02)" style="fill:#FFFFFF; font-family:'MyriadPro-Regular'; font-size:12px;">0</text>
+</g>
+</svg>

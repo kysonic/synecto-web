@@ -1,0 +1,147 @@
+<script>
+    Polymer.DesignmapCommentService = {
+
+        _computeComments: function (id) {
+            return this.comments.filter(function (comment) {
+                return comment.sticker == id;
+            });
+        },
+
+        /**
+         * Send notification
+         */
+        _sendNotification: function (file,sticker,comment) {
+            if (this.user._id == file.owner) return;
+
+            document.querySelector('designmap-app').$.notifier.create({
+                sender: this.user,
+                recipient: file.owner,
+                type: 'new-sticker',
+                text: {
+                    message: comment.text,
+                    replacement: {'#NAME#': this.cutFileName(file)},
+                    info: {
+                        file: this.cutFileName(file),
+                        xlink: '/gallery/'+ file._id+'/#/'+sticker._id
+                    }
+                }
+            });
+        },
+
+        _postComment: function (e) {
+            if (!this.textAreaValue) return;
+            let sticker = e.model.sticker;
+
+            let comment = {
+                text: this.textAreaValue,
+                owner: this.user,
+                sticker: sticker._id,
+                file: sticker.file,
+                folder: sticker.folder,
+                project: sticker.project
+            };
+            this.dispatch('addComment', comment);
+            this.textAreaValue = '';
+
+            this._sendNotification(this.file,sticker,comment);
+
+            this.async(function () {
+                const stickerNode = this.$$('#sticker-' + sticker._id);
+                stickerNode.querySelector('plastic-custom-scroll').setScroll(1000);
+            }, 100);
+        },
+
+        _like: function (e) {
+            let sticker = e.model.dataHost.dataHost.sticker;
+            let comment = e.model.comment;
+
+            comment.likes = comment.likes || [];
+            const isThereUser = comment.likes.indexOf(this.user._id) != -1;
+            const userLikesIndex = comment.likes.indexOf(this.user._id);
+            isThereUser ? comment.likes.splice(userLikesIndex, 1) : comment.likes.push(this.user._id);
+
+            this.dispatch('updateComment', comment._id, comment);
+        },
+
+        _computeLikesCount: function (length) {
+            return length ? '+' + length : '';
+        },
+
+        _openDropdown: function (e) {
+            let sticker = e.model.dataHost.dataHost.sticker;
+            const stickersComments = this.comments.filter(function (comment) {
+                return comment.sticker == sticker._id
+            });
+            this.lastCommentData = {
+                target: e.target,
+                sticker: sticker,
+                stickerIndex: this.stickers.indexOf(sticker),
+                comment: e.model.comment,
+                commentIndex: stickersComments.indexOf(e.model.comment)
+            };
+
+            this.canUpdateAndRemove = this._canUserManageComment(this.file, e.model.comment);
+
+            this.$.dropdown.target = e.target;
+            this.$.dropdown.open();
+        },
+
+        _canUserManageComment(file, comment){
+            return (comment.owner._id === this.user._id || file.owner === this.user._id);
+        },
+
+        _editComment: function () {
+            let comment = this.lastCommentData.comment;
+            comment.edit = true;
+            this.dispatch('_updateComment', comment._id, comment);
+            this.$.dropdown.close();
+            this.async(function () {
+                const textAreaNode = this.parents(this.lastCommentData.target, 'comment').querySelector('textarea');
+                textAreaNode.focus();
+            }, 100);
+        },
+
+        _saveComment: function () {
+            let comment = this.lastCommentData.comment;
+            comment.edit = false;
+            const textAreaNode = this.parents(this.lastCommentData.target, 'comment').querySelector('textarea');
+            comment.text = textAreaNode.value;
+            this.dispatch('updateComment', comment._id, comment);
+        },
+
+        _applyToProtocol: function () {
+            this.$.dropdown.close();
+            this.showMessage('This function is not available. We will notify you when it will be ready.')
+        },
+
+        _removeComment(){
+            this.$.dropdown.close();
+            if (this.lastCommentData.commentIndex === 0) return this._openRemoveCommentConfirm();
+            this.dispatch('removeComment', this.lastCommentData.comment._id);
+        },
+
+        _openRemoveCommentConfirm: function () {
+            this.$.removeCommentConfirm.open();
+        },
+
+        _suspendStickerRemoving: function () {
+            this.$.dropdown.close();
+            this.$.removeCommentConfirm.close();
+        },
+
+        _removeSticker: function () {
+            this.dispatch('removeSticker', this.lastCommentData.sticker._id);
+            this.$.removeCommentConfirm.close();
+        },
+
+        _checkSticker: function (e) {
+            this.async(function () {
+                this.lastCommentData = {sticker: e.model.sticker};
+                const stickersComments = this.comments.filter(function (comment) {
+                    return comment.sticker == e.model.sticker._id
+                });
+                if (stickersComments && !stickersComments.length) this._removeSticker();
+            }, 200);
+        }
+    }
+</script>

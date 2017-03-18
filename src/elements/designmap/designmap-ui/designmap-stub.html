@@ -1,4 +1,5 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/i18-n/i18-n.html">
 
 <dom-module id="designmap-stub">
     <template>
@@ -124,7 +125,7 @@
                 },
                 language: {
                     type: String,
-                    computed: '_computeLanguage(user.language)'
+                    computed: '_computeLanguage(user.system.language)'
                 },
                 i18Loaded: {
                     type: Boolean,

@@ -10,7 +10,6 @@
 <link rel="import" href="../../../redux/actions/files-actions.html">
 <!-- Services -->
 <link rel="import" href="./designmap-fs-service.html">
-<link rel="import" href="./designmap-fs-socket-service.html">
 
 <dom-module id="designmap-fs-elements">
     <template>
@@ -45,7 +44,7 @@
                 };
                 --designmap-circle-button-content-icon-mixin: {
                     padding: 40px;
-                }
+                };
                 --designmap-circle-button-circle-mixin: {
                     stroke: #fff !important;
                     stroke-width: 1px;
@@ -57,7 +56,7 @@
             }
 
             /** ELEMENTS **/
-            x-custom-scroll {
+            plastic-custom-scroll {
                 width: 100%;
             }
 
@@ -269,8 +268,6 @@
                            on-suspend="suspendRemoving"></designmap-confirm>
         <designmap-confirm id="removingConfirm" message="AreYouSureThatYouWannaDeleteObject"
                            on-continue="removeElementIrretrievably" on-suspend="suspendRemoving"></designmap-confirm>
-        <!-- Gallery -->
-        <!--<designmap-gallery id="gallery" folder="[[currentFolderId]]" files="[[getFiles(elements)]]"></designmap-gallery>-->
         <!-- Uploader -->
         <designmap-file-uploader id="uploader" parent="folder" _id="[[currentFolderId]]"
                                  files="[[getFiles(elements)]]" allowed-extension='[[allowedExtensions]]'></designmap-file-uploader>
@@ -325,7 +322,7 @@
                  */
                 sortWay: {
                     type: String,
-                    value: 'modified'
+                    value: 'name'
                 },
                 bodyNode: {
                     type: Object,
@@ -486,13 +483,8 @@
              * Open the gallery
              * @param element
              */
-            executeFileAction: function (element) {
-                /*var files = this.getFiles(this.elements);
-                 var index = this.findFileIndexById(element._id, files);
-                 if (index == null) return;
-                 this.$.gallery.selected = index;
-                 this.$.gallery.open();
-                 location.hash += element._id;*/
+            executeFileAction: function (file) {
+                page.redirect('/gallery/'+file._id);
             },
             /**
              * Open element in gallery

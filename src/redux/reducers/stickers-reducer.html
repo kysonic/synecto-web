@@ -1,0 +1,28 @@
+<script>
+    Reducers.StickersReducer = function(state,action) {
+        if(!state) state = [];
+        switch(action.type) {
+            case "ADD_STICKER":
+                return state.concat([action.data]);
+                break;
+            case "REMOVE_STICKER":
+                return state.slice(0,action.index)
+                    .concat(state.slice(action.index+1));
+                break;
+            case "UPDATE_STICKER":
+                return state.slice(0,action.index)
+                    .concat([Object.assign({},state[action.index],action.data)])
+                    .concat(state.slice(action.index+1));
+                break;
+            case "SET_STICKERS":
+                return state.concat(action.stickers);
+                break;
+            case "CLEAN_STICKERS":
+                return [];
+                break;
+            default:
+                return state;
+                break;
+        }
+    }
+</script>

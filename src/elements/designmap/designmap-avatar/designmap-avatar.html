@@ -149,14 +149,14 @@
 
 
         </style>
-        <template is='dom-if' if="[[!user.avatar]]">
+        <template is='dom-if' if="[[!user.profile.avatar]]">
             <div class="initials" on-click="openDialog">
                 <i18-n msgid="Select avatar">Select avatar</i18-n>
             </div>
         </template>
-        <template is='dom-if' if="[[user.avatar]]">
+        <template is='dom-if' if="[[user.profile.avatar]]">
             <div class="wrapper">
-                <img class="avatar" id="img" src="[[computeAvatarPath(user.avatar)]]">
+                <img class="avatar" id="img" src="[[computeAvatarPath(user.profile.avatar)]]">
                 <div class="backdrop" on-click="openDialog">
                     <i18-n msgid="Change avatar">Change avatar</i18-n>
                 </div>
@@ -183,7 +183,7 @@
                     </neon-animatable>
                     <neon-animatable>
                         <div class="preset">
-                            <designmap-preset-avatars id="preset" avatar="[[user.avatar]]"
+                            <designmap-preset-avatars id="preset" avatar="[[user.profile.avatar]]"
                                                       on-avatar-loaded="presetAvatarLoaded"
                                                       on-avatar-selected="presetAvatarSelected"></designmap-preset-avatars>
                             <div class="sub-title hide-on-mobile" hidden$="[[!hideLink]]" on-click="goToUploading">
@@ -247,7 +247,7 @@
                 this.$.avatarDialog.close();
                 this.$.avatarDialog.modal = false;
                 this.hideLink = true;
-                this.user.avatar = e.detail;
+                this.user.profile.avatar = e.detail;
                 this.dispatch('userUpdate', this.user);
                 if (this.$$('#img')) this.$$('#img').src = Designmap.config.apiURL + e.detail + '?v=' + this.generateUid();
             },
@@ -276,9 +276,9 @@
                 return Designmap.config.apiURL + path + '?v=' + this.generateUid();
             },
             removeAvatar: function () {
-                const promise = xhr.get(Designmap.config.apiURL + 'user/remove-avatar/?path=' + decodeURI(this.user.avatar));
+                const promise = xhr.get(Designmap.config.apiURL + 'user/remove-avatar/?path=' + decodeURI(this.user.profile.avatar));
                 promise.then(function (response) {
-                    this.user.avatar = null;
+                    this.user.profile.avatar = null;
                     this.dispatch('userUpdate', this.user);
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));
             },

@@ -1,0 +1,688 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../designmap-buttons/designmap-button.html">
+<link rel="import" href="../../plastic/plastic-custom-scroll.html">
+<link rel="import" href="./designmap-comment-service.html">
+<link rel="import" href="../designmap-login/designmap-login-form.html">
+<link rel="import" href="../../../behaviors/designmap-socket-behavior.html">
+<!-- Redux -->
+<link rel="import" href="../../../redux/actions/stickers-actions.html">
+<link rel="import" href="../../../redux/actions/comments-action.html">
+<link rel="import" href="../../../redux/actions/user-actions.html">
+
+<dom-module id="designmap-stickers">
+    <template>
+        <style>
+            :host {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                left: 0;
+                font-family: var(--font-family);
+                font-weight: bold;
+                --designmap-stickers-size: 30px;
+
+                --plastic-custom-scroll-bar-mixin: {
+                    margin-left: -7px;
+                    background: rgba(170, 170, 177, 0.6);
+                };
+                --plastic-custom-scroll-bar-hover-mixin: {
+                    margin-left: -9px;
+                    background: rgba(170, 170, 177, 0.8);
+                };
+                --plastic-custom-scroll-bar-grabbed-mixin: {
+                    margin-left: -9px;
+                    background: rgb(170, 170, 177);
+                };
+                --designmap-dropdown-triangle-mixin: {
+                    margin-left: -18px;
+                    border-color: transparent transparent var(--white-color) transparent !important;
+                };
+                --designmap-dropdown-triangle-border-mixin: {
+                    margin-left: -20px;
+                    margin-top: -2px;
+                    border-color: transparent transparent var(--header-line-color) transparent !important;
+                };
+                --designmap-dropdown-mixin: {
+                    display: block;
+                    background: var(--white-color) !important;
+                    width: 100px;
+                    height: auto;
+                    box-shadow: 0px 6px 15px -5px rgba(0, 0, 0, 1);
+                    border: 1px solid var(--gray-color);
+                    padding: 0;
+                };
+                --designmap-dropdown-triangle-mixin: {
+                    margin-left: -8px;
+                    border-color: transparent transparent var(--white-color) transparent !important;
+                };
+                --designmap-confirm-paper-dialog-mixin: {
+                    z-index: 9999 !important;
+                };
+                --designmap-dropdown-triangle-border-mixin: {
+                    margin-left: -10px;
+                    margin-top: -2px;
+                    border-color: transparent transparent var(--gray-color) transparent !important;
+                }
+            }
+
+            *[hidden] {
+                display: none !important;
+            }
+
+            /** CANVAS **/
+            .wrapper {
+                width: 100%;
+                height: 100%;
+            }
+
+            .wrapper.hasOpened {
+                cursor: default !important;
+            }
+
+            .wrapper.hasOvered .marker{
+                display: none;
+            }
+
+            /** STICKER **/
+            .sticker {
+                position: absolute;
+                width: var(--designmap-stickers-size);
+                height: var(--designmap-stickers-size);
+                border-radius: 50%;
+                background: rgba(255, 170, 8, 0.6);
+                transition: .2s background;
+                cursor: pointer;
+                z-index: 11;
+                font-family: var(--font-family);
+                font-weight: 100;
+                font-size: 12px;
+                color: var(--white-color);
+                line-height: calc(var(--designmap-stickers-size) + 1px);
+                text-align: center;
+                user-select: none;
+                box-shadow: 0 6px 15px -5px rgba(0, 0, 0, 1);
+                z-index: 98;
+            }
+
+            .sticker:hover {
+                background: rgba(255, 170, 8, 1);
+                transition: .2s background;
+                cursor: move;
+            }
+
+            .sticker.opened {
+                z-index: 999;
+                background: rgba(255, 170, 8, 1);
+            }
+
+            /** STICKER DROPDOWN **/
+            .sticker .dropdown {
+                position: absolute;
+                z-index: 99;
+                min-width: 250px;
+                top: 33px;
+                left: 0px;
+                box-shadow: 0px 6px 15px -5px rgba(0, 0, 0, 1);
+                background: var(--white-color);
+            }
+
+            .sticker .dropdown .line {
+                cursor: default;
+                display: block;
+                width: 100%;
+                height: 10px;
+                background: var(--orange-color);
+            }
+
+            .sticker .dropdown .add-comment {
+                border: none;
+                resize: none;
+                font-size: 12px;
+                width: calc(100% - 20px);
+                height: 30px;
+                padding: 5px 10px;
+                color: var(--gray-super-dark);
+                outline: none;
+            }
+
+            .sticker .dropdown button {
+                cursor: pointer;
+                width: 100%;
+                height: 35px;
+                background: var(--blue-color);
+                color: var(--white-color);
+                border: none;
+            }
+
+            /** COMMENT **/
+            .comment {
+                text-align: left;
+                padding: 8px 10px;
+                color: var(--gray-super-dark);
+                border-bottom: 1px solid var(--gray-color);
+                cursor: default;
+            }
+
+            textarea {
+                border: none;
+                color: var(--gray-super-dark);
+            }
+
+            .comment .footer {
+                display: flex;
+                align-items: center;
+            }
+
+            .comment .info {
+                flex: 10;
+            }
+
+            .comment .user {
+                display: inline;
+                font-size: 10px;
+                padding: 2px 6px;
+                background: var(--blue-color);
+                color: var(--white-color);
+                border-radius: 30px;
+            }
+
+            .menu .like {
+                display: inline-block;
+                cursor: pointer;
+            }
+
+            .menu iron-icon {
+                cursor: pointer;
+            }
+
+            .menu .heart {
+                width: 12px;
+                height: 12px;
+            }
+
+            .menu .likesCount {
+                font-size: 10px;
+            }
+
+            .text {
+                line-height: 20px;
+                min-height: 35px;
+            }
+
+            /** TEXTAREA **/
+            .ta {
+                position: relative;
+            }
+
+            .ta textarea {
+                border: none;
+                resize: none;
+                font-size: 12px;
+                width: calc(100% - 40px);
+                height: 20px;
+                color: var(--gray-super-dark);
+                outline: none;
+            }
+
+            .ta .edit-comment {
+                position: absolute;
+                z-index: 1008;
+                top: 40px;
+                left: -10px;
+                cursor: pointer;
+                width: calc(100% + 20px) !important;
+                height: 35px;
+                background: var(--blue-color);
+                color: var(--white-color);
+                border: none;
+            }
+
+            /** MENU DROPDOWN **/
+            designmap-dropdown {
+                z-index: 1001;
+            }
+
+            designmap-dropdown .menu {
+                margin: 0;
+                padding: 0;
+                list-style: none;
+                color: var(--gray-darkend-color);
+                text-align: center;
+                font-size: 11px;
+                font-weight: 100;
+            }
+
+            designmap-dropdown .menu li {
+                padding: 6px 0;
+                cursor: pointer;
+                transition: .2s background;
+            }
+
+            designmap-dropdown .menu li:hover {
+                background: var(--gray-lightenest-color);
+                transition: .2s background;
+            }
+
+            .stickers {
+                width: 100%;
+                height: 100%;
+            }
+
+            .login-form-wrapper {
+                position: absolute;
+                z-index: 1009;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                top: 0;
+                left: 0;
+                background: rgba(0, 0, 0, 0.8);
+                width: 100%;
+                height: 100%;
+            }
+
+            .marker {
+                display: none;
+                position: absolute;
+                color: var(--white-color);
+                padding: 5px 10px;
+                background: rgba(0,0,0,0.6);
+                font-size: 10px;
+                border-radius: 10px;
+                font-weight: 100;
+            }
+
+        </style>
+        <div class="marker" id="marker" >
+            <i18-n msgid="Click to add a comment">Click to add a comment</i18-n>
+        </div>
+        <div class$="wrapper {{_computeOpenedClasses(isThereOpened)}}" on-mousemove="_followCursor" on-mouseleave="_stickerOver" id="wrapper">
+
+            <div class="stickers" on-click="createSticker">
+                <template is="dom-repeat" id="stickersTemplate" observe="stickers.*" items="[[stickers]]" as="sticker">
+                    <div id="{{returnStickerID(sticker)}}"
+                         class$="sticker bound [[_computedOpened(sticker.opened)]]"
+                         on-click="_toogleSticker"
+                         on-mousedown="_mouseDown"
+                         on-mouseover="_stickerOver"
+                         style$="{{getStickerStyles(sticker,sticker._id)}}">
+                        <div class="number bound">
+                            [[_computeStickerNumber(index)]]
+                        </div>
+                        <div class="dropdown" hidden$="[[!sticker.opened]]">
+                            <div class="line"></div>
+                            <div class="comments">
+                                <plastic-custom-scroll fit small-bar max-height="168">
+                                    <template is="dom-repeat" items="[[_computeComments(sticker._id, comments.*)]]"
+                                              as="comment">
+                                        <div class="comment">
+                                            <div hidden$="[[comment.edit]]" class="text">
+                                                [[comment.text]]
+                                            </div>
+                                            <div class="ta" hidden$="[[!comment.edit]]">
+                                            <textarea class="textarea" on-blur="_saveComment"
+                                                      value="{{comment.text}}"></textarea>
+                                                <button class="edit-comment" on-click="_saveComment">
+                                                    <i18-n msgid="Edit a comment">Edit a comment</i18-n>
+                                                </button>
+                                            </div>
+                                            <div class="footer">
+                                                <div class="info">
+                                                    <div class="user">[[computeOwnerName(comment.owner)]]</div>
+                                                </div>
+                                                <div class="menu">
+                                                    <div class="like" on-click="_like">
+                                                        <iron-icon class="heart"
+                                                                   icon="icons:favorite-border"></iron-icon>
+                                                        <span class="likesCount">[[_computeLikesCount(comment.likes.length)]]</span>
+                                                    </div>
+                                                    <iron-icon on-click="_openDropdown" class="more"
+                                                               icon="designmap-workspace:more"></iron-icon>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </plastic-custom-scroll>
+                            </div>
+                            <textarea value="{{textAreaValue::input}}" on-blur="_checkSticker" class="add-comment"
+                                      placeholder="[[translate('Write a comment',language,i18Loaded)]]"></textarea>
+                            <button on-click="_postComment" hidden$="[[!textAreaValue]]">
+                                <i18-n msgid="Post a comment">Post a comment</i18-n>
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            <!-- Dropdown-->
+            <designmap-dropdown id="dropdown" class="bound" vertical-offset="30" horizontal-offset="-40" previous
+                                tri-border>
+                <ul class="menu bound">
+                    <li class="bound" hidden$="[[!canUpdateAndRemove]]" on-click="_editComment">
+                        <i18-n class="bound" msgid="Edit">Edit</i18-n>
+                    </li>
+                    <li class="bound" on-click="_applyToProtocol">
+                        <i18-n class="bound" msgid="Apply to protocol">Apply to protocol</i18-n>
+                    </li>
+                    <li class="bound" hidden$="[[!canUpdateAndRemove]]" on-click="_removeComment">
+                        <i18-n class="bound" msgid="Remove">Remove</i18-n>
+                    </li>
+                </ul>
+            </designmap-dropdown>
+            <!-- Confirm -->
+            <designmap-confirm class="bound" id="removeCommentConfirm"
+                               message="AreYouSureThatYouWantToRemoveWholeConversation"
+                               on-continue="_removeSticker"
+                               on-suspend="_suspendStickerRemoving"></designmap-confirm>
+            <!-- Form to login -->
+            <div class="login-form-wrapper" hidden$="[[!stickerEvent]]">
+                <designmap-login-form fake-support></designmap-login-form>
+            </div>
+
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-stickers',
+            behaviors: [
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapFsService,
+                Polymer.DesignmapCommentService,
+                Polymer.DesignmapSocketBehavior,
+                ReduxBehavior,
+                Polymer.CombineActions(Polymer.StickersActions, Polymer.UserActions, Polymer.CommentsActions)
+            ],
+            properties: {
+                /**
+                 * Array of stickers
+                 */
+                stickers: {
+                    type: Array,
+                    value: [],
+                    statePath: function (state) {
+                        if (!this.file._id) return [];
+                        let stickers = state.stickers.filter(function (sticker) {
+                            return sticker.file == this.file._id;
+                        }.bind(this));
+                        return stickers;
+                    }
+                },
+                comments: {
+                    type: Array,
+                    statePath: 'comments'
+                },
+                project: {
+                    type: Object,
+                    statePath: 'project'
+                },
+                user: {
+                    type: Object,
+                    statePath: 'user',
+                    observer: '_userChanged'
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
+                },
+                i18Loaded: {
+                    type: String,
+                    statePath: 'i18Loaded'
+                },
+                zoom: {
+                    type: Number,
+                    value: 1
+                },
+                file: {
+                    type: Object,
+                    observer: '_fileChanged'
+                },
+                stickerCatch: {
+                    type: Boolean,
+                    notify: true
+                },
+                overArea: {
+                    type: Boolean,
+                    value: false
+                },
+                isThereOpened: {
+                    type: Boolean,
+                    value: false
+                },
+                pressed: {
+                    type: Boolean,
+                },
+                moved: {
+                    type: Boolean,
+                },
+                textAreaValue: {
+                    type: String,
+                    value: '',
+                    observer: '_textAreaValueChanged'
+                },
+                unknownName: {
+                    type: String,
+                    value: ''
+                },
+                stickerEvent: {
+                    type: Object,
+                    value: null
+                }
+            },
+            ready: function(){
+              this.async(function(){
+                  if(!this.user) this.stickerEvent = true;
+              },1000)
+            },
+            /**
+             * Create a new one.
+             */
+            createSticker: function (e) {
+                if (!this.user) return this._enterName(e);
+                if (this.parents(e.target, 'sticker') || this.parents(e.target, 'designmap-confirm') || e.target.classList.contains('bound') || this.pressed || this.moved) return true;
+                else if (this.isThereOpened) {
+                    this.closeAllStickers();
+                    return;
+                }
+                this.closeAllStickers();
+                // Define bounding of current picture
+                var bound = e.target.getBoundingClientRect();
+                // Calculate coordinates
+                var x = e.pageX - bound.left;
+                var y = e.pageY - bound.top;
+                var position = {left: x * 100 / bound.width, top: y * 100 / bound.height};
+                // Add new one with appropriate scale
+                var sticker = {
+                    _id: this.generateUid(12),
+                    position: position,
+                    scale: this.zoom,
+                    text: '',
+                    owner: this.user,
+                    folder: this.folder,
+                    file: this.file._id,
+                    opened: true,
+                    project: this.file.project
+                };
+                this.dispatch('addSticker', sticker).then(function (response) {
+                    if (!response.success) {
+                        if (response.errors.message && response.errors.count) {
+                            this.showErrorMessage(response.errors.message, {"#COUNT#": response.errors.count});
+                        }
+                        return;
+                    }
+                }.bind(this)).catch(this.manageErrorResponse.bind(this));
+                this.async(function () {
+                    const stickerNode = Polymer.dom(this.$.wrapper).querySelector('#sticker-' + sticker._id);
+                    stickerNode.querySelector('.dropdown .add-comment').focus();
+                    this.isThereOpened = true;
+                })
+            },
+
+            _enterName: function (e) {
+                this.set('stickerEvent', e);
+            },
+
+            _userChanged: function (user) {
+                if(user) this.set('stickerEvent', false);
+            },
+
+            /**
+             * Close all stickers.
+             */
+            closeAllStickers: function (except) {
+                this.stickers.forEach(function (sticker) {
+                    if (except && except._id === sticker._id) return;
+                    sticker.opened = false;
+                    this.textAreaValue = '';
+                    this.dispatch('_updateSticker', sticker._id, sticker)
+                }.bind(this));
+                this.isThereOpened = false;
+            },
+            /**
+             * Calculate styles for each sticker according their position and zoom
+             * properties
+             */
+            getStickerStyles: function (e, uid) {
+                var stickerData = e;
+                var sticker = Polymer.dom(this.$.wrapper).querySelector('#sticker-' + uid);
+                var marginTop = '0px';
+                if (sticker && getComputedStyle(sticker)) marginTop = getComputedStyle(sticker).marginTop;
+                return 'left: calc(' + stickerData.position.left + '% - 15px);top: calc(' + stickerData.position.top + '% - 15px);); margin-top: ' + marginTop;
+            },
+            /**
+             * Compute sticker id
+             */
+            returnStickerID: function (sticker) {
+                return 'sticker-' + sticker._id
+            },
+            /**
+             * Opened classes
+             */
+            _computeOpenedClasses: function (isThereOpened) {
+                return isThereOpened ? 'hasOpened' : '';
+            },
+            _computeStickerNumber: function (index) {
+                return index + 1;
+            },
+            _canUserManageSticker(sticker){
+                return sticker.owner._id === this.user._id || this.file.owner === this.user._id;
+            },
+            _mouseDown: function (e) {
+                //if (e.currentTarget.classList.contains('opened')) return false;
+                this.stickerCatch = true;
+                let sticker = e.model.sticker;
+                document.body.classList.add('non-select');
+                this.lastPageY = e.pageY;
+                this.lastPageX = e.pageX;
+
+                document.addEventListener('mousemove', _drag);
+                document.addEventListener('mouseup', _stop);
+                const _this = this;
+
+                function _drag(e) {
+                    if (_this.stickerCatch && !_this._canUserManageSticker(sticker)) {
+                        if (!_this.messageShowed) _this.showErrorMessage('It is not your comment. You cannot drag it');
+                        _this.messageShowed = true;
+                        _this.async(function () {
+                            _this.messageShowed = false;
+                        }, 1000)
+                        return;
+                    }
+                    _this.stickerDrag = true;
+                    // Define bounding of current picture
+                    const bound = _this.$.wrapper.getBoundingClientRect();
+                    // Calculate coordinates
+                    const x = e.pageX - bound.left;
+                    const y = e.pageY - bound.top;
+                    let position = {left: x * 100 / bound.width, top: y * 100 / bound.height};
+                    // Restrictions
+                    if (x < 0 || x > bound.width) position.left = sticker.position.left;
+                    if (y < 0 || y > bound.height) position.top = sticker.position.top;
+                    sticker.position = position;
+
+                    _this.dispatch('_updateSticker', sticker._id, sticker);
+                }
+
+                function _stop(e) {
+                    _this.stickerCatch = false;
+                    document.body.classList.remove('non-select');
+                    document.removeEventListener('mousemove', _drag);
+                    document.removeEventListener('mouseup', _stop);
+                    _this.async(function () {
+                        if (_this.stickerDrag) _this.dispatch('updateSticker', sticker._id, sticker);
+                        _this.stickerDrag = false;
+                    }, 10);
+                }
+
+                return false;
+            },
+
+            _toogleSticker: function (e) {
+                if (!e.target.classList.contains('bound') || this.stickerDrag) return;
+                const sticker = e.model.sticker;
+                this.closeAllStickers(sticker);
+                sticker.opened = !sticker.opened;
+                this.isThereOpened = sticker.opened;
+                if (!sticker.opened) this.textAreaValue = '';
+                // Open on top or bottom of
+                this.dispatch('_updateSticker', sticker._id, sticker);
+                // Resolve position
+                /*this._resolveStickerDropdownPosition(sticker);
+                 // calc scroll
+                 this.async(function () {
+                 const stickerNode = this.$$('#sticker-' + sticker._id);
+                 stickerNode.querySelector('plastic-custom-scroll').calculate();
+                 });*/
+            },
+
+            _resolveStickerDropdownPosition(sticker){
+                if (!sticker) return;
+                const stickerNode = this.$$('#sticker-' + sticker._id);
+                const bound = this.$.wrapper.getBoundingClientRect();
+                const dropdownNode = stickerNode.querySelector('.dropdown');
+                if (sticker.position.top <= 50) return dropdownNode.style.top = '33px';
+                this.async(function () {
+                    const dropBound = dropdownNode.getBoundingClientRect();
+                    dropdownNode.style.top = -(dropBound.height + 5) + 'px';
+                });
+            },
+
+            _textAreaValueChanged: function () {
+                this._resolveStickerDropdownPosition(this._findOpenedSticker());
+            },
+
+            _findOpenedSticker: function () {
+                let found = null;
+                this.stickers.forEach(function (sticker) {
+                    if (sticker.opened) found = sticker;
+                }.bind(this));
+                if (!found) return null;
+                return found;
+            },
+
+            _computedOpened: function (opened) {
+                return opened ? 'opened' : '';
+            },
+
+            _fileChanged: function (file) {
+                this.setupSocket(file._id, 'file');
+            },
+
+            _followCursor: function(e){
+                if(!e.target.classList.contains('stickers')) return;
+                this.$.marker.style.display = 'block';
+                this.$.marker.style.left = e.layerX+20 + 'px';
+                this.$.marker.style.top = e.layerY-10 + 'px';
+            },
+
+            _stickerOver: function(e){
+               this.$.marker.style.display = 'none';
+            },
+
+            _stickerLeave: function(e){
+                this.$.marker.style.display = 'block';
+            }
+        })
+    </script>
+</dom-module>

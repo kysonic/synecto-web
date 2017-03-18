@@ -5,6 +5,21 @@
              * Get all folders for certain project from the server
              * @returns {function(this:Polymer.FoldersActions)}
              */
+            getFile: function(id){
+                return function(dispatch) {
+                    var state = ReduxStore.getState();
+                    var promise = xhr.get(Designmap.config.apiURL+'file/'+id);
+                    promise.then(function(response){
+                        if(!response.success) return;
+                        dispatch({type:'ADD_FILE',data:response.file});
+                    });
+                    return promise;
+                }.bind(this)
+            },
+            /**
+             * Get all folders for certain project from the server
+             * @returns {function(this:Polymer.FoldersActions)}
+             */
             getFiles: function(query){
                 return function(dispatch) {
                     var state = ReduxStore.getState();
@@ -57,7 +72,7 @@
                         if(!response.success) return;
                         // Create file view
                         dispatch({type:'ADD_FILE',data:response.file});
-                        Designmap.fsScoket.emit('createFile',{type:'ADD_FILE',data: response.file,uid:Designmap.uid});
+                        Designmap.projectSocket.emit('action',{type:'ADD_FILE',data: response.file,uid:Designmap.uid});
                         // UNDO\REDO
                         Designmap.undoManager.add({
                             undo: function() {
@@ -106,7 +121,7 @@
                     promise.then(function(response){
                         if(!response.success) throw new Error(response.errors.message);
                         var fileIndex = this.findFileIndexById(id);
-                        Designmap.fsScoket.emit('updateFile',{type:'UPDATE_FILE',data:response.file,index:fileIndex,uid:Designmap.uid});
+                        Designmap.projectSocket.emit('action',{type:'UPDATE_FILE',data:response.file,index:fileIndex,uid:Designmap.uid});
                         dispatch({type:'UPDATE_FILE',data:response.file,index:fileIndex});
                     }.bind(this)).catch(function(err){
                         dispatch({type:'UPDATE_FILE',data:historyData,index:this.findFileIndexById(id)});
@@ -133,7 +148,7 @@
                     var promise = xhr.delete(Designmap.config.apiURL+'file/'+id, {project:state.project._id});
                     promise.then(function(response){
                         if(!response.success) throw new Error();
-                        Designmap.fsScoket.emit('deleteFile',{type:'REMOVE_FILE',index:index,uid:Designmap.uid});
+                        Designmap.projectSocket.emit('action',{type:'REMOVE_FILE',index:index,uid:Designmap.uid});
                     }.bind(this)).catch(function(err){
                         dispatch({type:'ADD_FILE',data:historyData});
                     }.bind(this));
@@ -150,7 +165,7 @@
                 promise.then(function(response){
                     if(!response.success) throw new Error();
                     var fileIndex = this.findFileIndexById(response.file._id);
-                    Designmap.fsScoket.emit('updateFile',{type:'UPDATE_FILE',data:response.file,index:fileIndex,uid:Designmap.uid});
+                    Designmap.projectSocket.emit('action',{type:'UPDATE_FILE',data:response.file,index:fileIndex,uid:Designmap.uid});
                     ReduxStore.dispatch({type:'UPDATE_FILE',data:response.file,index:fileIndex});
                 }.bind(this)).catch(function(err){
                     throw new Error(err);

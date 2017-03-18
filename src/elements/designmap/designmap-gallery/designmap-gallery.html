@@ -1,0 +1,868 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-image/iron-image.html">
+<link rel="import" href="../designmap-buttons/designmap-gallery-button.html">
+<link rel="import" href="../designmap-ui/designmap-hidden-panel.html">
+<link rel="import" href="./designmap-stickers.html">
+<link rel="import" href="../designmap-icons/designmap-logo-icons.html">
+<link rel="import" href="./designmap-gallery-user-list.html">
+<!-- Redux -->
+<link rel="import" href="../../../redux/actions/user-actions.html">
+<link rel="import" href="../../../redux/actions/files-actions.html">
+<link rel="import" href="../../../redux/actions/stickers-actions.html">
+<link rel="import" href="../../../redux/actions/comments-action.html">
+
+<dom-module id="designmap-gallery">
+    <template>
+        <style>
+            :host {
+                width: 100%;
+                height: 100vh;
+                display: flex !important;
+                flex-direction: column;
+
+                --designmap-gallery-panel-height: var(--header-height);
+                --designmap-gallery-color: var(--gray-lighty-color);
+                --designmap-gallery-line-color: var(--gray-lightenest-color);
+                --designmap-gallery-striped-background: repeating-linear-gradient(-45deg, var(--designmap-gallery-color), var(--designmap-gallery-line-color) 5px, rgba(256, 256, 256, 0.3) 5px, rgba(256, 256, 256, 0.3) 6px);
+            }
+
+            *[hidden] {
+                display: none !important;
+            }
+
+            .panel {
+                background: transparent;
+            }
+
+            /** top-panel **/
+            .top-panel, .bottom-panel {
+                width: 100%;
+                flex-basis: calc(var(--designmap-gallery-panel-height) + 15px);
+                display: flex;
+                align-items: center;
+            }
+
+            .top-panel {
+                background: var(--gray-lightern-color);
+            }
+
+            .top-panel .left, .top-panel .right, .bottom-panel .left, .bottom-panel .right {
+                display: flex;
+                flex-basis: var(--designmap-gallery-panel-height);
+                align-items: center;
+            }
+
+            .top-panel .center, .bottom-panel .center {
+                flex-grow: 11;
+            }
+
+            .top-panel .right, .bottom-panel .right {
+                display: flex;
+                justify-content: flex-end;
+            }
+
+            .top-panel-button {
+                margin-right: 10px;
+            }
+
+            /** CONTENT **/
+            .content {
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                background: var(--designmap-gallery-striped-background);
+            }
+
+            .content .item {
+                height: 100%;
+                position: relative;
+                cursor: crosshair;
+            }
+
+            /** IMAGES **/
+            .content iron-image {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                max-width: 100%;
+                max-height: 100%;
+                width: 100%;
+                height: 100%;
+                --iron-image-mixin: {
+                    max-width: 100%;
+                    max-height: 100%;
+                    min-width: 120px;
+                    min-height: 200px;
+                    object-fit: contain;
+
+                    background: url('/images/svg/three-dots-gray.svg') no-repeat center;
+
+                    -khtml-user-select: none;
+                    -o-user-select: none;
+                    -moz-user-select: none;
+                    -webkit-user-select: none;
+                    user-select: none;
+                }
+
+            }
+
+            .content .item.no-transitions {
+                transition: none;
+                cursor: move !important;
+            }
+
+            .content iron-image.cancel-loading {
+                background: transparent;
+            }
+
+            .content iron-image.zoomed:active {
+                cursor: move;
+            }
+
+            /** LEFT RIGHT **/
+            .previous, .next {
+                position: absolute;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100px;
+                height: 100%;
+                background: rgba(256, 256, 256, 0.4);
+                transition: .2s background;
+                cursor: pointer;
+            }
+
+            .previous:hover, .next:hover {
+                background: rgba(256, 256, 256, 0.6);
+                transition: .2s background;
+            }
+
+            .previous iron-icon, .next iron-icon {
+                --iron-icon-stroke-color: var(--gray-super-dark);
+                --iron-icon-fill-color: var(--gray-super-dark);
+                --iron-icon-width: 50px;
+                --iron-icon-height: 50px;
+            }
+
+            .previous {
+                left: 0;
+            }
+
+            .next {
+                left: 100%;
+                margin-left: -100px;
+            }
+
+            /** EXTENSION **/
+            .extension {
+                width: 25vw;
+                height: 25vw;
+                font-size: 5vw;
+                color: var(--white-color);
+                border: 2px solid var(--white-color);
+                text-align: center;
+                line-height: 25vw;
+                text-transform: uppercase;
+            }
+
+            /** bottom-panel **/
+            .bottom-panel {
+                width: 100%;
+                flex-basis: calc(var(--designmap-gallery-panel-height) + 15px);
+                background: var(--gray-lightern-color);
+            }
+
+            .bottom-panel button {
+                width: 38px;
+                height: 38px;
+            }
+
+            .bottom-panel-button {
+                margin-right: 5px;
+                width: 28px;
+                height: 28px;
+                --iron-icon-components-mixin: {
+                    stroke-width: 2px;
+                };
+            }
+
+            .designmap-logo {
+                cursor: pointer;
+                margin-left: 30px;
+                width: 200px;
+                height: 70px;
+            }
+
+            .right-button, .resize-button {
+                margin-right: 30px;
+            }
+
+            .more-icon {
+                width: 50px !important;
+                height: 50px !important;
+                --iron-icon-components-mixin: {
+                    stroke: var(--white-color) !important;
+                    fill: var(--white-color) !important;
+                };
+            }
+
+            .chat-icon {
+                width: 30px !important;
+                height: 30px !important;
+                --iron-icon-components-mixin: {
+                    stroke-width: 2px;
+                };
+            }
+
+            .resize-icon, .plus-icon, .minus-icon {
+                width: 30px !important;
+                height: 30px !important;
+                --iron-icon-components-mixin: {
+                    stroke-width: 2px;
+                };
+            }
+
+            .close-icon {
+                --iron-icon-components-mixin: {
+                    stroke-width: 3px;
+                };
+            }
+
+            .bottom-panel .center {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            designmap-gallery-user-list {
+                margin-left: 30px;
+            }
+
+            .title {
+                text-align: center;
+            }
+
+            .plus-button {
+                margin-left: 10px;
+            }
+
+            .minus-button {
+                margin-right: 10px;
+            }
+
+
+        </style>
+        <div class="top-panel panel">
+            <div class="left">
+                <iron-icon class="designmap-logo" on-click="close" icon="designmap-logo:logo-gray"></iron-icon>
+            </div>
+            <div class="center" data-hint="file-top-panel">
+
+            </div>
+            <div class="right">
+                <button class="top-panel-button" is="designmap-gallery-button" on-click="chat">
+                    <iron-icon class="chat-icon" icon="designmap:chat"></iron-icon>
+                </button>
+                <!--<button class="top-panel-button" is="designmap-gallery-button" on-click="openContext">
+                    <iron-icon class="more-icon" icon="designmap-workspace:more"></iron-icon>
+                </button>-->
+                <button class="right-button" is="designmap-gallery-button"
+                        x-tooltip$="[[translate('Close gallery',language)]]" on-click="close">
+                    <iron-icon class="close-icon" style="transform: rotate(45deg)" icon="designmap:add"></iron-icon>
+                </button>
+            </div>
+        </div>
+        <div class="content">
+            <div class="previous" on-click="previous" hidden$="[[_computeButtons(files.*)]]">
+                <iron-icon icon="icons:chevron-left"></iron-icon>
+            </div>
+            <template is="dom-if" if="{{canBeDisplayed(file)}}" restamp="true">
+                <div id="item" class="item"
+                     id="[[computeID(index)]]"
+                     draggable="false"
+                     ondragstart="return false;"
+                     on-mousewheel="imageMouseWheel"
+                     on-wheel="imageMouseWheel"
+                     on-mouseleave="mouseLeave"
+                     on-mousedown="mouseDown"
+                     on-mousemove="mouseMove"
+                     on-mouseup="mouseUp">
+
+                    <iron-image
+                            on-load="imageHasLoaded"
+                            on-error="imageError"
+                            class$="{{zoomClasses(zoom,index)}}"
+                            src="{{computeFileSrc(file)}}"></iron-image>
+                    <designmap-stickers sticker-catch="{{stickerCatch}}" moved="[[moved]]" pressed="[[pressed]]" file="[[file]]" zoom="[[zoom]]"></designmap-stickers>
+                </div>
+            </template>
+            <template is="dom-if" if="{{!canBeDisplayed(file)}}" restamp="true">
+                <div class="extension" on-click="convert">
+                    {{getExtensionWithoutDot(file.data.name)}}
+                </div>
+            </template>
+            <div class="next" on-click="next" hidden$="[[_computeButtons(files.*)]]">
+                <iron-icon icon="icons:chevron-right"></iron-icon>
+            </div>
+        </div>
+        <div class="bottom-panel panel">
+            <div class="left">
+                <designmap-gallery-user-list></designmap-gallery-user-list>
+            </div>
+            <div class="center">
+                <button class="minus-button" is="designmap-gallery-button" on-click="zoomOut">
+                    <iron-icon class="minus-icon" icon="designmap:minus"></iron-icon>
+                </button>
+                <div class="title">[[_computeFileName(file,files.length)]]</div>
+                <button class="plus-button" is="designmap-gallery-button" on-click="zoomIn">
+                    <iron-icon class="plus-icon" icon="designmap:add"></iron-icon>
+                </button>
+            </div>
+            <div class="right">
+                <button class="resize-button" is="designmap-gallery-button" on-click="clearZoom">
+                    <iron-icon class="resize-icon" icon="designmap:resize"></iron-icon>
+                </button>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-gallery',
+            behaviors: [
+                Polymer.IronOverlayBehavior,
+                Polymer.NeonAnimationRunnerBehavior,
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapWebAnimationBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapFsService,
+                ReduxBehavior,
+                Polymer.CombineActions(Polymer.UserActions, Polymer.FilesActions, Polymer.StickersActions, Polymer.CommentsActions)
+            ],
+            // Zoom options
+            step: 0.1,
+            maxZoom: 3,
+            minZoom: 1,
+            // Move top\left options
+            pressed: false,
+            // State of page cords and top\left styles
+            pageY: 0,
+            pageX: 0,
+            top: 0,
+            left: 0,
+            // Horizontal\vertical offset bounding image dragging.
+            horizontalRestriction: 60,
+            verticalRestriction: 0,
+            // Files with same extension can be displayed
+            canBeDisplayedExt: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr", ".ppm", ".pbm", ".svg"],
+            objectIDRegexp: /^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/i,
+            properties: {
+                projectId: {
+                    type: String,
+                    statePath: 'projectId'
+                },
+                fileId: {
+                    type: String,
+                    statePath: 'fileId',
+                    observer: '_fileIdChanged'
+                },
+                folderId: {
+                    type: String,
+                    statePath: 'folderId'
+                },
+                files: {
+                    type: Array,
+                    statePath: function (state) {
+                        return state.files.filter(function (file) {
+                            return String(file.folder) == String(this.folderId);
+                        }.bind(this));
+                    }
+                },
+                file: {
+                    type: Object,
+                    value: {}
+                },
+                /**
+                 * Current zoom
+                 */
+                zoom: {
+                    type: Number,
+                    value: function () {
+                        return this.minZoom
+                    }
+                },
+
+                stickers: {
+                    type: Array,
+                    statePath: 'stickers'
+                },
+                /**
+                 * Role
+                 */
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
+                }
+            },
+            observers: [
+                'openStateChanged(opened)',
+                '_entityIdChanged(entityId,entityType)'
+            ],
+            /**
+             * Whe file id changed
+             */
+            _fileIdChanged: function (fileId) {
+                const file = this.findFileById(fileId);
+                if (file) return this.file = file;
+                this.dispatch('getStickers', {file: fileId});
+                this.dispatch('getComments', {file: fileId});
+                this.dispatch('getFile', fileId).then(function (response) {
+                    if (!response.success) return this.showErrorMessage('Cannot find file');
+                    this.file = response.file;
+                }.bind(this));
+            },
+            /**
+             * Previous file
+             */
+            previous: function (e) {
+                this.clearZoom();
+                let previousIndex = this.files.indexOf(this.file) - 1;
+                if (previousIndex < 0) previousIndex = this.files.length - 1;
+                const previousFileId = this.files[previousIndex]._id;
+                page.redirect('/gallery/' + previousFileId);
+            },
+            /**
+             * Set zoom to zero
+             */
+            clearZoom: function () {
+                var target = this.$$('#item');
+                this.zoom = 1;
+                if (!target) return;
+                target.style.transform = 'scale(' + this.zoom + ')';
+                target.style.top = '0px';
+                target.style.left = '0px';
+            },
+            /**
+             * Next file
+             */
+            next: function (e) {
+                this.clearZoom();
+                let nextIndex = this.files.indexOf(this.file) + 1;
+                if (nextIndex >= this.files.length) nextIndex = 0;
+                const nextFileId = this.files[nextIndex]._id;
+                page.redirect('/gallery/' + nextFileId);
+            },
+            /**
+             * When opened is true play entry animation
+             * @param opened
+             */
+            openStateChanged: function (opened) {
+                opened ? this.classList.add('opened') : this.classList.remove('opened');
+                if (opened) this.async(function () {
+                    var animation = this.fadeInAnimation(this, {easing: 'cubic-bezier(.3,0,.2,1)'});
+                    animation.finished.then(function () {
+                    });
+                    if (this.user.config.animationOn) animation.play();
+                });
+            },
+            /**
+             * Open a gallery
+             */
+            open: function () {
+                this.opened = true;
+            },
+            /**
+             * Close gallery, but before we have to play exit animation
+             */
+            close: function () {
+                if(this.user && this.user.fake) this.dispatch('cleanUser');
+                page.redirect('/' + (this.projectId || ''));
+            },
+            /**
+             * Is Previous button disabled?
+             * @param selected - current selected item
+             * @param imageIsAnimating - Are images animating? Or not?
+             * @returns {boolean}
+             */
+            disablePreviousButton: function (selected, imageIsAnimating) {
+                return selected == 0 || imageIsAnimating;
+            },
+            /**
+             * Is Next button disabled?
+             * @param selected
+             * @param allImagesHaveLoaded - state of images. If all images are loaded this variable is true
+             * @returns {boolean}
+             */
+            disableNextButton: function (selected, imageIsAnimating) {
+                return this.files ? selected == (this.files.length - 1) || imageIsAnimating : false;
+            },
+            /**
+             * Generate file name for selected file.
+             * @param selected
+             * @returns {string}
+             */
+            renderFileName: function (selected, splices) {
+                return this.files[selected] ? (selected + 1) + '/' + this.files.length + '  ' + this.getElementName(this.files[selected]) : null;
+            },
+            /**
+             * Add some classes to image
+             */
+            zoomClasses: function (zoom, index) {
+                return zoom && index == this.selected ? 'zoomed' : '';
+            },
+            /**
+             * When we scroll mouse wheel on images.
+             * @param e
+             */
+            imageMouseWheel: function (e) {
+                /*var stickers = Polymer.dom(this.$.pages).querySelector('*[file-id="' + e.model.file._id + '"]');
+                 if (stickers.overArea) return;*/
+                var target = this.$$('#item');
+                // Define mouse wheel event details
+                var delta = e.deltaY || e.detail || e.wheelDelta;
+                if (delta < 0) {
+                    // Scroll mouse wheel up
+                    this.zoom = this.zoom + this.step < this.maxZoom ? this.zoom + this.step : this.maxZoom;
+                }
+                else {
+                    // Scroll mouse wheel down
+                    this.zoom = this.zoom - this.step > this.minZoom ? this.zoom - this.step : this.minZoom;
+                }
+                // Get current position of image
+                var top = parseInt(target.style.top);
+                var left = parseInt(target.style.left);
+                // If we scroll the mouse wheel down we have to return the image to start position
+                // in this case that's mean image's styles have to be like
+                // top: 0px left: 0px
+                if ((top || left) && delta > 0) {
+                    this.returnImageToZeroPosition(target, top, left);
+                }
+                target.style.transform = 'scale(' + this.zoom + ')';
+                e.preventDefault();
+            },
+            /**
+             * Return image position to default
+             * @param image - image node
+             * @param top - current "top" style
+             * @param left - current "left" style
+             */
+            returnImageToZeroPosition: function (image, top, left) {
+                // How many steps left to reach 0 ?
+                var steps = (this.zoom - this.minZoom) / this.step;
+                // Decrease distance to the zero point.
+                image.style.top = (top - (Math.round(top / steps))) + 'px';
+                image.style.left = (left - (Math.round(left / steps))) + 'px';
+                // Refit image position if zoom equals to min zoom value.
+                if (this.zoom == this.minZoom) {
+                    image.style.top = '0px';
+                    image.style.left = '0px';
+                }
+            },
+            /**
+             * When mouse was pressed while
+             * cursor was located on image
+             * @param e
+             */
+            mouseDown: function (e) {
+                if(this.stickerCatch) return;
+                var target = this.$$('#item');
+                this.pressed = true;
+                // Save page positions
+                this.pageY = e.pageY;
+                this.pageX = e.pageX;
+                // Save top\left "cords"
+                this.top = parseInt(target.style.top) || 0;
+                this.left = parseInt(target.style.left) || 0;
+                // Forbid transitions (using on mouse wheel down scrolling)
+                target.classList.add('no-transitions');
+            },
+            /**
+             * Drag image after mouse moves.
+             * @param e
+             */
+            mouseMove: function (e) {
+                if (!this.pressed) return false;
+                this.moved = true;
+                // Take target
+                var target = this.$$('#item');
+                // Horizontal
+                var canMoveLeft = target.getBoundingClientRect().left < this.horizontalRestriction;
+                var canMoveRight = target.getBoundingClientRect().right > window.innerWidth - this.horizontalRestriction;
+                var deltaX = (e.pageX - this.pageX);
+                if ((!canMoveLeft && deltaX > 0) || (!canMoveRight && deltaX < 0)) {
+                    this.pageX = e.pageX;
+                    this.left = parseInt(target.style.left) || 0;
+                }
+                // Define direction of restriction.
+                var canMoveX = deltaX < 0 ? canMoveRight : canMoveLeft;
+                // Vertical
+                var canMoveTop = target.getBoundingClientRect().top < this.verticalRestriction;
+                var canMoveBottom = target.getBoundingClientRect().bottom > window.innerHeight + this.verticalRestriction;
+                var deltaY = (e.pageY - this.pageY);
+                if ((!canMoveTop && deltaY > 0) || (!canMoveBottom && deltaY < 0)) {
+                    this.pageY = e.pageY;
+                    this.top = parseInt(target.style.top) || 0;
+                }
+                // Define direction of restriction.
+                var canMoveY = deltaY < 0 ? canMoveBottom : canMoveTop;
+                // Move
+                if (canMoveY) target.style.top = this.top + deltaY + 'px';
+                if (canMoveX) target.style.left = this.left + deltaX + 'px';
+            },
+            /**
+             * After mouse button had released change states
+             * and decline transition hiding
+             * @param e
+             */
+            mouseUp: function (e) {
+                var target = this.$$('#item');
+                target.classList.remove('no-transitions');
+                this.pressed = false;
+                this.async(function(){this.moved = false;},10);
+            },
+            /**
+             * To prevent some negative effects of
+             * unexpected mouse leaving - make following.
+             * @param e
+             */
+            mouseLeave: function (e) {
+                var target = this.$$('#item');
+                this.pressed = false;
+                target.classList.remove('no-transitions');
+            },
+            /**
+             * When image has loaded we have to hide loading bar.
+             * @param e
+             */
+            imageHasLoaded: function (e) {
+                e.model.file.hadLoaded = true;
+                e.target.classList.add('cancel-loading');
+            },
+            /**
+             * Get extension of the file
+             */
+            getExtension: function (name) {
+                if (!name) return null;
+                var splitter = name.split('.');
+                var ext = '.' + splitter[splitter.length - 1];
+                return ext;
+            },
+            /**
+             * Get extension of the file without dot
+             */
+            getExtensionWithoutDot: function (name) {
+                if (!name) return null;
+                var splitter = name.split('.');
+                var ext = splitter[splitter.length - 1];
+                return ext;
+            },
+            /**
+             * We should define whether file could be displayed or not.
+             * @param name
+             */
+            canBeDisplayed: function (file) {
+                if (!file.data) return false;
+                var name = file.data.name;
+                var ext = this.getExtension(name);
+                return this.canBeDisplayedExt.indexOf(ext.toLowerCase()) != -1 || file.preview;
+            },
+            /**
+             * Whether file locked?
+             */
+            whetherLocked: function (acl, lock) {
+                return !(!this.isOwner() && lock);
+            },
+            /**
+             * If image wasn't loaded
+             * @param e
+             */
+            imageError: function (e) {
+                e.model.file.path
+            },
+            /**
+             * Remove file.
+             * Fire special event because it will be more
+             * convenient to handle this operation out from here
+             */
+            removeFile: function () {
+                var file = this.files[this.selected];
+                this.beforeRemoving();
+                if (!(this.files.length - 1)) this.close();
+                this.dispatch('$updateFile', file._id, {removed: true}).then(function () {
+                    this.showUndoMessage('File was removed successfuly.', {"#FILE#": file.data.name});
+                }.bind(this)).catch(this.manageErrorResponse.bind(this));
+            },
+            /**
+             * Lock\unlock file.
+             * Fire event and handle it inside the gallery
+             */
+            lockFile: function () {
+                var file = this.files[this.selected];
+                this.dispatch('$updateFile', file._id, {locked: !file.locked}).then(function () {
+                    //this.showMessage('File "#FILE#" was updated successfuly.',{"#FILE#":file.data.name});
+                }.bind(this)).catch(this.manageErrorResponse.bind(this));
+            },
+            /**
+             * To prevent empty gallery screen!
+             * We are watching current folder, because before removing is method
+             * which subscribed on all of folders.
+             */
+            beforeRemoving: function (e) {
+                // Define certain folder
+                if (this.selected == (this.files.length - 1) && this.selected != 0) {
+                    this.entryAnimation = '';
+                    this.exitAnimation = '';
+                    this.selected = this.selected - 1 >= 0 ? this.selected - 1 : this.selected;
+                }
+            },
+            /**
+             * Download file. Right from gallery.
+             */
+            downloadFile: function () {
+                window.open(this.files[this.selected].data.url.replace("#SERVER#", Designmap.config.apiURL));
+            },
+            /**
+             * Can user lock file?
+             * @param acl
+             * @returns {boolean}
+             */
+            canUserLock: function (acl) {
+                return this.isOwner();
+            },
+            /**
+             * Fetch folder path
+             * @param file
+             */
+            getFolder: function () {
+                return this.folder
+            },
+            /**
+             * Toggle description panel
+             */
+            toggleDescPanel: function () {
+                if (this.$$('#descScroller')) this.async(function () {
+                    this.$$('#descScroller').calculate();
+                }, 50);
+                this.$.desc.toggle();
+            },
+            /**
+             * Compute classes for description button
+             * @returns {string}
+             */
+            computePinClasses: function () {
+                return this.$.desc.opened ? 'opened description-button' : 'description-button';
+            },
+            /**
+             * Compute classes for description button
+             * @returns {string}
+             */
+            computePhantomClasses: function () {
+                return this.$.desc.opened ? 'opened phantom-button' : 'phantom-button';
+            },
+            /**
+             * Save description
+             */
+            saveDescription: function () {
+                var file = this.files[this.selected];
+                this.dispatch('$updateFile', file._id, {description: this.$$('#descArea').$.textarea.value}).then(function () {
+                    this.showUndoMessage('Description was updated.');
+                }.bind(this)).catch(this.manageErrorResponse.bind(this));
+            },
+            /**
+             * Setup description for certain file
+             * @param selected
+             * @returns {*|fileSchema.description|{type, default}|string|string|null}
+             */
+            descriptionState: function (selected, files) {
+                return this.files[selected] ? this.files[selected].description : '';
+            },
+            /**
+             * Should we draw description button?!
+             * @param acl - acl entity
+             * @param selected - current selected file
+             * @param splices - file splices
+             * @returns {*}
+             */
+            descriptionButtonState: function (acl, selected) {
+                return this.isOwner() || (this.files[selected] && this.files[selected].description);
+            },
+            /**
+             * Compute stickers count
+             * @param selected
+             * @returns {number}
+             */
+            computeStickersCount: function (selected) {
+                var file = this.files[selected];
+                if (!this.stickers || !file) return 0;
+                return this.stickers.filter(function (sticker) {
+                    return sticker.file == file._id;
+                }).length;
+            },
+            /**
+             * Compute file url
+             * @param file
+             * @returns {*}
+             */
+            computeFileSrc: function (file) {
+                return file.preview ? file.preview.url : file.data.url.replace('#SERVER#', Designmap.config.apiURL);
+            },
+            /**
+             * Compute file title by name
+             * @param file
+             * @returns {*}
+             */
+            computeFileTile: function (file) {
+                return file.data.name;
+            },
+            /**
+             * Compute id of image
+             * @param selected
+             * @returns {string}
+             */
+            computeID: function (selected) {
+                return 'item-' + selected;
+            },
+            /**
+             * Zoom in on button
+             * @returns {number}
+             */
+            zoomIn: function () {
+                this.zoom += this.step;
+                if (this.zoom > this.maxZoom) return this.zoom = this.maxZoom;
+                var target = this.$$('#item');
+                target.style.transform = 'scale(' + this.zoom + ')';
+            },
+            /**
+             * Zoom out on button
+             * @returns {number}
+             */
+            zoomOut: function () {
+                this.zoom -= this.step;
+                if (this.zoom < this.minZoom) return this.zoom = this.minZoom;
+                var target = this.$$('#item');
+                target.style.transform = 'scale(' + this.zoom + ')';
+                // Get current position of image
+                var top = parseInt(target.style.top);
+                var left = parseInt(target.style.left);
+                // Down to zero
+                this.returnImageToZeroPosition(target, top, left);
+            },
+            _computeButtons: function (files) {
+                return this.files.length <= 1;
+            },
+            _computeFileName: function (file, filesLength) {
+                return (this.files.indexOf(file) + 1) + '/' + filesLength + ' ' + this.cutFileName(file)
+            },
+            _computeStickersClass: function (stickerMode) {
+                return stickerMode ? 'hide' : '';
+            }
+        });
+    </script>
+</dom-module>

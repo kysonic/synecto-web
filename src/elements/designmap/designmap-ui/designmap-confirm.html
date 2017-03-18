@@ -12,9 +12,11 @@
             paper-dialog {
                 z-index: 120 !important;
                 white-space: normal;
+                @apply(--designmap-confirm-paper-dialog-mixin);
             }
             paper-dialog .content {
                 max-width: 320px;
+                min-width: 320px;
                 margin: 0 !important;
                 color: var(--white-color);
                 padding: 20px;
@@ -98,7 +100,7 @@
                 },
                 language: {
                     type: String,
-                    computed: '_computeLanguage(user.language)'
+                    computed: '_computeLanguage(user.system.language)'
                 },
                 alertYes: Boolean,
                 icon: {

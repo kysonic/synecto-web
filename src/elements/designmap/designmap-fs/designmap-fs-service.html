@@ -9,7 +9,11 @@
      */
     createProject: function(projectName){
       this.dispatch('createProject', {name: projectName})
-        .then(function() {
+        .then(function(response) {
+            if(!response.success) {
+                this.loading = false;
+                return this.manageErrorResponse(response);
+            }
             this.showMessage('Project was created successful');
         }.bind(this)).catch(function(err){
             this.loading = false;
@@ -181,6 +185,34 @@
               }
           }
           return filesWereLoaded;
+      },
+      findStickerById: function(id){
+          var found = null;
+          ReduxStore.getState().stickers.forEach(function(sticker,index){
+              if(sticker._id==id) found = sticker;
+          },this);
+          return found;
+      },
+      findStickerIndexById: function(id){
+          var found = null;
+          ReduxStore.getState().stickers.forEach(function(sticker,index){
+              if(sticker._id==id) found = index;
+          },this);
+          return found;
+      },
+      findCommentById: function(id){
+          var found = null;
+          ReduxStore.getState().comments.forEach(function(comment,index){
+              if(comment._id==id) found = comment;
+          },this);
+          return found;
+      },
+      findCommentIndexById: function(id){
+          var found = null;
+          ReduxStore.getState().comments.forEach(function(comment,index){
+              if(comment._id==id) found = index;
+          },this);
+          return found;
       },
       /**
        * Find certain folder by some criteria.

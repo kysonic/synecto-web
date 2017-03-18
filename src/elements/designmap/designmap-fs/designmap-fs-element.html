@@ -1,4 +1,5 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-image/iron-image.html">
 <link rel="import" href="./designmap-fs-service.html">
 
 <dom-module is="designmap-fs-element">
@@ -17,6 +18,9 @@
                 --fs-element-text: var(--gray-darky-color);
                 --fs-folder-color: var(--gray-lighty-color);
                 --fs-folder-line-color: var(--gray-saturate-color);
+
+                --iron-image-width: 100%;
+                --iron-image-height: 100%;
             }
 
             .element {
@@ -56,14 +60,6 @@
                 text-align: center;
             }
 
-            .element .content img {
-                width: 100%;
-            }
-
-            .element .content img.portrait {
-                height: 100%;
-                width: auto;
-            }
 
             .element .label {
                 width: 45%;
@@ -99,8 +95,7 @@
             <div class$="label [[item.type]]"></div>
             <div class$="content [[item.type]]" on-click="selectElement" on-contextmenu="openContextMenu" data-hint$="[[item.type]]" data-id$="[[item._id]]">
                 <template is="dom-if" if="[[shouldViewImage(item)]]">
-                    <img class$="[[item.orientation]]" src="[[computeImageSource(item)]]">
-                    <!--<div class="type">[[getExtensionWithoutDot(item.data.name)]]</div>-->
+                    <iron-image class$="[[item.orientation]]" src="[[computeImageSource(item)]]" />
                 </template>
             </div>
             <div class="name">[[getElementName(item)]]</div>
@@ -147,7 +142,7 @@
                 },
                 language: {
                     type: String,
-                    computed: '_computeLanguage(user.language)'
+                    computed: '_computeLanguage(user.system.language)'
                 },
                 /**
                  * Language was loaded

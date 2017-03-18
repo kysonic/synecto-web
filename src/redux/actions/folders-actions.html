@@ -62,7 +62,7 @@
           var promise = xhr.post(Designmap.config.apiURL+'folder/', {path:folder.path,data:folder,projectID:state.project._id});
           promise.then(function(response){
             if(!response.success) throw new Error(response.errors.message);
-            Designmap.fsScoket.emit('createFolder',{type:'ADD_FOLDER',data:response.folder,uid:Designmap.uid});
+            Designmap.projectSocket.emit('action',{type:'ADD_FOLDER',data:response.folder,uid:Designmap.uid});
             dispatch({type:'UPDATE_FOLDER',data:response.folder,index:this.findFolderIndexById(folder._id)});
           }.bind(this)).catch(function(err){
             var index = this.findFolderIndexById(folder._id);
@@ -106,7 +106,7 @@
           promise.then(function(response){
             if(!response.success) throw new Error(response.errors.message);
             if(data.name) this.updatePaths(path,historyData.name,data.name);
-            Designmap.fsScoket.emit('updateFolder',{type:'UPDATE_FOLDER',data:response.folder,index:this.findFolderIndexByPath(this.getFullPath(response.folder)),uid:Designmap.uid});
+            Designmap.projectSocket.emit('action',{type:'UPDATE_FOLDER',data:response.folder,index:this.findFolderIndexByPath(this.getFullPath(response.folder)),uid:Designmap.uid});
             dispatch({type:'UPDATE_FOLDER',data:response.folder,index:this.findFolderIndexByPath(this.getFullPath(response.folder))});
           }.bind(this)).catch(function(err){
             // Return old values
@@ -139,12 +139,18 @@
           var promise = xhr.delete(Designmap.config.apiURL+'folder/', {path:path,projectID:state.project._id});
           promise.then(function(response){
             if(!response.success) throw new Error();
-            Designmap.fsScoket.emit('deleteFolder',{type:'REMOVE_FOLDER',index: index,uid:Designmap.uid});
+            Designmap.projectSocket.emit('action',{type:'REMOVE_FOLDER',index: index,uid:Designmap.uid});
           }.bind(this)).catch(function(err){
             dispatch({type:'ADD_FOLDER',data:historyData});
           }.bind(this));
           return promise;
         }.bind(this);
+      },
+      updateFolderId: function(folderId) {
+          return {
+              type: "UPDATE_FOLDER_ID",
+              folderId: folderId
+          }
       }
     }
   }

@@ -1,0 +1,116 @@
+<script>
+    Polymer.CommentsActions = {
+        actions: {
+            /**
+             * Get all Comments for certain project from the server
+             * @returns {function(this:Polymer.FoldersActions)}
+             */
+            getComments: function (query) {
+                return function (dispatch) {
+                    var state = ReduxStore.getState();
+                    var promise = xhr.get(Designmap.config.apiURL + 'comment/' + this.objectToQueryString(query));
+                    promise.then(function (response) {
+                        if (!response.success) return;
+                        dispatch({type: 'SET_COMMENTS', comments: response.comments});
+                    });
+                    return promise;
+                }.bind(this)
+            },
+            /**
+             * Update Comments bunch
+             * @param strickers
+             * @returns {{type: string, folders: *}}
+             */
+            setComments: function (strickers) {
+                return {
+                    type: 'SET_COMMENTS',
+                    Comments: strickers
+                }
+            },
+            /**
+             * Clean folders bunch
+             */
+            cleanComments: function () {
+                return {
+                    type: 'CLEAN_COMMENTS'
+                }
+            },
+            addComment: function (data) {
+                return function (dispatch) {
+                    dispatch({type: 'ADD_COMMENT', data: data});
+                    var promise = xhr.post(Designmap.config.apiURL + 'comment/', {data: data});
+                    var owner = data.owner;
+                    promise.then(function (response) {
+                        if (!response.success) throw new Error(response.errors.message);
+                        // Save Comment owner data to avoid population
+                        response.comment.owner = owner;
+                        dispatch({
+                            type: 'UPDATE_COMMENT',
+                            data: response.comment,
+                            index: this.findCommentIndexById(data._id)
+                        });
+                        //real time
+                        this.socket.emit('action', {type: 'ADD_COMMENT', data: response.comment, uid: Designmap.uid});
+                    }.bind(this)).catch(function (err) {
+                        var index = this.findCommentIndexById(data._id);
+                        dispatch({type: 'REMOVE_COMMENT', index: index});
+                    }.bind(this));
+                    return promise;
+                }.bind(this)
+            },
+            /**
+             * Update Comment
+             * @param id - Comment id
+             * @param data - data to extend current Comment
+             */
+            updateComment: function (id, data) {
+                var historyData = this.findCommentById(id);
+                return function (dispatch) {
+                    var state = ReduxStore.getState();
+                    dispatch({type:'UPDATE_COMMENT',data:data,index:this.findCommentIndexById(id)});
+                    var promise = xhr.put(Designmap.config.apiURL + 'comment/' + id, {
+                        data: data,
+                        project: historyData.project
+                    });
+                    promise.then(function (response) {
+                        if (!response.success) throw new Error(response.errors.message);
+                        response.comment.owner = historyData.owner;
+                        dispatch({type:'UPDATE_COMMENT',data:response.comment,index:this.findCommentIndexById(id)});
+                        // Real time
+                        this.socket.emit('action', {type: 'UPDATE_COMMENT', data: response.comment, index: this.findCommentIndexById(id), uid: Designmap.uid});
+                    }.bind(this)).catch(function () {
+                        dispatch({type:'UPDATE_COMMENT',data:historyData,index:this.findCommentIndexById(id)});
+                    }.bind(this));
+                    return promise;
+                }.bind(this);
+            },
+            /**
+             * Update Comment without saving
+             */
+            _updateComment: function (id, data) {
+                return {type: 'UPDATE_COMMENT', data: data, index: this.findCommentIndexById(id)};
+            },
+            /**
+             * Remove Comment
+             * @returns {function(this:Polymer.FoldersActions)}
+             */
+            removeComment: function (id) {
+                return function (dispatch) {
+                    var state = ReduxStore.getState();
+                    var index = this.findCommentIndexById(id);
+                    var historyData = this.findCommentById(id);
+                    dispatch({type: 'REMOVE_COMMENT', index: index});
+                    var promise = xhr.delete(Designmap.config.apiURL + 'comment/' + id, {project: historyData.project});
+                    promise.then(function (response) {
+                        if (!response.success) throw new Error();
+                        // Real time
+                        this.socket.emit('action', {type: 'REMOVE_COMMENT', index: index, uid: Designmap.uid});
+                    }.bind(this)).catch(function () {
+                        dispatch({type: 'ADD_COMMENT', data: historyData});
+                    }.bind(this));
+                    return promise;
+                }.bind(this);
+            }
+        }
+    }
+</script>

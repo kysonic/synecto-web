@@ -1,0 +1,13 @@
+<script>
+    Reducers.FolderIdReducer = function(state,action) {
+        if(!state) state = null;
+        switch(action.type) {
+            case "UPDATE_FOLDER_ID":
+                return action.folderId;
+                break;
+            default:
+                return state;
+                break;
+        }
+    }
+</script>

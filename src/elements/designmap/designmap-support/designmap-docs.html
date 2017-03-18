@@ -1,0 +1,363 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+
+<link rel="import" href="../../../styles/context-menu-shared-styles.html">
+<link rel="import" href="../../plastic/plastic-custom-scroll.html">
+<link rel="import" href="../designmap-buttons/designmap-circle-button.html">
+<link rel="import" href="../designmap-buttons/designmap-round-button.html">
+<link rel="import" href="../designmap-icons/designmap-support-icons.html">
+<link rel="import" href="../designmap-ui/designmap-context-menu.html">
+<link rel="import" href="../designmap-ui/designmap-dashboard.html">
+
+<dom-module id="designmap-docs">
+    <template>
+        <style include="context-menu-shared-styles">
+            :host {
+                --plastic-custom-scroll-bar-mixin: {
+                    margin-left: 10px;
+                };
+                --designmap-circle-button-circle-mixin: {
+                    stroke-width: 2px !important;
+                    stroke: var(--blue-darky-color) !important;
+                };
+
+                --designmap-circle-button-content-icon-mixin: {
+                    padding: 1px 0;
+                    width: 100%;
+                    height: 100%;
+                };
+
+                color: var(--gray-darky-color);
+            }
+
+            .content {
+                margin: 0 auto;
+                width: 100%;
+                max-width: 750px;
+            }
+
+            .doc .title {
+                font-size: 30px;
+                margin: 10px 0;
+                text-align: center;
+                font-weight: 300;
+            }
+
+            .doc .text {
+                /* text-indent: 10px;*/
+            }
+
+            .center {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .loading {
+                width: 100%;
+                height: 60px;
+                margin-top: 5px;
+                background: url('/images/svg/three-dots-gray.svg') center no-repeat;
+            }
+            .docs {
+                user-select: none;
+            }
+            .docs ul {
+                list-style: none;
+            }
+
+            /** Context Content **/
+            .context-content {
+                min-width: 200px;
+                display: flex;
+                align-items: center;
+                padding: 0 10px;
+            }
+
+            .context-content paper-input {
+                position: relative;
+                bottom: 15px;
+                flex: 3;
+            }
+
+            .context-content .button-container {
+                flex: 1;
+                display: flex;
+                justify-content: flex-end;
+            }
+
+            .context-content .button-container button {
+                background: transparent;
+                transition: background .2s;
+            }
+
+            .context-content .button-container button:hover {
+                background: var(--blue-lighty-color);
+                transition: background .2s;
+            }
+
+            /** MENU **/
+            designmap-context-menu .menu {
+                margin: 0;
+                padding: 0;
+                list-style: none;
+                width: 200px;
+            }
+
+            designmap-context-menu .menu li {
+                padding: 10px;
+                text-align: left;
+                cursor: pointer;
+                font-size: 14px;
+                transition: background .2s ease-out;
+                color: var(--white-color);
+            }
+
+            designmap-context-menu .menu li:hover {
+                background: var(--blue-super-dark-color);
+                transition: background .2s ease-in;
+            }
+
+            designmap-context-menu .menu li.disabled {
+                opacity: 0.3;
+            }
+
+            .marked {
+                background: #ffadea;
+            }
+
+
+        </style>
+        <iron-ajax id="ajax"
+                   url="{{messagesUrl}}"
+                   handle-as="json"
+                   on-response="_handleResponse"></iron-ajax>
+
+        <div class="wrapper" id="wrapper">
+            <designmap-dashboard back back-url="/support/">
+                <div class="center">
+                    <div class="title">
+                        <i18-n msgid="Docs">Docs</i18-n>
+                    </div>
+
+                    <designmap-circle-button data-cls="blue" x-tooltip$="[[translate('Chapters',language,i18Loaded)]]"
+                                             class="hide-on-mobile" on-click="openChapters">
+                        <iron-icon class="src" icon="designmap-docs:chapters"></iron-icon>
+                    </designmap-circle-button>
+                    <designmap-context-menu id="ChapterDialog" target="[[wrapper]]"
+                                            animation-on="[[user.config.animationOn]]">
+                        <div class="menu">
+                            <template is="dom-repeat" items="[[computeItems(language,store.*)]]" as="item">
+                                <li class="item" on-click="goToChapter">[[item.title]]</li>
+                            </template>
+                        </div>
+                    </designmap-context-menu>
+
+                    <designmap-circle-button data-cls="blue" x-tooltip$="[[translate('Search',language,i18Loaded)]]"
+                                             class="hide-on-mobile" id="buttonSearch" on-click="openSearch">
+                        <iron-icon class="src" icon="designmap-docs:search"></iron-icon>
+                    </designmap-circle-button>
+                    <designmap-context-menu id="searchDialog" on-close="closeContext" target="[[wrapper]]"
+                                            animation-on="[[user.config.animationOn]]">
+                        <div class="context-content">
+                            <iron-a11y-keys id="a11yAddFolder" keys="enter" target="[[this.$.searchInput]]"
+                                            on-keys-pressed="search"></iron-a11y-keys>
+                            <paper-input label="[[translate('Search',language,i18Loaded)]]" id="searchInput"></paper-input>
+                            <div class="button-container">
+                                <button is="designmap-round-button" on-click="search">
+                                    <iron-icon icon="icons:arrow-forward"></iron-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </designmap-context-menu>
+
+                </div>
+                <!--<div class="right">
+                  <designmap-circle-button on-click="openContextMenu">
+                    <iron-icon class="menu" icon="designmap106x106:more"></iron-icon>
+                  </designmap-circle-button>
+                  <designmap-context-menu id="contextMenu" target="[[wrapper]]" animation-on="[[user.config.animationOn]]">
+                    <ul class="menu">
+                      <li on-click="openChapters"><i18-n msgid="Chapters"></i18-n></li>
+                      <li on-click="openSearch"><i18-n msgid="Search"></i18-n></li>
+                    </ul>
+                  </designmap-context-menu>
+                </div>-->
+            </designmap-dashboard>
+            <div class="content" id="content">
+                <div class="docs" hidden$="[[loading]]">
+                    <plastic-custom-scroll id="scroller" wheel-target="[[bodyNode]]" fit max-height="[[maxHeight]]">
+                        <template is="dom-repeat" items="[[getLanguageData(language,store.*)]]" as="doc">
+                            <div class="doc">
+                                <div class="title" data-code$="[[doc.code]]">[[doc.title]]</div>
+                                <div class="text" data-text$="[[doc.code]]">[[markUp(doc)]]</div>
+                            </div>
+                        </template>
+                    </plastic-custom-scroll>
+                </div>
+                <div class="loading" hidden$="[[!loading]]"></div>
+            </div>
+        </div>
+    </template>
+    <script>
+        var FIGURES = [
+            {
+                reg: /\*(.*)\*/g, replace: function (a, b) {
+                return '<b>' + b + '</b>';
+            }
+            }
+        ]
+        Polymer({
+            is: 'designmap-docs',
+            behaviors: [ReduxBehavior, Polymer.DesignMapMessagesBehavior, Polymer.IronResizableBehavior, Polymer.DesignMapUtilsBehavior],
+            properties: {
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)',
+                    observer: 'languageChanged'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    statePath: 'i18Loaded',
+                },
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                loading: {
+                    type: Boolean,
+                    value: false
+                },
+                store: {
+                    type: Object,
+                    value: {
+                        ru: null,
+                        en: null
+                    }
+                },
+                bodyNode: {
+                    type: Object,
+                    value: function () {
+                        return document.body
+                    }
+                },
+                wrapper: {
+                    type: Object,
+                    value: function () {
+                        return this.$.wrapper
+                    }
+                },
+                maxHeight: Number,
+                searchValue: {
+                    type: String,
+                    observer: 'searchValueChanged'
+                }
+            },
+            listeners: {
+                'iron-resize': 'onResize'
+            },
+            founded: [],
+            ready: function () {
+                /*this.async(function(){
+                 this.load();
+                 },1000);*/
+            },
+            load: function () {
+                if (this.language === 'null' || this.language === null) return;
+                if (this.store[this.language]) return;
+                var promise = xhr.get('/locales/doc_' + this.language + '.json');
+                this.loading = true;
+                promise.then(function (data) {
+                    this.set('store.' + this.language, data);
+                    this.async(function () {
+                        this.loading = false;
+                        this.$.scroller.calculate();
+                    }, 1000);
+                }.bind(this));
+            },
+            goBack: function () {
+                page.redirect('/support')
+            },
+            getLanguageData: function (language) {
+                return this.store[language];
+            },
+            markUp: function (doc) {
+                this.async(function () {
+                    this.$.scroller.querySelector('*[data-text="' + doc.code + '"]').innerHTML = marked(doc.text);
+                }, 50);
+                return doc.text;
+            },
+            onResize: function () {
+                this.maxHeight = window.innerHeight - 190;
+            },
+            languageChanged: function () {
+                this.load();
+            },
+            openChapters: function (e) {
+                this.$.ChapterDialog.toggle(e);
+            },
+            openSearch: function (e) {
+                this.$.searchDialog.toggle(e);
+            },
+            openContextMenu: function (e) {
+                this.$.contextMenu.toggle(e);
+            },
+            computeItems: function (language) {
+                return this.store && this.store[language] ? this.store[language].filter(function (item, key) {
+                        return /^\d{1}\. /.test(item.title);
+                    }) : [];
+            },
+            goToChapter: function (e) {
+                this.$.scroller.onTop();
+                var el = this.$.scroller.querySelector('*[data-code="' + e.model.item.code + '"]');
+                this.$.scroller.setScroll(el.getBoundingClientRect().top - 145);
+                this.$.ChapterDialog.close();
+            },
+            search: function () {
+                this.$.scroller.onTop();
+                // Clear
+                this.clearMarks();
+                // Pattern
+                var pattern = this.$.searchInput.value;
+                var docs = this.$.content.getElementsByClassName("doc");
+                var found = null;
+                for (var i = 0; i < docs.length; i++) {
+                    var p = docs[i].getElementsByTagName("p");
+                    for (var j = 0; j < p.length; j++) {
+                        var ep = p[j];
+                        if (ep.innerText.indexOf(pattern) != -1 && this.founded.indexOf(ep) == -1) {
+                            found = ep;
+                            this.founded.push(ep);
+                            break;
+                        }
+                    }
+                    if (found) break;
+                }
+                if (found) {
+                    found.innerHTML = found.innerHTML.replace(new RegExp(pattern, 'i'), '<span class="marked">' + pattern + '</span>');
+                    this.$.scroller.setScroll(found.getBoundingClientRect().top - 175);
+                } else {
+                    this.clearMarks(true);
+                }
+            },
+            clearMarks: function (drop) {
+                this.founded.forEach(function (ep) {
+                    var marked = ep.querySelector('.marked');
+                    if (marked) {
+                        var pattern = marked.innerHTML;
+                        ep.innerHTML = ep.innerHTML.replace(new RegExp('\<span class=\"marked\"\>' + pattern + '\<\/span\>', 'i'), pattern);
+                    }
+                });
+                if (drop) this.founded = [];
+            },
+            searchValueChanged: function () {
+                this.clearMarks(true);
+            },
+            closeContext: function () {
+                this.clearMarks(true);
+            }
+        })
+    </script>
+</dom-module>

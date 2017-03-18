@@ -64,7 +64,8 @@
         translate: function(msg,language,i18Loaded) {
           if(!msg) return msg;
           //this.i18nDomain = this.i18nDomain || document.querySelector('designmap-app').$.i18nDomain;
-          return !this.i18nDomain ? msg : this.i18nDomain.getMsg(msg) || msg;
+          const i18nDomain = document.querySelector('designmap-app').$.i18nDomain;
+          return !i18nDomain ? msg : i18nDomain.getMsg(msg) || msg;
         },
         /**
          * Compute language
@@ -73,7 +74,8 @@
          * @private
          */
         _computeLanguage: function(language){
-            return language || 'ru';
+            const browserLanguage = (window.navigator.browserLanguage || window.navigator.language || window.navigator.userLanguage).substr(0,2);
+            return language || browserLanguage;
         },
         /**
          * Manage not successful response

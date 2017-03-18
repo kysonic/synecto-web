@@ -1,11 +1,18 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../../styles/context-menu-shared-styles.html">
+<link rel="import" href="../../../styles/lock-shared-styles.html">
+<link rel="import" href="../designmap-fs/designmap-fs-service.html">
 <!-- Redux -->
 <link rel="import" href="../../../redux/actions/combine-actions.html">
 <link rel="import" href="../../../redux/actions/user-actions.html">
 <link rel="import" href="../../../redux/actions/project-actions.html">
 
+<link rel="import" href="./designmap-projects-list.html">
+
+<!-- icons:lock-outline -->
 <dom-module is="designmap-advanced-menu">
+    <style include="lock-shared-styles"></style>
     <style include="context-menu-shared-styles">
         :host {
             --designmap-circle-button-content-icon-mixin: {
@@ -26,6 +33,10 @@
             --designmap-advanced-menu-hoverd: var(--gray-lightern-color);
         }
 
+        *[hidden] {
+            display: none !important;
+        }
+
         designmap-circle-button {
             width: 50px;
             height: 50px;
@@ -36,6 +47,7 @@
             padding: 0;
         }
         ul li {
+            position: relative;
             display: flex;
             align-items: center;
             white-space: nowrap;
@@ -43,13 +55,22 @@
             transition: background .2s ease-in;
         }
 
-        ul.opened li:hover {
-            background: var(--gray-lightern-color) !important;
-            transition: background .2s ease-in;
+        ul li:hover .text{
+            color: var(--gray-super-dark) !important;
+            transition: color .2s ease-in;
         }
 
         ul li[disabled] {
             opacity: 0.6;
+        }
+        ul li .marker {
+            display: none;
+            opacity: 0.4;
+            position: relative;
+            top: 1px;
+        }
+        ul li.selected .marker{
+            display: block;
         }
 
         ul li designmap-circle-button, ul li .text, ul li designmap-paper-arrow-input {
@@ -58,43 +79,21 @@
 
         ul li .text {
             color: var(--advanced-menu-main-color);
-            margin-left: 5px;
             font-size: 16px;
             font-weight: 100;
             vertical-align: middle;
+            margin-left: 5px;
         }
 
-        ul li designmap-paper-arrow-input {
-            width: calc(100% - 70px);
-            position: relative;
-            bottom: 11px;
-            left: 5px;
-        }
-
-        :host(.opened) ul li:hover {
-            background: var(--designmap-advanced-menu-hoverd);
-            transition: background .2s ease-in;
-        }
-
-        designmap-dropdown {
-            --designmap-dropdown-mixin: {
-                background: var(--white-color);
-                border: 1px solid var(--gray-lighty-color);
-                padding: 0;
-                width: 290px;
-                max-width: 290px;
-                height: calc(100vh - 77px);
-            };
-            --designmap-dropdown-triangle-mixin: {
-                display: none;
-            }
+        paper-dialog {
+            min-width: 300px;
         }
 
         .trash-count {
             font-size: 14px;
             position: absolute;
             left: 21px;
-            top: 17px;
+            top: 16px;
             color: var(--advanced-menu-main-color);
         }
 
@@ -103,53 +102,132 @@
             height: 50px;
         }
 
+        ul.indented {
+            margin-left: 15px;
+        }
+
+        .icon-wrapper {
+            display: flex;
+            flex: 3;
+            height: 100%;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .project-menu {
+            width: 30px;
+            height: 30px;
+            transition: background .2s;
+        }
+
+        .project-menu:hover {
+            border-radius: 50%;
+            background: var(--gray-lightenest-color);
+            transition: background .2s;
+        }
+
+        .menu li {
+            justify-content: center;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            margin-left: 10px;
+            border-radius: 50%;
+            background: var(--gray-super-dark);
+        }
+
     </style>
     <template>
         <designmap-confirm id="removeProjectConfirm" message="AreYouSureThatYouWannaRemoveProject"
                            on-continue="removeIt" on-suspend="suspendRemoving"></designmap-confirm>
 
-        <ul class$="[[computeOpened(opened)]]">
+        <designmap-projects-list menu-mode hidden$="[[project._id]]"></designmap-projects-list>
+        <ul hidden$="[[!project._id]]">
             <!-- Context menu -->
-            <li on-click="goToTheProject" title$="[[translate('Project',language,i18Loaded)]]"
+            <li title$="[[translate('Project',language,i18Loaded)]]"
                 data-hint="task-manager-button">
                 <designmap-circle-button>
                     <iron-icon icon="designmap-workspace:project"></iron-icon>
                 </designmap-circle-button>
                 <div class="text">
-                    <i18-n msgid="Project">Project</i18-n>
+                    [[_computeProjectName(project.name)]]
+                </div>
+                <div class="icon-wrapper">
+                    <iron-icon class="project-menu" icon="designmap-workspace:more" on-click="openContext"></iron-icon>
+                    <!-- Context -->
+                    <designmap-context-menu id="projectContextMenu" previous>
+                        <ul class="menu">
+                            <li on-click="openRenameProjectContext">
+                                <i18-n msgid="Rename">Rename</i18-n>
+                            </li>
+                            <!-- Rename project -->
+                            <designmap-context-menu id="renameProjectContext" previous>
+                                <div class="context-content">
+                                    <iron-a11y-keys id="a11yAddFolder" keys="enter" on-keys-pressed="renameIt"></iron-a11y-keys>
+                                    <paper-input label$="[[translate('Project Name',language,i18Loaded)]]"
+                                                 value="{{project.name}}" auto-validate pattern="[\w\dа-яА-ЯёЁ -]+"
+                                                 error-message="[[translate('ProjectNameError',language,i18Loaded)]]"
+                                                 id="renameProject"></paper-input>
+                                    <div class="button-container">
+                                        <button is="designmap-round-button" on-click="renameIt">
+                                            <iron-icon icon="icons:arrow-forward"></iron-icon>
+                                        </button>
+                                    </div>
+                                </div>
+                            </designmap-context-menu>
+                            <li on-click="openRemoveProjectConfirm">
+                                <i18-n msgid="Remove">Remove</i18-n>
+                            </li>
+                        </ul>
+                    </designmap-context-menu>
+                    <!-- Context -->
                 </div>
             </li>
-            <li on-click="goToTaskManager" title$="[[translate('Task manager',language,i18Loaded)]]"
-                data-hint="task-manager-button"
-                disabled$="[[!shouldWeShowElements(selectedProjectID,projectLoading,projectError,role,user)]]">
-                <designmap-circle-button>
-                    <iron-icon icon="designmap-workspace:taskmanager"></iron-icon>
-                </designmap-circle-button>
-                <div class="text">
-                    <i18-n msgid="Task manager">Task manager</i18-n>
-                </div>
-            </li>
-            <li on-click="goToTrashBox" title$="[[translate('Trash',language,i18Loaded)]]" data-hint="trash-button"
-                disabled$="[[!shouldWeShowElements(selectedProjectID,projectLoading,projectError,role,user)]]">
-                <designmap-circle-button>
-                    <iron-icon icon="designmap-workspace:bin"></iron-icon>
-                    <div class="trash-count">[[trashLength]]</div>
-                </designmap-circle-button>
-                <div class="text">
-                    <i18-n msgid="Trash">Trash</i18-n>
-                </div>
-            </li>
-            <li on-click="openSharingDialog" title$="[[translate('Accesses',language,i18Loaded)]]"
-                data-hint="share-button"
-                disabled$="[[!shouldWeShowSharing(selectedProjectID,projectLoading,projectError,role,user)]]">
-                <designmap-circle-button>
-                    <iron-icon icon="designmap-workspace:link"></iron-icon>
-                </designmap-circle-button>
-                <div class="text">
-                    <i18-n msgid="Accesses">Accesses</i18-n>
-                </div>
-            </li>
-            <li class="empty"></li>
+            <ul class="indented" hidden$="[[!project._id]]">
+                <li on-click="goToTheProject" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class$="[[_computeSelectedItem(page,trashMode,'fs')]]">
+                    <designmap-circle-button>
+                        <iron-icon icon="designmap-workspace:project"></iron-icon>
+                    </designmap-circle-button>
+                    <div class="text">
+                       <i18-n msgid="Files">Files</i18-n>
+                    </div>
+                    <div class="marker dot"></div>
+                </li>
+                <li on-click="goToTrashBox" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class$="[[_computeSelectedItem(page,trashMode,'trash')]]" title$="[[translate('Trash',language,i18Loaded)]]" data-hint="trash-button">
+                    <designmap-circle-button>
+                        <iron-icon icon="designmap-workspace:bin"></iron-icon>
+                        <div class="trash-count">[[trashLength]]</div>
+                    </designmap-circle-button>
+                    <div class="text">
+                        <i18-n msgid="Trash">Trash</i18-n>
+                    </div>
+                    <div class="marker dot"></div>
+                </li>
+                <li on-click="goToTaskManager" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" title$="[[translate('Task manager',language,i18Loaded)]]"
+                    data-hint="task-manager-button"
+                    class="locked">
+                    <designmap-circle-button>
+                        <iron-icon icon="designmap-workspace:taskmanager"></iron-icon>
+                    </designmap-circle-button>
+                    <iron-icon hidde$="[[user.isPremium]]" class="locked-icon" icon="icons:lock-outline"></iron-icon>
+                    <div class="text">
+                        <i18-n msgid="Task manager">Task manager</i18-n>
+                    </div>
+                </li>
+                <li on-click="openSharingDialog" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" title$="[[translate('Accesses',language,i18Loaded)]]"
+                    data-hint="share-button">
+                    <designmap-circle-button>
+                        <iron-icon icon="designmap-workspace:link"></iron-icon>
+                    </designmap-circle-button>
+                    <iron-icon hidde$="[[user.isPremium]]" class="locked-icon" icon="icons:lock-outline"></iron-icon>
+                    <div class="text">
+                        <i18-n msgid="Accesses">Accesses</i18-n>
+                    </div>
+                </li>
+            </ul>
+
             <!--<li data-hint="rename-project" title$="[[translate('Rename project',language,i18Loaded)]]"
                 disabled$="[[!shouldWeShowSharing(selectedProjectID,projectLoading,projectError,role,user)]]"
                 on-click="openRenameMenu">
@@ -186,6 +264,9 @@
                 </div>
             </li>-->
         </ul>
+
+
+
         <!-- Sharing dialog -->
         <paper-dialog id="sharingDialog" cancel-auto-refit entry-animation="scale-up-animation"
                       exit-animation="scale-down-animation">
@@ -199,6 +280,7 @@
             behaviors: [
                 Polymer.DesignMapMessagesBehavior,
                 Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapFsService,
                 ReduxBehavior,
                 Polymer.CombineActions(Polymer.ProjectActions, Polymer.UserActions)
             ],
@@ -213,13 +295,7 @@
                 },
                 language: {
                     type: String,
-                    computed: '_computeLanguage(user.language)'
-                },
-                opened: {
-                    type: Boolean,
-                    value: false,
-                    notify: true,
-                    observer: 'openedChanged'
+                    computed: '_computeLanguage(user.system.language)'
                 },
                 project: {
                     type: Object,
@@ -232,6 +308,14 @@
                 projectId: {
                     type: String,
                     statePath: 'projectId'
+                },
+                page: {
+                    type: String,
+                    value: null
+                },
+                trashMode: {
+                    type: String,
+                    statePath: 'trashMode'
                 },
                 trashLength: {
                     type: Number,
@@ -247,8 +331,8 @@
                     }
                 }
             },
-            listeners: {
-                'close-project-list': 'closeProjectList'
+            ready: function(){
+
             },
             openProjectList: function (e) {
                 this.$.projectList.toggle(e);
@@ -257,6 +341,7 @@
                 page.redirect('/'+(this.projectId||''));
             },
             goToTaskManager: function (e) {
+                if(!this.user.isPremium) return this.showMessage('Subscribe on premium');
                 if (e.currentTarget.getAttribute('disabled') != undefined) return this.showErrorMessage('You do not have access to make it');
                 this.redirect('/task-manager/');
             },
@@ -264,30 +349,10 @@
                 if (e.currentTarget.getAttribute('disabled') != undefined) return this.showErrorMessage('You do not have access to make it');
                 page.redirect('/'+this.projectId+'/trash');
             },
-            openedChanged: function (opened) {
-                this.classList[opened ? 'add' : 'remove']('opened');
-            },
-            closeProjectList: function () {
-                this.$.projectList.opened = false;
-            },
-            openProjectCreator: function () {
-                this.opened = true;
-                this.async(function () {
-                    this.$.projectName.$.input.focus();
-                }, 100);
-            },
             openSharingDialog: function (e) {
+                if(!this.user.isPremium) return this.showMessage('Subscribe on premium');
                 if (e.currentTarget.getAttribute('disabled') != undefined) return this.showErrorMessage('You do not have access to make it');
                 this.$.sharingDialog.open();
-            },
-            openCreateProjectPopup: function () {
-                this.$.projectFormDialog.open();
-            },
-            shouldWeShowElements: function (project) {
-                return project;
-            },
-            shouldWeShowSharing: function (project) {
-                return project;
             },
             openRenameMenu: function (e) {
                 if (e.currentTarget.getAttribute('disabled') != undefined) return this.showErrorMessage('You do not have access to make it');
@@ -297,11 +362,11 @@
                 }, 150);
             },
             renameIt: function (e) {
-                if (e.currentTarget.disabled) return;
                 // Validation
                 if (!this.project.name) return this.showErrorMessage('Name can\'t be empty.');
                 // Close
                 this.$.renameProjectContext.close();
+                this.async(function(){this.$.projectContextMenu.close();},100);
                 // Fire event
                 this.renameProject(this.project._id, this.project.name);
             },
@@ -314,7 +379,12 @@
              */
             removeIt: function () {
                 this.$.removeProjectConfirm.close();
-                this.removeProject(this.project._id);
+                this.async(function(){this.$.projectContextMenu.close();},100);
+                this.dispatch('removeProject',this.project._id).then(function () {
+                    this.fire('close-project-list');
+                    if(this.projects && this.projects[0]) return page.redirect('/'+this.projects[0]._id);
+                    page.redirect('/');
+                }.bind(this));
             },
             /**
              * Cancel project removing
@@ -322,8 +392,36 @@
             suspendRemoving: function () {
                 this.$.removeProjectConfirm.close();
             },
-            computeOpened: function (opened) {
-                return opened ? 'opened' : '';
+            _computeProjectName: function(name){
+                return name || '';
+            },
+            /**
+             * Open context for
+             * current selected project
+             */
+            openContext: function (e) {
+                this.$.projectContextMenu.toggle(e);
+            },
+            openRenameProjectContext: function (e) {
+                this.$.renameProjectContext.toggle(e);
+                this.async(function () {
+                    this.$.renameProject.focus()
+                }, 150);
+            },
+            openRemoveProjectConfirm: function (e) {
+                this.$.removeProjectConfirm.open();
+            },
+            _computeSelectedItem: function (page,trashMode,name) {
+                if(trashMode) page = 'trash';
+                return page==name?'selected':'';
+            },
+            _mouseOver: function(e){
+                const target = e.currentTarget;
+                target.querySelector('designmap-circle-button').classList.add('hovered');
+            },
+            _mouseLeave: function(e){
+                const target = e.currentTarget;
+                target.querySelector('designmap-circle-button').classList.remove('hovered');
             }
         });
     </script>

@@ -1,0 +1,57 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../redux/actions/notifications-actions.html">
+
+<script>
+    Polymer.DesignmapNotificationsBehavior = {
+        /**
+         * When user is changed
+         * update notifications collection
+         */
+        _isAuthChanged: function () {
+            if (!this.user) return;
+            this.dispatch('getNotifications', {recipient: this.user._id});
+            this.setupSocket();
+        },
+        _computeIsAuth: function(user){
+            return user && user._id;
+        },
+        /**
+         * Setup socket for notification
+         */
+        setupSocket: function () {
+            if (this.socket) this.socket.disconnect();
+            if (!this.socket) {
+                // Connect to appropriate room created specially for this project.
+                this.socket = io.connect(Designmap.config.apiURL, {query: 'room=' + this.user._id});
+                this.setupSocketSubscribers();
+            } else {
+                // Change room
+                this.socket.io.opts.query = 'room=' + this.user._id;
+                this.socket.connect();
+            }
+        },
+        /**
+         * Subscribers
+         */
+        setupSocketSubscribers: function () {
+            this.socket.on('connect', function () {
+                console.log('DesignMap notification socket is connected. Room = ' + this.user._id);
+            }.bind(this));
+
+            this.socket.on('notify', function (o) {
+                this.dispatch('_addNotification', o);
+                this.notify(o.text.message, o.type, o.text.replacement, o.sender, 20000);
+            }.bind(this));
+        },
+        /**
+         * Create notification
+         * @param data
+         */
+        createNotification: function (data) {
+            this.dispatch('addNotification', data).then(function (response) {
+                response.notification.sender = this.user;
+                this.socket.emit('notify', response.notification);
+            }.bind(this));
+        }
+    }
+</script>

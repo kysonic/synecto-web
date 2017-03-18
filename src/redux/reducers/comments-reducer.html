@@ -1,0 +1,28 @@
+<script>
+    Reducers.CommentsReducer = function(state,action) {
+        if(!state) state = [];
+        switch(action.type) {
+            case "ADD_COMMENT":
+                return state.concat([action.data]);
+                break;
+            case "REMOVE_COMMENT":
+                return state.slice(0,action.index)
+                    .concat(state.slice(action.index+1));
+                break;
+            case "UPDATE_COMMENT":
+                return state.slice(0,action.index)
+                    .concat([Object.assign({},state[action.index],action.data)])
+                    .concat(state.slice(action.index+1));
+                break;
+            case "SET_COMMENTS":
+                return state.concat(action.comments);
+                break;
+            case "CLEAN_COMMENTS":
+                return [];
+                break;
+            default:
+                return state;
+                break;
+        }
+    }
+</script>

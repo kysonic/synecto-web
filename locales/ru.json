@@ -41,6 +41,9 @@
   "ReturnToTheLogin": {
     "message": "Вернуться к форме "
   },
+  "GoToTheLogin": {
+    "message": "Перейти к форме "
+  },
   "Authorization": {
     "message": "авторизации."
   },
@@ -252,7 +255,7 @@
     "message": "Все объекты корзины будут удалены безвозвратно, вы уверены что хотите это сделать?"
   },
   "Restore": {
-    "message": "Вернуть"
+    "message": "Восстановить"
   },
   "Removed Files and Folders": {
     "message": "Удаленные объекты"
@@ -879,7 +882,7 @@
     "message": "Новый Проект"
   },
   "Open Project": {
-    "message": "Открыть Проект"
+    "message": "Открыть Проекты"
   },
   "Your projects": {
     "message": "Мои Проекты"
@@ -888,7 +891,7 @@
     "message": "Доступные"
   },
   "New sticker": {
-    "message": "Новый стикер"
+    "message": "Новый комментарий"
   },
   "New access": {
     "message": "Добавлен доступ"
@@ -1041,7 +1044,7 @@
     "message":"Нажмите"
   },
   "to send a letter with link to approve": {
-    "message":"чтобы отправить письмо для подтверждения."
+    "message":"чтобы отправить письмо для подтверждения. Иначе Ваш аккаунт будет удален в течении 3-х дней."
   },
   "Approve message sent": {
     "message":"Письмо было отослано на "
@@ -1207,5 +1210,59 @@
   },
   "There is no project with same id.": {
     "message": "Не удалось найти проект..."
+  },
+  "Files": {
+    "message": "Файлы"
+  },
+  "Project is not selected": {
+    "message": "Проект не выбран"
+  },
+  "Select project": {
+    "message": "Выберите проект:"
+  },
+  "You cannot create more than 3 projects without premium.": {
+    "message": "Сейчас Вы не можете создать более 3-х проектов. Эта функция доступна только для премиум пользователей."
+  },
+  "You cannot upload files more that 10MB. This function is allowed only for premium users.": {
+    "message": "Сейчас Вы не загрузить файлы более 10 Mb. Эта функция доступна только для премиум пользователей."
+  },
+  "You cannot upload more that 100 MB files here. This function is allowed only for premium users.": {
+    "message": "Сейчас Вы не можете загрузить в Designmap более 100 mb. Эта функция доступна только для премиум пользователей."
+  },
+  "Data space": {
+    "message": "Дисковое пространство:"
+  },
+  "Post a comment": {
+    "message": "Добавить комментарий"
+  },
+  "Edit a comment": {
+    "message": "Изменить комментарий"
+  },
+  "Apply to protocol": {
+    "message": "Добавить в протокол"
+  },
+  "Edit": {
+    "message": "Редактировать"
+  },
+  "Write a comment": {
+    "message": "Напишите комментарий"
+  },
+  "AreYouSureThatYouWantToRemoveWholeConversation": {
+    "message": "Вы увеврены, что хотите удалить весь комментарий?"
+  },
+  "It is not your comment. You cannot drag it": {
+    "message": "Это не ваш комментарий. Вы не можете его перетащить."
+  },
+  "Enter your name we want to know you a little bit closer": {
+    "message": "Чтобы продолжить работу, введите Ваше имя или авторизируйтесь, если у Вас есть аккаунт"
+  },
+  "Enter": {
+    "message": "Продолжить"
+  },
+  "Enter your name": {
+    "message": "Введите Ваше имя"
+  },
+  "Click to add a comment": {
+    "message": "Нажмите, чтобы добавить комментарий"
   }
 }

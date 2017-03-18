@@ -1,0 +1,23 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module id="lock-shared-styles">
+    <template>
+        <style>
+            .locked-icon {
+                position: absolute;
+                background: #fff;
+                border-radius: 50%;
+                padding: 2px;
+                left: 0;
+                top: -2px;
+                --iron-icon-stroke-color: var(--gray-darkend-color);
+                --iron-icon-width: 15px;
+                --iron-icon-height: 15px;
+                --iron-icon-fill-color: var(--gray-darkend-color);
+                --iron-icon-components-mixin: {
+                    stroke-width: 0.2px;
+                };
+            }
+        </style>
+    </template>
+</dom-module>

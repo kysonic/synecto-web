@@ -110,7 +110,7 @@
                     var promise = xhr.post(Designmap.config.apiURL + 'token/approve', {token: token});
                     promise.then(function (response) {
                         if (!response.success) return;
-                        dispatch({type: "UPDATE_USER", data: response.user});
+                        dispatch({type: "UPDATE_USER", user: response.user});
                     }.bind(this));
                     return promise;
                 }.bind(this);
@@ -136,11 +136,11 @@
                         password: password,
                         lang: language
                     });
-                    /*promise.then(function(response){
-                     if(!response.success) return;
-                     dispatch({type:"UPDATE_USER",data:response.user});
-                     dispatch({type:'UPDATE_APP_IS_AUTH',isAuth:true});
-                     }.bind(this));*/
+                    promise.then(function (response) {
+                        if (!response.success) return;
+                        console.log(response);
+                        dispatch({type: "UPDATE_USER", user: response.user});
+                    })
                     return promise;
                 }.bind(this);
             },
@@ -150,6 +150,8 @@
              */
             userGoogleSignup: function (googleUser) {
                 return function (dispatch) {
+                    var language = (window.navigator.browserLanguage || window.navigator.language || window.navigator.userLanguage).substr(0, 2) || 'en';
+                    googleUser.lang = language;
                     var promise = xhr.post(Designmap.config.apiURL + 'user/google-registration', {user: googleUser});
                     promise.then(function (response) {
                         if (!response.success) return;
@@ -181,10 +183,21 @@
                     var promise = xhr.put(Designmap.config.apiURL + 'user', data);
                     promise.then(function (response) {
                         if (!response.success) return;
-                        dispatch({type: "UPDATE_USER", data: response.user});
+                        dispatch({type: "UPDATE_USER", user: response.user});
                     }.bind(this));
                     return promise;
                 }.bind(this);
+            },
+            /**
+             * Update user state
+             * @param data - data to update
+             * @returns {Function}
+             */
+            _userUpdate: function (data) {
+                return {
+                    type: "UPDATE_USER",
+                    user: data
+                }
             },
             /**
              * Clean user

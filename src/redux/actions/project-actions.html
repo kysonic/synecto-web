@@ -6,6 +6,7 @@
                     const promise = xhr.get(Designmap.config.apiURL + 'project/' + id);
                     promise.then(function (response) {
                         if (!response.success) return;
+                        response.project.error = false;
                         dispatch({type: 'SET_PROJECT_STATE', project: response.project});
                     });
                     return promise;
@@ -49,7 +50,7 @@
                     promise.then(function (response) {
                         if (!response.success) return;
                         dispatch({type: 'REMOVE_PROJECT', index: this.findProjectIndexByID(id)});
-                        this.dispatch('userUpdate', {lastOpenedProject: null});
+                        this.dispatch('userUpdate', {system:{lastOpenedProject: null}});
                     }.bind(this));
                     return promise;
                 }.bind(this)
@@ -99,6 +100,12 @@
                 return {
                     type: 'UPDATE_TRASH_MODE',
                     trashMode: trashMode
+                }
+            },
+            updateFileId: function (fileId) {
+                return {
+                    type: 'UPDATE_FILE_ID',
+                    fileId: fileId
                 }
             }
         }

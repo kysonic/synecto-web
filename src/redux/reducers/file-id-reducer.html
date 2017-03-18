@@ -1,0 +1,13 @@
+<script>
+    Reducers.FileIdReducer = function(state,action) {
+        if(!state) state = null;
+        switch(action.type) {
+            case "UPDATE_FILE_ID":
+                return action.fileId;
+                break;
+            default:
+                return state;
+                break;
+        }
+    }
+</script>

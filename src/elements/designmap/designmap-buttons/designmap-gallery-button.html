@@ -1,0 +1,56 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module id="designmap-gallery-button">
+    <template>
+        <style>
+            :host {
+                --designmap-gallery-button-size: 48px;
+
+                width: var(--designmap-gallery-button-size);
+                height: var(--designmap-gallery-button-size);
+                background-color: rgba(0, 0, 0, 0.3);
+                border-radius: 50%;
+                border: none;
+                padding: 0;
+                cursor: pointer;
+                opacity: 0.8;
+                transition: opacity .2s ease-out;
+                outline: none;
+            }
+            :host(:hover) {
+                opacity: 1;
+                transition: opacity .2s ease-in;
+            }
+            :host([disabled]) {
+                opacity: 0.4;
+            }
+            /** ICONS **/
+            :host ::content iron-icon {
+                width: 50%;
+                height: 50%;
+            }
+            :host(.bigger-icon) ::content iron-icon {
+                width: 80%;
+                height: 80%;
+            }
+            :host(.bolder-icon) ::content iron-icon {
+                width: 80%;
+                height: 80%;
+            }
+
+        </style>
+        <content></content>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-gallery-button',
+            extends: 'button',
+            properties: {
+                disabled: {
+                    type: Boolean,
+                    value: false
+                }
+            }
+        })
+    </script>
+</dom-module>

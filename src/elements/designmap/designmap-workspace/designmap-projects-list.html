@@ -1,11 +1,15 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="../../plastic/plastic-custom-scroll.html">
 <link rel="import" href="../designmap-ui/designmap-context-menu.html">
+<link rel="import" href="../designmap-buttons/designmap-round-button.html">
 <link rel="import" href="../../../styles/context-menu-shared-styles.html">
 <link rel="import" href="../designmap-ui/designmap-confirm.html">
 <link rel="import" href="../designmap-fs/designmap-fs-service.html">
 
-<dom-module is="designmap-projects-list">
+<link rel="import" href="../../../redux/actions/combine-actions.html">
+<link rel="import" href="../../../redux/actions/project-actions.html">
+
+<dom-module id="designmap-projects-list">
     <template>
         <style include="context-menu-shared-styles">
             :host {
@@ -110,9 +114,16 @@
                 border-radius: 50%;
                 background: var(--designmap-project-list-hover-icon);
             }
+
+            .title {
+                padding: 13px;
+            }
+            :host([menu-mode]) .your-projects {
+                margin: 0 !important;
+            }
         </style>
 
-        <div class="tabs">
+        <div class="tabs" hidden$="[[menuMode]]">
             <div on-click="selectTab" disabled?="[[projects.length]]"
                  class$="title [[computeSelectedTab(selectedTab,0)]]" data-id="0">
                 <i18-n msgid="Mine">Mine</i18-n>
@@ -122,6 +133,10 @@
                  disabled$="[[!sharedProjects.length]]" data-id="1">
                 <i18-n msgid="Available">Available</i18-n>
             </div>
+        </div>
+
+        <div class="title" hidden$="[[!menuMode]]">
+            <i18-n msgid="Select project">Select project</i18-n>
         </div>
 
         <plastic-custom-scroll class="scroller" hidden$="[[hideUnselected(selectedTab,0)]]" fit>
@@ -201,7 +216,7 @@
                  */
                 language: {
                     type: String,
-                    computed: '_computeLanguage(user.language)'
+                    computed: '_computeLanguage(user.system.language)'
                 },
                 /**
                  * When i18 is loaded
@@ -237,6 +252,10 @@
                 renameProjectName: {
                     type: String,
                     value: null
+                },
+                menuMode: {
+                    type: Boolean,
+                    value: false
                 }
             },
             /**
@@ -244,9 +263,8 @@
              * @param e
              */
             selectProject: function (e) {
-                const app = document.querySelector('designmap-app');
+                page.redirect('/' + e.model.project._id);
                 this.fire('close-project-list');
-                app.set('route.path', '/' + e.model.project._id + '/');
             },
             /**
              * Select certain project
@@ -336,7 +354,7 @@
             removeIt: function () {
                 this.$.removeProjectConfirm.close();
                 this.$.projectContextMenu.close();
-                this.dispatch('removeProject',this.project._id).then(function () {
+                this.dispatch('removeProject',this.projectID).then(function () {
                     this.fire('close-project-list');
                     if(this.projects && this.projects[0]) return page.redirect('/'+this.projects[0]._id);
                     page.redirect('/');
