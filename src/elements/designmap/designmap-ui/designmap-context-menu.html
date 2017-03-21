@@ -9,7 +9,7 @@
                 --dropdown-line-color: var(--blue-darkester-color);
             }
             iron-dropdown {
-                z-index: 10 !important;
+                z-index: 999;
             }
             /** IRON-DROPDOWN **/
             .dropdown-content {
@@ -27,12 +27,12 @@
             /** Paper-input **/
             --paper-input-container-input: {
                 font-size: 14px !important;
-            }
+            };
             --paper-input-container-label: {
                 font-size: 14px !important;
-            }
+            };
         </style>
-        <iron-dropdown id="dd" position-target="[[target]]" close-animation-config="[[defaultCloseAnimation]]"
+        <iron-dropdown id="dd"  position-target="[[target]]" close-animation-config="[[defaultCloseAnimation]]"
                        open-animation-config="[[defaultOpenAnimation]]">
             <div class="dropdown-content">
                 <div class="line"></div>
@@ -119,14 +119,14 @@
              * @param e
              */
             stickToMouse: function (e) {
-                this.async(this.absolute ? this.absoluteStick.bind(this, e) : this.targetStick.bind(this, e));
+                this.async(this.absolute ? this.absoluteStick.bind(this, e) : this.targetStick.bind(this, e),0);
             },
             /**
              * Stick mouse to target
              */
             targetStick: function (e) {
                 var menuRect = this.$.dd.getBoundingClientRect();
-                var menuWidth = this.width || menuRect.width;
+                var menuWidth = this.width || menuRect.width || 200;
                 var cords = this.getCords(e);
                 this.$.dd.horizontalOffset = menuWidth + e.pageX < window.innerWidth ? cords.x : cords.x - menuWidth;
                 this.$.dd.verticalOffset = menuRect.height + e.pageY < window.innerHeight ? cords.y : cords.y - menuRect.height;

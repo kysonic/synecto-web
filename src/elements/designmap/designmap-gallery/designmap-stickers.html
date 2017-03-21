@@ -42,7 +42,7 @@
                 --designmap-dropdown-triangle-border-mixin: {
                     margin-left: -20px;
                     margin-top: -2px;
-                    border-color: transparent transparent var(--header-line-color) transparent !important;
+                    border-color: transparent transparent var(--header-line-color) transparent ;
                 };
                 --designmap-dropdown-mixin: {
                     display: block;
@@ -55,7 +55,7 @@
                 };
                 --designmap-dropdown-triangle-mixin: {
                     margin-left: -8px;
-                    border-color: transparent transparent var(--white-color) transparent !important;
+                    border-color: transparent transparent var(--white-color) transparent;
                 };
                 --designmap-confirm-paper-dialog-mixin: {
                     z-index: 9999 !important;
@@ -63,7 +63,7 @@
                 --designmap-dropdown-triangle-border-mixin: {
                     margin-left: -10px;
                     margin-top: -2px;
-                    border-color: transparent transparent var(--gray-color) transparent !important;
+                    border-color: transparent transparent var(--gray-color) transparent;
                 }
             }
 
@@ -299,7 +299,6 @@
             <i18-n msgid="Click to add a comment">Click to add a comment</i18-n>
         </div>
         <div class$="wrapper {{_computeOpenedClasses(isThereOpened)}}" on-mousemove="_followCursor" on-mouseleave="_stickerOver" id="wrapper">
-
             <div class="stickers" on-click="createSticker">
                 <template is="dom-repeat" id="stickersTemplate" observe="stickers.*" items="[[stickers]]" as="sticker">
                     <div id="{{returnStickerID(sticker)}}"
@@ -381,6 +380,20 @@
             </div>
 
         </div>
+        <!-- Hint -->
+        <designmap-hint id="addCommentHint"
+                        target="[[hintTarget]]"
+                        name="addComment"
+                        tri-right
+                        vertical-offset="-2"
+                        horizontal-offset="-300">
+            <div class="title">
+                <i18-n msgid="Add comment">Add comment</i18-n>
+            </div>
+            <div class="desc">
+                <i18-n msgid="addCommentMsg">addCommentMsg</i18-n>
+            </div>
+        </designmap-hint>
     </template>
     <script>
         Polymer({
@@ -468,11 +481,18 @@
                 stickerEvent: {
                     type: Object,
                     value: null
+                },
+                hintTarget: {
+                    type: Object,
+                    value: null
                 }
             },
             ready: function(){
               this.async(function(){
                   if(!this.user) this.stickerEvent = true;
+                  this.app = document.querySelector('designmap-app');
+                  this.gallery = this.app.$.galleryView.$.gallery;
+                  this.tutorial = this.app.$.tutorial;
               },1000)
             },
             /**
@@ -516,7 +536,17 @@
                     const stickerNode = Polymer.dom(this.$.wrapper).querySelector('#sticker-' + sticker._id);
                     stickerNode.querySelector('.dropdown .add-comment').focus();
                     this.isThereOpened = true;
-                })
+                });
+                // Hints
+                if(this.tutorial.isRunning=='openFile') {
+                    this.async(function(){
+                        const stickerNode = Polymer.dom(this.$.wrapper).querySelector('#sticker-' + sticker._id);
+                        this.gallery.showHint = false;
+                        this.tutorial.thumbUp();
+                        this.hintTarget = stickerNode;
+                        this.async(function(){this.tutorial.next()});
+                    });
+                }
             },
 
             _enterName: function (e) {
@@ -569,6 +599,7 @@
                 return sticker.owner._id === this.user._id || this.file.owner === this.user._id;
             },
             _mouseDown: function (e) {
+                if(!e.target.classList.contains('bound')) return;
                 //if (e.currentTarget.classList.contains('opened')) return false;
                 this.stickerCatch = true;
                 let sticker = e.model.sticker;

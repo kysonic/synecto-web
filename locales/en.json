@@ -660,10 +660,22 @@
     "message": "Rename folder"
   },
   "renameFolderMsg": {
-    "message": "Open context Menu of Folder's by right mouse button clicking, select \"Rename\" item, write new name of folder, click on \"Next\" button (or press Enter key)."
+    "message": "Open context Menu of Folder's by right mouse button clicking or click on menu button at right bottom corner, select \"Rename\" item, write new name of folder, click on \"Next\" button (or press Enter key)."
+  },
+  "Open context menu":{
+    "message": "Open context menu"
+  },
+  "openContextMenuMsg":{
+    "message": "Open folder context menu via right mouse click or click on button located at bottom right corner of element."
   },
   "Account settings": {
     "message": "Account settings"
+  },
+  "Copy to clipboard":{
+    "message": "Copy to clipboard"
+  },
+  "Link was copied to your clipboard.":{
+    "message": "Link was copied to your clipboard"
   },
   "accountSettingsMsg": {
     "message": "Connect your cloud drive to keep your files in one place. \n\n Open \"User's menu\", select \"Account settings\". Attention! Designmap data space is in beta now!"
@@ -687,19 +699,28 @@
     "message": "Create folder"
   },
   "addFileMsg": {
-    "message": "Well, now you ready to add your first file! Click \"Add file\" button, select file from your computer and click \"Upload\" button. Remember, supported file types are .jpg, .png, .gif, .ttf, .rif, .bmp, .jpg, .hdr, .ppm, .pbm, .psd, .eps, .ai, .fla, .swf, .svg. Max size - 150MB"
+    "message": "Well, now you ready to add your first file! Click \"Add file\" button, select file from your computer and click \"Upload\" button. Remember, supported file types are .jpg, .png, .gif, .ttf, .rif, .bmp, .jpg, .hdr, .ppm, .pbm, .psd, .eps, .ai. Max size - 150MB"
   },
   "Open DesignMap Gallery": {
     "message": "Open DesignMap Gallery"
   },
   "openGalleryMsg": {
-    "message": "To open gallery make double click on file cover."
+    "message": "To open gallery make double click on file cover or click on \"Menu\" button and \"Open\" after that."
   },
   "Gallery UI Guide": {
     "message": "Gallery UI Guide"
   },
   "galleryUIMsg": {
     "message": "We want to draw your attention on basic UI elements of DesignMap gallery."
+  },
+  "addCommentMsg": {
+    "message": "Enter text of your comment and press \"Add a comment\" button or press CTRL(CMD)(CMD)+ENTER"
+  },
+  "Add comment": {
+    "message": "Add a comment"
+  },
+  "Click on image to leave comment": {
+    "message": "Click on image to leave comment"
   },
   "File description": {
     "message": "File description"
@@ -710,8 +731,14 @@
   "Download file": {
     "message": "Download file"
   },
-  "Lock/Unlock": {
-    "message": "Lock/Unlock"
+  "Lock": {
+    "message": "Lock"
+  },
+  "File was locked successfully.": {
+    "message": "File \"#FILE#\" was locked successfully"
+  },
+  "Unlock": {
+    "message": "Unlock"
   },
   "On/Off stickers": {
     "message": "On/Off stickers"
@@ -806,6 +833,12 @@
   "Status of task was changed on": {
     "message": "Status of \"#NAME#\" task was changed on \"#STATUS#\"."
   },
+  "Share file": {
+    "message": "Share a file"
+  },
+  "shareFileMsg": {
+    "message": "Сlick on \"Share\" button and \"Copy to clipboard\""
+  },
   "New status": {
     "message": "Status changing"
   },
@@ -819,7 +852,7 @@
     "message": "Enter sticker's text."
   },
   "Close sticker": {
-    "message": "Click on arrow or press CTRL+Enters."
+    "message": "Click on arrow or press CTRL(CMD)+Enters."
   },
   "Task was added successfully.": {
     "message": "Task was created."
@@ -993,7 +1026,7 @@
     "message":"Redo"
   },
   "Next": {
-    "message":"Input/Textarea submitting"
+    "message":"Next"
   },
   "Not supported for mobile devices": {
     "message":"Not supported for mobile devices"
@@ -1237,5 +1270,8 @@
   },
   "Click to add a comment": {
     "message": "Click to add a comment"
+  },
+  "Try it out": {
+    "message": "Try it out"
   }
 }

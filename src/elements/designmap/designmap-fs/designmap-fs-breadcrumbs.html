@@ -1,4 +1,5 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="./designmap-fs-service.html">
 
 <dom-module is="designmap-fs-breadcrumbs">
@@ -59,19 +60,25 @@
 
             .crumb .line {
                 position: absolute;
-                top: 13px;
-                margin-left: -34px;
-                width: 40px;
-                height: 40px;
+                top: 14px;
+                margin-left: -27px;
+                width: 30px;
+                height: 30px;
+                --iron-icon-components-mixin: {
+                    stroke-width: 1px;
+                    stroke: var(--white-color);
+                    fill: var(--blue-darkest-color);
+                };
             }
+
             .crumb .line.first{
-                margin-left: -28px;
+                margin-left: -23px;
             }
             .crumb .line.main{
-                margin-left: -33px;
+                margin-left: -28px;
             }
             .crumb .line.last{
-                margin-left: -38px;
+                margin-left: -32px;
             }
 
 
@@ -86,7 +93,7 @@
         </div>
         <template is="dom-repeat" items="[[breadcrumbs]]" as="crumb">
             <div class="crumb">
-                <iron-icon class$="line [[isFirst(index,breadcrumbs)]]" icon="designmap:line"></iron-icon>
+                <iron-icon class$="line [[isFirst(index,breadcrumbs)]]" icon="icons:chevron-left"></iron-icon>
                 <div class$="title [[calculateSelectedCrumb(breadcrumbs.length,index)]]" on-click="goToParent">
                     [[crumb.name]]
                 </div>

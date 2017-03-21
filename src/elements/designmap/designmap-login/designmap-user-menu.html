@@ -162,13 +162,13 @@
         <!-- Auth -->
         <template is="dom-if" if="[[!!user]]">
             <div class="info">
-                <div class="block" data-hint="support">
+                <div class="block" id="support">
                     <div class="question" on-click="goToDocs" x-tooltip$="[[translate('Support',language,i18Loaded)]]"
                          data-cls="blue">
                         <iron-icon icon="designmap-workspace:help"></iron-icon>
                     </div>
                 </div>
-                <div class="block" on-click="openUserMenu" data-hint="login">
+                <div id="menu" class="block" on-click="openUserMenu" data-hint="login">
                     <div class="email" title="[[user.local.email]]">
                         [[user.local.email]]
                     </div>

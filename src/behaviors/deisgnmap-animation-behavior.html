@@ -152,11 +152,7 @@
          * by one
          */
         playStackAnimations: function(stackArray){
-            return new Promise(function(resolve,reject){
-                async.waterfall(this._processStack(stackArray),function(err){
-                    resolve();
-                })
-            }.bind(this));
+            return Promise.all(this._processStack(stackArray));
         },
         /**
          * Turn animation array
@@ -165,12 +161,10 @@
          */
         _processStack: function(stackArray){
             return stackArray.map(function(animation){
-                return function(cb){
-                    animation.addEventListener('finish',function(){
-                        cb(null);
-                    });
+                return new Promise(function(resolve,reject){
+                    animation.addEventListener('finish',resolve);
                     animation.play();
-                }
+                });
             })
         },
         /**

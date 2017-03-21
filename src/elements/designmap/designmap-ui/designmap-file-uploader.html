@@ -375,6 +375,17 @@
                 }, 10);
                 this.fire('done');
                 this.closeForm();
+                // Hints
+                const tutorial = document.querySelector('designmap-app').$.tutorial;
+                if(tutorial && tutorial.isRunning=='addFile') {
+                    tutorial.close();
+                    this.async(function(){
+                        const elements = this._findElement('fsView.fs.elements');
+                        elements.hintFileTarget = elements.$$('*[data-element-id="'+uploadedFiles[0]._id+'"]');
+                        tutorial.thumbUp();
+                        this.async(function(){tutorial.next();},500);
+                    },100);
+                }
             },
             /**
              * Checkout all files in current folder regarding names matches.

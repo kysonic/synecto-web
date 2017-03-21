@@ -112,12 +112,12 @@
              * @param id - file id
              * @param data - data to extend current file
              */
-            updateFile: function(id,data){
+            updateFile: function(id,data,projectId){
                 var historyData = this.findFileById(id);
                 return function(dispatch){
                     var state = ReduxStore.getState();
                     dispatch({type:'UPDATE_FILE',data:data,index:this.findFileIndexById(id)});
-                    var promise = xhr.put(Designmap.config.apiURL+'file/'+id, {data:data,project:state.project._id});
+                    var promise = xhr.put(Designmap.config.apiURL+'file/'+id, {data:data,project:projectId|| state.project._id});
                     promise.then(function(response){
                         if(!response.success) throw new Error(response.errors.message);
                         var fileIndex = this.findFileIndexById(id);

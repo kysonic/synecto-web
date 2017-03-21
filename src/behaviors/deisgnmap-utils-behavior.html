@@ -198,6 +198,15 @@
         getAppUrl: function(){
             return location.protocol+'//'+location.host+'/';
         },
+        _findElement(selector){
+            const nodesArray = selector.split('.');
+            let node = document.querySelector('designmap-app');
+            while(nodesArray.length) {
+                node = node.$[nodesArray[0]] || node.$$('#'+nodesArray[0]) || node.querySelector('.'+nodesArray[0]) || node.querySelector(nodesArray[0]);
+                nodesArray.shift();
+            }
+            return node;
+        },
         /**
          * Get element name
          */

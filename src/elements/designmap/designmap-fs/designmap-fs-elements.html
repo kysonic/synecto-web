@@ -139,10 +139,9 @@
                               sort="[[elementsSort(sortWay)]]">
                         <designmap-fs-element item="[[item]]"
                                               id="element-[[index]]"
+                                              type$="[[item.type]]"
                                               index="[[index]]"
                                               trash-mode="[[trashMode]]"
-                                              role="[[role]]"
-                                              acl="[[acl]]"
                                               current-element="{{currentElement}}"
                                               data-element-id$="[[item._id]]"
                                               current-folder-id="{{currentFolderId}}"
@@ -154,6 +153,9 @@
             <designmap-context-menu id="contextMenu" previous>
                 <ul class="menu">
                     <template is="dom-if" if="[[!trashMode]]">
+                        <li on-click="applyAction">
+                            <i18-n msgid="Open">Open</i18-n>
+                        </li>
                         <template is="dom-if" if="[[isFolder(currentElement.type)]]">
                             <li on-click="openAddFolderContext">
                                 <i18-n msgid="AddSubFolder">AddSubFolder</i18-n>
@@ -196,11 +198,6 @@
                             <!-- Open file uploader -->
                             <li on-click="openFileUploader">
                                 <i18-n msgid="Add file">Add file</i18-n>
-                            </li>
-                        </template>
-                        <template is="dom-if" if="[[isFile(currentElement.type)]]">
-                            <li on-click="openInGallery">
-                                <i18-n msgid="Open">Open</i18-n>
                             </li>
                         </template>
                     </template>
@@ -271,6 +268,15 @@
         <!-- Uploader -->
         <designmap-file-uploader id="uploader" parent="folder" _id="[[currentFolderId]]"
                                  files="[[getFiles(elements)]]" allowed-extension='[[allowedExtensions]]'></designmap-file-uploader>
+        <!-- Hints -->
+        <designmap-hint id="openContextMenuHint" target="[[hintFolderTarget]]" name="openContextMenu" vertical-offset="200" horizontal-offset="0">
+            <div class="title"><i18-n msgid="Rename folder">Rename folder</i18-n></div>
+            <div class="desc"><i18-n msgid="renameFolderMsg">renameFolderMsg</i18-n></div>
+        </designmap-hint>
+        <designmap-hint id="openFileHint" hide-got-it target="[[hintFileTarget]]" name="openFile" vertical-offset="200" horizontal-offset="0">
+            <div class="title"><i18-n msgid="Open DesignMap Gallery">Open DesignMap Gallery</i18-n></div>
+            <div class="desc"><i18-n msgid="openGalleryMsg">openGalleryMsg</i18-n></div>
+        </designmap-hint>
     </template>
     <script>
         Polymer({
@@ -301,7 +307,7 @@
                  */
                 allowedExtensions: {
                     type: String,
-                    value: '[".jpg",".png",".gif",".ttf",".rif",".bmp",".jpg",".hdr",".ppm",".pbm",".psd",".eps",".ai",".fla",".swf",".svg"]'
+                    value: '[".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr", ".ppm", ".pbm",".psd",".eps",".ai"]'
                 },
                 /**
                  * Selected elements
@@ -342,10 +348,17 @@
                     statePath: function (state) {
                         return this._countElements(state);
                     }
+                },
+                hintTarget: {
+                    type: Object,
+                    value: null
+                },
+                hintFileTarget: {
+                    type: Object,
+                    value: null
                 }
             },
             listeners: {
-                'open-in-gallery': 'openInGallery',
                 'open-element-context-menu': 'openElementContextMenu',
                 'select-element': 'selectElement'
             },
@@ -361,6 +374,12 @@
                 // Resizer
                 /*this.resizerShouldNotify(this);
                  this.assignParentResizable(this);*/
+                if(!this.hintTarget) {
+                    this.async(function(){
+                        this.hintFolderTarget = this.$$('designmap-fs-element[type="folder"]');
+                        this.hintFileTarget = this.$$('designmap-fs-element[type="file"]');
+                    },1000)
+                }
             },
 
             _countElements: function (state) {
@@ -468,7 +487,7 @@
              */
             applyAction: function (e) {
                 if (this.trashMode) return;
-                var element = e.model.item;
+                var element = e.model&&e.model.item ? e.model.item : this.currentElement;
                 var actionName = 'execute' + element.type.capitalize() + 'Action';
                 if (this[actionName] && typeof this[actionName] === 'function') this[actionName](element);
             },
@@ -484,14 +503,17 @@
              * @param element
              */
             executeFileAction: function (file) {
+                const tutorial = document.querySelector('designmap-app').$.tutorial;
+                // Hint
+                if(tutorial && tutorial.isRunning=='openFile') {
+                    tutorial.close();
+                    this.async(function(){
+                        document.querySelector('designmap-app').$.galleryView.$.gallery.showHint = true;
+                        tutorial.thumbUp();
+                    },500);
+                }
+                // Git
                 page.redirect('/gallery/'+file._id);
-            },
-            /**
-             * Open element in gallery
-             */
-            openInGallery: function (e) {
-                this.$.gallery.open();
-                this.$.gallery.selected = this.findFileIndexById(e.detail._id, this.getFiles(this.elements));
             },
             /**
              * Get files only
@@ -600,6 +622,15 @@
              */
             doesUserHaveEditAccess: function () {
                 return this.can('update', 'project');
+            },
+            /**
+             * Open context menu
+             */
+            openElementContextMenu: function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.currentElement = e.detail.item;
+                this.$$('#contextMenu').toggle(e.detail.e);
             }
         });
     </script>

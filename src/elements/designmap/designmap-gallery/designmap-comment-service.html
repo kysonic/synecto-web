@@ -49,6 +49,15 @@
                 const stickerNode = this.$$('#sticker-' + sticker._id);
                 stickerNode.querySelector('plastic-custom-scroll').setScroll(1000);
             }, 100);
+            // Hints
+            const tutorial = document.querySelector('designmap-app').$.tutorial;
+            if(tutorial && tutorial.isRunning=='addComment') {
+                tutorial.close();
+                this.async(function(){
+                    tutorial.thumbUp();
+                    this.async(function(){tutorial.next();},500);
+                },100);
+            }
         },
 
         _like: function (e) {

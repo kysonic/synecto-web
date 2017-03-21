@@ -1,589 +1,603 @@
 <script>
-  /**
-   * File system Service includes CRUD, Folder, File and Project functions.
-   * PROJECT | FOLDER | FILE
-   */
-  Polymer.DesignMapFsService = {
     /**
-     * Create project
+     * File system Service includes CRUD, Folder, File and Project functions.
+     * PROJECT | FOLDER | FILE
      */
-    createProject: function(projectName){
-      this.dispatch('createProject', {name: projectName})
-        .then(function(response) {
-            if(!response.success) {
-                this.loading = false;
-                return this.manageErrorResponse(response);
+    Polymer.DesignMapFsService = {
+        /**
+         * Create project
+         */
+        createProject: function (projectName) {
+            this.dispatch('createProject', {name: projectName})
+                .then(function (response) {
+                    if (!response.success) {
+                        this.loading = false;
+                        return this.manageErrorResponse(response);
+                    }
+                    this.showMessage('Project was created successful');
+                }.bind(this)).catch(function (err) {
+                    this.loading = false;
+                    this.manageErrorResponse(err);
+            }.bind(this));
+        },
+        /**
+         * Remove
+         */
+        removeProject: function (id) {
+            return this.dispatch('removeProject', id).then(function () {
+                this.showMessage('Project was removed successfully');
+                this.err = false;
+            }.bind(this)).catch(this.manageErrorResponse.bind(this));
+        },
+        /**
+         * Rename project
+         */
+        renameProject: function (id, name) {
+            return this.dispatch('updateProject', id, {name: name});
+        },
+        /**
+         * Add new folder to current
+         * @returns {*}
+         */
+        addFolder: function (e) {
+            this.dispatch('$addFolder', e.detail).then(function (response) {
+                if (!response.success) throw new Error(response.errors.message);
+                // Message
+                this.showUndoMessage('Folder adding had been successful.');
+                // Hints
+                const tutorial = document.querySelector('designmap-app').$.tutorial;
+                if(tutorial && tutorial.isRunning=='createFolder') {
+                    tutorial.close();
+                    this.async(function(){
+                        const elements = this._findElement('fsView.fs.elements');
+                        elements.hintFolderTarget = elements.$$('*[data-element-id="'+response.folder._id+'"]');
+                        tutorial.thumbUp();
+                        this.async(function(){tutorial.next();},500);
+                    },100);
+                }
+            }.bind(this)).catch(this.manageErrorResponse.bind(this));
+        },
+        /**
+         * Update folder
+         * @param e
+         */
+        updateFolder: function (e) {
+            this.dispatch('$updateFolder', e.detail.path, e.detail.data).then(function (response) {
+                if (!response.success) throw new Error(response.errors.message);
+                // Message
+                this.showUndoMessage('Folder renaming had been successful.', {
+                    '#NAME#': e.detail.oldName,
+                    '#NEWNAME#': e.detail.data.name
+                });
+                // Hints
+                const tutorial = document.querySelector('designmap-app').$.tutorial;
+                if(tutorial && tutorial.isRunning=='openContextMenu') {
+                    tutorial.close();
+                    this.async(function(){
+                        tutorial.thumbUp();
+                        this.async(function(){
+                            tutorial.next();
+                            this.$$('#contextMenu').close();
+                        },500);
+                    },100);
+                }
+            }.bind(this)).catch(this.manageErrorResponse.bind(this));
+        },
+        /**
+         * Remove folder
+         */
+        removeFolder: function (e) {
+            this.dispatch('$updateFolder', this.getFullPath(e.detail.element), {removed: true}).then(function (response) {
+                if (!response.success) throw new Error(response.errors.message);
+                if (!e.detail.skip) this.showUndoMessage('Folder removing had been successful.', {'#NAME#': e.detail.element.name});
+            }.bind(this)).catch(this.manageErrorResponse.bind(this));
+        },
+        /**
+         * Remove folder irretrievably
+         */
+        removeFolderIrretrievably: function (e) {
+            this.dispatch('removeFolder', this.getFullPath(e.detail.element)).then(function (response) {
+                if (!response.success) throw new Error(response.errors.message);
+                if (!e.detail.skip) this.showMessage('Folder has been removed from trash.', {"#NAME#": e.detail.element.name});
+            }.bind(this)).catch(this.manageErrorResponse.bind(this));
+        },
+        /**
+         * Remove folder
+         */
+        removeFile: function (e) {
+            this.dispatch('$updateFile', e.detail.element._id, {removed: true}).then(function (response) {
+                if (!response.success) throw new Error(response.errors.message);
+                if (!e.detail.skip) this.showUndoMessage('File was removed successfuly.', {"#FILE#": this.cutFileName(e.detail.element)});
+            }.bind(this)).catch(this.manageErrorResponse.bind(this));
+        },
+        /**
+         * Remove file irretrievably
+         */
+        removeFileIrretrievably: function (e) {
+            this.dispatch('removeFile', e.detail.element._id).then(function (response) {
+                if (!response.success) throw new Error(response.errors.message);
+                if (!e.detail.skip) this.showMessage('File has been removed from trash.', {"#NAME#": this.cutFileName(e.detail.element)});
+            }.bind(this)).catch(this.manageErrorResponse.bind(this));
+        },
+        /**
+         * Remove folder
+         */
+        restoreFolder: function (e) {
+            this.dispatch('$updateFolder', this.getFullPath(e.detail.element), {removed: false}).then(function (response) {
+                if (!response.success) throw new Error(response.errors.message);
+                if (!e.detail.skip) this.showUndoMessage('Folder has been restored.', {'#NAME#': e.detail.element.name});
+            }.bind(this)).catch(this.manageErrorResponse.bind(this));
+        },
+        /**
+         * Restore file
+         */
+        restoreFile: function (e) {
+            this.dispatch('$updateFile', e.detail.element._id, {removed: false}).then(function (response) {
+                if (!response.success) throw new Error(response.errors.message);
+                if (!e.detail.skip) this.showUndoMessage('File has been restored.', {"#NAME#": this.cutFileName(e.detail.element)});
+            }.bind(this)).catch(this.manageErrorResponse.bind(this));
+        },
+        /**
+         * Restore file
+         */
+        restoreAll: function (e) {
+            if (!this.$$('#elements').elements.length) return;
+            this.$$('#elements').elements.forEach(function (element) {
+                this['restore' + element.type.capitalize()]({detail: {element: element, skip: true}});
+            }, this);
+            this.showMessage('All entities was restored');
+        },
+        /**
+         * Remove file
+         */
+        removeAll: function (e) {
+            if (!this.$$('#elements').elements.length) return;
+            this.$$('#elements').elements.forEach(function (element) {
+                this['remove' + element.type.capitalize() + 'Irretrievably']({detail: {element: element, skip: true}});
+            }, this);
+            this.showMessage('Objects were removed irretrievably.');
+        },
+        /**
+         * Find file by ID
+         * @param id
+         * @returns {*}
+         */
+        findFileById: function (id) {
+            var found = null;
+            ReduxStore.getState().files.forEach(function (file, index) {
+                if (file._id == id) found = file;
+            }, this);
+            return found;
+        },
+        /**
+         * Find file index by ID
+         * @param id
+         * @returns {*}
+         */
+        findFileIndexById: function (id, files) {
+            var found = null;
+            var files = files || ReduxStore.getState().files;
+            files.forEach(function (file, index) {
+                if (file._id == id) found = index;
+            }, this);
+            return found;
+        },
+        /**
+         * Whether all file were loaded?
+         * @param id - folder id
+         * @returns {boolean}
+         */
+        filesWereLoaded: function (id) {
+            var files = ReduxStore.getState().files;
+            var filesWereLoaded = false;
+            for (var i = 0; i < files.length; i++) {
+                if (files[i].folder == id) {
+                    filesWereLoaded = true;
+                    break;
+                }
             }
-            this.showMessage('Project was created successful');
-        }.bind(this)).catch(function(err){
-            this.loading = false;
-            this.manageErrorResponse(err);
-        }.bind(this));
-    },
-    /**
-     * Remove
-     */
-    removeProject: function (id) {
-      return this.dispatch('removeProject', id).then(function () {
-        this.showMessage('Project was removed successfully');
-        this.err = false;
-      }.bind(this)).catch(this.manageErrorResponse.bind(this));
-    },
-    /**
-     * Rename project
-     */
-    renameProject: function (id, name) {
-      return this.dispatch('updateProject', id, {name: name});
-    },
-    /**
-     * Add new folder to current
-     * @returns {*}
-     */
-    addFolder: function(e){
-        this.dispatch('$addFolder', e.detail).then(function(response){
-        if(!response.success) throw new Error(response.errors.message);
-        // Message
-        this.showUndoMessage('Folder adding had been successful.');
-
-        // Hints
-        /*this.async(function(){
-          var hs = document.querySelector('designmap-hint-system');
-          if(hs && hs.isRunning) {
-            // Find added folder
-            var folder = this.$$('#elements').querySelector('*[data-element-id="'+response.folder._id+'"]');
-            folder.hintType = 'folder-menu-button';
-            // End this hint and run new one
-            hs.$.createFolder.close(true);
-          }
-        },50);*/
-      }.bind(this)).catch(this.manageErrorResponse.bind(this));
-    },
-    /**
-     * Update folder
-     * @param e
-     */
-    updateFolder: function(e){
-      this.dispatch('$updateFolder',e.detail.path, e.detail.data).then(function(response){
-        if(!response.success) throw new Error(response.errors.message);
-        // Message
-        this.showUndoMessage('Folder renaming had been successful.',{'#NAME#':e.detail.oldName,'#NEWNAME#':e.detail.data.name});
-        // Hints
-        /*var hs = document.querySelector('designmap-hint-system');
-        if(hs.isRunning) hs.$.renameFolder.close(true);*/
-      }.bind(this)).catch(this.manageErrorResponse.bind(this));
-    },
-    /**
-     * Remove folder
-     */
-    removeFolder: function(e){
-      this.dispatch('$updateFolder',this.getFullPath(e.detail.element),{removed:true}).then(function(response){
-        if(!response.success) throw new Error(response.errors.message);
-        if(!e.detail.skip) this.showUndoMessage('Folder removing had been successful.',{'#NAME#':e.detail.element.name});
-      }.bind(this)).catch(this.manageErrorResponse.bind(this));
-    },
-    /**
-     * Remove folder irretrievably
-     */
-    removeFolderIrretrievably: function(e){
-      this.dispatch('removeFolder',this.getFullPath(e.detail.element)).then(function(response){
-        if(!response.success) throw new Error(response.errors.message);
-        if(!e.detail.skip) this.showMessage('Folder has been removed from trash.',{"#NAME#": e.detail.element.name});
-      }.bind(this)).catch(this.manageErrorResponse.bind(this));
-    },
-    /**
-     * Remove folder
-     */
-    removeFile: function(e){
-      this.dispatch('$updateFile', e.detail.element._id,{removed:true}).then(function(response){
-        if(!response.success) throw new Error(response.errors.message);
-        if(!e.detail.skip) this.showUndoMessage('File was removed successfuly.',{"#FILE#":this.cutFileName(e.detail.element)});
-      }.bind(this)).catch(this.manageErrorResponse.bind(this));
-    },
-    /**
-     * Remove file irretrievably
-     */
-    removeFileIrretrievably: function(e){
-      this.dispatch('removeFile', e.detail.element._id).then(function(response){
-        if(!response.success) throw new Error(response.errors.message);
-        if(!e.detail.skip) this.showMessage('File has been removed from trash.',{"#NAME#":this.cutFileName(e.detail.element)});
-      }.bind(this)).catch(this.manageErrorResponse.bind(this));
-    },
-    /**
-     * Remove folder
-     */
-    restoreFolder: function(e){
-      this.dispatch('$updateFolder',this.getFullPath(e.detail.element),{removed:false}).then(function(response){
-        if(!response.success) throw new Error(response.errors.message);
-        if(!e.detail.skip) this.showUndoMessage('Folder has been restored.',{'#NAME#':e.detail.element.name});
-      }.bind(this)).catch(this.manageErrorResponse.bind(this));
-    },
-    /**
-     * Restore file
-     */
-    restoreFile: function(e){
-      this.dispatch('$updateFile', e.detail.element._id,{removed:false}).then(function(response){
-        if(!response.success) throw new Error(response.errors.message);
-        if(!e.detail.skip) this.showUndoMessage('File has been restored.',{"#NAME#":this.cutFileName(e.detail.element)});
-      }.bind(this)).catch(this.manageErrorResponse.bind(this));
-    },
-    /**
-     * Restore file
-     */
-    restoreAll: function(e){
-      if(!this.$$('#elements').elements.length) return;
-      this.$$('#elements').elements.forEach(function(element){
-        this['restore'+element.type.capitalize()]({detail:{element:element,skip:true}});
-      },this);
-      this.showMessage('All entities was restored');
-    },
-    /**
-     * Remove file
-     */
-    removeAll: function(e){
-      if(!this.$$('#elements').elements.length) return;
-      this.$$('#elements').elements.forEach(function(element){
-        this['remove'+element.type.capitalize()+'Irretrievably']({detail:{element:element,skip:true}});
-      },this);
-      this.showMessage('Objects were removed irretrievably.');
-    },
-      /**
-       * Find file by ID
-       * @param id
-       * @returns {*}
-       */
-      findFileById: function(id){
-          var found = null;
-          ReduxStore.getState().files.forEach(function(file,index){
-              if(file._id==id) found = file;
-          },this);
-          return found;
-      },
-      /**
-       * Find file index by ID
-       * @param id
-       * @returns {*}
-       */
-      findFileIndexById: function(id,files){
-          var found = null;
-          var files = files || ReduxStore.getState().files;
-          files.forEach(function(file,index){
-              if(file._id==id) found = index;
-          },this);
-          return found;
-      },
-      /**
-       * Whether all file were loaded?
-       * @param id - folder id
-       * @returns {boolean}
-       */
-      filesWereLoaded: function(id){
-          var files = ReduxStore.getState().files;
-          var filesWereLoaded = false;
-          for(var i = 0; i<files.length;i++) {
-              if(files[i].folder==id) {
-                  filesWereLoaded = true; break;
-              }
-          }
-          return filesWereLoaded;
-      },
-      findStickerById: function(id){
-          var found = null;
-          ReduxStore.getState().stickers.forEach(function(sticker,index){
-              if(sticker._id==id) found = sticker;
-          },this);
-          return found;
-      },
-      findStickerIndexById: function(id){
-          var found = null;
-          ReduxStore.getState().stickers.forEach(function(sticker,index){
-              if(sticker._id==id) found = index;
-          },this);
-          return found;
-      },
-      findCommentById: function(id){
-          var found = null;
-          ReduxStore.getState().comments.forEach(function(comment,index){
-              if(comment._id==id) found = comment;
-          },this);
-          return found;
-      },
-      findCommentIndexById: function(id){
-          var found = null;
-          ReduxStore.getState().comments.forEach(function(comment,index){
-              if(comment._id==id) found = index;
-          },this);
-          return found;
-      },
-      /**
-       * Find certain folder by some criteria.
-       * For example {_type:'folder'}
-       * @param criteria - object containing first level fields
-       * @param context - folder element in which will be created searching
-       * @returns {Array}
-       */
-      findFolderByCriteria: function(criteria) {
-          var matched = [];
-          ReduxStore.getState().folders.forEach(function(folder,index){
-              var matches = 0;
-              for(var p in criteria) {
-                  if(folder[p]==criteria[p]) matches++;
-              }
-              if(matches == Object.keys(criteria).length) matched.push({folder:folder,index:index});
-          },this);
-          return matched;
-      },
-      /**
-       * Find folder by full path
-       */
-      findFolderByPath: function(path){
-          var found = null;
-          ReduxStore.getState().folders.forEach(function(folder,index){
-              if(folder.name==this.findNameByFullPath(path) && folder.path == this.findParentPath(path)) found = folder;
-          },this);
-          return found;
-      },
-      /**
-       * Find folder index by full path
-       */
-      findFolderIndexByPath: function(path){
-          var found = null;
-          var folders = ReduxStore.getState().folders;
-          var index = 0;
-          while(!found) {
-              var folder = folders[index];
-              if(folder.name==this.findNameByFullPath(path) && folder.path == this.findParentPath(path)) {found = index;break;}
-              if(index==(folders.length-1)) break;
-              index++;
-          }
-          return found;
-      },
-      /**
-       * Find folder by id
-       */
-      findFolderById: function(id){
-          var found = null;
-          ReduxStore.getState().folders.forEach(function(folder,index){
-              if(folder._id==id) found = folder;
-          },this);
-          return found;
-      },
-      /**
-       * Whether the folders were loaded?
-       */
-      foldersWereLoaded: function(id){
-          var folders = ReduxStore.getState().folders;
-          var foldersWereLoaded = false;
-          for(var i = 0; i<folders.length;i++) {
-              if(folders[i].parent==id) {
-                  foldersWereLoaded = true; break;
-              }
-          }
-          return foldersWereLoaded;
-      },
-      /**
-       * Find folder index by id
-       */
-      findFolderIndexById: function(id){
-          var found = null;
-          ReduxStore.getState().folders.forEach(function(folder,index){
-              if(folder._id==id) found = index;
-          },this);
-          return found;
-      },
-      /**
-       * Get full path of folder
-       */
-      getFullPath: function(folder,name){
-          if(!folder) return null;
-          return (folder.path||Designmap.config.separator)+(name||folder.name)+Designmap.config.separator;
-      },
-      /**
-       * Find parent path for certain folder
-       */
-      findParentPath: function(path){
-          if(!path) return null;
-          var splitter = path.split(Designmap.config.separator).clean();
-          splitter.pop();
-          return splitter.length?this.pathFromArray(splitter):null;
-      },
-      /**
-       * Find name of folder using its full path
-       */
-      findNameByFullPath: function(path){
-          var splitter = path ? path.split(Designmap.config.separator).clean() : [];
-          return splitter[splitter.length-1] || null;
-      },
-      /**
-       * Build query for searching certain folder using its full path
-       */
-      findRelativeQueryByFullPath: function(fullPath){
-          var splitter = fullPath.split(Designmap.config.separator).clean();
-          var name = splitter[splitter.length-1];
-          splitter.pop();
-          return {path: splitter.length?this.pathFromArray(splitter):null,name:name}
-      },
-      /**
-       * Build path from array
-       */
-      pathFromArray: function(array){
-          return Designmap.config.separator+array.join(Designmap.config.separator)+Designmap.config.separator;
-      },
-      /**
-       * Resolve color for the folder
-       * @returns {string}
-       */
-      resolveColor: function(){
-          var color = '#82a5c4';
-          // Set colors to first child in main folder
-          if(this.isBasic) {
-              var randomIndex = Math.floor(Math.random() * (this.project.colors.length - 0 + 1)) + 0;
-              color = this.project.colors[randomIndex];
-              //this.project.colors.shift();
-          }else {
-              color = this.data.color;
-          }
-          return color || '#82a5c4';
-      },
-      /**
-       * Get folder path according "physical" structure
-       * @param folder - folder element
-       * @param path - current materialized path.
-       * @returns {string|*}
-       */
-      getFolderPath: function(isFull){
-          var folder = folder || this;
-          var path = isFull?Designmap.config.separator+folder.data.name:'';
-          while(folder.parent) {
-              folder = folder.parent;
-              path = Designmap.config.separator+folder.data.name+path;
-          }
-          return path+Designmap.config.separator;
-      },
-      /**
-       * Update children's paths if name was changed
-       * @param path - full path
-       * @param oldName - old folder name
-       * @param newName - new folder name
-       */
-      updatePaths: function(path,oldName,newName) {
-          var reg = new RegExp(path);
-          ReduxStore.getState().folders.forEach(function(folder){
-              if(reg.test(folder.path)) {
-                  var newPath = folder.path.replace(path,(this.findParentPath(path)||'/')+newName+'/');
-                  this.dispatch('_updateFolder',this.getFullPath(folder),{path:newPath});
-              }
-          },this);
-      },
-      /**
-       * Validate children to be unique
-       * @param name
-       * @returns {boolean}
-       */
-      nameChildUniqueValidation: function(name,parentID){
-          var allowedCount = 0;
-          return this.findFolderByCriteria({name:name,parent:parentID}).length==allowedCount;
-      },
-      /**
-       * Add folder from menu
-       */
-      addFolderManually: function(){
-          var addFolderInput = this.$$('#addFolder');
-          //Validate
-          if(!this.nameChildUniqueValidation(addFolderInput.value,this.currentFolderId)) return this.showErrorMessage('Name of the folder must be unique');
-          if(!addFolderInput.value) return this.showErrorMessage('Name can\'t be empty.');
-          if(!addFolderInput.validate()) return false;
-          // Close
-          this.async(function(){this.$$('#addFolderContext').close();},50);
-          this.async(function(){this.$$('#contextMenu').close();},200);
-          // Build data
-          var folder = {
-              _id: this.generateUid(),
-              name: addFolderInput.value,
-              type:'folder',
-              path: this.getFullPath(this.findFolderById(this.currentFolderId)),
-              parent: this.currentFolderId,
-              color:'#82a5c4'
-          };
-          addFolderInput.value = '';
-          addFolderInput.invalid = false;
-          // Fire event
-          this.fire('add-folder',folder);
-      },
-      /**
-       * Needed to remove project from list by index
-       * @param id - project id
-       * @returns {*}
-       */
-      findProjectByID: function(id){
-          var found = null;
-          this.projects.forEach(function(project,i){
-              if(project._id==id) found = project;
-          });
-          return found;
-      },
-      /**
-       * Needed to remove project from list by index
-       * @param id - project id
-       * @returns {*}
-       */
-      findProjectIndexByID: function(id){
-          var index = null;
-          this.projects.forEach(function(project,i){
-              if(project._id==id) index = i;
-          });
-          return index;
-      },
-      /**
-       * Find repeats and mistakes
-       */
-      validateProjectName: function(){
-          var name = this.$.projectName.value.trim();
-          var error = null;
-          if(!name) error = 'Project name is not correct';
-          this.projects.forEach(function(project,i){
-              if(project.name==name) error = 'Cannot create project with same name';
-          });
-          return error;
-      },
-      /**
-       * Open context menu
-       */
-      openElementContextMenu: function (e) {
-          e.preventDefault();
-          e.stopPropagation();
-          this.currentElement = e.detail.item;
-          this.$$('#contextMenu').toggle(e.detail.e);
-      },
-      /**
-       * Whether element is folder?
-       * @param type - element type
-       */
-      isFolder: function (type) {
-          return type === 'folder';
-      },
-      /**
-       * Whether element is file?
-       * @param type - element type
-       */
-      isFile: function (type) {
-          return type === 'file';
-      },
-      /**
-       * Open add folder context
-       */
-      openAddFolderContext: function (e) {
-          this.$$('#addFolderContext').toggle(e);
-      },
-      /**
-       * Add sub-folder to selected one
-       */
-      addFolderFromMenu: function () {
-          //Validate
-          if (!this.nameChildUniqueValidation(this.$$('#addFolder').value, this.currentElement._id)) return this.showErrorMessage('Name of the folder must be unique');
-          if (!this.$$('#addFolder').value) return this.showErrorMessage('Name can\'t be empty.');
-          if (!this.$$('#addFolder').validate()) return false;
-          // Close
-          this.async(function () {
-              this.$$('#addFolderContext').close();
-          }, 50);
-          this.async(function () {
-              this.$$('#contextMenu').close();
-          }, 200);
-          // Build data
-          var folder = {
-              _id: this.generateUid(),
-              name: this.$$('#addFolder').value,
-              type: 'folder',
-              path: this.getFullPath(this.currentElement),
-              parent: this.currentFolderId,
-              color: '#82a5c4'
-          }
-          this.$$('#addFolder').value = '';
-          // Change folder
-          /*this.currentFolderId = this.currentElement._id;*/
-          // Fire event
-          this.fire('add-folder', folder);
-      },
-      /**
-       * Open add folder context
-       */
-      openRenameFolderContext: function (e) {
-          this.$$('#renameFolder').value = this.currentElement.name;
-          this.$$('#renameFolderContext').toggle(e);
-      },
-      /**
-       * Rename folder
-       */
-      renameFolder: function () {
-          // Validation
-          if (!this.$$('#renameFolder').value) return this.showErrorMessage('Name can\'t be empty.');
-          if (!this.nameChildUniqueValidation(this.$$('#renameFolder').value, this.currentElement.parent)) return this.showErrorMessage('Name of the folder must be unique');
-          if (!this.$$('#renameFolder').validate()) return false;
-          // Close
-          this.async(function () {
-              this.$$('#renameFolderContext').close();
-          }, 50);
-          this.async(function () {
-              this.$$('#contextMenu').close();
-          }, 200);
-          if (this.currentElement.name == this.$$('#renameFolder').value) return;
-          // Fire event
-          this.fire('update-folder', {
-              path: this.getFullPath(this.currentElement),
-              oldName: this.currentElement.name,
-              data: {name: this.$$('#renameFolder').value}
-          });
-      },
-      /**
-       * Fire remove element event
-       */
-      removeElement: function () {
-          this.$$('#contextMenu').close();
-          if (this.trashMode) return this.$.removingConfirm.open();
-          this.fire('remove-' + this.currentElement.type, {element: this.currentElement, skip: false});
-      },
-      /**
-       * Fire remove element event
-       */
-      removeElementIrretrievably: function () {
-          this.$.removingConfirm.close();
-          this.fire('remove-' + this.currentElement.type + '-irretrievably', {element: this.currentElement, skip: false});
-      },
-      /**
-       * Fire remove element event
-       */
-      restoreElement: function () {
-          this.$$('#contextMenu').close();
-          this.fire('restore-' + this.currentElement.type, {element: this.currentElement, skip: false});
-      },
-      /**
-       * Open file uploader for
-       * current folder
-       */
-      openFileUploader: function () {
-          this.fire('open-file-uploader', {id: this.currentElement._id})
-      },
-      /**
-       * Open this file in gallery
-       */
-      openInGallery: function () {
-          this.$$('#contextMenu').close();
-          this.fire('open-in-gallery', {_id: this.currentElement._id});
-      },
-      /**
-       * Open information for current element
-       */
-      openInformation: function () {
-          this.$$('#contextMenu').close();
-          document.querySelector('designmap-app').$.info.data = this.currentElement;
-          this.fire('open-info');
-      },
-      /**
-       * Close dialogs
-       */
-      suspendRemoving: function () {
-          this.$.removingConfirm.close();
-      }
-  }
+            return filesWereLoaded;
+        },
+        findStickerById: function (id) {
+            var found = null;
+            ReduxStore.getState().stickers.forEach(function (sticker, index) {
+                if (sticker._id == id) found = sticker;
+            }, this);
+            return found;
+        },
+        findStickerIndexById: function (id) {
+            var found = null;
+            ReduxStore.getState().stickers.forEach(function (sticker, index) {
+                if (sticker._id == id) found = index;
+            }, this);
+            return found;
+        },
+        findCommentById: function (id) {
+            var found = null;
+            ReduxStore.getState().comments.forEach(function (comment, index) {
+                if (comment._id == id) found = comment;
+            }, this);
+            return found;
+        },
+        findCommentIndexById: function (id) {
+            var found = null;
+            ReduxStore.getState().comments.forEach(function (comment, index) {
+                if (comment._id == id) found = index;
+            }, this);
+            return found;
+        },
+        /**
+         * Find certain folder by some criteria.
+         * For example {_type:'folder'}
+         * @param criteria - object containing first level fields
+         * @param context - folder element in which will be created searching
+         * @returns {Array}
+         */
+        findFolderByCriteria: function (criteria) {
+            var matched = [];
+            ReduxStore.getState().folders.forEach(function (folder, index) {
+                var matches = 0;
+                for (var p in criteria) {
+                    if (folder[p] == criteria[p]) matches++;
+                }
+                if (matches == Object.keys(criteria).length) matched.push({folder: folder, index: index});
+            }, this);
+            return matched;
+        },
+        /**
+         * Find folder by full path
+         */
+        findFolderByPath: function (path) {
+            var found = null;
+            ReduxStore.getState().folders.forEach(function (folder, index) {
+                if (folder.name == this.findNameByFullPath(path) && folder.path == this.findParentPath(path)) found = folder;
+            }, this);
+            return found;
+        },
+        /**
+         * Find folder index by full path
+         */
+        findFolderIndexByPath: function (path) {
+            var found = null;
+            var folders = ReduxStore.getState().folders;
+            var index = 0;
+            while (!found) {
+                var folder = folders[index];
+                if (folder.name == this.findNameByFullPath(path) && folder.path == this.findParentPath(path)) {
+                    found = index;
+                    break;
+                }
+                if (index == (folders.length - 1)) break;
+                index++;
+            }
+            return found;
+        },
+        /**
+         * Find folder by id
+         */
+        findFolderById: function (id) {
+            var found = null;
+            ReduxStore.getState().folders.forEach(function (folder, index) {
+                if (folder._id == id) found = folder;
+            }, this);
+            return found;
+        },
+        /**
+         * Whether the folders were loaded?
+         */
+        foldersWereLoaded: function (id) {
+            var folders = ReduxStore.getState().folders;
+            var foldersWereLoaded = false;
+            for (var i = 0; i < folders.length; i++) {
+                if (folders[i].parent == id) {
+                    foldersWereLoaded = true;
+                    break;
+                }
+            }
+            return foldersWereLoaded;
+        },
+        /**
+         * Find folder index by id
+         */
+        findFolderIndexById: function (id) {
+            var found = null;
+            ReduxStore.getState().folders.forEach(function (folder, index) {
+                if (folder._id == id) found = index;
+            }, this);
+            return found;
+        },
+        /**
+         * Get full path of folder
+         */
+        getFullPath: function (folder, name) {
+            if (!folder) return null;
+            return (folder.path || Designmap.config.separator) + (name || folder.name) + Designmap.config.separator;
+        },
+        /**
+         * Find parent path for certain folder
+         */
+        findParentPath: function (path) {
+            if (!path) return null;
+            var splitter = path.split(Designmap.config.separator).clean();
+            splitter.pop();
+            return splitter.length ? this.pathFromArray(splitter) : null;
+        },
+        /**
+         * Find name of folder using its full path
+         */
+        findNameByFullPath: function (path) {
+            var splitter = path ? path.split(Designmap.config.separator).clean() : [];
+            return splitter[splitter.length - 1] || null;
+        },
+        /**
+         * Build query for searching certain folder using its full path
+         */
+        findRelativeQueryByFullPath: function (fullPath) {
+            var splitter = fullPath.split(Designmap.config.separator).clean();
+            var name = splitter[splitter.length - 1];
+            splitter.pop();
+            return {path: splitter.length ? this.pathFromArray(splitter) : null, name: name}
+        },
+        /**
+         * Build path from array
+         */
+        pathFromArray: function (array) {
+            return Designmap.config.separator + array.join(Designmap.config.separator) + Designmap.config.separator;
+        },
+        /**
+         * Resolve color for the folder
+         * @returns {string}
+         */
+        resolveColor: function () {
+            var color = '#82a5c4';
+            // Set colors to first child in main folder
+            if (this.isBasic) {
+                var randomIndex = Math.floor(Math.random() * (this.project.colors.length - 0 + 1)) + 0;
+                color = this.project.colors[randomIndex];
+                //this.project.colors.shift();
+            } else {
+                color = this.data.color;
+            }
+            return color || '#82a5c4';
+        },
+        /**
+         * Get folder path according "physical" structure
+         * @param folder - folder element
+         * @param path - current materialized path.
+         * @returns {string|*}
+         */
+        getFolderPath: function (isFull) {
+            var folder = folder || this;
+            var path = isFull ? Designmap.config.separator + folder.data.name : '';
+            while (folder.parent) {
+                folder = folder.parent;
+                path = Designmap.config.separator + folder.data.name + path;
+            }
+            return path + Designmap.config.separator;
+        },
+        /**
+         * Update children's paths if name was changed
+         * @param path - full path
+         * @param oldName - old folder name
+         * @param newName - new folder name
+         */
+        updatePaths: function (path, oldName, newName) {
+            var reg = new RegExp(path);
+            ReduxStore.getState().folders.forEach(function (folder) {
+                if (reg.test(folder.path)) {
+                    var newPath = folder.path.replace(path, (this.findParentPath(path) || '/') + newName + '/');
+                    this.dispatch('_updateFolder', this.getFullPath(folder), {path: newPath});
+                }
+            }, this);
+        },
+        /**
+         * Validate children to be unique
+         * @param name
+         * @returns {boolean}
+         */
+        nameChildUniqueValidation: function (name, parentID) {
+            var allowedCount = 0;
+            return this.findFolderByCriteria({name: name, parent: parentID}).length == allowedCount;
+        },
+        /**
+         * Add folder from menu
+         */
+        addFolderManually: function () {
+            var addFolderInput = this.$$('#addFolder');
+            //Validate
+            if (!this.nameChildUniqueValidation(addFolderInput.value, this.currentFolderId)) return this.showErrorMessage('Name of the folder must be unique');
+            if (!addFolderInput.value) return this.showErrorMessage('Name can\'t be empty.');
+            if (!addFolderInput.validate()) return false;
+            // Close
+            this.async(function () {
+                this.$$('#addFolderContext').close();
+            }, 50);
+            this.async(function () {
+                this.$$('#contextMenu').close();
+            }, 200);
+            // Build data
+            var folder = {
+                _id: this.generateUid(),
+                name: addFolderInput.value,
+                type: 'folder',
+                path: this.getFullPath(this.findFolderById(this.currentFolderId)),
+                parent: this.currentFolderId,
+                color: '#82a5c4'
+            };
+            addFolderInput.value = '';
+            addFolderInput.invalid = false;
+            // Fire event
+            this.fire('add-folder', folder);
+        },
+        /**
+         * Needed to remove project from list by index
+         * @param id - project id
+         * @returns {*}
+         */
+        findProjectByID: function (id) {
+            var found = null;
+            this.projects.forEach(function (project, i) {
+                if (project._id == id) found = project;
+            });
+            return found;
+        },
+        /**
+         * Needed to remove project from list by index
+         * @param id - project id
+         * @returns {*}
+         */
+        findProjectIndexByID: function (id) {
+            var index = null;
+            this.projects.forEach(function (project, i) {
+                if (project._id == id) index = i;
+            });
+            return index;
+        },
+        /**
+         * Find repeats and mistakes
+         */
+        validateProjectName: function () {
+            var name = this.$.projectName.value.trim();
+            var error = null;
+            if (!name) error = 'Project name is not correct';
+            this.projects.forEach(function (project, i) {
+                if (project.name == name) error = 'Cannot create project with same name';
+            });
+            return error;
+        },
+        /**
+         * Whether element is folder?
+         * @param type - element type
+         */
+        isFolder: function (type) {
+            return type === 'folder';
+        },
+        /**
+         * Whether element is file?
+         * @param type - element type
+         */
+        isFile: function (type) {
+            return type === 'file';
+        },
+        /**
+         * Open add folder context
+         */
+        openAddFolderContext: function (e) {
+            this.$$('#addFolderContext').toggle(e);
+        },
+        /**
+         * Add sub-folder to selected one
+         */
+        addFolderFromMenu: function () {
+            //Validate
+            if (!this.nameChildUniqueValidation(this.$$('#addFolder').value, this.currentElement._id)) return this.showErrorMessage('Name of the folder must be unique');
+            if (!this.$$('#addFolder').value) return this.showErrorMessage('Name can\'t be empty.');
+            if (!this.$$('#addFolder').validate()) return false;
+            // Close
+            this.async(function () {
+                this.$$('#addFolderContext').close();
+            }, 50);
+            this.async(function () {
+                this.$$('#contextMenu').close();
+            }, 200);
+            // Build data
+            var folder = {
+                _id: this.generateUid(),
+                name: this.$$('#addFolder').value,
+                type: 'folder',
+                path: this.getFullPath(this.currentElement),
+                parent: this.currentFolderId,
+                color: '#82a5c4'
+            }
+            this.$$('#addFolder').value = '';
+            // Change folder
+            /*this.currentFolderId = this.currentElement._id;*/
+            // Fire event
+            this.fire('add-folder', folder);
+        },
+        /**
+         * Open add folder context
+         */
+        openRenameFolderContext: function (e) {
+            this.$$('#renameFolder').value = this.currentElement.name;
+            this.$$('#renameFolderContext').toggle(e);
+        },
+        /**
+         * Rename folder
+         */
+        renameFolder: function () {
+            // Validation
+            if (!this.$$('#renameFolder').value) return this.showErrorMessage('Name can\'t be empty.');
+            if (!this.nameChildUniqueValidation(this.$$('#renameFolder').value, this.currentElement.parent)) return this.showErrorMessage('Name of the folder must be unique');
+            if (!this.$$('#renameFolder').validate()) return false;
+            // Close
+            this.async(function () {
+                this.$$('#renameFolderContext').close();
+            }, 50);
+            this.async(function () {
+                this.$$('#contextMenu').close();
+            }, 200);
+            if (this.currentElement.name == this.$$('#renameFolder').value) return;
+            // Fire event
+            this.fire('update-folder', {
+                path: this.getFullPath(this.currentElement),
+                oldName: this.currentElement.name,
+                data: {name: this.$$('#renameFolder').value}
+            });
+        },
+        /**
+         * Fire remove element event
+         */
+        removeElement: function () {
+            this.$$('#contextMenu').close();
+            if (this.trashMode) return this.$.removingConfirm.open();
+            this.fire('remove-' + this.currentElement.type, {element: this.currentElement, skip: false});
+        },
+        /**
+         * Fire remove element event
+         */
+        removeElementIrretrievably: function () {
+            this.$.removingConfirm.close();
+            this.fire('remove-' + this.currentElement.type + '-irretrievably', {
+                element: this.currentElement,
+                skip: false
+            });
+        },
+        /**
+         * Fire remove element event
+         */
+        restoreElement: function () {
+            this.$$('#contextMenu').close();
+            this.fire('restore-' + this.currentElement.type, {element: this.currentElement, skip: false});
+        },
+        /**
+         * Open file uploader for
+         * current folder
+         */
+        openFileUploader: function () {
+            this.fire('open-file-uploader', {id: this.currentElement._id})
+        },
+        /**
+         * Open this file in gallery
+         */
+        openInGallery: function () {
+            this.$$('#contextMenu').close();
+            this.fire('open-in-gallery', {_id: this.currentElement._id});
+        },
+        /**
+         * Open information for current element
+         */
+        openInformation: function () {
+            this.$$('#contextMenu').close();
+            document.querySelector('designmap-app').$.info.data = this.currentElement;
+            this.fire('open-info');
+        },
+        /**
+         * Close dialogs
+         */
+        suspendRemoving: function () {
+            this.$.removingConfirm.close();
+        }
+    }
 </script>
 

@@ -1,0 +1,125 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module id="designmap-tutorial">
+    <template>
+        <style>
+            /** HINT SYSTEM WORK FIELD **/
+            .work-field {
+                display: none;
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                width: 100vw;
+                height: 100vh;
+                z-index: 9999;
+                align-items: center;
+                justify-content: center;
+            }
+            /** THUMB UP **/
+            .thumb-up {
+                display: block;
+                width: 15vw;
+                height: 15vw;
+                border: 0.8vh solid var(--blue-darkest-color);
+                border-radius: 50%;
+            }
+            .thumb-up iron-icon {
+                width: 60%;
+                height: 60%;
+                padding: 20%;
+            }
+            .thumb-up iron-icon {
+                --iron-icon-components-mixin: {
+                    fill: var(--blue-darkest-color);
+                    stroke: var(--blue-darkest-color);
+                };
+            }
+        </style>
+        <div id="workField" class="work-field">
+            <div class="thumb-up" id="thumbUp">
+                <iron-icon icon="icons:thumb-up"></iron-icon>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-tutorial',
+            behaviors: [
+                Polymer.DesignMapWebAnimationBehavior
+            ],
+            properties: {
+                hints: {
+                    type: Array,
+                    value: [
+                        'fsView.fs.panel.createFolderHint',
+                        'fsView.fs.elements.openContextMenuHint',
+                        'fsView.fs.panel.uploadFileHint',
+                        'fsView.fs.elements.openFileHint',
+                        'galleryView.gallery.stickers.addCommentHint',
+                        'galleryView.gallery.shareHint'
+                    ]
+                },
+                isRunning: {
+                    type: String,
+                    value: ''
+                },
+                current: {
+                    type: Number,
+                    observer: '_currentChanged'
+                }
+            },
+            /**
+             * Show thumb up!
+             */
+            thumbUp: function(){
+                return new Promise(function(resolve,reject){
+                    this._openWorkField();
+                    this.playStackAnimations([
+                        this.shakeAnimation(this.$.thumbUp,{duration:700, easing:'cubic-bezier(0.3, 0.4, 0.8, 1)'}),
+                        this.fadeOutAnimation(this.$.thumbUp)
+                    ]).then(function(){
+                        this._closeWorkField();
+                        resolve();
+                    }.bind(this));
+                }.bind(this));
+            },
+            _openWorkField: function(){
+                this.$.workField.style.display = 'flex';
+            },
+            _closeWorkField: function(){
+                this.$.workField.style.display = 'none';
+            },
+            _findElement(selector){
+                const nodesArray = selector.split('.');
+                let node = document.querySelector('designmap-app');
+                while(nodesArray.length) {
+                    node = node.$[nodesArray[0]] || node.$$('#'+nodesArray[0]) || node.querySelector('.'+nodesArray[0]) || node.querySelector(nodesArray[0]);
+                    nodesArray.shift();
+                }
+                return node;
+            },
+            start: function(){
+                this.current = 0;
+            },
+            close: function(){
+                if(!this.hints[this.current]) return;
+                const e = this._findElement(this.hints[this.current]);
+                e.finish();
+            },
+            _currentChanged: function(){
+                if(!this.hints[this.current]) return;
+                const e = this._findElement(this.hints[this.current]);
+                this.isRunning = e.name;
+                e.run();
+            },
+            next: function(){
+                const e = this._findElement(this.hints[this.current]);
+                this.current++;
+            },
+            prev: function(){
+                const e = this._findElement(this.hints[this.current]);
+                this.current--;
+            }
+        })
+    </script>
+</dom-module>

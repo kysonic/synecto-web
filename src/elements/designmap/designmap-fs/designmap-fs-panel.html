@@ -1,6 +1,7 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../designmap-ui/designmap-confirm.html">
+<link rel="import" href="../designmap-tutorial/designmap-hint.html">
 <link rel="import" href="../designmap-buttons/designmap-circle-button.html">
 <link rel="import" href="../designmap-buttons/designmap-round-button.html">
 <link rel="import" href="./designmap-fs-service.html">
@@ -26,9 +27,11 @@
                     height: 100%;
                 };
             }
+
             *[hidden] {
                 display: none !important;
             }
+
             /** BUTTONS PANEL **/
             .buttons-panel {
                 display: flex;
@@ -47,7 +50,8 @@
                 margin-left: 5px;
                 margin-top: 2px;
             }
-            .left designmap-circle-button{
+
+            .left designmap-circle-button {
                 margin-left: 15px;
             }
 
@@ -83,12 +87,22 @@
         <!-- Panel -->
         <div class="buttons-panel">
             <div class="left" hidden$="[[!doesUserHaveEditAccess(role,acl)]]">
-                <designmap-circle-button data-hint="create-folder"
+                <designmap-circle-button id="createFolderButton"
                                          x-tooltip$="[[translate('Add folder',language,i18Loaded)]]" data-cls="blue"
-                                         hidden$="[[trashMode]]" data-hint="create-folder" id="addFolderButton"
+                                         hidden$="[[trashMode]]" id="addFolderButton"
                                          on-click="openAddFolderContext">
                     <iron-icon icon="designmap-workspace:folder"></iron-icon>
                 </designmap-circle-button>
+                <!-- Hint -->
+                <designmap-hint id="createFolderHint" previous name="createFolder" vertical-offset="50"
+                                horizontal-offset="-107">
+                    <div class="title">
+                        <i18-n msgid="Creating sub-folder">Creating sub-folder</i18-n>
+                    </div>
+                    <div class="desc">
+                        <i18-n msgid="creatingSubFolderMsg">creatingSubFolderMsg</i18-n>
+                    </div>
+                </designmap-hint>
                 <!-- Add folder -->
                 <designmap-context-menu id="addFolderContext" previous>
                     <div class="context-content">
@@ -104,14 +118,24 @@
                         </div>
                     </div>
                 </designmap-context-menu>
-                <!-- Add folder -->
-                <designmap-circle-button data-hint="upload-file"
+                <!-- Upload file -->
+                <designmap-circle-button id="uploadFileButton"
                                          x-tooltip$="[[translate('Upload file',language,i18Loaded)]]" data-cls="blue"
                                          hidden$="[[trashMode]]" on-click="openFileUploader" data-hint="add-file">
                     <iron-icon icon="designmap-workspace:file"></iron-icon>
                 </designmap-circle-button>
+                <designmap-hint id="uploadFileHint" previous name="addFile" vertical-offset="50"
+                                horizontal-offset="-107">
+                    <div class="title">
+                        <i18-n msgid="Add file">Add file</i18-n>
+                    </div>
+                    <div class="desc">
+                        <i18-n msgid="addFileMsg">addFileMsg</i18-n>
+                    </div>
+                </designmap-hint>
                 <!-- Trash mode -->
-                <designmap-circle-button x-tooltip$="[[translate('Restore all',language,i18Loaded)]]" data-cls="blue" hidden$="[[!trashMode]]" class="trash" on-click="restoreAll">
+                <designmap-circle-button x-tooltip$="[[translate('Restore all',language,i18Loaded)]]" data-cls="blue"
+                                         hidden$="[[!trashMode]]" class="trash" on-click="restoreAll">
                     <iron-icon icon="designmap-workspace:restore"></iron-icon>
                 </designmap-circle-button>
                 <designmap-circle-button x-tooltip$="[[translate('Remove all',language,i18Loaded)]]" data-cls="blue"
@@ -201,6 +225,9 @@
                 trashMode: {
                     type: Boolean
                 }
+            },
+            attached: function () {
+                this.tutorial = document.querySelector('designmap-app').$.tutorial;
             },
             /**
              * Open add folder context

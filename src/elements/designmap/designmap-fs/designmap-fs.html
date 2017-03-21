@@ -359,6 +359,16 @@
              */
             _isAuthChanged: function (isAuth) {
                 if (!isAuth) return this.cleanUp();
+                // Start tutorial
+                if(!this.user.system.firstVisitIsDone) {
+                    const system = this.user.system;
+                    system.firstVisitIsDone = true;
+                    this.dispatch('userUpdate',{system:system});
+                    const tutorial = document.querySelector('designmap-app').$.tutorial;
+                    this.async(function(){
+                        tutorial.start();
+                    },2000);
+                }
                 // Get user's projects
                 this.dispatch('getProjects').then(function (response) {
                     if (!response.success) return;

@@ -35,8 +35,8 @@
             }
             :host([thin]) {
                 border: 1px solid var(--white-color);
-                font-family: 'Open Sans Light', 'Open Sans', sans-serif;
-                font-weight: 300;
+                font-family: 'Open Sans', sans-serif;
+                font-weight: 100;
             }
             :host([disabled]) {
                 opacity: 0.6;
@@ -52,6 +52,14 @@
                 position: absolute;
                 left: 0;
                 top: 8px;
+            }
+            :host([gray]) {
+                color: var(--gray-darkend-color);
+                border-color: var(--gray-darkend-color);
+            }
+            :host([gray]:hover) {
+                background: rgba(0,0,0,0.05);
+                transition: background .2s;
             }
         </style>
         <content></content>

@@ -146,7 +146,7 @@
         <designmap-projects-list menu-mode hidden$="[[project._id]]"></designmap-projects-list>
         <ul hidden$="[[!project._id]]">
             <!-- Context menu -->
-            <li title$="[[translate('Project',language,i18Loaded)]]"
+            <li on-click="goToTheProject" on-mouseover="_mouseOver" class$="[[_computeSelectedItem(page,trashMode,'fs')]]" on-mouseleave="_mouseLeave"
                 data-hint="task-manager-button">
                 <designmap-circle-button>
                     <iron-icon icon="designmap-workspace:project"></iron-icon>
@@ -154,6 +154,7 @@
                 <div class="text">
                     [[_computeProjectName(project.name)]]
                 </div>
+                <div class="marker dot"></div>
                 <div class="icon-wrapper">
                     <iron-icon class="project-menu" icon="designmap-workspace:more" on-click="openContext"></iron-icon>
                     <!-- Context -->
@@ -186,16 +187,15 @@
                 </div>
             </li>
             <ul class="indented" hidden$="[[!project._id]]">
-                <li on-click="goToTheProject" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class$="[[_computeSelectedItem(page,trashMode,'fs')]]">
+                <!--<li id="projectItem" on-click="goToTheProject" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class$="[[_computeSelectedItem(page,trashMode,'fs')]]">
                     <designmap-circle-button>
                         <iron-icon icon="designmap-workspace:project"></iron-icon>
                     </designmap-circle-button>
                     <div class="text">
                        <i18-n msgid="Files">Files</i18-n>
                     </div>
-                    <div class="marker dot"></div>
-                </li>
-                <li on-click="goToTrashBox" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class$="[[_computeSelectedItem(page,trashMode,'trash')]]" title$="[[translate('Trash',language,i18Loaded)]]" data-hint="trash-button">
+                </li>-->
+                <li id="trashItem" on-click="goToTrashBox" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class$="[[_computeSelectedItem(page,trashMode,'trash')]]">
                     <designmap-circle-button>
                         <iron-icon icon="designmap-workspace:bin"></iron-icon>
                         <div class="trash-count">[[trashLength]]</div>
@@ -205,9 +205,7 @@
                     </div>
                     <div class="marker dot"></div>
                 </li>
-                <li on-click="goToTaskManager" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" title$="[[translate('Task manager',language,i18Loaded)]]"
-                    data-hint="task-manager-button"
-                    class="locked">
+                <li id="taskManagerItem" on-click="goToTaskManager" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class="locked">
                     <designmap-circle-button>
                         <iron-icon icon="designmap-workspace:taskmanager"></iron-icon>
                     </designmap-circle-button>
@@ -216,8 +214,7 @@
                         <i18-n msgid="Task manager">Task manager</i18-n>
                     </div>
                 </li>
-                <li on-click="openSharingDialog" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" title$="[[translate('Accesses',language,i18Loaded)]]"
-                    data-hint="share-button">
+                <li id="accessesItem" on-click="openSharingDialog" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave">
                     <designmap-circle-button>
                         <iron-icon icon="designmap-workspace:link"></iron-icon>
                     </designmap-circle-button>

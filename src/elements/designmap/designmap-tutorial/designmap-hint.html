@@ -1,0 +1,150 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../designmap-ui/designmap-dropdown.html">
+<link rel="import" href="../designmap-buttons/designmap-button.html">
+
+<dom-module id="designmap-hint">
+    <template>
+        <style>
+            :host {
+                --designmap-hint-text-color: var(--gray-saturated-color);
+                --designmap-hint-text-dark-color: var(--gray-darkend-color);
+
+                --designmap-dropdown-triangle-mixin: {
+                    margin-left: -18px;
+                    border-color: transparent transparent var(--white-color) transparent;
+                };
+                --designmap-dropdown-triangle-border-mixin: {
+                    margin-left: -20px;
+                    margin-top: -2px;
+                    border-color: transparent transparent var(--gray-color) transparent;
+                };
+                --designmap-dropdown-mixin: {
+                    border: 1px solid var(--gray-color);
+                    background: var(--white-color) !important;
+                    box-shadow: 0px 6px 15px -5px rgba(0, 0, 0, 1);
+                }
+            }
+
+            *[hidden] {
+                display: none !important;
+            }
+
+            ::content .title {
+                color: var(--designmap-hint-text-dark-color);
+                font-size: 16px;
+                font-weight: bold;
+            }
+
+            ::content .desc {
+                margin-top: 10px;
+                color: var(--designmap-hint-text-color);
+                font-size: 14px;
+                font-weight: 100;
+            }
+
+            .button-set {
+                width: 100%;
+                margin-top: 10px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: left;
+            }
+
+            button {
+                border: 1px solid var(--designmap-hint-text-color) !important;
+                font-size: 14px;
+                padding-left: 10px;
+                padding-right: 10px;
+                color: var(--designmap-hint-text-color);
+                transition: .2s background;
+                width: 100%;
+            }
+
+            button:hover {
+                background: var(--gray-lightenest-color);
+                transition: .2s background;
+            }
+
+            .skip {
+                font-size: 12px;
+                color: var(--designmap-hint-text-dark-color);
+                font-weight: 100;
+            }
+        </style>
+        <designmap-dropdown vertical-offset="[[verticalOffset]]"
+                            horizontal-offset="[[horizontalOffset]]"
+                            id="dropdown"
+                            no-cancel-on-outside-click
+                            tri-border
+                            tri-right$="[[triRight]]"
+                            target="[[target]]">
+            <content></content>
+            <!--<div class="button-set">
+                <button hidden$="[[hideGotIt]]" is="designmap-button" on-click="skip" thin>
+                    <i18-n msgid="Got it!">Got it!</i18-n>
+                </button>
+            </div>-->
+        </designmap-dropdown>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-hint',
+            behaviors: [],
+            properties: {
+                name: {
+                    type: String
+                },
+                target: {
+                    type: Object,
+                    value: null
+                },
+                parent: {
+                    type: Boolean,
+                    value: false
+                },
+                previous: {
+                    type: Boolean,
+                    value: false
+                },
+                horizontalOffset: {
+                    type: Number,
+                    value: 0
+                },
+                verticalOffset: {
+                    type: Number,
+                    value: 0
+                },
+                left: {
+                    type: Boolean,
+                    value: false
+                },
+                triRight: {
+                    type: Boolean,
+                    value: false
+                },
+                hideGotIt: {
+                    type: Boolean,
+                    value: false
+                }
+            },
+            ready: function () {
+                if (this.parent) this.target = this.parentNode;
+                if (this.previous) this.target = this.previousElementSibling;
+                this.app = document.querySelector('designmap-app');
+            },
+            run: function () {
+                this.$.dropdown.open();
+            },
+            finish: function () {
+                this.$.dropdown.close();
+            },
+            tryIt: function () {
+                this.finish();
+            },
+            skip: function () {
+                this.finish();
+                this.app.$.tutorial.next();
+            }
+        })
+    </script>
+</dom-module>

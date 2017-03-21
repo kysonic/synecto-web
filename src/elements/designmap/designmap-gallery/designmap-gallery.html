@@ -1,7 +1,11 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-image/iron-image.html">
+<link rel="import" href="/bower_components/iron-icons/social-icons.html">
+<link rel="import" href="/bower_components/cbn-copy-clipboard/cbn-copy-clipboard.html">
 <link rel="import" href="../designmap-buttons/designmap-gallery-button.html">
+<link rel="import" href="../designmap-tutorial/designmap-hint.html">
 <link rel="import" href="../designmap-ui/designmap-hidden-panel.html">
+<link rel="import" href="../designmap-ui/designmap-dropdown.html">
 <link rel="import" href="./designmap-stickers.html">
 <link rel="import" href="../designmap-icons/designmap-logo-icons.html">
 <link rel="import" href="./designmap-gallery-user-list.html">
@@ -10,10 +14,12 @@
 <link rel="import" href="../../../redux/actions/files-actions.html">
 <link rel="import" href="../../../redux/actions/stickers-actions.html">
 <link rel="import" href="../../../redux/actions/comments-action.html">
+<!-- Styles -->
+<link rel="import" href="../../../styles/context-menu-shared-styles.html">
 
 <dom-module id="designmap-gallery">
     <template>
-        <style>
+        <style include="context-menu-shared-styles">
             :host {
                 width: 100%;
                 height: 100vh;
@@ -24,6 +30,21 @@
                 --designmap-gallery-color: var(--gray-lighty-color);
                 --designmap-gallery-line-color: var(--gray-lightenest-color);
                 --designmap-gallery-striped-background: repeating-linear-gradient(-45deg, var(--designmap-gallery-color), var(--designmap-gallery-line-color) 5px, rgba(256, 256, 256, 0.3) 5px, rgba(256, 256, 256, 0.3) 6px);
+
+                --designmap-dropdown-triangle-mixin: {
+                    margin-left: -18px;
+                    border-color: transparent transparent var(--white-color) transparent !important;
+                };
+                --designmap-dropdown-triangle-border-mixin: {
+                    margin-left: -20px;
+                    margin-top: -2px;
+                    border-color: transparent transparent var(--gray-color) transparent !important;
+                };
+                --designmap-dropdown-mixin: {
+                    border: 1px solid var(--gray-color);
+                    background: var(--white-color) !important;
+                    box-shadow: 0 6px 15px -5px rgba(0, 0, 0, 1);
+                };
             }
 
             *[hidden] {
@@ -52,8 +73,23 @@
                 align-items: center;
             }
 
+            .breadcrumbs {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                right: 20px;
+                top: 2px;
+                color: var(--gray-darkend-color);
+            }
+
             .top-panel .center, .bottom-panel .center {
                 flex-grow: 11;
+                justify-content: space-between;
+            }
+
+            .top-panel .center .left {
+
             }
 
             .top-panel .right, .bottom-panel .right {
@@ -172,8 +208,18 @@
             /** bottom-panel **/
             .bottom-panel {
                 width: 100%;
-                flex-basis: calc(var(--designmap-gallery-panel-height) + 15px);
+                flex-basis: var(--designmap-gallery-panel-height);
                 background: var(--gray-lightern-color);
+            }
+
+            .bottom-panel .center {
+                display: flex;
+                align-items: center;
+                justify-content: space-between !important;
+                flex-grow: 1;
+            }
+            .bottom-panel .left, .bottom-panel .right {
+                flex-grow: 20;
             }
 
             .bottom-panel button {
@@ -197,7 +243,7 @@
                 height: 70px;
             }
 
-            .right-button, .resize-button {
+            .right-button {
                 margin-right: 30px;
             }
 
@@ -215,6 +261,24 @@
                 height: 30px !important;
                 --iron-icon-components-mixin: {
                     stroke-width: 2px;
+                };
+            }
+
+            .share-icon {
+                width: 30px !important;
+                height: 30px !important;
+                --iron-icon-stroke-color: var(--white-color);
+                --iron-icon-fill-color: var(--white-color);
+                --iron-icon-components-mixin: {
+                    stroke-width: 0.1px;
+                };
+            }
+
+            .phone-icon {
+                width: 45px !important;
+                height: 45px !important;
+                --iron-icon-components-mixin: {
+                    stroke-width: 1px;
                 };
             }
 
@@ -254,6 +318,27 @@
                 margin-right: 10px;
             }
 
+            .link  {
+                padding: 10px 5px;
+                border: 1px dashed var(--gray-color);
+                color: var(--gray-darkend-color);
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .copy-button {
+                width: 100%;
+                font-size: 15px;
+            }
+
+            .hint {
+                position: absolute;
+                background: rgba(0,0,0,0.4);
+                border-radius: 10px;
+                padding: 10px 5px;
+                color: var(--white-color);
+                font-size: 14px;
+            }
 
         </style>
         <div class="top-panel panel">
@@ -261,17 +346,64 @@
                 <iron-icon class="designmap-logo" on-click="close" icon="designmap-logo:logo-gray"></iron-icon>
             </div>
             <div class="center" data-hint="file-top-panel">
+                <div class="left">
+                    <div class="breadcrumbs">
+                        <iron-icon class="bread-separator" icon="icons:chevron-left"></iron-icon>
+                        <span>[[cutFileName(file)]]</span>
+                    </div>
+                </div>
+                <div class="right">
 
+                </div>
             </div>
             <div class="right">
+                <button class="top-panel-button" is="designmap-gallery-button" on-click="call">
+                    <iron-icon class="phone-icon" icon="designmap:phone"></iron-icon>
+                </button>
                 <button class="top-panel-button" is="designmap-gallery-button" on-click="chat">
                     <iron-icon class="chat-icon" icon="designmap:chat"></iron-icon>
                 </button>
-                <!--<button class="top-panel-button" is="designmap-gallery-button" on-click="openContext">
+                <button id="shareButton" class="top-panel-button" is="designmap-gallery-button" on-click="share">
+                    <iron-icon class="share-icon" icon="social:share"></iron-icon>
+                </button>
+                <designmap-dropdown previous id="shareDropdown" tri-border vertical-offset="60" horizontal-offset="-107">
+                    <div on-click="_selectAll" class="link">[[_buildLink()]]</div>
+                    <cbn-copy-clipboard  value="[[_buildLink()]]">
+                        <button class="copy-button" is="designmap-button" on-click="_copyToClipBoard" thin gray>
+                            <i18-n msgid="Copy to clipboard">Copy to clipboard</i18-n>
+                        </button>
+                    </cbn-copy-clipboard>
+                </designmap-dropdown>
+                <designmap-hint id="shareHint"
+                                target="[[shareButton]]"
+                                name="share"
+                                vertical-offset="60"
+                                horizontal-offset="-107">
+                    <div class="title">
+                        <i18-n msgid="Share file">Share file</i18-n>
+                    </div>
+                    <div class="desc">
+                        <i18-n msgid="shareFileMsg">shareFileMsg</i18-n>
+                    </div>
+                </designmap-hint>
+                <button class="top-panel-button" is="designmap-gallery-button" on-click="openContext">
                     <iron-icon class="more-icon" icon="designmap-workspace:more"></iron-icon>
-                </button>-->
+                </button>
+                <designmap-context-menu id="galleryContext" previous>
+                    <ul class="menu">
+                        <li on-click="downloadFile">
+                            <i18-n msgid="Download file">Download file</i18-n>
+                        </li>
+                        <!--<li on-click="lockFile">
+                            <i18-n msgid="[[_computeLockMessage(file.locked,i18Loaded)]]">Lock</i18-n>
+                        </li>-->
+                        <li on-click="removeFile">
+                            <i18-n msgid="Remove file">Remove file</i18-n>
+                        </li>
+                    </ul>
+                </designmap-context-menu>
                 <button class="right-button" is="designmap-gallery-button"
-                        x-tooltip$="[[translate('Close gallery',language)]]" on-click="close">
+                        x-tooltip$="[[translate('Close gallery',language,i18Loaded)]]" on-click="close">
                     <iron-icon class="close-icon" style="transform: rotate(45deg)" icon="designmap:add"></iron-icon>
                 </button>
             </div>
@@ -297,7 +429,10 @@
                             on-error="imageError"
                             class$="{{zoomClasses(zoom,index)}}"
                             src="{{computeFileSrc(file)}}"></iron-image>
-                    <designmap-stickers sticker-catch="{{stickerCatch}}" moved="[[moved]]" pressed="[[pressed]]" file="[[file]]" zoom="[[zoom]]"></designmap-stickers>
+                    <designmap-stickers id="stickers" sticker-catch="{{stickerCatch}}" moved="[[moved]]" pressed="[[pressed]]" file="[[file]]" zoom="[[zoom]]"></designmap-stickers>
+                </div>
+                <div class="hint" hidden$="[[!showHint]]">
+                    <i18-n msgid="Click on image to leave comment">Click on image to leave comment</i18-n>
                 </div>
             </template>
             <template is="dom-if" if="{{!canBeDisplayed(file)}}" restamp="true">
@@ -311,21 +446,23 @@
         </div>
         <div class="bottom-panel panel">
             <div class="left">
-                <designmap-gallery-user-list></designmap-gallery-user-list>
+                <!--<designmap-gallery-user-list></designmap-gallery-user-list>-->
             </div>
             <div class="center">
                 <button class="minus-button" is="designmap-gallery-button" on-click="zoomOut">
                     <iron-icon class="minus-icon" icon="designmap:minus"></iron-icon>
                 </button>
-                <div class="title">[[_computeFileName(file,files.length)]]</div>
+                <button class="resize-button" is="designmap-gallery-button" on-click="clearZoom">
+                    <iron-icon class="resize-icon" icon="designmap:resize"></iron-icon>
+                </button>
                 <button class="plus-button" is="designmap-gallery-button" on-click="zoomIn">
                     <iron-icon class="plus-icon" icon="designmap:add"></iron-icon>
                 </button>
             </div>
             <div class="right">
-                <button class="resize-button" is="designmap-gallery-button" on-click="clearZoom">
+                <!--<button class="resize-button" is="designmap-gallery-button" on-click="clearZoom">
                     <iron-icon class="resize-icon" icon="designmap:resize"></iron-icon>
-                </button>
+                </button>-->
             </div>
         </div>
     </template>
@@ -409,16 +546,30 @@
                 language: {
                     type: String,
                     computed: '_computeLanguage(user.system.language)'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    statePath: 'i18Loaded'
+                },
+                showHint: {
+                    type: Boolean,
+                    value: false
+                },
+                shareButton: {
+                    type: Object,
+                    value: function(){
+                        return this.$.shareButton
+                    }
                 }
             },
             observers: [
-                'openStateChanged(opened)',
                 '_entityIdChanged(entityId,entityType)'
             ],
             /**
              * Whe file id changed
              */
             _fileIdChanged: function (fileId) {
+                // Work with file
                 const file = this.findFileById(fileId);
                 if (file) return this.file = file;
                 this.dispatch('getStickers', {file: fileId});
@@ -458,25 +609,6 @@
                 if (nextIndex >= this.files.length) nextIndex = 0;
                 const nextFileId = this.files[nextIndex]._id;
                 page.redirect('/gallery/' + nextFileId);
-            },
-            /**
-             * When opened is true play entry animation
-             * @param opened
-             */
-            openStateChanged: function (opened) {
-                opened ? this.classList.add('opened') : this.classList.remove('opened');
-                if (opened) this.async(function () {
-                    var animation = this.fadeInAnimation(this, {easing: 'cubic-bezier(.3,0,.2,1)'});
-                    animation.finished.then(function () {
-                    });
-                    if (this.user.config.animationOn) animation.play();
-                });
-            },
-            /**
-             * Open a gallery
-             */
-            open: function () {
-                this.opened = true;
             },
             /**
              * Close gallery, but before we have to play exit animation
@@ -692,11 +824,10 @@
              * convenient to handle this operation out from here
              */
             removeFile: function () {
-                var file = this.files[this.selected];
-                this.beforeRemoving();
-                if (!(this.files.length - 1)) this.close();
-                this.dispatch('$updateFile', file._id, {removed: true}).then(function () {
+                var file = this.file;
+                this.dispatch('updateFile', file._id, {removed: true}, file.project).then(function () {
                     this.showUndoMessage('File was removed successfuly.', {"#FILE#": file.data.name});
+                    this.close();
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));
             },
             /**
@@ -704,9 +835,9 @@
              * Fire event and handle it inside the gallery
              */
             lockFile: function () {
-                var file = this.files[this.selected];
-                this.dispatch('$updateFile', file._id, {locked: !file.locked}).then(function () {
-                    //this.showMessage('File "#FILE#" was updated successfuly.',{"#FILE#":file.data.name});
+                var file = this.file;
+                this.dispatch('updateFile', file._id, {locked: !file.locked}, file.project).then(function () {
+                    this.showMessage('File was locked successfully.',{"#FILE#":file.data.name});
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));
             },
             /**
@@ -726,7 +857,7 @@
              * Download file. Right from gallery.
              */
             downloadFile: function () {
-                window.open(this.files[this.selected].data.url.replace("#SERVER#", Designmap.config.apiURL));
+                window.open(this.file.data.url.replace("#SERVER#", Designmap.config.apiURL));
             },
             /**
              * Can user lock file?
@@ -737,89 +868,12 @@
                 return this.isOwner();
             },
             /**
-             * Fetch folder path
-             * @param file
-             */
-            getFolder: function () {
-                return this.folder
-            },
-            /**
-             * Toggle description panel
-             */
-            toggleDescPanel: function () {
-                if (this.$$('#descScroller')) this.async(function () {
-                    this.$$('#descScroller').calculate();
-                }, 50);
-                this.$.desc.toggle();
-            },
-            /**
-             * Compute classes for description button
-             * @returns {string}
-             */
-            computePinClasses: function () {
-                return this.$.desc.opened ? 'opened description-button' : 'description-button';
-            },
-            /**
-             * Compute classes for description button
-             * @returns {string}
-             */
-            computePhantomClasses: function () {
-                return this.$.desc.opened ? 'opened phantom-button' : 'phantom-button';
-            },
-            /**
-             * Save description
-             */
-            saveDescription: function () {
-                var file = this.files[this.selected];
-                this.dispatch('$updateFile', file._id, {description: this.$$('#descArea').$.textarea.value}).then(function () {
-                    this.showUndoMessage('Description was updated.');
-                }.bind(this)).catch(this.manageErrorResponse.bind(this));
-            },
-            /**
-             * Setup description for certain file
-             * @param selected
-             * @returns {*|fileSchema.description|{type, default}|string|string|null}
-             */
-            descriptionState: function (selected, files) {
-                return this.files[selected] ? this.files[selected].description : '';
-            },
-            /**
-             * Should we draw description button?!
-             * @param acl - acl entity
-             * @param selected - current selected file
-             * @param splices - file splices
-             * @returns {*}
-             */
-            descriptionButtonState: function (acl, selected) {
-                return this.isOwner() || (this.files[selected] && this.files[selected].description);
-            },
-            /**
-             * Compute stickers count
-             * @param selected
-             * @returns {number}
-             */
-            computeStickersCount: function (selected) {
-                var file = this.files[selected];
-                if (!this.stickers || !file) return 0;
-                return this.stickers.filter(function (sticker) {
-                    return sticker.file == file._id;
-                }).length;
-            },
-            /**
              * Compute file url
              * @param file
              * @returns {*}
              */
             computeFileSrc: function (file) {
                 return file.preview ? file.preview.url : file.data.url.replace('#SERVER#', Designmap.config.apiURL);
-            },
-            /**
-             * Compute file title by name
-             * @param file
-             * @returns {*}
-             */
-            computeFileTile: function (file) {
-                return file.data.name;
             },
             /**
              * Compute id of image
@@ -862,6 +916,32 @@
             },
             _computeStickersClass: function (stickerMode) {
                 return stickerMode ? 'hide' : '';
+            },
+            _computeLockMessage: function(locked){
+                return locked?"Lock":"Unlock";
+            },
+            openContext: function(e){
+                this.$.galleryContext.toggle(e);
+            },
+            _buildLink: function(){
+                return location.href;
+            },
+            share: function(){
+                this.$.shareDropdown.open();
+                // Hints
+                const tutorial = document.querySelector('designmap-app').$.tutorial;
+                if(tutorial.isRunning=='share') {
+                    tutorial.isRunning = '';
+                    tutorial.close();
+                    this.async(function(){tutorial.thumbUp();},500);
+                }
+            },
+            _selectAll: function(e){
+                this.selectText(e.target);
+            },
+            _copyToClipBoard: function(){
+                this.showMessage('Link was copied to your clipboard.')
+                this.$.shareDropdown.close();
             }
         });
     </script>
