@@ -18,8 +18,10 @@
                 };
                 --plastic-custom-scroll-bar-hover-mixin: {
                     margin-left: -5px;
+                };
+                --plastic-custom-scroll-bar-grabbed-mixin: {
+                    margin-left: -5px;
                 }
-
             }
 
             button {
@@ -51,7 +53,7 @@
             }
 
             .avatar.selected {
-                border: 2px solid var(--white-color);
+                border: 2px solid rgba(30, 255, 220, 0.7);
             }
 
             .avatar img {
@@ -76,7 +78,7 @@
             </template>
         </plastic-custom-scroll>
         <!-- <div class="phantom-button" hidden$="[[selectedAvatar]]"></div>-->
-        <button hidden$="[[!selectedAvatar]]" class="save" is="designmap-button" thin on-click="save">
+        <button hidden$="[[!selectedAvatar]]" gray class="save" is="designmap-button" thin on-click="save">
             <i18-n msgid="Save">Save</i18-n>
         </button>
     </template>

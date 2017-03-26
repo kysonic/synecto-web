@@ -6,6 +6,8 @@
 <link rel="import" href="../designmap-tutorial/designmap-hint.html">
 <link rel="import" href="../designmap-ui/designmap-hidden-panel.html">
 <link rel="import" href="../designmap-ui/designmap-dropdown.html">
+<link rel="import" href="../designmap-ui/designmap-showcase.html">
+<link rel="import" href="../designmap-ui/designmap-stub.html">
 <link rel="import" href="./designmap-stickers.html">
 <link rel="import" href="../designmap-icons/designmap-logo-icons.html">
 <link rel="import" href="./designmap-gallery-user-list.html">
@@ -205,6 +207,14 @@
                 text-transform: uppercase;
             }
 
+            .error {
+                width: 25vw;
+                height: 25vw;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
             /** bottom-panel **/
             .bottom-panel {
                 width: 100%;
@@ -340,13 +350,27 @@
                 font-size: 14px;
             }
 
+            paper-dialog {
+                padding: 35px !important;
+            }
+
+            designmap-dropdown .title {
+                text-align: center;
+                padding-bottom: 5px;
+                color: var(--gray-darky-hovered-color)
+            }
+
+            .showcase-dialog {
+                z-index: 8888;
+            }
+
         </style>
         <div class="top-panel panel">
             <div class="left">
                 <iron-icon class="designmap-logo" on-click="close" icon="designmap-logo:logo-gray"></iron-icon>
             </div>
             <div class="center" data-hint="file-top-panel">
-                <div class="left">
+                <div class="left" hidden$="[[!file]]">
                     <div class="breadcrumbs">
                         <iron-icon class="bread-separator" icon="icons:chevron-left"></iron-icon>
                         <span>[[cutFileName(file)]]</span>
@@ -357,16 +381,21 @@
                 </div>
             </div>
             <div class="right">
-                <button class="top-panel-button" is="designmap-gallery-button" on-click="call">
+                <button hidden$="[[!file]]" id="callButton" class="top-panel-button" is="designmap-gallery-button" on-click="call">
                     <iron-icon class="phone-icon" icon="designmap:phone"></iron-icon>
                 </button>
-                <button class="top-panel-button" is="designmap-gallery-button" on-click="chat">
+                <paper-tooltip for="callButton"><i18-n msgid="Call">Call</i18-n></paper-tooltip>
+                <button hidden$="[[!file]]" id="chatButton" class="top-panel-button" is="designmap-gallery-button" on-click="chat">
                     <iron-icon class="chat-icon" icon="designmap:chat"></iron-icon>
                 </button>
-                <button id="shareButton" class="top-panel-button" is="designmap-gallery-button" on-click="share">
+                <paper-tooltip for="chatButton"><i18-n msgid="Chat">Chat</i18-n></paper-tooltip>
+                <button hidden$="[[!file]]" id="shareButton" class="top-panel-button" is="designmap-gallery-button" on-click="share">
                     <iron-icon class="share-icon" icon="social:share"></iron-icon>
                 </button>
                 <designmap-dropdown previous id="shareDropdown" tri-border vertical-offset="60" horizontal-offset="-107">
+                    <!--<div class="title">
+                        <i18-n msgid="Share this file">Share this file</i18-n>
+                    </div>-->
                     <div on-click="_selectAll" class="link">[[_buildLink()]]</div>
                     <cbn-copy-clipboard  value="[[_buildLink()]]">
                         <button class="copy-button" is="designmap-button" on-click="_copyToClipBoard" thin gray>
@@ -374,6 +403,7 @@
                         </button>
                     </cbn-copy-clipboard>
                 </designmap-dropdown>
+                <paper-tooltip for="shareButton"><i18-n msgid="Share">Share</i18-n></paper-tooltip>
                 <designmap-hint id="shareHint"
                                 target="[[shareButton]]"
                                 name="share"
@@ -386,9 +416,10 @@
                         <i18-n msgid="shareFileMsg">shareFileMsg</i18-n>
                     </div>
                 </designmap-hint>
-                <button class="top-panel-button" is="designmap-gallery-button" on-click="openContext">
+                <button hidden$="[[!file]]" id="moreButton" class="top-panel-button" is="designmap-gallery-button" on-click="openContext">
                     <iron-icon class="more-icon" icon="designmap-workspace:more"></iron-icon>
                 </button>
+                <paper-tooltip for="moreButton"><i18-n msgid="File menu">File menu</i18-n></paper-tooltip>
                 <designmap-context-menu id="galleryContext" previous>
                     <ul class="menu">
                         <li on-click="downloadFile">
@@ -397,22 +428,23 @@
                         <!--<li on-click="lockFile">
                             <i18-n msgid="[[_computeLockMessage(file.locked,i18Loaded)]]">Lock</i18-n>
                         </li>-->
-                        <li on-click="removeFile">
+                        <li hidden$="[[!lowAccess(user.fileRole)]]" on-click="removeFile">
                             <i18-n msgid="Remove file">Remove file</i18-n>
                         </li>
                     </ul>
                 </designmap-context-menu>
-                <button class="right-button" is="designmap-gallery-button"
+                <button id="closeButton" class="right-button" is="designmap-gallery-button"
                         x-tooltip$="[[translate('Close gallery',language,i18Loaded)]]" on-click="close">
                     <iron-icon class="close-icon" style="transform: rotate(45deg)" icon="designmap:add"></iron-icon>
                 </button>
+                <paper-tooltip for="closeButton"><i18-n msgid="Close">Close</i18-n></paper-tooltip>
             </div>
         </div>
         <div class="content">
             <div class="previous" on-click="previous" hidden$="[[_computeButtons(files.*)]]">
                 <iron-icon icon="icons:chevron-left"></iron-icon>
             </div>
-            <template is="dom-if" if="{{canBeDisplayed(file)}}" restamp="true">
+            <template is="dom-if" if="[[canBeDisplayed(file)]]" restamp="true">
                 <div id="item" class="item"
                      id="[[computeID(index)]]"
                      draggable="false"
@@ -435,9 +467,15 @@
                     <i18-n msgid="Click on image to leave comment">Click on image to leave comment</i18-n>
                 </div>
             </template>
-            <template is="dom-if" if="{{!canBeDisplayed(file)}}" restamp="true">
-                <div class="extension" on-click="convert">
+            <!--<template is="dom-if" if="[[!canBeDisplayed(file)]]" restamp="true">
+                <div class="extension">
                     {{getExtensionWithoutDot(file.data.name)}}
+                </div>
+            </template>-->
+            <template is="dom-if" if="[[error]]">
+                <div class="error">
+                    <designmap-stub image="designmap-workspace-stub:error" message="[[error]]"
+                                    error></designmap-stub>
                 </div>
             </template>
             <div class="next" on-click="next" hidden$="[[_computeButtons(files.*)]]">
@@ -448,7 +486,7 @@
             <div class="left">
                 <!--<designmap-gallery-user-list></designmap-gallery-user-list>-->
             </div>
-            <div class="center">
+            <div class="center" hidden$="[[!file]]">
                 <button class="minus-button" is="designmap-gallery-button" on-click="zoomOut">
                     <iron-icon class="minus-icon" icon="designmap:minus"></iron-icon>
                 </button>
@@ -465,6 +503,21 @@
                 </button>-->
             </div>
         </div>
+        <!-- Showcase dialog -->
+        <paper-dialog id="chatShowCaseDialog" class="showcase-dialog"  entry-animation="scale-up-animation"
+                      exit-animation="scale-down-animation">
+            <designmap-showcase name="chat" faster items="[[chatShowCaseItems]]"></designmap-showcase>
+        </paper-dialog>
+        <!-- Showcase dialog -->
+        <paper-dialog id="callShowCaseDialog" class="showcase-dialog" entry-animation="scale-up-animation"
+                      exit-animation="scale-down-animation">
+            <designmap-showcase name="call" faster items="[[callShowCaseItems]]"></designmap-showcase>
+        </paper-dialog>
+        <!-- Showcase dialog -->
+        <paper-dialog id="protocolShowCaseDialog" class="showcase-dialog" entry-animation="scale-up-animation"
+                      exit-animation="scale-down-animation">
+            <designmap-showcase name="protocol" items="[[protocolShowCaseItems]]"></designmap-showcase>
+        </paper-dialog>
     </template>
     <script>
         Polymer({
@@ -506,6 +559,10 @@
                     statePath: 'fileId',
                     observer: '_fileIdChanged'
                 },
+                path: {
+                    type: String,
+                    statePath: 'path'
+                },
                 folderId: {
                     type: String,
                     statePath: 'folderId'
@@ -520,7 +577,7 @@
                 },
                 file: {
                     type: Object,
-                    value: {}
+                    value: null
                 },
                 /**
                  * Current zoom
@@ -560,24 +617,51 @@
                     value: function(){
                         return this.$.shareButton
                     }
+                },
+                chatShowCaseItems: {
+                    type: Array,
+                    value: [
+                        {icon:'designmap-showcase:chat',message:'chatShowCaseOneMsg'}
+                    ]
+                },
+                callShowCaseItems: {
+                    type: Array,
+                    value: [
+                        {icon:'designmap-showcase:call',message:'callShowCaseOneMsg'}
+                    ]
+                },
+                protocolShowCaseItems: {
+                    type: Array,
+                    value: [
+                        {icon:'designmap-showcase:protocol',message:'protocolShowCaseOneMsg'}
+                    ]
+                },
+                error: {
+                    type: String,
+                    value: ''
                 }
             },
             observers: [
                 '_entityIdChanged(entityId,entityType)'
             ],
+            listeners: {
+                'open-protocol-showcase': "openProtocolShowCase",
+                'close-showcase-dialog': "closeShowCaseDialog"
+            },
             /**
              * Whe file id changed
              */
             _fileIdChanged: function (fileId) {
+                this.error = false;
                 // Work with file
                 const file = this.findFileById(fileId);
                 if (file) return this.file = file;
                 this.dispatch('getStickers', {file: fileId});
                 this.dispatch('getComments', {file: fileId});
                 this.dispatch('getFile', fileId).then(function (response) {
-                    if (!response.success) return this.showErrorMessage('Cannot find file');
+                    if (!response.success) return this.error = response.errors.message;
                     this.file = response.file;
-                }.bind(this));
+                }.bind(this)).catch(this.manageErrorResponse);
             },
             /**
              * Previous file
@@ -615,7 +699,7 @@
              */
             close: function () {
                 if(this.user && this.user.fake) this.dispatch('cleanUser');
-                page.redirect('/' + (this.projectId || ''));
+                page.redirect('/' + (this.projectId || '') + (this.path?this.path:''));
             },
             /**
              * Is Previous button disabled?
@@ -721,7 +805,6 @@
              */
             mouseMove: function (e) {
                 if (!this.pressed) return false;
-                this.moved = true;
                 // Take target
                 var target = this.$$('#item');
                 // Horizontal
@@ -747,6 +830,7 @@
                 // Move
                 if (canMoveY) target.style.top = this.top + deltaY + 'px';
                 if (canMoveX) target.style.left = this.left + deltaX + 'px';
+                if ((canMoveY && deltaY) || (canMoveX && deltaX)) this.moved = true;
             },
             /**
              * After mouse button had released change states
@@ -800,7 +884,9 @@
              * @param name
              */
             canBeDisplayed: function (file) {
-                if (!file.data) return false;
+                if(this.error) return false;
+                if(!file) return false;
+                if(!file.data) return false;
                 var name = file.data.name;
                 var ext = this.getExtension(name);
                 return this.canBeDisplayedExt.indexOf(ext.toLowerCase()) != -1 || file.preview;
@@ -942,6 +1028,20 @@
             _copyToClipBoard: function(){
                 this.showMessage('Link was copied to your clipboard.')
                 this.$.shareDropdown.close();
+            },
+            chat: function(){
+                this.$.chatShowCaseDialog.open();
+            },
+            call: function(){
+                this.$.callShowCaseDialog.open();
+            },
+            openProtocolShowCase: function(){
+                this.$.protocolShowCaseDialog.open();
+            },
+            closeShowCaseDialog: function(){
+                this.$.chatShowCaseDialog.close();
+                this.$.callShowCaseDialog.close();
+                this.$.protocolShowCaseDialog.close();
             }
         });
     </script>

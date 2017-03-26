@@ -8,6 +8,7 @@
                         if (!response.success) return;
                         response.project.error = false;
                         dispatch({type: 'SET_PROJECT_STATE', project: response.project});
+                        dispatch({type:'UPDATE_USER',user:{role: response.role, fileRole:response.role}});
                     });
                     return promise;
                 }
@@ -18,7 +19,7 @@
                     promise.then(function (response) {
                         if (!response.success) return;
                         dispatch({type: 'SET_PROJECTS', projects: response.projects});
-                        //dispatch({type: 'SET_SHARED_PROJECTS', sharedProjects: response.shared});
+                        dispatch({type: 'SET_SHARED_PROJECTS', sharedProjects: response.shared});
                     });
                     return promise;
                 }
@@ -65,6 +66,9 @@
                     }.bind(this));
                     return promise;
                 }.bind(this)
+            },
+            _updateProject: function (id, data) {
+                return {type: 'UPDATE_PROJECT', index: this.findProjectIndexByID(id), data: data}
             },
             setProjectState: function (project) {
                 return {

@@ -1,0 +1,91 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../designmap-icons/designmap-showcase-icons.html">
+<link rel="import" href="../../../behaviors/designmap-messages-behavior.html">
+<link rel="import" href="../designmap-ui/designmap-dashboard.html">
+<!-- Redux -->
+<link rel="import" href="../../../redux/redux-store.html">
+
+<dom-module id="designmap-activate">
+    <template>
+        <style>
+            :host {
+                width: 100%;
+            }
+            *[hidden] {
+                display: none !important;
+            }
+            .content {
+                width: 500px;
+                text-align: center;
+                position: relative;
+                bottom: 50px;
+            }
+            .content iron-icon {
+                display: inline-block;
+                width: 250px;
+                height: 250px;
+            }
+            .message {
+                position: relative;
+                bottom: 20px;
+                text-align: center;
+                color: var(--gray-darky-color);
+            }
+            .wrapper {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: calc(100vh - 140px);
+            }
+
+        </style>
+        <designmap-dashboard back back-url="[[_computeBackUrl(projectId)]]">
+            <div class="title">
+                <i18-n msgid="Activate premium"></i18-n>
+            </div>
+        </designmap-dashboard>
+        <div class="wrapper">
+            <div class="content">
+                <iron-icon icon="designmap-showcase:premium"></iron-icon>
+                <div class="message">
+                    <i18-n msgid="We are working">We are working</i18-n>
+                </div>
+                <button hidden$="[[quicker]]" style="margin-top: 0" on-click="speedUp" is="designmap-button" blue thin>
+                    <i18-n msgid="Speed up">Speed up</i18-n>
+                </button>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-activate',
+            behaviors: [
+                ReduxBehavior,
+                Polymer.DesignMapMessagesBehavior
+            ],
+            properties: {
+                quicker: {
+                    type: Boolean,
+                    value: false
+                },
+                projectId: {
+                    type: String,
+                    statePath: 'projectId'
+                }
+            },
+            ready: function(){
+               //this.quicker = localStorage.getItem('designmap:quicker');
+            },
+            speedUp: function(){
+                this.showMessage('Thank you! We will try to do it quicker!');
+                //this.quicker = true;
+                //localStorage.setItem('designmap:quicker',true);
+                this.reachGoal('premium_speed_up','approve');
+            },
+            _computeBackUrl: function(projectId){
+                return '/'+(projectId||'');
+            }
+        })
+    </script>
+</dom-module>

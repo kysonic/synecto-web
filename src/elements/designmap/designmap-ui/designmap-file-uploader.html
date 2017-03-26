@@ -16,8 +16,8 @@
             }
 
             paper-dialog {
-                color: var(--white-color);
-                background: var(--blue-darkest-color);
+                color: var(--gray-darkend-color);
+                background: var(--white-color);
             }
 
             paper-dialog .content .message {
@@ -50,6 +50,10 @@
             .files-list-item iron-icon#loading-icon {
                 --iron-icon-width: 20px;
                 --iron-icon-height: 16px;
+                --iron-icon-components-mixin: {
+                    stroke: var(--gray-darkend-color);
+                    fill: var(--gray-darkend-color);
+                };
             }
 
             .files-list-item .file-list-right {
@@ -78,12 +82,13 @@
                 width: 95px;
                 height: 95px;
                 margin: 0 auto;
+                border-radius: 50%;
             }
             #form.content {
                 min-width: 250px;
             }
             #form .content .title {
-                color: var(--white-color);
+                color: var(--gray-darkend-color);
                 text-align: center;
                 font-size: 22px;
                 font-weight: 300;
@@ -120,6 +125,10 @@
                 margin-bottom: 10px;
             }
 
+            .hide {
+                display: none !important;
+            }
+
         </style>
         <!-- Add File Dialog -->
         <paper-dialog id="form"
@@ -131,10 +140,10 @@
                         <div class="title">
                             <i18-n msgid="Upload file">Upload file</i18-n>
                         </div>
-                        <iron-icon class="popup-icon" icon="designmap-confirm:new-file"></iron-icon>
+                        <iron-icon class="popup-icon" icon="designmap-workspace:file_circle"></iron-icon>
                     </div>
                     <template is="dom-if" if="[[storages.length]]">
-                        <designmap-file-button thin hidden$="[[fileUploadLoading]]" name="files[]"
+                        <designmap-file-button thin gray hidden$="[[fileUploadLoading]]" name="files[]"
                                                files="{{buttonFiles}}"
                                                allowed-extension="[[allowedExtension]]"
                                                on-notallowed="showFilesNotAllowedError" multiple="multiple" id="files">
@@ -181,11 +190,11 @@
                                 id="storageSelector" selected="{{storage}}"></designmap-storage-selector>-->
                         <template is="dom-if" if="[[computeButtons(buttonFiles.length)]]">
                             <div class="button-set">
-                                <button thin hidden$="[[fileUploadLoading]]" is="designmap-button"
+                                <button thin gray hidden$="[[fileUploadLoading]]" is="designmap-button"
                                         on-click="uploadFiles">
                                     <i18-n msgid="Upload">Upload</i18-n>
                                 </button>
-                                <button thin hidden$="[[fileUploadLoading]]" is="designmap-button"
+                                <button thin gray hidden$="[[fileUploadLoading]]" is="designmap-button"
                                         on-click="cancelUpload">
                                     <i18-n msgid="Cancel">Cancel</i18-n>
                                 </button>

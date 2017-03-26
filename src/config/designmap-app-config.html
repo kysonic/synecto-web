@@ -28,4 +28,6 @@
     xhr.opts.preventCache = true;
     // Undo manager
     Designmap.undoManager = new UndoManager();
+    // Resize detector
+    Designmap.erd = elementResizeDetectorMaker();
 </script>

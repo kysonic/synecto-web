@@ -11,7 +11,7 @@
 
                 --main-color: var(--gray-saturated-color);
                 --error-color: var(--expired);
-                --input-color: var(--gray-darky-color);
+                --input-color: var(--gray-darkend-color);
             }
 
             .wrapper {
@@ -48,7 +48,7 @@
             }
 
             input {
-                font-family: 'Open Sans', sans-sarif;
+                font-family: var(--font-family);
                 font-weight: 100;
                 font-size: 22px;
                 color: var(--input-color);
@@ -56,6 +56,10 @@
                 outline: none;
                 text-align: center;
                 margin-top: 18px;
+            }
+
+            input::-webkit-input-placeholder {
+                color: var(--input-color);
             }
 
             input:focus::-webkit-input-placeholder {

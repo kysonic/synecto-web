@@ -24,6 +24,10 @@
                 --iron-image-height: 100%;
             }
 
+            *[hidden] {
+                display: none !important;
+            }
+
             .element {
                 max-width: 250px;
                 min-width: 230px;
@@ -99,7 +103,19 @@
                 bottom:0;
                 width: 100%;
                 height: 100%;
-                background: rgba(0,0,0,0.05);
+                background: rgba(0,0,0,0.1);
+                text-align: center;
+            }
+            .file .overlay {
+                background: rgba(0,0,0,0.3);
+            }
+            .overlay .open {
+                color: var(--white-color);
+                padding: 5px 30px;
+                font-weight: 100;
+                font-family: var(--font-family);
+                border: 1px solid var(--white-color);
+                display: inline-block;
             }
             .overlay iron-icon {
                 cursor: pointer;
@@ -109,12 +125,12 @@
                 top: 100%;
                 margin-top: -34px;
                 border-radius: 50%;
-                --iron-icon-stroke-color: var(--gray-darkend-color);
+                --iron-icon-stroke-color: var(--white-color);
                 --iron-icon-fill-color: var(--white-color);
                 transition: .2s background;
             }
             .overlay iron-icon:hover {
-                background: rgba(0,0,0,0.2);
+                background: rgba(0,0,0,0.4);
                 transition: .2s background;
             }
 
@@ -127,6 +143,7 @@
                     <iron-image class$="[[item.orientation]]" src="[[computeImageSource(item)]]" />
                 </template>
                 <div class="overlay">
+                    <!--<div hidden$="[[!isFile(item.type)]]" class="open"><i18-n msgid="Open">Open</i18-n></div>-->
                     <iron-icon on-click="openContextMenu" icon="icons:more-vert"></iron-icon>
                 </div>
             </div>

@@ -1,0 +1,131 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module id="plastic-tooltip">
+    <template>
+        <style>
+            :host {
+                position: absolute;
+                z-index: 105;
+                padding: 5px 10px;
+                border-radius: 30px;
+                background:var(--white-color);
+                border: 1px solid var(--white-color);
+                display: none;
+                transform: translateY(20px);
+                opacity: 0;
+                transition: .2s transform, .2s opacity;
+                font-size: 12px;
+                text-align: center;
+            }
+            :host(.opened) {
+                transform: translateY(0px);
+                opacity: 1;
+                transition: .2s transform, .2s opacity;
+            }
+            .triangle {
+                position: absolute;
+                left: 50%;
+                margin-left: -5px;
+                top: -10px;
+                width: 0;
+                height: 0;
+                border-style: solid;
+                border-width: 0 5px 10px 5px;
+                border-color: transparent transparent var(--white-color) transparent;
+            }
+            :host(.blue) {
+                background: var(--blue-color);
+                border: 1px solid var(--blue-color);
+                color:var(--white-color);
+            }
+            :host(.blue) .triangle {
+                border-color: transparent transparent var(--blue-color) transparent;
+            }
+
+        </style>
+        <span>{{message}}</span>
+        <div class="triangle" id="triangle"></div>
+    </template>
+    <script>
+        /**
+         * Helper
+         * @type {{parents: Function, addEventListenerList: Function}}
+         */
+        var XTooltip = {
+            parents: function (node,acin){
+                if(node.getAttribute(acin) || node.classList.contains(acin) || node.id==acin || node.tagName==acin) return node;
+                return this.parents.call(this,node.parentNode,acin);
+            },
+            addEventListenerList: function (list, event, fn) {
+                for (var i = 0, len = list.length; i < len; i++) {
+                    if(!list[i]['has'+event]) {
+                        list[i].addEventListener(event, fn);
+                        list[i]['has'+event] = true;
+                    }
+                }
+            },
+            generateUid: function(len) {
+                len = len || 7;
+                return Math.random().toString(35).substr(2, len).replace(/\d+/,'');
+            }
+        }
+
+        Polymer({
+            is: 'plastic-tooltip',
+            i: Array,
+            properties: {
+                message:String,
+                maxWidth: Number,
+                pending: Number,
+                target: Object
+            },
+            ready: function () {
+                this.style.maxWidth = this.maxWidth+'px';
+                this.async(function(){
+                    this.findNodes();
+                },1000);
+            },
+            findNodes: function(){
+                if(!this.target) return;
+                var nodes = this.target.querySelectorAll('*[plastic-tooltip]');
+                console.log(nodes);
+                if(nodes.length) {
+                    XTooltip.addEventListenerList(nodes,'mouseenter',this.mouseOver.bind(this));
+                    XTooltip.addEventListenerList(nodes,'mouseleave',this.mouseLeave.bind(this));
+                }
+            },
+            mouseOver: function(e){
+                var target = XTooltip.parents(e.target,'plastic-tooltip');
+                // Options
+                var pending = target.getAttribute('data-pending');
+                this.message = target.getAttribute('plastic-tooltip');
+                var boundary = target.getBoundingClientRect();
+                target.uid = XTooltip.generateUid();
+                // Class
+                var cls = target.getAttribute('data-cls');
+                this.classList.remove('blue');
+                if(cls) this.classList.add(cls);
+                // Appearance
+                this.i[target.uid] = setTimeout(function(){
+                    this.style.display = 'block';
+                    this.async(function(){
+                        var deltaX = 0;
+                        this.$.triangle.style.marginLeft = -5+'px';
+                        if(boundary.left - (this.getBoundingClientRect().width/2) < 0) deltaX = (this.getBoundingClientRect().width/2) - 30;
+                        if((boundary.left + (this.getBoundingClientRect().width/2) + 50) > window.innerWidth) deltaX = -(this.getBoundingClientRect().width/2) + 30;
+                        this.style.top = (boundary.top + boundary.height + 5) +'px';
+                        this.style.left = ((boundary.left - ((this.getBoundingClientRect().width/2)-(boundary.width/2))))+deltaX+'px';
+                        if(deltaX!=0) this.$.triangle.style.marginLeft =  -deltaX+(deltaX>0?-5:5)+'px';
+                        this.async(function(){this.classList.add('opened');});
+                    });
+                }.bind(this),pending || this.pending || 0);
+            },
+            mouseLeave: function(e){
+                var target = XTooltip.parents(e.target,'plastic-tooltip');
+                clearInterval(this.i[target.uid]);
+                /*this.classList.remove('opened');
+                this.style.display = 'none';*/
+            }
+        })
+    </script>
+</dom-module>

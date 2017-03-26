@@ -37,6 +37,16 @@
                 this.addSocketSubscriber('notify',function(o){
                     this.dispatch('_addNotification', o);
                     this.notify(o.text.message, o.type, o.text.replacement, o.sender, 20000);
+                    // Accesses hook
+                    if(o.type=='new-access') {
+                        var haveSame = false;
+                        ReduxStore.getState().sharedProjects.forEach(function(share){
+                            if(share._id==o.text.projectID) haveSame = true;
+                        });
+                        if(!haveSame) {
+                            ReduxStore.dispatch({type:'ADD_SHARED_PROJECT',data:{name:o.text.replacement['#PROJECT#'],_id: o.text.projectID}})
+                        }
+                    }
                 }.bind(this));
             },
             _computeIsAuth: function(user){

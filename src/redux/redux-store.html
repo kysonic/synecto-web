@@ -3,6 +3,7 @@
 <script>const Reducers = {};</script>
 <!-- Reducers -->
 <link rel="import" href="reducers/user-reducer.html">
+<link rel="import" href="reducers/users-reducer.html">
 <link rel="import" href="reducers/i18n-reducer.html">
 <link rel="import" href="reducers/notifications-reducer.html">
 <link rel="import" href="reducers/project-reducer.html">
@@ -21,6 +22,7 @@
 <script>
     const initialState = {
         user: null,
+        users: [],
         i18Loaded: false,
         notifications: [],
         project: null,
@@ -39,6 +41,7 @@
     // Combine reducers
     const reducer = Redux.combineReducers({
        user: filterActions(Reducers.UserReducer,['UPDATE_USER','CLEAN_USER']),
+       users: filterActions(Reducers.UsersReducer,['SET_USERS','CLEAN_USERS','SET_ONE_USER']),
        i18Loaded: filterActions(Reducers.I18nLoadedReducer,['UPDATE_I18_LOADED']),
        notifications: filterActions(Reducers.NotificationsReducer,['ADD_NOTIFICATION','REMOVE_NOTIFICATION','UPDATE_NOTIFICATION','SET_NOTIFICATIONS','CLEAN_NOTIFICATIONS']),
        project: filterActions(Reducers.ProjectReducer,['SET_PROJECT_STATE','UPDATE_PROJECT_STATE']),
@@ -48,7 +51,7 @@
        path: filterActions(Reducers.PathReducer,['UPDATE_PATH']),
        trashMode: filterActions(Reducers.TrashModeReducer,['UPDATE_TRASH_MODE']),
        projects: filterActions(Reducers.ProjectsReducer,['ADD_PROJECT','REMOVE_PROJECT','UPDATE_PROJECT','SET_PROJECTS','CLEAN_PROJECTS']),
-       sharedProjects: filterActions(Reducers.SharedProjectsReducer,['UPDATE_SHARED_PROJECT','SET_SHARED_PROJECTS','CLEAN_SHARED_PROJECTS']),
+       sharedProjects: filterActions(Reducers.SharedProjectsReducer,['ADD_SHARED_PROJECT','UPDATE_SHARED_PROJECT','SET_SHARED_PROJECTS','CLEAN_SHARED_PROJECTS']),
        folders: filterActions(Reducers.FoldersReducer,['ADD_FOLDER','REMOVE_FOLDER','UPDATE_FOLDER','SET_FOLDERS','CLEAN_FOLDERS']),
        files: filterActions(Reducers.FilesReducer,['ADD_FILE','REMOVE_FILE','UPDATE_FILE','SET_FILES','CLEAN_FILES']),
        stickers: filterActions(Reducers.StickersReducer,['ADD_STICKER','REMOVE_STICKER','UPDATE_STICKER','SET_STICKERS','CLEAN_STICKERS']),

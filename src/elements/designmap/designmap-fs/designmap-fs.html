@@ -1,6 +1,7 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <!-- Styles -->
 <link rel="import" href="../../../styles/context-menu-shared-styles.html">
+<link rel="import" href="../../../styles/loading-shared-styles.html">
 <!-- Icons -->
 <link rel="import" href="../designmap-icons/designmap-workspace-icons.html">
 <!-- Components -->
@@ -21,6 +22,7 @@
 
 <dom-module id="designmap-fs">
     <template>
+        <style include="loading-shared-styles"></style>
         <style include="context-menu-shared-styles">
             :host {
                 display: block;
@@ -132,7 +134,7 @@
             <designmap-fs-breadcrumbs id="breadcrumbs" trash-mode="[[trashMode]]" project-name="[[project.name]]"
                                       current-folder-id="{{currentFolderId}}"></designmap-fs-breadcrumbs>
             <!-- Button panel -->
-            <designmap-fs-panel id="panel" acl="[[acl]]" role="[[user.role]]" sort-way="{{sortWay}}"
+            <designmap-fs-panel hidden$="[[!project]]" id="panel" sort-way="{{sortWay}}"
                                 trash-mode="[[trashMode]]" current-folder-id="[[currentFolderId]]"></designmap-fs-panel>
         </div>
         <div class="workarea" on-contextmenu="openContextMenu">
@@ -191,6 +193,7 @@
                                 input-error="ProjectNameError"></designmap-stub>
             </template>
         </div>
+        <div id="projectLoading" hidden$=[[!loading]] class="loading-overlay"><div class="uil-reload-css"><div></div></div></div>
     </template>
     <script>
         const PROJECT_NAME_REGEXP = /[\w\dа-яА-ЯёЁ -]+/;
@@ -263,6 +266,10 @@
                 sortWay: {
                     type: String,
                     value: 'name'
+                },
+                loading: {
+                    type: Boolean,
+                    value:true
                 }
             },
             listeners: {
@@ -391,12 +398,14 @@
                 this.cleanProjectData();
                 if (!projectId) return;
                 // Get project data
+                this.loading = true;
                 this.dispatch('getProject', projectId).then(function (response) {
                     if (!response.success) throw response.errors;
                     this.updateProject(response.project);
                 }.bind(this)).catch(function (err) {
                     const errorMessage = err.message || err + (err.stack ? err.stack : '');
                     this.dispatch('updateProjectState', {error: errorMessage, loading: false});
+                    this.loading = false;
                 }.bind(this));
             },
             /**
@@ -424,6 +433,7 @@
             getProjectData: function () {
                 this.dispatch('getFolders', {scope: this.project._id}).then(function (response) {
                     this.async(function(){this._pathChanged(this.path);});
+                    this.async(function(){this.loading = false;},0);
                 }.bind(this));
                 this.dispatch('getFiles', {project: this.project._id});
                 this.dispatch('getStickers', {project: this.project._id});

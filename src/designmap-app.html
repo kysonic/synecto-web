@@ -10,6 +10,7 @@
 <link rel="import" href="../bower_components/app-route/app-route.html">
 <!-- Iron -->
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-a11y-keys/iron-a11y-keys.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/iron-iconset-svg/iron-iconset-svg.html">
@@ -44,6 +45,10 @@
         <style include="shared-styles">
             :host {
                 display: block;
+            }
+
+            *[hidden] {
+                display: none !important;
             }
 
             app-header {
@@ -87,7 +92,17 @@
                 margin-top: var(--header-height);
             }
 
+            .loading-overlay {
+                position: absolute;
+                background: var(--white-color);
+                width: 100%;
+                height: 100%;
+            }
+
         </style>
+        <!-- Keys -->
+        <iron-a11y-keys id="a11yUndo" keys="(ctrl||cmd)+z" target="[[keysTarget]]" on-keys-pressed="undo"></iron-a11y-keys>
+        <iron-a11y-keys id="a11yRedo" keys="(ctrl||cmd)+shift+z" target="[[keysTarget]]" on-keys-pressed="redo"></iron-a11y-keys>
         <!-- Notifier -->
         <designmap-notifier id="notifier"></designmap-notifier>
         <!-- i18-n -->
@@ -98,7 +113,7 @@
             <!-- Drawer content -->
             <app-drawer id="drawer">
                 <app-toolbar>
-                    <a style="text-decoration: none" href="/">
+                    <a style="text-decoration: none" href="#" on-click="goToHome">
                         <iron-icon class="designmap-logo" icon="designmap-logo:logo"></iron-icon>
                     </a>
                 </app-toolbar>
@@ -125,6 +140,7 @@
                     <designmap-support-view name="support"></designmap-support-view>
                     <designmap-docs-view name="docs"></designmap-docs-view>
                     <designmap-notifications-view name="notifications"></designmap-notifications-view>
+                    <designmap-activate-view name="activate"></designmap-activate-view>
                     <designmap-login-view name="login"></designmap-login-view>
                     <designmap-404 name="404"></designmap-404>
                 </iron-pages>
@@ -148,6 +164,10 @@
                 Polymer.DesignmapRouting
             ],
             properties: {
+                loading: {
+                    type: Boolean,
+                    value: true
+                },
                 page: {
                     type: String,
                     observer: '_pageChanged'
@@ -167,6 +187,7 @@
                 user: {
                     type: Object,
                     statePath: 'user',
+                    value: undefined,
                     observer: '_userChanged'
                 },
                 isAuth: {
@@ -181,6 +202,12 @@
                 language: {
                     type: String,
                     computed: '_computeLanguage(user.system.language)'
+                },
+                keysTarget: {
+                    type: Object,
+                    value: function(){
+                        return document.body
+                    }
                 }
             },
 
@@ -191,7 +218,9 @@
             ready: function () {
                 this.uid = Designmap.uid = this.generateUid();
                 // Get possible current user
-                this.dispatch('getCurrentUser');
+                this.dispatch('getCurrentUser').then(function(){
+                    document.getElementById('appLoading').style.display = 'none';
+                }.bind(this));
                 // Update languages
                 this.$.i18nDomain.addEventListener('i18-n-locale-ready', function () {
                     ReduxStore.dispatch({type: "UPDATE_I18_LOADED", i18Loaded: true});
@@ -202,7 +231,10 @@
                 this._setLayoutState(NO_HEADER_PAGES.indexOf(page)!==-1);
                 // Load page import on demand. Show 404 page if fails
                 const resolvedPageUrl = this.resolveUrl('./views/designmap-' + page + '-view.html');
-                this.importHref(resolvedPageUrl, null, this._showPage404, true);
+                document.getElementById('appLoading').style.display = 'flex';
+                this.importHref(resolvedPageUrl, function(){
+                    document.getElementById('appLoading').style.display = 'none';
+                }, this._showPage404, true);
             },
 
             _projectIdChanged: function (projectId) {
@@ -249,6 +281,18 @@
 
             openInfo: function () {
                 this.$.right.open();
+            },
+
+            goToHome: function(){
+                page.redirect('/'+(this.projectId?this.projectId:''))
+            },
+
+            undo: function(){
+                Designmap.undoManager.undo();
+            },
+
+            redo: function(){
+                Designmap.undoManager.redo();
             }
         });
     </script>

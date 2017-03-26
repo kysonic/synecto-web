@@ -3,6 +3,7 @@
 <link rel="import" href="../../../styles/context-menu-shared-styles.html">
 <link rel="import" href="../../../styles/lock-shared-styles.html">
 <link rel="import" href="../designmap-fs/designmap-fs-service.html">
+<link rel="import" href="../designmap-accesses/designmap-accesses.html">
 <!-- Redux -->
 <link rel="import" href="../../../redux/actions/combine-actions.html">
 <link rel="import" href="../../../redux/actions/user-actions.html">
@@ -15,6 +16,7 @@
     <style include="lock-shared-styles"></style>
     <style include="context-menu-shared-styles">
         :host {
+
             --designmap-circle-button-content-icon-mixin: {
                 padding: 0;
                 width: 100%;
@@ -137,13 +139,16 @@
             border-radius: 50%;
             background: var(--gray-super-dark);
         }
-
+        #taskManagerShowCaseDialog {
+            padding: 35px !important;
+        }
     </style>
     <template>
         <designmap-confirm id="removeProjectConfirm" message="AreYouSureThatYouWannaRemoveProject"
                            on-continue="removeIt" on-suspend="suspendRemoving"></designmap-confirm>
 
         <designmap-projects-list menu-mode hidden$="[[project._id]]"></designmap-projects-list>
+
         <ul hidden$="[[!project._id]]">
             <!-- Context menu -->
             <li on-click="goToTheProject" on-mouseover="_mouseOver" class$="[[_computeSelectedItem(page,trashMode,'fs')]]" on-mouseleave="_mouseLeave"
@@ -155,7 +160,7 @@
                     [[_computeProjectName(project.name)]]
                 </div>
                 <div class="marker dot"></div>
-                <div class="icon-wrapper">
+                <div hidden$="[[!topAccess(user.role)]]" class="icon-wrapper">
                     <iron-icon class="project-menu" icon="designmap-workspace:more" on-click="openContext"></iron-icon>
                     <!-- Context -->
                     <designmap-context-menu id="projectContextMenu" previous>
@@ -187,14 +192,6 @@
                 </div>
             </li>
             <ul class="indented" hidden$="[[!project._id]]">
-                <!--<li id="projectItem" on-click="goToTheProject" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class$="[[_computeSelectedItem(page,trashMode,'fs')]]">
-                    <designmap-circle-button>
-                        <iron-icon icon="designmap-workspace:project"></iron-icon>
-                    </designmap-circle-button>
-                    <div class="text">
-                       <i18-n msgid="Files">Files</i18-n>
-                    </div>
-                </li>-->
                 <li id="trashItem" on-click="goToTrashBox" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class$="[[_computeSelectedItem(page,trashMode,'trash')]]">
                     <designmap-circle-button>
                         <iron-icon icon="designmap-workspace:bin"></iron-icon>
@@ -205,69 +202,37 @@
                     </div>
                     <div class="marker dot"></div>
                 </li>
-                <li id="taskManagerItem" on-click="goToTaskManager" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class="locked">
-                    <designmap-circle-button>
-                        <iron-icon icon="designmap-workspace:taskmanager"></iron-icon>
-                    </designmap-circle-button>
-                    <iron-icon hidde$="[[user.isPremium]]" class="locked-icon" icon="icons:lock-outline"></iron-icon>
-                    <div class="text">
-                        <i18-n msgid="Task manager">Task manager</i18-n>
-                    </div>
-                </li>
-                <li id="accessesItem" on-click="openSharingDialog" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave">
+                <li id="accessesItem" hidden$="[[!topAccess(user.role)]]" on-click="openSharingDialog" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave">
                     <designmap-circle-button>
                         <iron-icon icon="designmap-workspace:link"></iron-icon>
                     </designmap-circle-button>
-                    <iron-icon hidde$="[[user.isPremium]]" class="locked-icon" icon="icons:lock-outline"></iron-icon>
+                    <!--<iron-icon hidden$="[[user.isPremium]]" class="locked-icon" icon="icons:lock-outline"></iron-icon>-->
                     <div class="text">
                         <i18-n msgid="Accesses">Accesses</i18-n>
                     </div>
                 </li>
-            </ul>
-
-            <!--<li data-hint="rename-project" title$="[[translate('Rename project',language,i18Loaded)]]"
-                disabled$="[[!shouldWeShowSharing(selectedProjectID,projectLoading,projectError,role,user)]]"
-                on-click="openRenameMenu">
-                <designmap-circle-button>
-                    <iron-icon icon="designmap-workspace:edit"></iron-icon>
-                </designmap-circle-button>
-                <div class="text">
-                    <i18-n msgid="Rename project">Rename project</i18-n>
-                </div>
-            </li>
-            &lt;!&ndash; Rename project &ndash;&gt;
-            <designmap-context-menu id="renameProjectContext" previous>
-                <div class="context-content">
-                    <iron-a11y-keys id="a11yAddFolder" keys="enter" on-keys-pressed="renameIt"></iron-a11y-keys>
-                    <paper-input label$="[[translate('Project Name',language,i18Loaded)]]" value="{{project.name}}"
-                                 auto-validate pattern="[\w\dа-яА-ЯёЁ -]+"
-                                 error-message="[[translate('ProjectNameError',language,i18Loaded)]]"
-                                 id="renameProject"></paper-input>
-                    <div class="button-container">
-                        <button is="designmap-round-button" on-click="renameIt">
-                            <iron-icon icon="icons:arrow-forward"></iron-icon>
-                        </button>
+                <li id="taskManagerItem" on-click="goToTaskManager" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class="locked">
+                    <designmap-circle-button>
+                        <iron-icon icon="designmap-workspace:taskmanager"></iron-icon>
+                    </designmap-circle-button>
+                    <iron-icon hidden$="[[user.isPremium]]" class="locked-icon" icon="icons:lock-outline"></iron-icon>
+                    <div class="text">
+                        <i18-n msgid="Task manager">Task manager</i18-n>
                     </div>
-                </div>
-            </designmap-context-menu>
-            <li data-hint="remove-project" title$="[[translate('Remove project',language,i18Loaded)]]"
-                on-click="openRemoveConfirm"
-                disabled$="[[!shouldWeShowSharing(selectedProjectID,projectLoading,projectError,role,user)]]">
-                <designmap-circle-button>
-                    <iron-icon style="width: 24px;height: 24px; padding: 13px" icon="designmap:close"></iron-icon>
-                </designmap-circle-button>
-                <div class="text">
-                    <i18-n msgid="Remove project">Remove project</i18-n>
-                </div>
-            </li>-->
+                </li>
+            </ul>
         </ul>
-
-
 
         <!-- Sharing dialog -->
         <paper-dialog id="sharingDialog" cancel-auto-refit entry-animation="scale-up-animation"
                       exit-animation="scale-down-animation">
-            <designmap-sharing></designmap-sharing>
+            <designmap-accesses id="accesses"></designmap-accesses>
+        </paper-dialog>
+
+        <!-- Showcase dialog -->
+        <paper-dialog id="taskManagerShowCaseDialog" entry-animation="scale-up-animation"
+                      exit-animation="scale-down-animation">
+            <designmap-showcase name="task_manager" items="[[taskManagerShowCaseItems]]"></designmap-showcase>
         </paper-dialog>
 
     </template>
@@ -326,10 +291,19 @@
                         }.bind(this));
                         return folders.concat(files).length;
                     }
+                },
+                taskManagerShowCaseItems: {
+                    type: Array,
+                    value: [
+                        {icon: 'designmap-showcase:task-manager-one',message:'taskManagerPremiumOneMsg'},
+                        {icon: 'designmap-showcase:task-manager-two',message:'taskManagerPremiumTwoMsg'}
+                    ]
                 }
             },
-            ready: function(){
-
+            listeners: {
+                'close-share-dialog':'closeShareDialog',
+                'close-showcase-dialog':'closeShowCaseDialog',
+                'on-resize':'_recalculateSharingPopup'
             },
             openProjectList: function (e) {
                 this.$.projectList.toggle(e);
@@ -338,7 +312,7 @@
                 page.redirect('/'+(this.projectId||''));
             },
             goToTaskManager: function (e) {
-                if(!this.user.isPremium) return this.showMessage('Subscribe on premium');
+                if(!this.user.isPremium) return this.$.taskManagerShowCaseDialog.open();
                 if (e.currentTarget.getAttribute('disabled') != undefined) return this.showErrorMessage('You do not have access to make it');
                 this.redirect('/task-manager/');
             },
@@ -347,9 +321,16 @@
                 page.redirect('/'+this.projectId+'/trash');
             },
             openSharingDialog: function (e) {
-                if(!this.user.isPremium) return this.showMessage('Subscribe on premium');
-                if (e.currentTarget.getAttribute('disabled') != undefined) return this.showErrorMessage('You do not have access to make it');
                 this.$.sharingDialog.open();
+                this.async(function(){
+                    this._recalculateSharingPopup();
+                },50);
+            },
+            _recalculateSharingPopup: function(){
+                this.$.sharingDialog.refit();
+            },
+            closeShareDialog: function(){
+                this.$.sharingDialog.close();
             },
             openRenameMenu: function (e) {
                 if (e.currentTarget.getAttribute('disabled') != undefined) return this.showErrorMessage('You do not have access to make it');
@@ -419,6 +400,10 @@
             _mouseLeave: function(e){
                 const target = e.currentTarget;
                 target.querySelector('designmap-circle-button').classList.remove('hovered');
+            },
+            closeShowCaseDialog: function(){
+                this.$.taskManagerShowCaseDialog.close();
+                this.$.sharingDialog.close();
             }
         });
     </script>

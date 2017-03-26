@@ -1,5 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../designmap-ui/designmap-confirm.html">
 <link rel="import" href="../designmap-tutorial/designmap-hint.html">
 <link rel="import" href="../designmap-buttons/designmap-circle-button.html">
@@ -10,10 +11,11 @@
 
 <dom-module is="designmap-fs-panel">
     <template>
+        <style include="tooltip-shared-style"></style>
         <style include="context-menu-shared-styles">
             :host {
                 display: flex;
-
+                position: relative;
                 height: var(--panel-height);
 
                 --designmap-circle-button-circle-mixin: {
@@ -26,6 +28,7 @@
                     width: 100%;
                     height: 100%;
                 };
+
             }
 
             *[hidden] {
@@ -36,6 +39,7 @@
             .buttons-panel {
                 display: flex;
                 flex: 1;
+                position: relative;
             }
 
             .buttons-panel designmap-circle-button {
@@ -86,13 +90,15 @@
                            on-continue="removeAllElements" on-suspend="suspendRemoving"></designmap-confirm>
         <!-- Panel -->
         <div class="buttons-panel">
-            <div class="left" hidden$="[[!doesUserHaveEditAccess(role,acl)]]">
+            <div class="left">
                 <designmap-circle-button id="createFolderButton"
-                                         x-tooltip$="[[translate('Add folder',language,i18Loaded)]]" data-cls="blue"
+                                         plastic-tooltip$="[[translate('Add folder',language,i18Loaded)]]" data-cls="blue"
                                          hidden$="[[trashMode]]" id="addFolderButton"
                                          on-click="openAddFolderContext">
                     <iron-icon icon="designmap-workspace:folder"></iron-icon>
                 </designmap-circle-button>
+                <paper-tooltip for="createFolderButton"><i18-n msgid="Add folder">Add folder</i18-n></paper-tooltip>
+
                 <!-- Hint -->
                 <designmap-hint id="createFolderHint" previous name="createFolder" vertical-offset="50"
                                 horizontal-offset="-107">
@@ -120,34 +126,39 @@
                 </designmap-context-menu>
                 <!-- Upload file -->
                 <designmap-circle-button id="uploadFileButton"
-                                         x-tooltip$="[[translate('Upload file',language,i18Loaded)]]" data-cls="blue"
+                                         plastic-tooltip$="[[translate('Upload file',language,i18Loaded)]]" data-cls="blue"
                                          hidden$="[[trashMode]]" on-click="openFileUploader" data-hint="add-file">
                     <iron-icon icon="designmap-workspace:file"></iron-icon>
                 </designmap-circle-button>
+                <paper-tooltip for="uploadFileButton"><i18-n msgid="Upload file">Upload file</i18-n></paper-tooltip>
+                <!-- Hint -->
                 <designmap-hint id="uploadFileHint" previous name="addFile" vertical-offset="50"
                                 horizontal-offset="-107">
                     <div class="title">
-                        <i18-n msgid="Add file">Add file</i18-n>
+                        <i18-n msgid="Add file hint">Add file hint</i18-n>
                     </div>
                     <div class="desc">
                         <i18-n msgid="addFileMsg">addFileMsg</i18-n>
                     </div>
                 </designmap-hint>
                 <!-- Trash mode -->
-                <designmap-circle-button x-tooltip$="[[translate('Restore all',language,i18Loaded)]]" data-cls="blue"
+                <designmap-circle-button id="restoreButton" plastic-tooltip$="[[translate('Restore all',language,i18Loaded)]]" data-cls="blue"
                                          hidden$="[[!trashMode]]" class="trash" on-click="restoreAll">
                     <iron-icon icon="designmap-workspace:restore"></iron-icon>
                 </designmap-circle-button>
-                <designmap-circle-button x-tooltip$="[[translate('Remove all',language,i18Loaded)]]" data-cls="blue"
-                                         hidden$="[[!trashMode]]" class="trash" on-click="removeAll">
+                <paper-tooltip for="restoreButton"><i18-n msgid="Restore all">Restore all</i18-n></paper-tooltip>
+                <designmap-circle-button id="removeButton" plastic-tooltip$="[[translate('Remove all',language,i18Loaded)]]" data-cls="blue"
+                                         hidden$="[[!_canRemoveAll(user.role,trashMode)]]" class="trash" on-click="removeAll">
                     <iron-icon icon="designmap-workspace:remove"></iron-icon>
                 </designmap-circle-button>
+                <paper-tooltip for="removeButton"><i18-n msgid="Remove all">Remove all</i18-n></paper-tooltip>
             </div>
             <div class="right">
-                <designmap-circle-button x-tooltip$="[[translate('Sort',language,i18Loaded)]]" data-cls="blue"
+                <designmap-circle-button id="sortButton" plastic-tooltip$="[[translate('Sort',language,i18Loaded)]]" data-cls="blue"
                                          on-click="openMoreContext">
                     <iron-icon icon="designmap-workspace:sort"></iron-icon>
                 </designmap-circle-button>
+                <paper-tooltip for="sortButton"><i18-n msgid="Sort">Sort</i18-n></paper-tooltip>
                 <designmap-context-menu id="moreContext" previous>
                     <ul class="menu">
                         <li class="sort-button" on-click="changeSort" data-sort="name">
@@ -158,10 +169,11 @@
                         </li>
                     </ul>
                 </designmap-context-menu>
-                <designmap-circle-button x-tooltip$="[[translate('Info',language,i18Loaded)]]" data-cls="blue"
+                <designmap-circle-button id="infoButton" plastic-tooltip$="[[translate('Info',language,i18Loaded)]]" data-cls="blue"
                                          hidden$="[[infoOpened]]" on-click="openInfo" class="no-unselect">
                     <iron-icon icon="designmap-workspace:info"></iron-icon>
                 </designmap-circle-button>
+                <paper-tooltip for="infoButton"><i18-n msgid="Info">Info</i18-n></paper-tooltip>
             </div>
         </div>
     </template>
@@ -224,6 +236,12 @@
                 },
                 trashMode: {
                     type: Boolean
+                },
+                thisNode: {
+                    type: Object,
+                    value: function(){
+                        return this;
+                    }
                 }
             },
             attached: function () {
@@ -316,18 +334,11 @@
                 this.$.moreContext.toggle(e);
             },
             /**
-             * ACL Accesses
-             * @returns {*|boolean}
-             */
-            doesUserHaveEditAccess: function () {
-                return this.can('update', 'project');
-            },
-            /**
              * Could user remove all ?
              * @returns {boolean|*}
              */
-            canRemoveAll: function (trashMode) {
-                return this.isOwner() && trashMode;
+            _canRemoveAll: function (role,trashMode) {
+                return this.topAccess(role) && trashMode;
             }
         })
     </script>

@@ -1,0 +1,583 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../../plastic/plastic-custom-scroll.html">
+<link rel="import" href="../designmap-ui/designmap-showcase.html">
+<link rel="import" href="./designmap-users-combo.html">
+<!-- Redux -->
+<link rel="import" href="../../../redux/actions/combine-actions.html">
+<link rel="import" href="../../../redux/actions/project-actions.html">
+<!-- Animation -->
+<link rel="import" href="/bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="/bower_components/neon-animation/neon-animatable.html">
+<link rel="import" href="/bower_components/neon-animation/neon-animations.html">
+
+<dom-module is="designmap-accesses">
+    <template>
+        <style>
+            :host {
+                display: block;
+                width: 450px;
+                overflow-y: auto;
+                color: var(--white-color);
+                --plastic-custom-scroll-bar-mixin: {
+                    margin-left: 7px;
+                };
+                overflow: hidden;
+                /** Showcase **/
+                --designmap-showcase: {
+                    width: 100% !important;
+                };
+                --designmap-showcase-title-mixin: {
+                    font-size: 32px !important;
+                };
+                --designmap-showcase-img-mixin: {
+                    height: 214px;
+                    width: 271px;
+                }
+            }
+
+            *[hidden] {
+                display: none !important;
+            }
+
+            /** TITLE **/
+            .title {
+                font-family: var(--font-family);
+                font-weight: 500;
+                font-size: 20px;
+                text-align: center;
+                margin: 10px 0 30px 0;
+                color: var(--blue-darkest-color);
+            }
+
+            .title .name {
+                margin: 20px 0 35px 0;
+            }
+
+            /** SHARING **/
+            .sharing .panel {
+                text-align: center;
+            }
+
+            .sharing .panel {
+                cursor: pointer;
+                position: relative;
+                padding: 10px 0 0 0;
+            }
+
+            .block-title {
+                text-transform: none;
+                font-size: 22px;
+                font-family: var(--font-family);
+                font-weight: 500;
+                height: 29px;
+                text-transform: uppercase;
+            }
+
+            .sharing .block-title-arrow {
+                display: block;
+                transform: rotate(0deg);
+                opacity: 1;
+                transition: .4s transform, .4s opacity, .3s height;
+                height: 24px;
+                width: 24px;
+                margin: 0 auto;
+                position: relative;
+                bottom: 2px;
+            }
+
+            .sharing.opened .block-title-arrow {
+                transform: rotate(180deg);
+                opacity: 0;
+                transition: .4s transform, .4s opacity, .2s height;
+                height: 0;
+                width: 0;
+            }
+
+            /** DIRECT LINK **/
+            .directLink {
+                background: #48A5E5;
+                margin: 0px -34px;
+            }
+
+            .directLink #directLinkContent {
+                text-align: center;
+            }
+
+            .link {
+                display: inline-block;
+                text-align: center;
+                width: calc(100% - 10px);
+                border: 1px solid var(--white-color);
+                padding: 10px 5px;
+                font-size: 16px;
+                margin-top: 10px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .directLink #directLinkContent .info {
+                display: inline-flex;
+                width: calc(90% - 27px);
+                margin: 5px 0 20px 0;
+            }
+
+            .directLink #directLinkContent .icon {
+                display: inline-block;
+                width: 36px;
+                height: 24px;
+            }
+
+            .directLink #directLinkContent .text {
+                display: inline-block;
+                text-align: left;
+                font-size: 15px;
+                margin-left: 10px;
+                margin-top: 1px;
+                font-family: var(--font-family);
+                font-weight: 100;
+            }
+
+            .empty-share-list-message {
+                font-family: var(--font-family);
+                font-weight: 100;
+                font-size: 18px;
+                text-align: center;
+            }
+
+            /** USER COMBO **/
+            designmap-users-combo {
+                margin-bottom: 10px;
+                --paper-input-container: {
+                    font-size: 18px;
+                    padding: 0;
+                    color: var(--gray-darky-hovered-color);
+                };
+                --paper-input-container-input: {
+                    padding: 5px 0;
+                    font-size: 18px;
+                    font-family: var(--font-family);
+                    font-weight: 100;
+                    color: var(--gray-darky-hovered-color);
+                };
+                --paper-input-container-label: {
+                    font-family: var(--font-family);
+                    font-weight: 100;
+                    padding: 5px 0;
+                    font-size: 18px;
+                    color: var(--gray-darkend-color);
+                };
+                --paper-input-container-label-floating: {
+                    margin-top: 10px;
+                    padding: 0;
+                };
+                /** Paper-input **/
+
+                --paper-input-container-color: var(--gray-darky-hovered-color);
+                --paper-input-container-focus-color: var(--gray-darky-hovered-color);
+                --paper-input-container-input: {
+                    color: var(--gray-darky-hovered-color);
+                    font-family: var(--font-family);
+                    font-size: 16px;
+                    font-weight: 100;
+                };
+                --paper-input-container-label: {
+                    font-size: 16px;
+                    font-weight: 100;
+                };
+                --paper-input-container-label-floating: {
+                    font-weight: 300;
+                    font-weight: 100;
+                };
+                --paper-input-container-invalid-color: var(--error-color);
+                /** Dropdown **/
+                --designmap-users-select-dropdown-mixin: {
+                    margin-top: -13px;
+                };
+                --designmap-users-select-option-mixin: {
+                    padding: 10px 0;
+                    font-size: 18px;
+                    font-family: var(--font-family);
+                    font-weight: 100;
+                    text-align: center;
+                    background: var(--white-color);
+                    color:var(--gray-darkend-color);
+                };
+                --designmap-users-select-option-hover-mixin: {
+                    background: var(--gray-lightern-color);
+                    color:var(--gray-darkend-color);
+                };
+                --designmap-users-select-option-selected-mixin: {
+                    background: var(--gray-lightern-color);
+                    color: var(--gray-darkend-color);
+                };
+                --designmap-users-select-dropdown-content-mixin: {
+                    background: var(--white-color);
+                    color: var(--gray-darkend-color);
+                };
+            }
+
+
+            /** USERS **/
+            .share {
+                margin: 10px 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--gray-darky-hovered-color);
+            }
+
+            .share .email {
+                flex: 4;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                font-size: 18px;
+                font-family: var(--font-family);
+                font-weight: 100;
+                height: 30px;
+                line-height: 30px;
+            }
+
+            .share .remove {
+                cursor: pointer;
+                margin-left: 10px;
+            }
+
+            .share .remove iron-icon {
+                width: 20px;
+                height: 20px;
+                position: relative;
+                top: 7px;
+                left: 5px;
+                --iron-icon-components-mixin: {
+                    stroke-width: 2px;
+                    stroke: var(--gray-super-dark) !important;
+                }
+            }
+
+            #usersScroll.has {
+                border-bottom: 1px dashed #fff;
+                margin-bottom: 10px;
+            }
+
+            /** BUTTONS **/
+            .button-set {
+                display: flex;
+            }
+
+            .button-set button {
+                flex: 1;
+                margin-left: 10px;
+                font-weight: 100;
+                text-transform: none;
+                font-family: var(--font-family);
+                font-weight: 100;
+            }
+
+            .button-set button:first-child {
+                margin-left: 0;
+            }
+
+            .tooltip {
+                position: absolute;
+            }
+
+            paper-dialog {
+                overflow: visible !important;
+            }
+
+            /** PREMIUM MESSAGE **/
+            .premium-message {
+                color: var(--gray-darky-hovered-color);
+                display: flex;
+            }
+            .premium-message .line {
+                flex-basis: 5px;
+                background: var(--inprogress);
+            }
+            .premium-message .content {
+                padding: 0 15px;
+                background: var(--inprogress-lighty);
+            }
+
+            .premium-message .content .more {
+                padding:15px 0;
+                text-decoration: underline;
+                cursor: pointer;
+                color: var(--gray-darky-hovered-color)
+            }
+
+            .premium-message .content .button-set{
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding-bottom: 0;
+            }
+
+            .premium-message .content .button-set > * {
+                flex: 1;
+                align-items: center;
+                margin: 0 !important;
+            }
+
+            .premium-message .content .button-set > a {
+                color: var(--gray-darkend-color);
+                text-align: right;
+            }
+
+            .back {
+                text-align: center;
+                color: var(--gray-darkend-color);
+                text-decoration: underline;
+                cursor: pointer;
+            }
+
+            designmap-showcase {
+                padding-top: 10px;
+                display: block;
+            }
+
+        </style>
+        <neon-animated-pages id="pages" selected="{{selected}}" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
+            <neon-animateable>
+                <div class="title">
+                    <span class="pre"><i18-n msgid="Manage accesses">Manage accesses</i18-n></span>
+                    <span class="name">&laquo;<span>[[project.name]]</span>&raquo;</span>
+                </div>
+                <div id="formContent" class="animatable-content">
+                    <div class$="personalSharing sharing">
+                        <div id="personalSharingContent">
+                            <plastic-custom-scroll id="usersScroll" max-height="133"
+                                                   fit>
+                                <template is="dom-repeat" items="[[project.users]]" as="user">
+                                    <div class="share">
+                                        <div class="email">{{user.local.email}}</div>
+                                        <div class="remove" on-click="remove">
+                                            <iron-icon icon="designmap:close"></iron-icon>
+                                        </div>
+                                    </div>
+                                </template>
+                            </plastic-custom-scroll>
+                            <div hidden$="[[!showPremiumMessage]]" class="premium-message">
+                                <div class="line"></div>
+                                <div class="content">
+                                    <div class="message">
+                                        <i18-n msgid="accessPremiumMsg">accessPremiumMsg</i18-n>
+                                    </div>
+                                    <div class="more" on-click="_showMoreInfo">
+                                        <i18-n msgid="More info">More info</i18-n>
+                                    </div>
+                                    <div class="button-set">
+                                        <button is="designmap-button" blue on-click="activatePremium" thin>
+                                            <i18-n msgid="Activate">Activate</i18-n>
+                                        </button>
+                                        <a href="#" on-click="_cancelPremiumMessage">
+                                            <i18-n msgid="No thank you">No thank you</i18-n>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <designmap-users-combo label="[[translate('User email',language,i18Loaded)]]" id="userCombo"
+                                                   on-selected="select"></designmap-users-combo>
+                        </div>
+                    </div>
+                    <div class="button-set">
+                        <button is="designmap-button" blue on-click="saveAccesses" thin>
+                            <i18-n msgid="Update">Update</i18-n>
+                        </button>
+                        <button is="designmap-button" gray on-click="cancel" thin>
+                            <i18-n msgid="Cancel">Cancel</i18-n>
+                        </button>
+                    </div>
+                </div>
+            </neon-animateable>
+            <neon-animateable>
+                <designmap-showcase name="team" items="[[teamPremium]]"></designmap-showcase>
+                <div class="back" on-click="_goToMainForm">
+                    <i18-n msgid="return">Return</i18-n>
+                </div>
+            </neon-animateable>
+        </neon-animated-pages>
+
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-accesses',
+            behaviors: [
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapFsService,
+                Polymer.IronResizableBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                ReduxBehavior,
+                Polymer.CombineActions(Polymer.ProjectActions)
+            ],
+            properties: {
+                _id: {
+                    type: String,
+                    value: ''
+                },
+                active: Boolean,
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    statePath: 'i18Loaded'
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
+                },
+                project: {
+                    type: String,
+                    statePath: 'project'
+                },
+                projects: {
+                    type: String,
+                    statePath: 'projects'
+                },
+                folder: Object,
+                maxHeight: {
+                    type: Number,
+                    value: function () {
+                        return window.innerHeight - 20;
+                    }
+                },
+                showPremiumMessage: {
+                    type: Boolean,
+                    value: false
+                },
+                selected: {
+                    type: Number,
+                    value: 0
+                },
+                teamPremium: {
+                    type: Array,
+                    value: [
+                        {icon: 'designmap-showcase:team',message:'accessOneMsg'}
+                    ]
+                }
+            },
+            ready: function(){
+                Designmap.erd.listenTo(this.$.formContent, function(element) {
+                    this.$.pages.style.height = element.offsetHeight + 60 + "px";
+                    this.fire('resize');
+                }.bind(this));
+            },
+            /**
+             * Cancel updating\creating
+             */
+            cancel: function () {
+                this.fire('close-share-dialog');
+            },
+            /**
+             * On combo user box select item
+             * @param e
+             * @returns {boolean}
+             */
+            select: function (e) {
+                // Drop the select value
+                this.$.userCombo.$.select.value = '';
+                // Prevent repeats
+                if (this.checkUsers(e.detail.local.email)) return this.showErrorMessage('This user already added');
+                if (e.detail.local.email == this.user.local.email) return this.showErrorMessage('You cannot add yourself. You are already there!');
+                if (this.project.users && (this.project.users.length+1)>2 && !this.user.isPremium) return this.showPremiumMessage = true;
+                // Dispatch event
+                if(!this.project.users) this.set('project.users',[]);
+                this.push('project.users',e.detail);
+                // Work with scroll area
+                this.async(function () {
+                    let o = this.$.usersScroll.$.content;
+                    o.scrollTop = o.scrollHeight;
+                    this.$.usersScroll.calculate();
+                }, 10);
+            },
+            /**
+             * Check users if they can be repeted
+             */
+            checkUsers: function (email) {
+                if (!this.project || !this.project.users) return;
+                let found = null;
+                this.project.users.forEach(function (user) {
+                    if ((user && user.local && user.local.email === email) || (user.email === email) || (user.label === email)) found = user;
+                }, this);
+                return found;
+            },
+            /**
+             * Remove certain user from share list
+             * @param e
+             */
+            remove: function (e) {
+                var index = this.project.users.indexOf(e.model.user);
+                this.splice('project.users',index,1);
+                this.async(function () {this.$.usersScroll.calculate();}, 10);
+            },
+            /**
+             * Update share. Including DB.
+             */
+            saveAccesses: function () {
+                this.fire('close-share-dialog');
+                this.dispatch('updateProject', this.project._id, this.project).then(function () {
+                    // Notify
+                    this.sendNotifications();
+                    this.showMessage('Share was updated successful');
+                }.bind(this));
+            },
+            /**
+             * Send notifications using
+             * designmap-notifier
+             */
+            sendNotifications: function () {
+                this.project.users.forEach(function (user) {
+                    if (user.id == this.user._id) return;
+                    const notifier = document.querySelector('designmap-app').$.notifier;
+                    // Create notify
+                    notifier.create({
+                        sender: this.user,
+                        recipient: user._id,
+                        type: 'new-access',
+                        text: {
+                            message: 'You received an access to project',
+                            replacement: { "#PROJECT#": this.project.name},
+                            projectID: this.project._id
+                        }
+                    });
+                }.bind(this));
+            },
+            /**
+             * Select share link
+             */
+            selectAll: function () {
+                this.selectText(this.$.link);
+            },
+            /**
+             * Close message dialog
+             */
+            closeMessageDialog: function () {
+                this.$.messageDialog.close();
+            },
+            _computePremiumMessageState: function(isPremium,length) {
+                return length>2 && !isPremium;
+            },
+            _cancelPremiumMessage: function(){
+                this.showPremiumMessage = false;
+            },
+            _showMoreInfo: function(){
+                this.entryAnimation = 'slide-from-right-animation';
+                this.exitAnimation = 'slide-left-animation';
+                this.selected = 1;
+            },
+            _goToMainForm: function(){
+                this.entryAnimation = 'slide-from-left-animation';
+                this.exitAnimation = 'slide-right-animation';
+                this.selected = 0;
+            },
+            activatePremium: function(){
+                page.redirect('/activate');
+                this.fire('close-showcase-dialog');
+                this.reachGoal('show_case_event','team');
+            }
+        })
+    </script>
+</dom-module>

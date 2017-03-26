@@ -18,6 +18,7 @@
 <link rel="import" href="../designmap-ui/designmap-dashboard.html">
 <link rel="import" href="../designmap-ui/designmap-input-datepicker.html">
 <link rel="import" href="../designmap-ui/designmap-storage-bar.html">
+<link rel="import" href="../designmap-ui/designmap-showcase.html">
 
 <link rel="import" href="../designmap-avatar/designmap-avatar.html">
 
@@ -297,6 +298,17 @@
                 margin: 20px 0;
             }
 
+            .not-premium-message {
+                cursor: pointer;
+                color: var(--gray-darkend-color);
+                text-decoration: underline;
+                text-align: center;
+            }
+
+            paper-dialog {
+                padding: 55px 45px !important;
+            }
+
         </style>
         <designmap-dashboard>
             <div class="arrow-back" data-hint="back" on-click="goBack">
@@ -378,6 +390,16 @@
                                     <!--<designmap-file-stores data-hint="storages"></designmap-file-stores>-->
                                     <div class="title"><i18-n msgid="Data space">Data space</i18-n></div>
                                     <designmap-storage-bar></designmap-storage-bar>
+                                    <template is="dom-if" if="[[!user.isPremium]]">
+                                        <div on-click="_openDataspaceShowCase" class="not-premium-message">
+                                            <i18-n msgid="Is data space too small?">Is data space too small?</i18-n>
+                                        </div>
+                                        <!-- Showcase dialog -->
+                                        <paper-dialog id="dataSpaceShowCaseDialog" entry-animation="scale-up-animation"
+                                                      exit-animation="scale-down-animation">
+                                            <designmap-showcase name="disk" items="[[dataSpaceShowCaseItems]]"></designmap-showcase>
+                                        </paper-dialog>
+                                    </template>
                                 </div>
                             </div>
                             <div class="row">
@@ -579,6 +601,12 @@
                     value: function () {
                         return document.body
                     }
+                },
+                dataSpaceShowCaseItems: {
+                    type: Array,
+                    value: [
+                        {icon: 'designmap-showcase:disk',message:'dataSpacePremiumOneMsg'}
+                    ]
                 }
             },
             listeners: {
@@ -630,9 +658,9 @@
              * have to change datepicker data
              */
             userChanged: function () {
-                if (!(this.user && this.user.birthDate)) return;
+                if (!(this.user && this.user.profile.birthDate)) return;
                 this.$.datePicker.wasSelected = true;
-                this.$.datePicker.date = new Date(this.user.birthDate);
+                this.$.datePicker.date = new Date(this.user.profile.birthDate);
             },
             /**
              * When birth date was changed
@@ -641,7 +669,7 @@
              */
             changeBirthDate: function (e) {
                 if (!this.user) return;
-                this.user.birthDate = e.detail;
+                this.user.profile.birthDate = e.detail.value;
             },
             /**
              * Sub router page animation configuration
@@ -705,6 +733,9 @@
             _pathChanged: function (path) {
                 const index = ROUTES.indexOf(path);
                 this.selectedRoute = (index > 0 && index < 3) ? index : 0;
+            },
+            _openDataspaceShowCase: function(){
+                this.$$('#dataSpaceShowCaseDialog').open();
             }
         })
     </script>

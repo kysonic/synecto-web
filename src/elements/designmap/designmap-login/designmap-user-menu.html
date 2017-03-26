@@ -1,4 +1,5 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-tooltip/paper-tooltip.html">
 <!-- Components -->
 <link rel="import" href="../designmap-ui/designmap-dropdown.html">
 <link rel="import" href="./designmap-language-switcher.html">
@@ -30,11 +31,23 @@
 
                 --designmap-dropdown-mixin: {
                     padding: 30px;
-                    background: var(--primary-color);
+                    background: var(--white-color) !important;
+                    color: var(--gray-darkend-color) !important;
+                    box-shadow: var(--box-shadow);
+                    border: 1px solid var(--gray-color);
                 };
                 --designmap-dropdown-triangle-mixin: {
-                    border-color: transparent transparent var(--primary-color) transparent;
+                    border-color: transparent transparent var(--white-color) transparent;
                     margin-left: 30px;
+                };
+                --designmap-dropdown-triangle-mixin: {
+                    margin-left: 30px;
+                    border-color: transparent transparent var(--white-color) transparent !important;
+                };
+                --designmap-dropdown-triangle-border-mixin: {
+                    margin-left: 28px;
+                    margin-top: -2px;
+                    border-color: transparent transparent var(--gray-color) transparent !important;
                 };
             }
 
@@ -67,7 +80,6 @@
                 width: 43px;
                 height: 43px;
                 vertical-align: top;
-                margin-right: 17px;
                 border-radius: 50%;
                 border: 2px solid var(--white-color);
                 overflow: hidden;
@@ -150,7 +162,7 @@
                 position: absolute;
                 top: 2px;
                 left: 100%;
-                margin-left: -29px;
+                margin-left: -11px;
                 width: 10px;
                 height: 10px;
                 border-radius: 50%;
@@ -168,6 +180,7 @@
                         <iron-icon icon="designmap-workspace:help"></iron-icon>
                     </div>
                 </div>
+                <paper-tooltip for="support"><i18-n msgid="Support">Support</i18-n></paper-tooltip>
                 <div id="menu" class="block" on-click="openUserMenu" data-hint="login">
                     <div class="email" title="[[user.local.email]]">
                         [[user.local.email]]
@@ -184,7 +197,7 @@
                 </div>
             </div>
             <!-- Account menu -->
-            <designmap-dropdown id="dropdown" horizontal-offset="[[horizontalOffset]]"
+            <designmap-dropdown id="dropdown" tri-border horizontal-offset="[[horizontalOffset]]"
                                 vertical-offset="[[verticalOffset]]">
                 <div class="row" on-click="goToProfile">
                     <iron-icon icon="designmap-user-menu:settings"></iron-icon>

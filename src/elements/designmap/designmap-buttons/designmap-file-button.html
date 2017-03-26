@@ -58,6 +58,26 @@
                 background: var(--blue-color);
             }
 
+            :host([gray]) {
+                color: var(--gray-darkend-color);
+                border-color: var(--gray-darkend-color);
+            }
+            :host([gray]:hover) {
+                background: rgba(0,0,0,0.05);
+                transition: background .2s;
+            }
+
+            :host([blue]) {
+                color: var(--white-color);
+                border-color: var(--blue-darky-color);
+                background: var(--blue-darkest-color);
+                transition: background .2s;
+            }
+            :host([blue]:hover) {
+                background: var(--blue-darky-color);;
+                transition: background .2s;
+            }
+
         </style>
         <input id="files" type="file" on-change="changeFiles" multiple="[[multiple]]" name="[[name]]" >
         <content></content>

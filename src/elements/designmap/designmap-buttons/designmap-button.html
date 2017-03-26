@@ -18,6 +18,8 @@
                 -webkit-user-select: none;
                 overflow: hidden;
                 text-overflow: ellipsis;
+                font-family: var(--font-family);
+                font-weight: 100;
             }
             :host(:focus) {
                 outline: none;
@@ -47,6 +49,17 @@
             }
             :host([gray]:hover) {
                 background: rgba(0,0,0,0.05);
+                transition: background .2s;
+            }
+
+            :host([blue]) {
+                color: var(--white-color);
+                border-color: var(--blue-darky-color);
+                background: var(--blue-darkest-color);
+                transition: background .2s;
+            }
+            :host([blue]:hover) {
+                background: var(--blue-darky-color);;
                 transition: background .2s;
             }
 

@@ -1,0 +1,386 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../designmap-avatar/designmap-avatar-projector.html">
+
+<dom-module id="designmap-users-select">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+            *[hidden] {
+                display: none !important;
+            }
+            iron-dropdown {
+                z-index: 8 !important;
+                color: var(--white-color);
+                box-shadow: var(--box-shadow);
+                border: 1px solid var(--gray-color);
+                @apply(--designmap-users-select-dropdown-mixin);
+            }
+            .wrapper {
+                display: block;
+                width: 100%;
+                position: relative;
+            }
+            .wrapper.readonly paper-input input {
+                cursor: pointer;
+            }
+            /** INPUT **/
+            paper-input {
+                font-size: 16px;
+            }
+            paper-input[readonly] {
+                cursor: pointer;
+            }
+            /** SELECTOR **/
+            .items {
+                height: auto;
+            }
+            .item {
+                cursor: pointer;
+                overflow: hidden !important;
+                text-overflow: ellipsis;
+                @apply(--designmap-users-select-option-mixin);
+            }
+            .item:hover {
+                background: var(--gray-lightern-color);
+                color: var(--gray-darkend-color);
+                @apply(--designmap-users-select-option-hover-mixin);
+            }
+            item.selected {
+                background: var(--gray-lightern-color);
+                color: var(--gray-darkend-color);
+                @apply(--designmap-users-select-option-selected-mixin);
+            }
+
+            .keyed {
+                background: var(--gray-lightern-color);
+                color: var(--gray-darkend-color);
+                @apply(--designmap-users-select-option-keyed-mixin);
+            }
+            /** IRON-DROPDOWN **/
+            .dropdown-content {
+                width: 100%;
+                height: auto;
+                position: relative;
+                background: var(--white-color);
+                max-height: 100% !important;
+                @apply(--designmap-users-select-dropdown-content-mixin);
+            }
+            .no-items {
+                padding: 10px;
+                text-align: center;
+            }
+            /** ARROW **/
+            .arrow {
+                width: 25px;
+                height: 40px;
+                position: absolute;
+                left: 100%;
+                margin-left: -22px;
+                top: 26px;
+                cursor: pointer;
+                --iron-icon-components-mixin: {
+                    stroke: var(--gray-color);
+                };
+            }
+
+            .arrow.close {
+                width: 26px;
+                height: 20px;
+                top: 12px;
+                margin-left: -20px;
+            }
+            designmap-avatar-projector {
+                width: 30px;
+                height: 30px;
+            }
+            .item {
+                display: flex;
+            }
+            .item .avatar {
+                margin-left: 5px;
+            }
+            .item .data {
+                margin-left: 20px;
+            }
+            .item .name-email .name{
+                text-align: left;
+            }
+            .item .name-email .email{
+                font-size: 12px;
+                text-align: left;
+            }
+            .item .only-email {
+                display: flex;
+                align-items: center;
+                height: 26px;
+            }
+
+        </style>
+        <div id="wrapper" class$="wrapper {{readOnlyClass(readonly)}}">
+            <paper-input on-keydown="pressKey" readonly="[[readonly]]" autofocus id="input" on-focus="focus" label="{{label}}" value="{{text}}" on-input="textChanged" on-click="openDropdown"></paper-input>
+            <iron-icon icon="[[computeIcon(text)]]" class$="arrow [[computeClass(text)]]" on-click="action" ></iron-icon>
+            <input type="hidden" value="{{value}}">
+            <iron-dropdown on-iron-overlay-closed="onOverlayClose" id="dropdown" vertical-offset="[[verticalOffset]]" open-animation-config="[[slideTopOpenAnimation]]" close-animation-config="[[slideTopCloseAnimation]]">
+                <div class="dropdown-content">
+                    <div class="items">
+                        <template is="dom-repeat" items="[[options]]" as="option" filter="{{searchFilter(search)}}">
+                            <div class$="item [[optionClasses(value,option,selectedOption,index)]]" style="padding: 10px" on-click="selectOption" value="[[option._id]]">
+                                <div class="avatar">
+                                    <designmap-avatar-projector user="[[option]]"></designmap-avatar-projector>
+                                </div>
+                                <div class="data">
+                                    <div class="name-email" hidden$="[[!haveAName(option)]]">
+                                        <div class="name">[[computeUserFullName(option)]]</div>
+                                        <div class="email">[[option.local.email]]</div>
+                                    </div>
+                                    <div class="only-email" hidden$="[[haveAName(option)]]">
+                                        <div class="email">[[option.local.email]]</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="no-items" hidden$="[[isThereFilteredOptions(search,options)]]">
+                        <i18-n msgid="Users not found">Users not found</i18-n>
+                    </div>
+                </div>
+            </iron-dropdown>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-users-select',
+            behaviors: [
+                Polymer.DesignMapUtilsBehavior
+            ],
+            properties: {
+                verticalOffset: {
+                    type: Number,
+                    value: 60
+                },
+                selectOnFocus: {
+                  type: Boolean,
+                  value: false
+                },
+                remover: {
+                  type: Boolean,
+                  value: false
+                },
+                search: {
+                    type: String,
+                    notify: true
+                },
+                limit: {
+                    type: String,
+                    value: 10000000
+                },
+                text: {
+                    type: String,
+                    value: '',
+                    observer: 'textChanged'
+                },
+                value: {
+                    type: String,
+                    value: '',
+                    observer: 'valueChanged'
+                },
+                options: {
+                    type: Array,
+                    value: [],
+                    observer: 'optionsChanged'
+                },
+                label: {
+                  type: String,
+                  value: ''
+                },
+                selectedOption: {
+                  type: Number,
+                  value: 0
+                },
+                count: Number,
+                readonly: {
+                    type: Boolean,
+                    value: false
+                },
+                animationOn: {
+                  type: Boolean,
+                  value: true
+                }
+            },
+            ready: function () {
+                if(this.readonly) Polymer.dom(this.$.input).setAttribute('readonly');
+            },
+            /**
+             * A filter providing limit restrictions
+             * @param search
+             * @returns {function(this:searchFilter)}
+             */
+            searchFilter: function(search){
+                this.count = 0;
+                search = search.toLowerCase();
+                return function(option) {
+                    var condition = option.local ? new RegExp(search).test(option.local.email) : false;
+                    if(condition) this.count++;
+                    return condition&&this.count<=parseInt(this.limit);
+                }.bind(this);
+            },
+            /**
+             * A filter providing limit restrictions
+             * @param search
+             * @returns {function(this:searchFilter)}
+             */
+            filtred: function(search){
+              this.count = 0;
+              search = search.toLowerCase();
+              return this.options.filter(function(option) {
+                var condition = option.local ? new RegExp(search).test(option.local.email) : false;
+                if(condition) this.count++;
+                return condition&&this.count<=parseInt(this.limit);
+              }.bind(this))
+            },
+            action: function(){
+              this.text&&this.remover ? this.removeText() : this.openDropdown();
+            },
+            /**
+             * Open dropdown
+             */
+            openDropdown: function(){
+                this.$.dropdown.open();
+                // Fit to wrapper
+                this.async(function(){
+                    this.$.dropdown.style.width = this.getBoundingClientRect().width+'px';
+                    this.$.dropdown.refit();
+                    this.selectedOption = 0;
+                });
+            },
+            up: function(){
+              var filtred = this.filtred(this.search);
+              this.selectedOption--;
+              this.selectedOption<0?this.selectedOption=filtred.length-1:null;
+            },
+            down: function(){
+              var filtred = this.filtred(this.search);
+              this.selectedOption++;
+              this.selectedOption>=filtred.length?this.selectedOption=0:null;
+            },
+            add: function(){
+              var filtred = this.filtred(this.search);
+              var option = filtred[this.selectedOption];
+              this.value = option._id;
+              this.$.dropdown.close();
+              this.fire('selected',option);
+            },
+            pressKey: function(e){
+              if(e.keyCode==13) this.add();
+              if(e.keyCode==38) this.up();
+              if(e.keyCode==40) this.down();
+            },
+            removeText: function(){
+              this.text = '';
+              this.fire('remove');
+            },
+            /**
+             * Select option
+             * @param e
+             */
+            selectOption: function(e){
+                this.value = e.model.option._id;
+                this.$.dropdown.close();
+                this.fire('selected',e.model.option);
+            },
+            /**
+             * When value was changed we have to changed
+             * input text as well
+             */
+            valueChanged: function(value){
+                if(!value) return this.text = '';
+                var label = this.findLabelByValue(this.value);
+                this.text = label||'';
+            },
+            /**
+             * Find label by value
+             */
+            findLabelByValue: function(value,options){
+                if(!this.options) return null;
+                var label = null;
+                var opts = options || this.options;
+                opts.forEach(function(option){
+                    if(option.local && option.local.email == value) label = option.label;
+                },this);
+
+                return label;
+            },
+            /**
+             * Find label by value
+             */
+            matchId: function(value,options){
+                if(!this.options) return null;
+                var id = null;
+                var opts = options || this.options;
+                opts.forEach(function(option){
+                    if(option.id == value) id = option.id;
+                },this);
+                return id;
+            },
+            /**
+             * When input value was changed
+             */
+            textChanged : function(){
+                this.count = 0;
+                if(this.readonly) return;
+                if(this.$.input.value) this.openDropdown();
+                this.search=this.$.input.value;
+            },
+            /**
+             * Compute classes of option
+             * @param value - current value
+             * @param option - current option
+             * @returns {string}
+             */
+            optionClasses: function(value,option, selectedOption,index){
+                return 'option '+(value==option.value?'selected':'') + (selectedOption==index?' keyed':'');
+            },
+            /**
+             * When dropdown was closed we have to switch
+             * focus on paper-input
+             */
+            onOverlayClose: function(){
+                this.$.input.focus();
+            },
+            getLabel: function(label){
+                return label;
+            },
+            optionsChanged: function(){
+                this.count = 0;
+                //this.valueChanged();
+            },
+            readOnlyClass: function(readonly) {
+                return readonly?'readonly':'';
+            },
+            isThereFilteredOptions: function(search) {
+                var count = 0;
+                if(!this.options) return false;
+                var filtered = this.options.filter(function (option) {
+                    var condition = option.local ? new RegExp(search).test(option.local.email) : false;
+                    if (condition) count++;
+                    return condition && count <= parseInt(this.limit);
+                }.bind(this));
+                return !!filtered.length;
+            },
+            focus: function(){
+              if(this.selectOnFocus) this.$.input.$.input.select();
+            },
+            computeIcon: function(text){
+              return text&&this.remover ? 'designmap-close:close' : 'designmap20x6:arrow_down';
+            },
+            computeClass: function(text){
+              return text&&this.remover ? 'close' : 'arrow_down';
+            },
+            haveAName: function(user){
+              return !!(user.profile.name || user.profile.lastName);
+            }
+        })
+    </script>
+</dom-module>

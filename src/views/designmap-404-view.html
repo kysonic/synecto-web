@@ -1,21 +1,69 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../elements/designmap/designmap-icons/designmap-workspace-icons.html">
 
 <dom-module id="designmap-404">
-  <template>
-    <style>
-      :host {
-        display: block;
+    <template>
+        <style>
+            :host {
+                display: flex;
 
-        padding: 10px 20px;
-      }
-    </style>
+                width: 100%;
+                height: 100vh;
 
-    <h1>404</h1>
-  </template>
+                align-items: center;
+                justify-content: center;
+            }
 
-  <script>
-    Polymer({
-      is: 'designmap-404',
-    });
-  </script>
+            .item {
+                position: relative;
+                cursor: pointer;
+            }
+
+            .title {
+                position: absolute;
+                color: var(--gray-darkend-color);
+                font-size: 30px;
+                z-index: 999;
+                top: 102px;
+                right: 3px;
+                text-align: center;
+                width: 100%;
+                font-weight: 100;
+            }
+
+            .error-icon {
+                width: 245px;
+                height: 270px;
+            }
+
+            .link {
+                cursor: pointer;
+                text-decoration: underline;
+                text-align: center;
+                position: relative;
+                bottom: 35px;
+                color: var(--gray-darkend-color);
+            }
+
+        </style>
+
+        <div class="item" on-click="goBack">
+            <iron-icon class="error-icon" icon="designmap-workspace-stub:error"></iron-icon>
+            <h1 class="title">404</h1>
+            <div class="link">
+                <i18-n msgid="onHome">onHome</i18-n>
+            </div>
+        </div>
+
+    </template>
+
+    <script>
+        Polymer({
+            is: 'designmap-404',
+            goBack: function(){
+                page.redirect('/');
+            }
+        });
+    </script>
 </dom-module>

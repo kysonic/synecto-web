@@ -36,6 +36,10 @@
                 this.page = 'support';
             }.bind(this));
 
+            page('/activate', this._isAuth.bind(this), function(ctx,next){
+                this.page = 'activate';
+            }.bind(this));
+
             page('/support/docs', this._isAuth.bind(this), function(ctx,next){
                 this.page = 'docs';
             }.bind(this));

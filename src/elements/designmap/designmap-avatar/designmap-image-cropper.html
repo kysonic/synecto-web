@@ -33,7 +33,7 @@
                 min-height: 60px;
                 width: 245px;
                 height: 275px;
-                background: url('http://localhost:5000/images/svg/three-dots.svg') no-repeat center;
+                background: url('http://localhost:5000/images/svg/three-dots-gray.svg') no-repeat center;
             }
 
             .wrapper {
@@ -70,7 +70,7 @@
 
             .marker {
                 border-radius: 50%;
-                background: var(--primary-color);
+                background: var(--blue-darkest-color);
                 width: 8px;
                 height: 8px;
                 position: absolute;
@@ -198,16 +198,16 @@
                     </div>
                 </div>
                 <div class="button-set">
-                    <button class="cancel" is="designmap-button" thin on-click="cancel">
+                    <button class="cancel" gray is="designmap-button" thin on-click="cancel">
                         <i18-n msgid="Cancel">Cancel</i18-n>
                     </button>
-                    <button class="save" is="designmap-button" thin on-click="save">
+                    <button class="save" gray is="designmap-button" thin on-click="save">
                         <i18-n msgid="Save">Save</i18-n>
                     </button>
                 </div>
             </template>
             <template is='dom-if' if="[[!tmpFile]]">
-                <designmap-file-button thin id="fileButton" label="[[translate('Upload file',language)]]" name="files[]"
+                <designmap-file-button gray thin id="fileButton" label="[[translate('Upload file',language)]]" name="files[]"
                                        files="{{buttonFiles}}" on-change="buttonFilesChanged"
                                        allowed-extension="[[allowedExtension]]" on-notallowed="showNotAllowedError">
                     <i18-n msgid="Select File">Select File</i18-n>

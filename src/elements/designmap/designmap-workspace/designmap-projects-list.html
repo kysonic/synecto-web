@@ -99,18 +99,18 @@
             }
 
             /** PROJECTS **/
-            .your-projects li {
+            .your-projects li, .available-projects li {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
             }
 
-            .your-projects li iron-icon {
+            .your-projects li iron-icon, .available-projects li iron-icon {
                 width: 30px;
                 height: 30px;
             }
 
-            .your-projects li iron-icon:hover {
+            .your-projects li iron-icon:hover, .available-projects li iron-icon:hover {
                 border-radius: 50%;
                 background: var(--designmap-project-list-hover-icon);
             }
@@ -118,7 +118,7 @@
             .title {
                 padding: 13px;
             }
-            :host([menu-mode]) .your-projects {
+            :host([menu-mode]) .your-projects, :host([menu-mode]) .available-projects  {
                 margin: 0 !important;
             }
         </style>
@@ -136,7 +136,12 @@
         </div>
 
         <div class="title" hidden$="[[!menuMode]]">
-            <i18-n msgid="Select project">Select project</i18-n>
+            <template is="dom-if" if="[[projects.length]]">
+                <i18-n msgid="Select project">Select project</i18-n>
+            </template>
+            <template is="dom-if" if="[[!projects.length]]">
+                <i18-n style="max-width: 200px; white-space: normal" msgid="There is no selected project yet...">There is no selected project yet...</i18-n>
+            </template>
         </div>
 
         <plastic-custom-scroll class="scroller" hidden$="[[hideUnselected(selectedTab,0)]]" fit>
@@ -154,7 +159,7 @@
             <ul class="list available-projects">
                 <template is="dom-repeat" items="[[sharedProjects]]" as="share">
                     <li on-click="selectShare" class$="[[computeSelected(selectedProjectID,share)]]">
-                        {{share.projectData.name}}
+                        <div class="project-name" on-click="selectShare">[[share.name]]</div>
                     </li>
                 </template>
             </ul>
@@ -267,17 +272,12 @@
                 this.fire('close-project-list');
             },
             /**
-             * Select certain project
+             * Select certain shared project
              * @param e
              */
             selectShare: function (e) {
-                if (document.querySelector('designmap-fs').loading || document.querySelector('designmap-fs').project ? document.querySelector('designmap-fs').project._id == e.model.share._id : false) return;
+                page.redirect('/' + e.model.share._id);
                 this.fire('close-project-list');
-                this.dispatch('updateProjectLoading', true);
-                this.async(function () {
-                    document.querySelector('designmap-fs').breadcrumbs = [];
-                    page.redirect('/share/' + e.model.share._id + '/');
-                }, 200);
             },
             /**
              * Compute selected state
@@ -300,7 +300,9 @@
              * @param e
              */
             selectTab: function (e) {
-                this.selectedTab = !e.currentTarget.dataset.id ? !!this.projects.length : !!this.sharedProjects.length;
+                if(e.currentTarget.dataset.id && !this.sharedProjects.length)  return;
+                if(!e.currentTarget.dataset.id && !this.projects.length)  return;
+                this.selectedTab = e.currentTarget.dataset.id;
             },
             /**
              * Hide content of unselected tab

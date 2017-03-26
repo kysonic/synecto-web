@@ -81,6 +81,7 @@
             const stickersComments = this.comments.filter(function (comment) {
                 return comment.sticker == sticker._id
             });
+
             this.lastCommentData = {
                 target: e.target,
                 sticker: sticker,
@@ -120,7 +121,7 @@
 
         _applyToProtocol: function () {
             this.$.dropdown.close();
-            this.showMessage('This function is not available. We will notify you when it will be ready.')
+            this.fire('open-protocol-showcase');
         },
 
         _removeComment(){

@@ -7,6 +7,8 @@
         <style>
             :host {
                 z-index: 120 !important;
+                font-family: var(--font-family);
+                font-weight: 100;
             }
             /** CONFIRMS **/
             paper-dialog {
@@ -22,7 +24,7 @@
                 padding: 20px;
                 font-size: 16px;
                 text-align: center;
-                background: var(--blue-darkest-color);
+                background: var(--white-color);
             }
             paper-dialog .content button {
                 display: inline-block;
@@ -39,41 +41,46 @@
                 height: 95px;
                 margin: 15px auto;
                 margin-bottom: 11px;
+                border: 2px solid var(--gray-darkend-color);
+                border-radius: 50%;
             }
             .message {
+                margin: 20px 0 20px 0;
                 font-weight: 300;
+                color: var(--gray-darky-hovered-color);
             }
             paper-dialog  .content {
-
+                color: var(--gray-darkend-color);
             }
             paper-dialog  .content .title {
-                color: var(--white-color);
+                color: var(--gray-darkend-color);
                 text-align: center;
                 font-size: 22px;
                 font-weight: 300;
                 margin-bottom: 10px;
+                margin-top: 15px;
             }
             .button.alert {
                 background: var(--orange-color);
-                color: var(--white-color);
+                color: var(--gray-darkend-color);
             }
 
         </style>
         <paper-dialog id="dialog" entry-animation="scale-up-animation"
                       exit-animation="scale-down-animation">
             <div class="content">
-                <div class="title">
+                <!--<div class="title">
                     <i18-n msgid="[[computeTitle(title,language)]]">Confirm</i18-n>
-                </div>
-                <iron-icon class="popup-icon" icon="[[computeIcon(icon)]]"></iron-icon>
+                </div>-->
+                <!--<iron-icon class="popup-icon" icon="designmap-workspace:project"></iron-icon>-->
                 <div class="message">
                     <i18-n msgid="[[message]]">[[message]]</i18-n>
                 </div>
                 <div class="button-set">
-                    <button is="designmap-button" class$="[[computeAlertClass(alertYes)]]" thin on-click="forward">
+                    <button is="designmap-button" gray class$="[[computeAlertClass(alertYes)]]" thin on-click="forward">
                         <i18-n msgid="Yes">Yes</i18-n>
                     </button>
-                    <button is="designmap-button" thin on-click="suspend">
+                    <button is="designmap-button" gray thin on-click="suspend">
                         <i18-n msgid="No">No</i18-n>
                     </button>
                 </div>

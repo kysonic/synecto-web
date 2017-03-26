@@ -80,7 +80,7 @@
   "Name can't be empty.": {
     "message": "Name can't be empty."
   },
-  "You don't have access to manage this project.": {
+  "You don't have access to manage this project": {
     "message": "You don't have access to manage this project."
   },
   "Folder adding had been successful.": {
@@ -299,8 +299,8 @@
   "Only For": {
     "message": "Only for"
   },
-  "User email or login": {
-    "message": "Enter email or login"
+  "User email": {
+    "message": "Enter email"
   },
   "Removed Files and Folders": {
     "message": "Removed Files and Folders"
@@ -651,16 +651,16 @@
     "message": "User menu"
   },
   "Creating sub-folder": {
-    "message": "Folder creating"
+    "message": "Create folder"
   },
   "creatingSubFolderMsg": {
-    "message": "Click on \"Create folder\" button, enter Folder's name, click on \"Next\" button (or press Enter key)."
+    "message": "Click on button, enter Folder's name, click on \"Next\" button (or press Enter key)."
   },
   "Rename folder": {
     "message": "Rename folder"
   },
   "renameFolderMsg": {
-    "message": "Open context Menu of Folder's by right mouse button clicking or click on menu button at right bottom corner, select \"Rename\" item, write new name of folder, click on \"Next\" button (or press Enter key)."
+    "message": "Open context Menu of Folder's by right mouse button clicking or click on menu button at bottom of folder, select \"Rename\" item, rewrite name of folder."
   },
   "Open context menu":{
     "message": "Open context menu"
@@ -695,17 +695,20 @@
   "Add file": {
     "message": "File uploading"
   },
+  "Add file hint": {
+    "message": "Add file"
+  },
   "Add folder": {
     "message": "Create folder"
   },
   "addFileMsg": {
-    "message": "Well, now you ready to add your first file! Click \"Add file\" button, select file from your computer and click \"Upload\" button. Remember, supported file types are .jpg, .png, .gif, .ttf, .rif, .bmp, .jpg, .hdr, .ppm, .pbm, .psd, .eps, .ai. Max size - 150MB"
+    "message": "Click \"Add file\" button, select file from your device and click \"Upload\" button. Remember, supported file types are .jpg, .png, .gif, .ttf, .rif, .bmp, .jpg, .hdr, .ppm, .pbm, .psd, .eps, .ai. Max size - 150MB"
   },
   "Open DesignMap Gallery": {
     "message": "Open DesignMap Gallery"
   },
   "openGalleryMsg": {
-    "message": "To open gallery make double click on file cover or click on \"Menu\" button and \"Open\" after that."
+    "message": "Make double click on file cover or click \"Open\" in context menu."
   },
   "Gallery UI Guide": {
     "message": "Gallery UI Guide"
@@ -717,6 +720,9 @@
     "message": "Enter text of your comment and press \"Add a comment\" button or press CTRL(CMD)(CMD)+ENTER"
   },
   "Add comment": {
+    "message": "Add a comment"
+  },
+  "Add comment hint": {
     "message": "Add a comment"
   },
   "Click on image to leave comment": {
@@ -864,7 +870,7 @@
     "message": "Link on project for another users"
   },
   "You received an access to project": {
-    "message": "You received \"#ACCESS#\" access to project \"#PROJECT#\"."
+    "message": "You received access to project \"#PROJECT#\"."
   },
   "reader": {
     "message": "Reader"
@@ -1152,7 +1158,7 @@
     "message": "or"
   },
   "Project name cannot be empty": {
-    "message": "Enter name!"
+    "message": "Project name cannot be empty"
   },
   "More": {
     "message": "More"
@@ -1273,5 +1279,59 @@
   },
   "Try it out": {
     "message": "Try it out"
+  },
+  "accessPremiumMsg": {
+    "message": "You can add more than 2 users only if you will activate premium account."
+  },
+  "Activate": {
+    "message": "Activate"
+  },
+  "No thank you": {
+    "message": "No thank you"
+  },
+  "More info": {
+    "message": "More info"
+  },
+  "Subscribe on premium": {
+    "message": "Subscribe on premium"
+  },
+  "Faster": {
+    "message": "I want this feature quicker!"
+  },
+  "Share this file": {
+    "message": "Share this file"
+  },
+  "Feature in development": {
+    "message": "This feture in development yet"
+  },
+  "Is data space too small?": {
+    "message": "Is data space not enough?"
+  },
+  "File menu": {
+    "message": "File menu"
+  },
+  "Call": {
+    "message": "Call"
+  },
+  "Chat": {
+    "message": "Chat"
+  },
+  "Share": {
+    "message": "Share"
+  },
+  "Close": {
+    "message": "Close"
+  },
+  "Activate premium": {
+    "message": "Activate premium account"
+  },
+  "onHome": {
+    "message": "main page"
+  },
+  "Speed up": {
+    "message": "Speed up"
+  },
+  "Cannot find file": {
+    "message": "Cannot find a file... Probably it can be removed"
   }
 }

@@ -18,7 +18,7 @@
             if (!node) return false;
             var found = null;
             while(node && node.tagName && node.tagName.toLowerCase() !== 'body') {
-                if (node.getAttribute(acin) || node.classList.contains(acin) || node.id == acin || node.tagName == acin) found = node;
+                if (node.getAttribute(acin) || node.classList.contains(acin) || node.id == acin || node.tagName.toLowerCase() == acin) found = node;
                 node = node.parentNode;
             }
             return found;
@@ -129,6 +129,13 @@
             return user?user.profile.name&&user.profile.lastName?user.profile.name[0]+user.profile.lastName[0]:user.local?user.local.email[0]:'XX':'XX';
         },
         /**
+         * Compute user name
+         */
+        computeUserFullName: function(user){
+            if(typeof user == 'string' || !user) return '...';
+            return user?user.profile.name&&user.profile.lastName?user.profile.name+' '+user.profile.lastName:user.local?user.local.email[0]:'XX':'XX';
+        },
+        /**
          * Compute avatar possible path
          * If it is from server - go there
          * Otherwise just go to local url
@@ -220,6 +227,13 @@
          */
         isObjectID: function(str){
             return this.objectIDRegexp.test(str);
+        },
+        /** Accesses **/
+        topAccess: function(role){
+            return role === 'project-owner';
+        },
+        lowAccess: function(role){
+            return role === 'project-co-author' || role === 'project-owner';
         }
     }
 </script>

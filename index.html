@@ -7,7 +7,9 @@
 
     <title>Designmap</title>
     <meta name="description" content="Designmap increases speed of design approval.">
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:100,400,300italic,300,400italic,600,600italic,700,700italic,800,800italic' rel='stylesheet' type='text/css'>
+    <link href='/src/styles/OpenSans.css' rel='stylesheet' type='text/css'>
+    <!--<link href='https://fonts.googleapis.com/css?family=Open+Sans:100,400,300italic,300,400italic,600,600italic,700,700italic,800,800italic' rel='stylesheet' type='text/css'>-->
+    <link href='/src/styles/loading.css' rel='stylesheet' type='text/css'>
 
     <link rel="icon" href="/images/favicon.ico">
 
@@ -40,6 +42,7 @@
 
     <script src="/node_modules/redux/dist/redux.min.js"></script>
     <script src="/node_modules/redux-thunk/dist/redux-thunk.min.js"></script>
+    <script src="/node_modules/element-resize-detector/dist/element-resize-detector.min.js"></script>
     <script src="/bower_components/xhr/Xhr.js"></script>
     <script src="/bower_components/undo-manager/lib/undomanager.js"></script>
     <script src="/bower_components/page/page.js"></script>
@@ -126,6 +129,54 @@
   <body>
     <designmap-snackbar id="snackbar" duration="8000"></designmap-snackbar>
     <designmap-app></designmap-app>
-    <!-- Built with love using Polymer Starter Kit -->
+    <div id="appLoading" class="loading-overlay"><div class="uil-reload-css"><div></div></div></div>
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r;
+            i[r] = i[r] || function () {
+                    (i[r].q = i[r].q || []).push(arguments)
+                }, i[r].l = 1 * new Date();
+            a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0];
+            a.async = 1;
+            a.src = g;
+            m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-83087310-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- Metrika -->
+    <script type="text/javascript">
+        (function (d, w, c) {
+            (w[c] = w[c] || []).push(function () {
+                try {
+                    w.yaCounter39987865 = new Ya.Metrika({
+                        id: 39987865,
+                        clickmap: true,
+                        trackLinks: true,
+                        accurateTrackBounce: true,
+                        webvisor: true
+                    });
+                } catch (e) {
+                }
+            });
+
+            var n = d.getElementsByTagName("script")[0],
+                s = d.createElement("script"),
+                f = function () {
+                    n.parentNode.insertBefore(s, n);
+                };
+            s.type = "text/javascript";
+            s.async = true;
+            s.src = "https://mc.yandex.ru/metrika/watch.js";
+
+            if (w.opera == "[object Opera]") {
+                d.addEventListener("DOMContentLoaded", f, false);
+            } else {
+                f();
+            }
+        })(document, window, "yandex_metrika_callbacks");
+    </script>
   </body>
 </html>

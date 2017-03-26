@@ -12,7 +12,8 @@
                     promise.then(function(response){
                         if(!response.success) return;
                         dispatch({type:'ADD_FILE',data:response.file});
-                    });
+                        if(this.user) {this.set('user.fileRole',response.role)}
+                    }.bind(this));
                     return promise;
                 }.bind(this)
             },

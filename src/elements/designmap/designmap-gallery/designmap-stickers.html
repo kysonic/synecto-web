@@ -20,7 +20,7 @@
                 top: 0;
                 left: 0;
                 font-family: var(--font-family);
-                font-weight: bold;
+                font-weight: 100;
                 --designmap-stickers-size: 30px;
 
                 --plastic-custom-scroll-bar-mixin: {
@@ -49,7 +49,7 @@
                     background: var(--white-color) !important;
                     width: 100px;
                     height: auto;
-                    box-shadow: 0px 6px 15px -5px rgba(0, 0, 0, 1);
+                    box-shadow: var(--box-shadow);
                     border: 1px solid var(--gray-color);
                     padding: 0;
                 };
@@ -139,21 +139,43 @@
             .sticker .dropdown .add-comment {
                 border: none;
                 resize: none;
-                font-size: 12px;
+                font-size: 14px !important;
                 width: calc(100% - 20px);
                 height: 30px;
                 padding: 5px 10px;
                 color: var(--gray-super-dark);
                 outline: none;
             }
+            .sticker .dropdown .add-comment::-webkit-input-placeholder,
+            .sticker .dropdown .add-comment::-moz-placeholder,
+            .sticker .dropdown .add-comment:-ms-input-placeholder{
+                font-size: 14px !important;
+            }
+
+            .more {
+                --iron-icon-components-mixin: {
+                    stroke-width: 4px;
+                    r: 3px;
+                };
+            }
 
             .sticker .dropdown button {
                 cursor: pointer;
                 width: 100%;
                 height: 35px;
+                font-size: 14px;
+                font-weight: 100;
                 background: var(--blue-color);
                 color: var(--white-color);
                 border: none;
+                transition: .2s background;
+            }
+
+            .sticker .dropdown button:hover {
+                font-size: 14px;
+                font-weight: 100;
+                background: var(--blue-darkest-color);
+                transition: .2s background;
             }
 
             /** COMMENT **/
@@ -181,7 +203,7 @@
 
             .comment .user {
                 display: inline;
-                font-size: 10px;
+                font-size: 12px;
                 padding: 2px 6px;
                 background: var(--blue-color);
                 color: var(--white-color);
@@ -198,8 +220,8 @@
             }
 
             .menu .heart {
-                width: 12px;
-                height: 12px;
+                width: 14px;
+                height: 14px;
             }
 
             .menu .likesCount {
@@ -208,6 +230,7 @@
 
             .text {
                 line-height: 20px;
+                font-size: 14px;
                 min-height: 35px;
             }
 
@@ -219,7 +242,7 @@
             .ta textarea {
                 border: none;
                 resize: none;
-                font-size: 12px;
+                font-size: 14px !important;
                 width: calc(100% - 40px);
                 height: 20px;
                 color: var(--gray-super-dark);
@@ -248,9 +271,9 @@
                 margin: 0;
                 padding: 0;
                 list-style: none;
-                color: var(--gray-darkend-color);
+                color: var(--gray-darky-hovered-color);
                 text-align: center;
-                font-size: 11px;
+                font-size: 12px;
                 font-weight: 100;
             }
 
@@ -261,7 +284,7 @@
             }
 
             designmap-dropdown .menu li:hover {
-                background: var(--gray-lightenest-color);
+                background: var(--gray-lightern-color);
                 transition: .2s background;
             }
 
@@ -345,9 +368,10 @@
                                     </template>
                                 </plastic-custom-scroll>
                             </div>
+                            <iron-a11y-keys id="a11ySave" target="[[getTarget(sticker._id)]]" keys="(ctrl||cmd)+enter" on-keys-pressed="_postComment"></iron-a11y-keys>
                             <textarea value="{{textAreaValue::input}}" on-blur="_checkSticker" class="add-comment"
                                       placeholder="[[translate('Write a comment',language,i18Loaded)]]"></textarea>
-                            <button on-click="_postComment" hidden$="[[!textAreaValue]]">
+                            <button class="post-comment-buttton" on-click="_postComment" hidden$="[[!textAreaValue]]">
                                 <i18-n msgid="Post a comment">Post a comment</i18-n>
                             </button>
                         </div>
@@ -388,11 +412,12 @@
                         vertical-offset="-2"
                         horizontal-offset="-300">
             <div class="title">
-                <i18-n msgid="Add comment">Add comment</i18-n>
+                <i18-n msgid="Add comment hint">Add comment</i18-n>
             </div>
             <div class="desc">
                 <i18-n msgid="addCommentMsg">addCommentMsg</i18-n>
             </div>
+
         </designmap-hint>
     </template>
     <script>
@@ -468,6 +493,7 @@
                 },
                 moved: {
                     type: Boolean,
+                    value: false
                 },
                 textAreaValue: {
                     type: String,
@@ -500,7 +526,9 @@
              */
             createSticker: function (e) {
                 if (!this.user) return this._enterName(e);
-                if (this.parents(e.target, 'sticker') || this.parents(e.target, 'designmap-confirm') || e.target.classList.contains('bound') || this.pressed || this.moved) return true;
+                if (this.parents(e.target, 'sticker') || this.parents(e.target, 'designmap-confirm') || e.target.classList.contains('bound') || this.pressed || this.moved) {
+                    return true;
+                }
                 else if (this.isThereOpened) {
                     this.closeAllStickers();
                     return;
@@ -538,7 +566,7 @@
                     this.isThereOpened = true;
                 });
                 // Hints
-                if(this.tutorial.isRunning=='openFile') {
+                if(this.tutorial && this.tutorial.isRunning=='openFile') {
                     this.async(function(){
                         const stickerNode = Polymer.dom(this.$.wrapper).querySelector('#sticker-' + sticker._id);
                         this.gallery.showHint = false;
@@ -600,7 +628,7 @@
             },
             _mouseDown: function (e) {
                 if(!e.target.classList.contains('bound')) return;
-                //if (e.currentTarget.classList.contains('opened')) return false;
+                if (e.currentTarget.classList.contains('opened')) return false;
                 this.stickerCatch = true;
                 let sticker = e.model.sticker;
                 document.body.classList.add('non-select');
@@ -611,6 +639,7 @@
                 document.addEventListener('mouseup', _stop);
                 const _this = this;
 
+
                 function _drag(e) {
                     if (_this.stickerCatch && !_this._canUserManageSticker(sticker)) {
                         if (!_this.messageShowed) _this.showErrorMessage('It is not your comment. You cannot drag it');
@@ -620,7 +649,8 @@
                         }, 1000)
                         return;
                     }
-                    _this.stickerDrag = true;
+                    const deltaX = _this.lastPageX - e.pageX;
+                    const deltaY = _this.lastPageY - e.pageY;
                     // Define bounding of current picture
                     const bound = _this.$.wrapper.getBoundingClientRect();
                     // Calculate coordinates
@@ -631,7 +661,7 @@
                     if (x < 0 || x > bound.width) position.left = sticker.position.left;
                     if (y < 0 || y > bound.height) position.top = sticker.position.top;
                     sticker.position = position;
-
+                    if(deltaX>5 || deltaY>5)    _this.stickerDrag = true;
                     _this.dispatch('_updateSticker', sticker._id, sticker);
                 }
 
@@ -659,12 +689,12 @@
                 // Open on top or bottom of
                 this.dispatch('_updateSticker', sticker._id, sticker);
                 // Resolve position
-                /*this._resolveStickerDropdownPosition(sticker);
+                this._resolveStickerDropdownPosition(sticker);
                  // calc scroll
                  this.async(function () {
-                 const stickerNode = this.$$('#sticker-' + sticker._id);
-                 stickerNode.querySelector('plastic-custom-scroll').calculate();
-                 });*/
+                    const stickerNode = this.$$('#sticker-' + sticker._id);
+                    stickerNode.querySelector('plastic-custom-scroll').calculate();
+                 });
             },
 
             _resolveStickerDropdownPosition(sticker){
@@ -713,6 +743,11 @@
 
             _stickerLeave: function(e){
                 this.$.marker.style.display = 'block';
+            },
+
+            getTarget: function(id){
+                const stickerNode = Polymer.dom(this.$.wrapper).querySelector('#sticker-' + id);
+                return stickerNode ? stickerNode.querySelector('.dropdown .add-comment') : null;
             }
         })
     </script>

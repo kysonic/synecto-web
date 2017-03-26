@@ -7,6 +7,10 @@
                     .concat([Object.assign({},state[action.index],action.data)])
                     .concat(state.slice(action.index+1));
                 break;
+            case "ADD_SHARED_PROJECT":
+                console.log(state.concat([action.data]));
+                return state.concat([action.data]);
+                break;
             case "SET_SHARED_PROJECTS":
                 return action.sharedProjects;
                 break;

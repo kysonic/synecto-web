@@ -1,0 +1,172 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../designmap-icons/designmap-showcase-icons.html">
+
+<dom-module id="designmap-showcase">
+    <template>
+        <style>
+            :host {
+                z-index: 1011;
+                display: block;
+                width: 380px;
+                @apply(--designmap-showcase);
+            }
+
+            *[hidden] {
+                display: none !important;
+            }
+
+            .title {
+                font-family: var(--font-family);
+                font-weight: 500;
+                font-size: 24px;
+                text-align: center;
+                color: var(--blue-darkest-color);
+                line-height: 40px;
+                @apply(--designmap-showcase-title-mixin);
+            }
+
+            .illustration {
+                width: 280px;
+                height: 225px;
+                @apply(--designmap-showcase-img-mixin);
+            }
+
+            .item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .message {
+                color: var(--gray-darky-hovered-color);
+                text-align: center;
+                font-size: 16px;
+                font-weight: 100;
+                max-width: 400px;
+            }
+
+            .buttons {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 10px 0;
+            }
+
+            .buttons.hide {
+                padding: 0;
+                visibility: hidden;
+            }
+
+            .showcase-button {
+                width: 15px;
+                height: 15px;
+                background: var(--gray-color);
+                border-radius: 50%;
+                border: var(--blue-darker-color);
+                margin-left: 10px;
+                cursor: pointer;
+                transition: .2s background;
+                outline: none;
+            }
+
+            .showcase-button:first-child {
+                margin-left: 0;
+            }
+
+            .showcase-button:hover {
+                background: var(--blue-super-dark-color);
+                transition: .2s background;
+            }
+
+            .showcase-button.selected {
+                background: var(--blue-super-dark-color);
+                border: var(--gray-lightenest-color);
+                transition: .2s background;
+            }
+
+            .button-set {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        </style>
+        <div class="title">
+            <i18-n hidden$="[[faster]]" msgid="Subscribe on premium">Subscribe on premium</i18-n>
+            <div hidden$="[[!faster]]" >
+                <i18-n msgid="[[name]]">[[name]]</i18-n>
+                <i18-n msgid="Feature in development">Feature in development</i18-n>
+            </div>
+        </div>
+        <iron-pages selected="[[selected]]"
+                    attr-for-selected="name">
+            <template is="dom-repeat" items="[[items]]" as="item">
+                <div class="item" name="[[index]]">
+                    <iron-icon class="illustration" icon="[[item.icon]]"></iron-icon>
+                    <div class="message">
+                        <i18-n msgid="[[item.message]]">[[item.message]]</i18-n>
+                    </div>
+                </div>
+            </template>
+        </iron-pages>
+        <div class$="buttons {{_computeButtonsState(items.length)}}">
+            <template is="dom-repeat" items="[[items]]" as="item">
+                <button on-click="selectItem" class$="showcase-button {{_computeSelected(item,selected)}}"></button>
+            </template>
+        </div>
+        <div class="button-set">
+            <button is="designmap-button" blue on-click="action" thin>
+                <i18-n hidden$="[[!faster]]" msgid="Faster">Faster</i18-n>
+                <i18-n hidden$="[[faster]]" msgid="Activate">Activate</i18-n>
+            </button>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-showcase',
+            behaviors: [
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior
+            ],
+            properties: {
+                name: {
+                    type: String,
+                    value: 'xxx'
+                },
+                items: {
+                    type: Array,
+                    value: []
+                },
+                selected: {
+                    type: Number,
+                    value: 0
+                },
+                faster: {
+                    type: Boolean,
+                    value: false
+                }
+            },
+            selectItem: function (e) {
+                const item = e.model.item;
+                this.selected = this.items.indexOf(item);
+            },
+            action: function () {
+                this.fire('close-showcase-dialog');
+                // Analytics
+                this.reachGoal('show_case_event',this.name);
+                if (!this.faster) return page.redirect('/activate');
+                this.showMessage('Thank you! We will try to do it quicker!');
+            },
+            _computeSelected: function (item) {
+                return this.items.indexOf(item) == this.selected ? ' selected' : '';
+            },
+            _computeButtonsState: function (length) {
+                return !(length - 1) ? ' hide' : '';
+            },
+            _computeButtonText: function (faster) {
+                return faster ? "Faster" : "Activate";
+            }
+        })
+    </script>
+</dom-module>

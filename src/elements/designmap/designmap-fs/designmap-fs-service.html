@@ -12,6 +12,7 @@
                 .then(function (response) {
                     if (!response.success) {
                         this.loading = false;
+                        if(response.errors.type=='premiumError') return this.$.projectsShowCaseDialog.open();
                         return this.manageErrorResponse(response);
                     }
                     this.showMessage('Project was created successful');

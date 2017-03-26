@@ -103,6 +103,16 @@
             if(response.message) {
                 return this.showErrorMessage(response.message);
             }
+        },
+        /**
+         * Reach Yandex and Google goals
+         * @param category
+         * @param eventName
+         */
+        reachGoal: function(category,eventName){
+            console.log(category+'_'+eventName,'<<<<<Reached');
+            ga('send', 'event', category, eventName);
+            yaCounter39987865.reachGoal(category+'_'+eventName);
         }
     }
 </script>

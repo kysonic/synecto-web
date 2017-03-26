@@ -1,0 +1,55 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="./designmap-users-select.html">
+
+<dom-module id="designmap-users-combo">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+        </style>
+        <designmap-users-select id="select" options="[[options]]" search="{{search}}" limit="5" label="[[label]]"></designmap-users-select>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-users-combo',
+            behaviors: [
+              Polymer.DesignMapMessagesBehavior,
+              ReduxBehavior,
+              Polymer.UserActions
+            ],
+            properties: {
+                options: {
+                    type: Array,
+                    value: [],
+                    statePath: 'users'
+                },
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                search: {
+                    type: String,
+                    value: '',
+                    observer: 'searchChanged'
+                },
+                label:{
+                  type: String
+                }
+            },
+            ready: function () {
+                //this.getUsers();
+            },
+            getUsers: function(q){
+                if(!q) return;
+                //var q = q==''?'.*':q;
+                this.dispatch('getUsers',q).catch(this.manageErrorResponse.bind(this));
+            },
+            searchChanged: function(){
+                if(!this.$.select.isThereFilteredOptions(this.search)) {
+                  this.getUsers(this.search);
+                }
+            }
+        })
+    </script>
+</dom-module>

@@ -15,6 +15,7 @@
     <template>
         <style include="context-menu-shared-styles">
             :host {
+
                 display: block;
                 position: relative;
                 border: 2px dashed transparent;
@@ -51,8 +52,8 @@
                 }
             }
 
-            :host(.dragged) {
-                border: 2px dashed var(--gray-color);
+            :host(.dragged) .cloud{
+                display: flex;
             }
 
             /** ELEMENTS **/
@@ -60,41 +61,6 @@
                 width: 100%;
             }
 
-            .dropzone {
-                display: inline-block;
-                vertical-align: top;
-                width: 220px;
-                height: 170px;
-                min-height: 100px;
-                margin-left: 0;
-                position: relative;
-                padding: 20px;
-                transition: background .1s ease-in;
-            }
-
-            .dropzone .content {
-                background: transparent;
-                border: 2px dashed var(--gray-color);
-                text-align: center;
-                height: calc(83% - 2px);
-                width: calc(100% - 2px);
-                color: var(--gray-color);
-                display: flex;
-                align-items: center;
-            }
-
-            .dropzone .content .text {
-                display: inline-block;
-                vertical-align: middle;
-                width: 100%;
-            }
-
-            .dropzone .label {
-                width: 45%;
-                height: 5%;
-                display: block;
-                opacity: 0;
-            }
 
             /** WHITE SPACE **/
             .white-space {
@@ -130,6 +96,23 @@
             .elements {
                 position: relative;
             }
+            .cloud {
+                display: none;
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                left:0;
+                pointer-events: none;
+                align-items: center;
+                justify-content: center;
+            }
+            .cloud iron-icon {
+                --iron-icon-width: 240px;
+                --iron-icon-height: 230px;
+                --iron-icon-fill-color: var(--gray-color);
+                --iron-icon-stroke-color: var(--gray-color);
+            }
         </style>
         <!-- Elements -->
         <template is="dom-if" if="[[elements.length]]">
@@ -161,7 +144,7 @@
                                 <i18-n msgid="AddSubFolder">AddSubFolder</i18-n>
                             </li>
                             <!-- Add folder -->
-                            <designmap-context-menu id="addFolderContext" previous>
+                            <designmap-context-menu darker id="addFolderContext" previous>
                                 <div class="context-content">
                                     <iron-a11y-keys id="a11yAddFolder" keys="enter"
                                                     on-keys-pressed="addFolderFromMenu"></iron-a11y-keys>
@@ -180,7 +163,7 @@
                                 <i18-n msgid="Rename">Rename</i18-n>
                             </li>
                             <!-- Rename Folder -->
-                            <designmap-context-menu id="renameFolderContext" previous>
+                            <designmap-context-menu darker id="renameFolderContext" previous>
                                 <div class="context-content">
                                     <iron-a11y-keys id="a11yAddFolder" keys="enter"
                                                     on-keys-pressed="renameFolder"></iron-a11y-keys>
@@ -209,7 +192,7 @@
                     <li on-click="openInformation">
                         <i18-n msgid="Information">Information</i18-n>
                     </li>
-                    <li on-click="removeElement">
+                    <li hidden$="[[!_canRemove(user.role,trashMode)]]" on-click="removeElement">
                         <i18-n msgid="Remove">Remove</i18-n>
                     </li>
                 </ul>
@@ -277,6 +260,9 @@
             <div class="title"><i18-n msgid="Open DesignMap Gallery">Open DesignMap Gallery</i18-n></div>
             <div class="desc"><i18-n msgid="openGalleryMsg">openGalleryMsg</i18-n></div>
         </designmap-hint>
+        <div class="cloud">
+            <iron-icon icon="cloud-upload"></iron-icon>
+        </div>
     </template>
     <script>
         Polymer({
@@ -356,6 +342,18 @@
                 hintFileTarget: {
                     type: Object,
                     value: null
+                },
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    statePath: 'i18Loaded'
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
                 }
             },
             listeners: {
@@ -631,6 +629,9 @@
                 e.stopPropagation();
                 this.currentElement = e.detail.item;
                 this.$$('#contextMenu').toggle(e.detail.e);
+            },
+            _canRemove: function(role,trashMode) {
+                return trashMode ? this.topAccess(role) : true;
             }
         });
     </script>

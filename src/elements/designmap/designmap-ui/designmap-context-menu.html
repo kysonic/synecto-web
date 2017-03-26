@@ -6,6 +6,8 @@
         <style>
             :host {
                 --dropdown-color: var(--blue-darkest-color);
+                --dropdown-color-darker: var(--blue-darkester-color);
+                --dropdown-color-super-dark: var(--blue-darkesty-color);
                 --dropdown-line-color: var(--blue-darkester-color);
             }
             iron-dropdown {
@@ -31,6 +33,13 @@
             --paper-input-container-label: {
                 font-size: 14px !important;
             };
+
+            :host([darker]) .dropdown-content {
+                background: var(--dropdown-color-darker);
+            }
+            :host([darker]) .line {
+                background: var(--dropdown-color-super-dark);
+            }
         </style>
         <iron-dropdown id="dd"  position-target="[[target]]" close-animation-config="[[defaultCloseAnimation]]"
                        open-animation-config="[[defaultOpenAnimation]]">
