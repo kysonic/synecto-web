@@ -275,6 +275,7 @@
             },
             logout: function () {
                 if (this.$$('#logout').disabled) return;
+                page.redirect('/');
                 this.dispatch('userLogout').then(function () {
                     this.$$("#dropdown").close();
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));

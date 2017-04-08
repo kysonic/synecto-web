@@ -89,7 +89,16 @@
                 width: 100%;
                 display: flex;
                 align-items: center;
-                justify-content: center;
+                justify-content: space-around;
+            }
+            .button-set.small {
+                justify-content: space-between;
+            }
+            button.small {
+                padding: 10px 10px;
+            }
+            .no {
+                color: var(--gray-darky-hovered-color);
             }
         </style>
         <div class="title">
@@ -115,11 +124,14 @@
                 <button on-click="selectItem" class$="showcase-button {{_computeSelected(item,selected)}}"></button>
             </template>
         </div>
-        <div class="button-set">
-            <button is="designmap-button" blue on-click="action" thin>
+        <div class$="button-set [[_computeBtnClasses(faster)]]">
+            <button is="designmap-button" class$="[[_computeBtnClasses(faster)]]" blue on-click="action" thin>
                 <i18-n hidden$="[[!faster]]" msgid="Faster">Faster</i18-n>
                 <i18-n hidden$="[[faster]]" msgid="Activate">Activate</i18-n>
             </button>
+            <a href="#" class="no" on-click="close">
+                <i18-n msgid="No thank you">No thank you</i18-n>
+            </a>
         </div>
     </template>
     <script>
@@ -158,6 +170,10 @@
                 if (!this.faster) return page.redirect('/activate');
                 this.showMessage('Thank you! We will try to do it quicker!');
             },
+            close: function(){
+                this.fire('close-showcase-dialog');
+                this.reachGoal('show_case_event_decline',this.name);
+            },
             _computeSelected: function (item) {
                 return this.items.indexOf(item) == this.selected ? ' selected' : '';
             },
@@ -166,6 +182,9 @@
             },
             _computeButtonText: function (faster) {
                 return faster ? "Faster" : "Activate";
+            },
+            _computeBtnClasses: function(faster){
+                return faster? 'small': '';
             }
         })
     </script>

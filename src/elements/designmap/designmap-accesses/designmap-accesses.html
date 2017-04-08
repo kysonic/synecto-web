@@ -43,14 +43,17 @@
             .title {
                 font-family: var(--font-family);
                 font-weight: 500;
-                font-size: 20px;
-                text-align: center;
-                margin: 10px 0 30px 0;
+                font-size: 19px;
+                text-align: left;
+                margin: 10px 0 20px 0;
                 color: var(--blue-darkest-color);
             }
 
             .title .name {
                 margin: 20px 0 35px 0;
+                max-width: 130px;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
             /** SHARING **/
@@ -325,6 +328,13 @@
                 text-align: right;
             }
 
+            .msg {
+                text-align: left;
+                color: var(--gray-darky-hovered-color);
+                font-family: var(--font-family);
+                font-weight: 500;
+            }
+
             .back {
                 text-align: center;
                 color: var(--gray-darkend-color);
@@ -358,6 +368,9 @@
                                     </div>
                                 </template>
                             </plastic-custom-scroll>
+                            <div class="msg" hidden$="[[_isThereUsers(project.users.length)]]">
+                                <i18-n msgid="Add users in project">Add users in project</i18-n>
+                            </div>
                             <div hidden$="[[!showPremiumMessage]]" class="premium-message">
                                 <div class="line"></div>
                                 <div class="content">
@@ -392,7 +405,7 @@
                 </div>
             </neon-animateable>
             <neon-animateable>
-                <designmap-showcase name="team" items="[[teamPremium]]"></designmap-showcase>
+                <designmap-showcase no-cancel-on-outside-click name="team" items="[[teamPremium]]"></designmap-showcase>
                 <div class="back" on-click="_goToMainForm">
                     <i18-n msgid="return">Return</i18-n>
                 </div>
@@ -577,6 +590,9 @@
                 page.redirect('/activate');
                 this.fire('close-showcase-dialog');
                 this.reachGoal('show_case_event','team');
+            },
+            _isThereUsers: function(length){
+                return !!length;
             }
         })
     </script>

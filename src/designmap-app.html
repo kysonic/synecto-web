@@ -99,6 +99,14 @@
                 height: 100%;
             }
 
+            .beta {
+                position: absolute;
+                color: var(--white-color);
+                font-size: 10px;
+                left: 100%;
+                margin-left: -46px;
+            }
+
         </style>
         <!-- Keys -->
         <iron-a11y-keys id="a11yUndo" keys="(ctrl||cmd)+z" target="[[keysTarget]]" on-keys-pressed="undo"></iron-a11y-keys>
@@ -115,6 +123,7 @@
                 <app-toolbar>
                     <a style="text-decoration: none" href="#" on-click="goToHome">
                         <iron-icon class="designmap-logo" icon="designmap-logo:logo"></iron-icon>
+                        <span class="beta">beta v3.0</span>
                     </a>
                 </app-toolbar>
                 <designmap-advanced-menu id="advancedMenu" path="[[path]]" page="[[page]]"></designmap-advanced-menu>

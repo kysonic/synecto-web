@@ -415,7 +415,7 @@
             },
             applyLink: function (e) {
                 const target = e.currentTarget;
-                page.redirect(target.dataset.link);
+                page.redirect(this.removeAppUrl(target.dataset.link));
             },
             _computeBackUrl: function(projectId){
                 return '/'+(projectId||'');

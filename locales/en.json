@@ -152,7 +152,7 @@
   "ToStartWork": {
     "message": "&nbsp;to start work"
   },
-  "Manage accesses": {
+  "Manage project's accesses": {
     "message": "Manage accesses"
   },
   "ShareLinkDesc": {
@@ -662,19 +662,19 @@
   "renameFolderMsg": {
     "message": "Open context Menu of Folder's by right mouse button clicking or click on menu button at bottom of folder, select \"Rename\" item, rewrite name of folder."
   },
-  "Open context menu":{
+  "Open context menu": {
     "message": "Open context menu"
   },
-  "openContextMenuMsg":{
+  "openContextMenuMsg": {
     "message": "Open folder context menu via right mouse click or click on button located at bottom right corner of element."
   },
   "Account settings": {
     "message": "Account settings"
   },
-  "Copy to clipboard":{
+  "Copy to clipboard": {
     "message": "Copy to clipboard"
   },
-  "Link was copied to your clipboard.":{
+  "Link was copied to your clipboard.": {
     "message": "Link was copied to your clipboard"
   },
   "accountSettingsMsg": {
@@ -736,6 +736,9 @@
   },
   "Download file": {
     "message": "Download file"
+  },
+  "Download": {
+    "message": "Download"
   },
   "Lock": {
     "message": "Lock"
@@ -930,169 +933,181 @@
     "message": "You don't have notifications yet..."
   },
   "You do not have access to change status of this task.": {
-    "message":"You do not have access to change status of this task."
+    "message": "You do not have access to change status of this task."
   },
   "New project": {
-    "message":"New project"
+    "message": "New project"
   },
   "Choose store": {
-    "message":"Select cloud drive"
+    "message": "Select cloud drive"
   },
   "File list": {
-    "message":"File list"
+    "message": "File list"
   },
   "Confirm": {
-    "message":"Confirmation"
+    "message": "Confirmation"
   },
   "Notify": {
-    "message":"Notifications"
+    "message": "Notifications"
   },
   "Support": {
-    "message":"Support"
+    "message": "Support"
   },
   "Docs": {
-    "message":"Documentation"
+    "message": "Documentation"
   },
   "Projects": {
-    "message":"Projects"
+    "message": "Projects"
   },
   "Welcome to the DesignMap!": {
-    "message":"You have been registered successfully! Please visit your e-mail and execute actions required for e-mail verification."
+    "message": "You have been registered successfully! Please visit your e-mail and execute actions required for e-mail verification."
   },
   "Not allowed in beta": {
-    "message":"Not allowed in beta version!"
+    "message": "Not allowed in beta version!"
   },
   "There are no projects yet": {
-    "message":"You do not have projects yet..."
+    "message": "You do not have projects yet..."
   },
   "This folder has file with name. Choose another one or change file name.": {
-    "message":"This folder has file with name. Choose another one or change file name."
+    "message": "This folder has file with name. Choose another one or change file name."
   },
   "Send": {
-    "message":"Send"
+    "message": "Send"
   },
   "Forgot password": {
-    "message":"Forgot password?"
+    "message": "Forgot password?"
   },
   "return": {
-    "message":"go back"
+    "message": "go back"
   },
   "Restore message": {
-    "message":"Enter your email in the field below and click \"Send\" button."
+    "message": "Enter your email in the field below and click \"Send\" button."
   },
   "There is no user with same e-mail": {
-    "message":"User with entered e-mail is not registered."
+    "message": "User with entered e-mail is not registered."
   },
   "Cannot find token": {
     "message": "Cannot find token. Probably it has expired. Try get new one and hurry up there is only 20 minutes to fit in time."
   },
   "You have entered using temporary token": {
-    "message":"You have entered using temporary token! Don't forget to change your password."
+    "message": "You have entered using temporary token! Don't forget to change your password."
   },
   "Restore message sent": {
-    "message":"You will receive an email with further instructions on "
+    "message": "You will receive an email with further instructions on "
   },
   "RequestTestingAccount": {
-    "message":"Apply request for testing"
+    "message": "Apply request for testing"
   },
   "There are no found elements": {
-    "message":"There are no found tasks..."
+    "message": "There are no found tasks..."
   },
   "You can upload": {
-    "message":"You can upload files with following extensions: .jpg,.png,.psd,.ai,.eps... File cannot weight over than 150 MB."
+    "message": "Supported extenions: "
+  },
+  "You can upload2": {
+    "message":"File cannot weight over than 150 MB."
   },
   "Extra": {
-    "message":"Additional settings"
+    "message": "Additional settings"
   },
   "Animation": {
-    "message":"Animation"
+    "message": "Animation"
   },
   "Animation desc": {
-    "message":"Switch on animation of UI elements"
+    "message": "Switch on animation of UI elements"
   },
   "Lock file": {
-    "message":"Locked file will be available only for you"
+    "message": "Locked file will be available only for you"
   },
   "Documentation description": {
-    "message":"Here you can find all required information about Designmap!"
+    "message": "Here you can find all required information about Designmap!"
   },
   "Shortcuts": {
-    "message":"Shortcuts"
+    "message": "Shortcuts"
   },
   "Shortcuts description": {
-    "message":"Make your work in Designmap more comfortable using hot keys!"
+    "message": "Make your work in Designmap more comfortable using hot keys!"
   },
   "Video tutorials": {
-    "message":"Video tutorials"
+    "message": "Video tutorials"
   },
   "Video tutorials description": {
-    "message":"Explore basics of Designmap watching quick tutorials!"
+    "message": "Explore basics of Designmap watching quick tutorials!"
   },
   "Redo": {
-    "message":"Redo"
+    "message": "Redo"
   },
   "Next": {
-    "message":"Next"
+    "message": "Next"
   },
   "Not supported for mobile devices": {
-    "message":"Not supported for mobile devices"
+    "message": "Not supported for mobile devices"
   },
   "Click to go on support page": {
-    "message":"Support"
+    "message": "Support"
   },
   "Search": {
-    "message":"Search"
+    "message": "Search"
   },
   "Chapters": {
-    "message":"Chapters"
+    "message": "Chapters"
   },
   "You have been approved your email successfully!": {
-    "message":"You have been approved your email successfully!"
+    "message": "You have been approved your email successfully!"
   },
   "Your e-mail wasn't approved": {
-    "message":"Your e-mail wasn't approved!"
+    "message": "Your e-mail wasn't approved!"
+  },
+  "Email already approved": {
+    "message": "Your e-mail already approved!"
+  },
+  "A mail has been sent": {
+    "message": "The mail has been sent on your email."
+  },
+  "Cannot create preview": {
+    "message": "Cannot create file preview"
   },
   "Click here": {
-    "message":"Click"
+    "message": "Click"
   },
   "to send a letter with link to approve": {
-    "message":"to send a mail for approving. Otherwise your account will be removed during 3 days."
+    "message": "to send a mail for approving. Otherwise your account will be removed during 3 days."
   },
   "Approve message sent": {
-    "message":"A mail was send on "
+    "message": "A mail was send on "
   },
   "You don't have associated google account.": {
-    "message":"You don't have associated google account."
+    "message": "You don't have associated google account."
   },
   "Google auth success": {
-    "message":"You has been registered using Google account."
+    "message": "You has been registered using Google account."
   },
   "Signin with Google": {
-    "message":"Signin with Google"
+    "message": "Signin with Google"
   },
   "Signup with Google": {
-    "message":"Signup with Google"
+    "message": "Signup with Google"
   },
   "E-mail is not approved": {
-    "message":"Please, approve your e-mail. If you didn't receive a mail with approving link click \"Send approve e-mail\" in \"Registration\" section."
+    "message": "Please, approve your e-mail. If you didn't receive a mail with approving link click \"Send approve e-mail\" in \"Registration\" section."
   },
   "Send me approving link": {
-    "message":"Send me approving link"
+    "message": "Send me approving link"
   },
   "Approving link": {
-    "message":"Approving link"
+    "message": "Approving link"
   },
   "Google account was bound to your account": {
-    "message":"Google account was bound to your account"
+    "message": "Google account was bound to your account"
   },
   "You have signed in with google": {
-    "message":"You have signed in with google"
+    "message": "You have signed in with google"
   },
   "There is no token": {
-    "message":"Your e-mail is already approved."
+    "message": "Your e-mail is already approved."
   },
   "Leave a feedback": {
-    "message":"Leave a feedback"
+    "message": "Leave a feedback"
   },
   "Open": {
     "message": "Open"
@@ -1245,7 +1260,7 @@
     "message": "Data space:"
   },
   "Post a comment": {
-    "message": "Добавить комментарий"
+    "message": "Post a comment"
   },
   "Edit a comment": {
     "message": "Edit a comment"
@@ -1292,17 +1307,59 @@
   "More info": {
     "message": "More info"
   },
+  "accessOneMsg": {
+    "message": "Add in project up to 10 colleagues, all of them will see full picture of project!"
+  },
+  "taskManagerPremiumOneMsg": {
+    "message": "Create tasks, assign responsible, manage deadlines, observe time costs."
+  },
+  "taskManagerPremiumTwoMsg": {
+    "message": "Comfortable system to create tasks right from precise comments!"
+  },
+  "projectPremiumOneMsg": {
+    "message": "Do you want to create projects without any restrictions? Activate premium account, do not think which project will be sacrificed to create new."
+  },
+  "chatShowCaseOneMsg": {
+    "message": "Quick messages to alignment online."
+  },
+  "callShowCaseOneMsg": {
+    "message": "Call colleagues, observe their actions in real time."
+  },
+  "protocolShowCaseOneMsg": {
+    "message": "Comments and notes will not be lost: just add it in protocol."
+  },
   "Subscribe on premium": {
     "message": "Subscribe on premium"
   },
   "Faster": {
     "message": "I want this feature quicker!"
   },
+  "call": {
+    "message": "\"Calls\""
+  },
+  "protocol": {
+    "message": "\"Protocol\""
+  },
+  "disk": {
+    "message": "\"Disk\""
+  },
+  "chat": {
+    "message": "\"Chat\""
+  },
+  "team": {
+    "message": "\"Team\""
+  },
+  "projects": {
+    "message": "\"Projects\""
+  },
+  "task_manager": {
+    "message": "\"Task Manager\""
+  },
   "Share this file": {
     "message": "Share this file"
   },
   "Feature in development": {
-    "message": "This feture in development yet"
+    "message": "feature in development yet"
   },
   "Is data space too small?": {
     "message": "Is data space not enough?"
@@ -1333,5 +1390,20 @@
   },
   "Cannot find file": {
     "message": "Cannot find a file... Probably it can be removed"
+  },
+  "We are working": {
+    "message": "Unfortunately, our payment system is not ready yet. We are working hard to provide you possibility get access to all of Designmap features. Press \"Speed up\" button to make our developers working faster!"
+  },
+  "Cannot upload file with #EXT# extension": {
+    "message": "System does not support files with \"#EXT#\" extension"
+  },
+  "Preview is not available": {
+    "message": "Preview is not available"
+  },
+  "Protocol": {
+    "message": "Protocol"
+  },
+  "Add users in project": {
+    "message": "Select users who will be able to manage your project: <i>Create folders, upload files, comment images, etc. </i>. "
   }
 }

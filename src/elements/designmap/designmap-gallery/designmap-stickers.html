@@ -94,7 +94,6 @@
                 background: rgba(255, 170, 8, 0.6);
                 transition: .2s background;
                 cursor: pointer;
-                z-index: 11;
                 font-family: var(--font-family);
                 font-weight: 100;
                 font-size: 12px;
@@ -123,7 +122,8 @@
                 z-index: 99;
                 min-width: 250px;
                 top: 33px;
-                left: 0px;
+                left: 0;
+                user-select: initial;
                 box-shadow: 0px 6px 15px -5px rgba(0, 0, 0, 1);
                 background: var(--white-color);
             }
@@ -141,7 +141,7 @@
                 resize: none;
                 font-size: 14px !important;
                 width: calc(100% - 20px);
-                height: 30px;
+                max-height: 60px;
                 padding: 5px 10px;
                 color: var(--gray-super-dark);
                 outline: none;
@@ -244,7 +244,7 @@
                 resize: none;
                 font-size: 14px !important;
                 width: calc(100% - 40px);
-                height: 20px;
+                max-height: 60px;
                 color: var(--gray-super-dark);
                 outline: none;
             }
@@ -317,6 +317,10 @@
                 font-weight: 100;
             }
 
+            :host(.zoomed) .marker {
+                display: none !important;
+            }
+
         </style>
         <div class="marker" id="marker" >
             <i18-n msgid="Click to add a comment">Click to add a comment</i18-n>
@@ -368,7 +372,7 @@
                                     </template>
                                 </plastic-custom-scroll>
                             </div>
-                            <iron-a11y-keys id="a11ySave" target="[[getTarget(sticker._id)]]" keys="(ctrl||cmd)+enter" on-keys-pressed="_postComment"></iron-a11y-keys>
+                            <iron-a11y-keys id="a11ySave" target="[[getTarget(sticker._id)]]" keys="ctrl+enter" on-keys-pressed="_postComment"></iron-a11y-keys>
                             <textarea value="{{textAreaValue::input}}" on-blur="_checkSticker" class="add-comment"
                                       placeholder="[[translate('Write a comment',language,i18Loaded)]]"></textarea>
                             <button class="post-comment-buttton" on-click="_postComment" hidden$="[[!textAreaValue]]">
@@ -489,7 +493,7 @@
                     value: false
                 },
                 pressed: {
-                    type: Boolean,
+                    type: Boolean
                 },
                 moved: {
                     type: Boolean,
@@ -526,7 +530,7 @@
              */
             createSticker: function (e) {
                 if (!this.user) return this._enterName(e);
-                if (this.parents(e.target, 'sticker') || this.parents(e.target, 'designmap-confirm') || e.target.classList.contains('bound') || this.pressed || this.moved) {
+                if (this.parents(e.target, 'sticker') || this.zoom!=1 || this.parents(e.target, 'designmap-confirm') || e.target.classList.contains('bound') || this.pressed || this.moved) {
                     return true;
                 }
                 else if (this.isThereOpened) {
@@ -627,7 +631,7 @@
                 return sticker.owner._id === this.user._id || this.file.owner === this.user._id;
             },
             _mouseDown: function (e) {
-                if(!e.target.classList.contains('bound')) return;
+                if(!e.target.classList.contains('bound') || this.zoom!=1) return;
                 if (e.currentTarget.classList.contains('opened')) return false;
                 this.stickerCatch = true;
                 let sticker = e.model.sticker;
@@ -661,7 +665,7 @@
                     if (x < 0 || x > bound.width) position.left = sticker.position.left;
                     if (y < 0 || y > bound.height) position.top = sticker.position.top;
                     sticker.position = position;
-                    if(deltaX>5 || deltaY>5)    _this.stickerDrag = true;
+                    if(Math.abs(deltaX)>5 || Math.abs(deltaY)>5) _this.stickerDrag = true;
                     _this.dispatch('_updateSticker', sticker._id, sticker);
                 }
 
@@ -680,7 +684,7 @@
             },
 
             _toogleSticker: function (e) {
-                if (!e.target.classList.contains('bound') || this.stickerDrag) return;
+                if (!e.target.classList.contains('bound') || this.stickerDrag || this.zoom!=1) return;
                 const sticker = e.model.sticker;
                 this.closeAllStickers(sticker);
                 sticker.opened = !sticker.opened;

@@ -126,7 +126,7 @@
          */
         computeUserName: function(user){
             if(typeof user == 'string' || !user) return '...';
-            return user?user.profile.name&&user.profile.lastName?user.profile.name[0]+user.profile.lastName[0]:user.local?user.local.email[0]:'XX':'XX';
+            return user?user.profile?user.profile.name&&user.profile.lastName?user.profile.name[0]+user.profile.lastName[0]:user.local?user.local.email[0]:'XX':'XX':'XX';
         },
         /**
          * Compute user name
@@ -204,6 +204,9 @@
          */
         getAppUrl: function(){
             return location.protocol+'//'+location.host+'/';
+        },
+        removeAppUrl: function(str) {
+           return str.replace(this.getAppUrl(),'/');
         },
         _findElement(selector){
             const nodesArray = selector.split('.');

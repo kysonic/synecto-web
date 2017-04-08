@@ -29,9 +29,11 @@
                 flex-direction: column;
 
                 --designmap-gallery-panel-height: var(--header-height);
-                --designmap-gallery-color: var(--gray-lighty-color);
-                --designmap-gallery-line-color: var(--gray-lightenest-color);
-                --designmap-gallery-striped-background: repeating-linear-gradient(-45deg, var(--designmap-gallery-color), var(--designmap-gallery-line-color) 5px, rgba(256, 256, 256, 0.3) 5px, rgba(256, 256, 256, 0.3) 6px);
+                --designmap-gallery-color: var(--gray-lightern-color);
+                --designmap-gallery-line-color: var(--white-color);
+
+                /**repeating-linear-gradient(-45deg, var(--designmap-gallery-color), var(--designmap-gallery-line-color) 5px, rgba(256, 256, 256, 0.3) 5px, rgba(256, 256, 256, 0.3) 6px);**/
+                --designmap-gallery-striped-background: repeating-linear-gradient(-45deg, var(--designmap-gallery-color), var(--designmap-gallery-line-color) 5px, var(--white-color) 5px, var(--white-color) 6px);
 
                 --designmap-dropdown-triangle-mixin: {
                     margin-left: -18px;
@@ -121,6 +123,10 @@
                 cursor: crosshair;
             }
 
+            .content .item.zoomed {
+                cursor: move;
+            }
+
             /** IMAGES **/
             .content iron-image {
                 display: flex;
@@ -144,8 +150,7 @@
                     -moz-user-select: none;
                     -webkit-user-select: none;
                     user-select: none;
-                }
-
+                };
             }
 
             .content .item.no-transitions {
@@ -169,13 +174,13 @@
                 justify-content: center;
                 width: 100px;
                 height: 100%;
-                background: rgba(256, 256, 256, 0.4);
+                background: rgba(0, 0, 0, 0.02);
                 transition: .2s background;
                 cursor: pointer;
             }
 
             .previous:hover, .next:hover {
-                background: rgba(256, 256, 256, 0.6);
+                background: rgba(0, 0, 0, 0.1);
                 transition: .2s background;
             }
 
@@ -199,12 +204,47 @@
             .extension {
                 width: 25vw;
                 height: 25vw;
-                font-size: 5vw;
-                color: var(--white-color);
-                border: 2px solid var(--white-color);
+                color: var(--gray-darky-hovered-color);
+                border: 1px solid var(--gray-darky-hovered-color);
                 text-align: center;
-                line-height: 25vw;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .extension .data {
+                width: 80%;
+                height: 80%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: space-around;
+            }
+
+            .extension .data .ext-icon {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .extension .data .ext-icon iron-icon {
+                --iron-icon-width: 80%;
+                --iron-icon-height: 80%;
+                --iron-icon-components-mixin: {
+                    stroke-width: 0.3;
+                };
+            }
+
+            .extension .data .ext-icon span {
+                position: absolute;
                 text-transform: uppercase;
+                font-size: 5vh;
+            }
+
+            .extension .data a {
+                color: var(--blue-darkest-color);
             }
 
             .error {
@@ -364,6 +404,20 @@
                 z-index: 8888;
             }
 
+            .borders {
+                width: 300px;
+                height: 300px;
+                border: 1px solid var(--gray-color);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size:50px;
+                text-transform: uppercase;
+                font-weight: 700;
+                color: var(--gray-darky-hovered-color);
+                background: var(--white-color);
+            }
+
         </style>
         <div class="top-panel panel">
             <div class="left">
@@ -396,8 +450,8 @@
                     <!--<div class="title">
                         <i18-n msgid="Share this file">Share this file</i18-n>
                     </div>-->
-                    <div on-click="_selectAll" class="link">[[_buildLink()]]</div>
-                    <cbn-copy-clipboard  value="[[_buildLink()]]">
+                    <div on-click="_selectAll" class="link">[[_buildLink(file.*)]]</div>
+                    <cbn-copy-clipboard  value="[[_buildLink(file.*)]]">
                         <button class="copy-button" is="designmap-button" on-click="_copyToClipBoard" thin gray>
                             <i18-n msgid="Copy to clipboard">Copy to clipboard</i18-n>
                         </button>
@@ -444,39 +498,52 @@
             <div class="previous" on-click="previous" hidden$="[[_computeButtons(files.*)]]">
                 <iron-icon icon="icons:chevron-left"></iron-icon>
             </div>
-            <template is="dom-if" if="[[canBeDisplayed(file)]]" restamp="true">
-                <div id="item" class="item"
-                     id="[[computeID(index)]]"
-                     draggable="false"
-                     ondragstart="return false;"
-                     on-mousewheel="imageMouseWheel"
-                     on-wheel="imageMouseWheel"
-                     on-mouseleave="mouseLeave"
-                     on-mousedown="mouseDown"
-                     on-mousemove="mouseMove"
-                     on-mouseup="mouseUp">
+            <template is="dom-if" if="[[!loading]]">
+                <template is="dom-if" if="[[canBeDisplayed(file)]]" restamp="true">
+                    <div id="item"
+                         draggable="false"
+                         class$="item {{zoomClasses(zoom)}}"
+                         ondragstart="return false;"
+                         on-mousewheel="imageMouseWheel"
+                         on-wheel="imageMouseWheel"
+                         on-mouseleave="mouseLeave"
+                         on-mousedown="mouseDown"
+                         on-mousemove="mouseMove"
+                         on-mouseup="mouseUp">
 
-                    <iron-image
-                            on-load="imageHasLoaded"
-                            on-error="imageError"
-                            class$="{{zoomClasses(zoom,index)}}"
-                            src="{{computeFileSrc(file)}}"></iron-image>
-                    <designmap-stickers id="stickers" sticker-catch="{{stickerCatch}}" moved="[[moved]]" pressed="[[pressed]]" file="[[file]]" zoom="[[zoom]]"></designmap-stickers>
-                </div>
-                <div class="hint" hidden$="[[!showHint]]">
-                    <i18-n msgid="Click on image to leave comment">Click on image to leave comment</i18-n>
-                </div>
+                        <iron-image
+                                on-load="imageHasLoaded"
+                                on-error="imageError"
+                                src="{{computeFileSrc(file)}}"></iron-image>
+                        <designmap-stickers class$="[[zoomClasses(zoom)]]" id="stickers" sticker-catch="{{stickerCatch}}" moved="[[moved]]" pressed="[[pressed]]" file="[[file]]" zoom="[[zoom]]"></designmap-stickers>
+                    </div>
+                    <div class="hint" hidden$="[[!showHint]]">
+                        <i18-n msgid="Click on image to leave comment">Click on image to leave comment</i18-n>
+                    </div>
+                </template>
+                <template is="dom-if" if="[[!canBeDisplayed(file)]]" restamp="true">
+                    <div class="extension">
+                        <div class="data">
+                            <i18-n msgid="Preview is not available">Preview is not available</i18-n>
+                            <div class="ext-icon">
+                                <iron-icon icon="designmap-workspace:filer"></iron-icon>
+                                <span class="ext">{{getExtensionWithoutDot(file.data.name)}}</span>
+                            </div>
+                            <a href="#" on-click="downloadFile">
+                                <i18-n msgid="Download file">Download file</i18-n>
+                            </a>
+                        </div>
+                    </div>
+                </template>
+                <template is="dom-if" if="[[error]]">
+                    <div class="error">
+                        <designmap-stub image="designmap-workspace-stub:error" message="[[error]]"
+                                        error></designmap-stub>
+                    </div>
+                </template>
             </template>
-            <!--<template is="dom-if" if="[[!canBeDisplayed(file)]]" restamp="true">
-                <div class="extension">
-                    {{getExtensionWithoutDot(file.data.name)}}
-                </div>
-            </template>-->
-            <template is="dom-if" if="[[error]]">
-                <div class="error">
-                    <designmap-stub image="designmap-workspace-stub:error" message="[[error]]"
-                                    error></designmap-stub>
-                </div>
+            <template is="dom-if" if="[[loading]]">
+                <img src="/images/svg/three-dots-gray.svg" alt="Loading">
             </template>
             <div class="next" on-click="next" hidden$="[[_computeButtons(files.*)]]">
                 <iron-icon icon="icons:chevron-right"></iron-icon>
@@ -486,7 +553,7 @@
             <div class="left">
                 <!--<designmap-gallery-user-list></designmap-gallery-user-list>-->
             </div>
-            <div class="center" hidden$="[[!file]]">
+            <div class="center" hidden$="[[!canBeDisplayed(file)]]">
                 <button class="minus-button" is="designmap-gallery-button" on-click="zoomOut">
                     <iron-icon class="minus-icon" icon="designmap:minus"></iron-icon>
                 </button>
@@ -547,7 +614,7 @@
             horizontalRestriction: 60,
             verticalRestriction: 0,
             // Files with same extension can be displayed
-            canBeDisplayedExt: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr", ".ppm", ".pbm", ".svg"],
+            canBeDisplayedExt: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr", ".ppm", ".pbm",".ai",".psd",".eps"],
             objectIDRegexp: /^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/i,
             properties: {
                 projectId: {
@@ -571,7 +638,7 @@
                     type: Array,
                     statePath: function (state) {
                         return state.files.filter(function (file) {
-                            return String(file.folder) == String(this.folderId);
+                            return !file.removed && String(file.folder) == String(this.folderId);
                         }.bind(this));
                     }
                 },
@@ -588,7 +655,10 @@
                         return this.minZoom
                     }
                 },
-
+                loading: {
+                  type: Boolean,
+                  value: false
+                },
                 stickers: {
                     type: Array,
                     statePath: 'stickers'
@@ -653,15 +723,24 @@
              */
             _fileIdChanged: function (fileId) {
                 this.error = false;
+                this.loading = true;
                 // Work with file
                 const file = this.findFileById(fileId);
-                if (file) return this.file = file;
+                if (file) {
+                    this.loading = false;
+                    return this.file = file;
+                }
+                // Get data if there is no any file.
                 this.dispatch('getStickers', {file: fileId});
                 this.dispatch('getComments', {file: fileId});
                 this.dispatch('getFile', fileId).then(function (response) {
                     if (!response.success) return this.error = response.errors.message;
+                    this.loading = false;
                     this.file = response.file;
-                }.bind(this)).catch(this.manageErrorResponse);
+                }.bind(this)).catch(function(err){
+                    this.loading = false;
+                    this.manageErrorResponse(err);
+                }.bind(this));
             },
             /**
              * Previous file
@@ -731,7 +810,7 @@
              * Add some classes to image
              */
             zoomClasses: function (zoom, index) {
-                return zoom && index == this.selected ? 'zoomed' : '';
+                return zoom!=1 ? 'zoomed' : '';
             },
             /**
              * When we scroll mouse wheel on images.
@@ -762,6 +841,7 @@
                 }
                 target.style.transform = 'scale(' + this.zoom + ')';
                 e.preventDefault();
+                this.$$('#stickers').closeAllStickers();
             },
             /**
              * Return image position to default
@@ -797,14 +877,14 @@
                 this.top = parseInt(target.style.top) || 0;
                 this.left = parseInt(target.style.left) || 0;
                 // Forbid transitions (using on mouse wheel down scrolling)
-                target.classList.add('no-transitions');
+                if(this.zoom!=1) target.classList.add('no-transitions');
             },
             /**
              * Drag image after mouse moves.
              * @param e
              */
             mouseMove: function (e) {
-                if (!this.pressed) return false;
+                if (!this.pressed || this.zoom==1) return false;
                 // Take target
                 var target = this.$$('#item');
                 // Horizontal
@@ -959,6 +1039,7 @@
              * @returns {*}
              */
             computeFileSrc: function (file) {
+                if(file.data.preview && file.data.preview.indexOf('#SERVER#')!==-1) return file.data.preview.replace('#SERVER#', Designmap.config.apiURL);
                 return file.preview ? file.preview.url : file.data.url.replace('#SERVER#', Designmap.config.apiURL);
             },
             /**
@@ -978,6 +1059,7 @@
                 if (this.zoom > this.maxZoom) return this.zoom = this.maxZoom;
                 var target = this.$$('#item');
                 target.style.transform = 'scale(' + this.zoom + ')';
+                this.$$('#stickers').closeAllStickers();
             },
             /**
              * Zoom out on button
@@ -1019,7 +1101,7 @@
                 if(tutorial.isRunning=='share') {
                     tutorial.isRunning = '';
                     tutorial.close();
-                    this.async(function(){tutorial.thumbUp();},500);
+                    this.async(function(){tutorial.thumbUp();},100);
                 }
             },
             _selectAll: function(e){

@@ -109,9 +109,8 @@
          * @param category
          * @param eventName
          */
-        reachGoal: function(category,eventName){
-            console.log(category+'_'+eventName,'<<<<<Reached');
-            ga('send', 'event', category, eventName);
+        reachGoal: function(category, eventName, label){
+            ga('send', 'event', category, eventName, label);
             yaCounter39987865.reachGoal(category+'_'+eventName);
         }
     }

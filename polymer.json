@@ -24,6 +24,7 @@
     "bower_components/webcomponentsjs/webcomponents-lite.min.js",
     "bower_components/page/page.js",
     "bower_components/moment/moment.js",
+    "bower_components/moment/locale/ru.js",
     "bower_components/xhr/Xhr.js",
     "bower_components/undo-manager/lib/undomanager.js",
     "bower_components/socket.io-client/dist/socket.io.min.js",

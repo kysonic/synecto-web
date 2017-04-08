@@ -134,13 +134,45 @@
                 transition: .2s background;
             }
 
+            .borders {
+                width: 100%;
+                height: 99%;
+                border: 1px solid var(--gray-color);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--gray-darky-hovered-color);
+                background: var(--white-color);
+            }
+
+            .borders iron-icon {
+                --iron-icon-width: 120px;
+                --iron-icon-height: 120px;
+                --iron-icon-components-mixin: {
+                    stroke-width: 0.4;
+                };
+            }
+
+            .extension {
+                position: absolute;
+                font-size: 18px;
+                text-transform: uppercase;
+                font-weight: 100;
+            }
+
         </style>
         <!-- Element's markup -->
         <div class="element" id="element">
             <div class$="label [[item.type]]"></div>
             <div class$="content [[item.type]]" on-click="selectElement" on-contextmenu="openContextMenu" data-hint$="[[item.type]]" data-id$="[[item._id]]">
                 <template is="dom-if" if="[[shouldViewImage(item)]]">
-                    <iron-image class$="[[item.orientation]]" src="[[computeImageSource(item)]]" />
+                    <iron-image class$="[[item.orientation]]" preload src="[[computeImageSource(item)]]" />
+                </template>
+                <template is="dom-if" if="[[!shouldViewImage(item)]]">
+                    <div class="borders">
+                        <iron-icon icon="designmap-workspace:filer"></iron-icon>
+                        <span class="extension">[[getExtensionWithoutDot(item.data.name)]]</span>
+                    </div>
                 </template>
                 <div class="overlay">
                     <!--<div hidden$="[[!isFile(item.type)]]" class="open"><i18-n msgid="Open">Open</i18-n></div>-->
@@ -160,7 +192,7 @@
                 Polymer.DesignMapFsService,
                 ReduxBehavior
             ],
-            canBeDisplayedExt: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr", ".ppm", ".pbm",".psd",".eps",".ai"],
+            canBeDisplayedExt: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr",".ppm", ".pbm",".psd",".eps",".ai"],
             properties: {
                 /**
                  * Element's data
@@ -230,6 +262,7 @@
              * Is there necessity to show image?
              */
             shouldViewImage: function (element) {
+                if(element.type=='folder') return true;
                 return element.type == 'file' && (this.canBeDisplayedExt.indexOf('.' + this.getExtensionWithoutDot(element.data.name).toLowerCase()) != -1 || element.data.preview);
             },
             /**
@@ -239,7 +272,8 @@
              */
             computeImageSource: function (element) {
                 if (element.type != 'file') return '';
-                return element.preview ? element.preview.url : element.data.url.replace('#SERVER#', Designmap.config.apiURL);
+                if(element.data.preview && element.data.preview.indexOf('#SERVER#')!==-1) return element.data.preview.replace('#SERVER#', Designmap.config.apiURL);
+                return element.preview ? element.preview.url.replace('#SERVER#', Designmap.config.apiURL) : element.data.url.replace('#SERVER#', Designmap.config.apiURL);
             },
             /**
              * Get extension of the file without dot

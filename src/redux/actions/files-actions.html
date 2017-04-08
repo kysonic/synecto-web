@@ -85,7 +85,9 @@
                         });
                         // Upload preview if it is exist
                         if(response.file.data.preview) {
-                            this.actions.uploadPreview.call(this,response.file);
+                            if(response.file.data.preview.indexOf('#SERVER#')==-1) {
+                                this.actions.uploadPreview.call(this,response.file);
+                            }
                         }
                     }.bind(this));
                     // formData mode=off
@@ -164,12 +166,12 @@
                 var state = ReduxStore.getState();
                 var promise = xhr.put(Designmap.config.apiURL+'file/preview/'+file._id,{scope:state.project._id});
                 promise.then(function(response){
-                    if(!response.success) throw new Error();
+                    if(!response.success) this.showErrorMessage('Cannot create preview');
                     var fileIndex = this.findFileIndexById(response.file._id);
                     Designmap.projectSocket.emit('action',{type:'UPDATE_FILE',data:response.file,index:fileIndex,uid:Designmap.uid});
                     ReduxStore.dispatch({type:'UPDATE_FILE',data:response.file,index:fileIndex});
                 }.bind(this)).catch(function(err){
-                    throw new Error(err);
+                    console.log(err);
                 }.bind(this));
                 return promise;
             }

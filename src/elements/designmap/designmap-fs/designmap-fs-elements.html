@@ -140,10 +140,10 @@
                             <i18-n msgid="Open">Open</i18-n>
                         </li>
                         <template is="dom-if" if="[[isFolder(currentElement.type)]]">
-                            <li on-click="openAddFolderContext">
+                            <!--<li on-click="openAddFolderContext">
                                 <i18-n msgid="AddSubFolder">AddSubFolder</i18-n>
                             </li>
-                            <!-- Add folder -->
+                            &lt;!&ndash; Add folder &ndash;&gt;
                             <designmap-context-menu darker id="addFolderContext" previous>
                                 <div class="context-content">
                                     <iron-a11y-keys id="a11yAddFolder" keys="enter"
@@ -158,7 +158,7 @@
                                         </button>
                                     </div>
                                 </div>
-                            </designmap-context-menu>
+                            </designmap-context-menu>-->
                             <li on-click="openRenameFolderContext">
                                 <i18-n msgid="Rename">Rename</i18-n>
                             </li>
@@ -179,8 +179,13 @@
                                 </div>
                             </designmap-context-menu>
                             <!-- Open file uploader -->
-                            <li on-click="openFileUploader">
+                            <!--<li on-click="openFileUploader">
                                 <i18-n msgid="Add file">Add file</i18-n>
+                            </li>-->
+                        </template>
+                        <template is="dom-if" if="[[isFile(currentElement.type)]]">
+                            <li on-click="download">
+                                <i18-n msgid="Download">Download</i18-n>
                             </li>
                         </template>
                     </template>
@@ -289,11 +294,11 @@
                    statePath: 'projectId'
                 },
                 /**
-                 * Allowed extionsions to upload
+                 * Allowed exts to upload
                  */
                 allowedExtensions: {
                     type: String,
-                    value: '[".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr", ".ppm", ".pbm",".psd",".eps",".ai"]'
+                    value: [".jpg", ".png", ".gif", ".ttf", ".bmp", ".jpg",".psd",".eps",".ai",".pdf",".zip",".rar",".txt",".doc",".ttf",".eot"]
                 },
                 /**
                  * Selected elements
@@ -494,6 +499,7 @@
              * @param element
              */
             executeFolderAction: function (folder) {
+                this.$$('#contextMenu').close();
                 page.redirect('/'+this.projectId+this.getFullPath(folder));
             },
             /**
@@ -578,7 +584,20 @@
             drop: function (e) {
                 e.stopPropagation();
                 e.preventDefault();
-                this.$.uploader.buttonFiles = [].slice.call(e.dataTransfer.files, 0);
+                // Do not allow to upload files
+                let files = [];
+                [].forEach.call(e.dataTransfer.files,function(file){
+                    var splitter = file.name.split('.');
+                    var ext = '.'+splitter[splitter.length-1];
+                    if(this.allowedExtensions && this.allowedExtensions.length && this.allowedExtensions.indexOf(ext.toLowerCase())==-1) {
+                        return this.showErrorMessage('Cannot upload file with #EXT# extension',{'#EXT#':ext});
+                    }
+                    files.push(file);
+                }.bind(this));
+
+                if(!files.length) return this.classList.remove('dragged');
+
+                this.$.uploader.buttonFiles = [].slice.call(files, 0);
                 this.$.uploader.openForm();
                 this.classList.remove('dragged');
             },
@@ -632,6 +651,10 @@
             },
             _canRemove: function(role,trashMode) {
                 return trashMode ? this.topAccess(role) : true;
+            },
+            download: function(e){
+                this.$$('#contextMenu').close();
+                window.open(this.currentElement.data.url.replace("#SERVER#", Designmap.config.apiURL));
             }
         });
     </script>

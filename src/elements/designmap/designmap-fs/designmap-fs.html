@@ -403,6 +403,7 @@
                     if (!response.success) throw response.errors;
                     this.updateProject(response.project);
                 }.bind(this)).catch(function (err) {
+                    console.log(err);
                     const errorMessage = err.message || err + (err.stack ? err.stack : '');
                     this.dispatch('updateProjectState', {error: errorMessage, loading: false});
                     this.loading = false;

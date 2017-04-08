@@ -1,6 +1,7 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../designmap-icons/designmap-confirm-icons.html">
+<link rel="import" href="../designmap-fs/designmap-fs-service.html">
 <link rel="import" href="../../../redux/actions/files-actions.html">
 <link rel="import" href="../designmap-buttons/designmap-file-button.html">
 
@@ -83,6 +84,10 @@
                 height: 95px;
                 margin: 0 auto;
                 border-radius: 50%;
+                margin-bottom: 15px;
+                --iron-icon-components-mixin: {
+                    stroke-width: 0.5px;
+                };
             }
             #form.content {
                 min-width: 250px;
@@ -110,13 +115,11 @@
             .msg {
                 max-width: 300px;
                 font-weight: 300;
+                color: var(--gray-darky-hovered-color) !important;
             }
-            .warning {
-                max-width: 300px;
-                font-weight: 300;
-                margin: 20px auto;
-                margin-bottom: 0px;
-                color: #000;
+            .exts {
+                font-weight: 500;
+                color: var(--blue-darkest-color) !important;
             }
             .title-mini {
                 margin-top: 20px;
@@ -150,9 +153,10 @@
                             <i18-n msgid="Select File">Select File</i18-n>
                         </designmap-file-button>
                         <div class="msg" hidden$="[[!computeLength(buttonFiles.length)]]">
-                            <i18-n msgid="You can upload">You can upload files with following extensions:
-                                .jpg,.png,.psd,.ai,.eps... File cannot weight over than 150 MB.
-                            </i18-n>
+                            <i18-n msgid="You can upload">You can upload files with following extensions:</i18-n>
+                            <div class="exts">
+                                jpg, png, gif, psd, eps, ai, pdf, zip, rar, txt, doc, ttf, eot, ttf, bmp
+                            </div>
                         </div>
                         <div id="message" hidden$="[[!fileUploadLoading]]">
                             <i18-n msgid="Files loading in progress">Files loading in progress</i18-n>
@@ -221,6 +225,7 @@
             behaviors: [
                 ReduxBehavior,
                 Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapFsService,
                 Polymer.DesignMapUtilsBehavior,
                 Polymer.FilesActions
             ],
@@ -241,7 +246,7 @@
                 /**
                  * Extensions to transmitting into file button
                  */
-                allowedExtension: String,
+                allowedExtension: Array,
                 /**
                  * Indicator which can show us loading of files
                  */
@@ -300,7 +305,7 @@
              * Show error.
              */
             showFilesNotAllowedError: function (e) {
-                this.showErrorMessage('Extension is not allowed');
+                this.showErrorMessage('Cannot upload file with #EXT# extension',{'#EXT#':e.detail.ext});
             },
             /**
              * Open file form dialog

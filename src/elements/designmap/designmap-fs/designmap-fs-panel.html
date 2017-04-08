@@ -97,8 +97,6 @@
                                          on-click="openAddFolderContext">
                     <iron-icon icon="designmap-workspace:folder"></iron-icon>
                 </designmap-circle-button>
-                <paper-tooltip for="createFolderButton"><i18-n msgid="Add folder">Add folder</i18-n></paper-tooltip>
-
                 <!-- Hint -->
                 <designmap-hint id="createFolderHint" previous name="createFolder" vertical-offset="50"
                                 horizontal-offset="-107">
@@ -109,6 +107,7 @@
                         <i18-n msgid="creatingSubFolderMsg">creatingSubFolderMsg</i18-n>
                     </div>
                 </designmap-hint>
+                <paper-tooltip for="createFolderButton"><i18-n msgid="Add folder">Add folder</i18-n></paper-tooltip>
                 <!-- Add folder -->
                 <designmap-context-menu id="addFolderContext" previous>
                     <div class="context-content">
@@ -130,7 +129,6 @@
                                          hidden$="[[trashMode]]" on-click="openFileUploader" data-hint="add-file">
                     <iron-icon icon="designmap-workspace:file"></iron-icon>
                 </designmap-circle-button>
-                <paper-tooltip for="uploadFileButton"><i18-n msgid="Upload file">Upload file</i18-n></paper-tooltip>
                 <!-- Hint -->
                 <designmap-hint id="uploadFileHint" previous name="addFile" vertical-offset="50"
                                 horizontal-offset="-107">
@@ -141,6 +139,7 @@
                         <i18-n msgid="addFileMsg">addFileMsg</i18-n>
                     </div>
                 </designmap-hint>
+                <paper-tooltip for="uploadFileButton"><i18-n msgid="Upload file">Upload file</i18-n></paper-tooltip>
                 <!-- Trash mode -->
                 <designmap-circle-button id="restoreButton" plastic-tooltip$="[[translate('Restore all',language,i18Loaded)]]" data-cls="blue"
                                          hidden$="[[!trashMode]]" class="trash" on-click="restoreAll">

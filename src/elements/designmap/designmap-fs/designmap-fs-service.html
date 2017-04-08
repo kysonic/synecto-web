@@ -485,6 +485,9 @@
          */
         openAddFolderContext: function (e) {
             this.$$('#addFolderContext').toggle(e);
+            this.async(function(){
+                this.$$('#addFolder').focus();
+            },350)
         },
         /**
          * Add sub-folder to selected one
@@ -522,6 +525,9 @@
         openRenameFolderContext: function (e) {
             this.$$('#renameFolder').value = this.currentElement.name;
             this.$$('#renameFolderContext').toggle(e);
+            this.async(function(){
+                this.$$('#renameFolder').focus();
+            },350)
         },
         /**
          * Rename folder

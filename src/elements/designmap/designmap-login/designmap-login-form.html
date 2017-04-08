@@ -495,6 +495,10 @@
                     const user = JSON.parse(localStorage.getItem('designmap:user'));
                     if(user && user._id) this.dispatch('_userUpdate', user);
                 }
+
+                if(location.hash=='#register') {
+                    this.selected = 1;
+                }
             },
             /**
              * If we get approve token we have to launch a process of
@@ -560,11 +564,14 @@
                 if (this.$.registerButton.loading) return;
                 if (!(this.$.emailSignup.validate() && this.$.passwordSignup.validate())) return this.showErrorMessage('AuthorizationFormWasFilledNotCorrectly');
                 this.$.registerButton.loading=true;
+                const email = this.$.emailSignup.value;
                 this.dispatch('userSignup', this.$.emailSignup.value, this.$.passwordSignup.value).then(function (response) {
                     if (!response.success) return this.manageErrorResponse(response);
                     this.$.emailSignup.value = null;
                     this.$.passwordSignup.value = null;
                     this.$.registerButton.loading=false;
+                    // Analytics
+                    this.reachGoal('auth','register',email);
                 }.bind(this)).catch(function(err){
                     this.$.registerButton.loading=true;
                     this.manageErrorResponse(err)
@@ -582,11 +589,14 @@
                     this.$.signInLoadingButton.loading = false;
                     return this.showErrorMessage('AuthorizationFormWasFilledNotCorrectly');
                 }
+                const email = this.$.emailSignin.value;
                 this.dispatch('userLogin', this.$.emailSignin.value, this.$.passwordSignin.value).then(function (response) {
                     this.$.signInLoadingButton.loading = false;
                     if (!response.success) return this.manageErrorResponse(response);
                     this.$.emailSignin.value = null;
                     this.$.passwordSignin.value = null;
+                    // Analytics
+                    this.reachGoal('auth','login',email);
                 }.bind(this)).catch(function (err) {
                     this.$.signInLoadingButton.loading = false;
                     this.manageErrorResponse(err);
@@ -656,6 +666,8 @@
                 this.googleButtonPressed = true;
                 this.$.registerGoogleButton.loading = true;
                 this.$.aware.signIn();
+                // Analytics
+                this.reachGoal('auth','google');
             },
             /**
              * Google sign-in success

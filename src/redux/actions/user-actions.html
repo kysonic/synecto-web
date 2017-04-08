@@ -97,7 +97,7 @@
                     var promise = xhr.post(Designmap.config.apiURL + 'user/token', {token: token});
                     promise.then(function (response) {
                         if (!response.success) return;
-                        dispatch({type: "UPDATE_USER", data: response.user});
+                        dispatch({type: "UPDATE_USER", user: response.user});
                     }.bind(this));
                     return promise;
                 }.bind(this);
@@ -110,7 +110,7 @@
                     var promise = xhr.post(Designmap.config.apiURL + 'token/approve', {token: token});
                     promise.then(function (response) {
                         if (!response.success) return;
-                        dispatch({type: "UPDATE_USER", user: response.user});
+                        //dispatch({type: "UPDATE_USER", user: response.user});
                     }.bind(this));
                     return promise;
                 }.bind(this);

@@ -142,6 +142,21 @@
         #taskManagerShowCaseDialog {
             padding: 35px !important;
         }
+
+        iron-icon.dialog-close {
+            position: absolute;
+            top: -15px;
+            left: 100%;
+            cursor: pointer;
+            margin-left: -51px;
+            --iron-icon-stroke-color: var(--gray-darkend-color);
+            --iron-icon-fill-color: var(--gray-darkend-color);
+        }
+        .dialog-close.access {
+            margin-left: -51px;
+            top: -15px;
+        }
+
     </style>
     <template>
         <designmap-confirm id="removeProjectConfirm" message="AreYouSureThatYouWannaRemoveProject"
@@ -220,19 +235,38 @@
                         <i18-n msgid="Task manager">Task manager</i18-n>
                     </div>
                 </li>
+
+                <li id="protocolItem" on-click="goToProtocol" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class="locked">
+                    <designmap-circle-button>
+                        <iron-icon icon="designmap-workspace:protocol"></iron-icon>
+                    </designmap-circle-button>
+                    <iron-icon hidden$="[[user.isPremium]]" class="locked-icon" icon="icons:lock-outline"></iron-icon>
+                    <div class="text">
+                        <i18-n msgid="Protocol">Protocol</i18-n>
+                    </div>
+                </li>
             </ul>
         </ul>
 
         <!-- Sharing dialog -->
-        <paper-dialog id="sharingDialog" cancel-auto-refit entry-animation="scale-up-animation"
+        <paper-dialog id="sharingDialog" no-cancel-on-outside-click cancel-auto-refit entry-animation="scale-up-animation"
                       exit-animation="scale-down-animation">
             <designmap-accesses id="accesses"></designmap-accesses>
+            <!--<iron-icon dialog-dismiss class="dialog-close access" icon="icons:close"></iron-icon>-->
         </paper-dialog>
 
         <!-- Showcase dialog -->
-        <paper-dialog id="taskManagerShowCaseDialog" entry-animation="scale-up-animation"
+        <paper-dialog no-cancel-on-outside-click id="taskManagerShowCaseDialog" entry-animation="scale-up-animation"
                       exit-animation="scale-down-animation">
             <designmap-showcase name="task_manager" items="[[taskManagerShowCaseItems]]"></designmap-showcase>
+            <!--<iron-icon dialog-dismiss class="dialog-close" icon="icons:close"></iron-icon>-->
+        </paper-dialog>
+
+        <!-- Showcase dialog -->
+        <paper-dialog no-cancel-on-outside-click id="protocolShowCaseDialog" class="showcase-dialog" entry-animation="scale-up-animation"
+                      exit-animation="scale-down-animation">
+            <designmap-showcase name="protocol" items="[[protocolShowCaseItems]]"></designmap-showcase>
+           <!-- <iron-icon dialog-dismiss class="dialog-close" icon="icons:close"></iron-icon>-->
         </paper-dialog>
 
     </template>
@@ -298,6 +332,12 @@
                         {icon: 'designmap-showcase:task-manager-one',message:'taskManagerPremiumOneMsg'},
                         {icon: 'designmap-showcase:task-manager-two',message:'taskManagerPremiumTwoMsg'}
                     ]
+                },
+                protocolShowCaseItems: {
+                    type: Array,
+                    value: [
+                        {icon:'designmap-showcase:protocol',message:'protocolShowCaseOneMsg'}
+                    ]
                 }
             },
             listeners: {
@@ -313,8 +353,11 @@
             },
             goToTaskManager: function (e) {
                 if(!this.user.isPremium) return this.$.taskManagerShowCaseDialog.open();
-                if (e.currentTarget.getAttribute('disabled') != undefined) return this.showErrorMessage('You do not have access to make it');
-                this.redirect('/task-manager/');
+                //if (e.currentTarget.getAttribute('disabled') != undefined) return this.showErrorMessage('You do not have access to make it');
+                //this.redirect('/task-manager/');
+            },
+            goToProtocol: function(){
+                if(!this.user.isPremium) return this.$.protocolShowCaseDialog.open();
             },
             goToTrashBox: function (e) {
                 if (e.currentTarget.getAttribute('disabled') != undefined) return this.showErrorMessage('You do not have access to make it');
@@ -403,6 +446,7 @@
             },
             closeShowCaseDialog: function(){
                 this.$.taskManagerShowCaseDialog.close();
+                this.$.protocolShowCaseDialog.close();
                 this.$.sharingDialog.close();
             }
         });
