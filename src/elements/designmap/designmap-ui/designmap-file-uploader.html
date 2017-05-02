@@ -155,7 +155,7 @@
                         <div class="msg" hidden$="[[!computeLength(buttonFiles.length)]]">
                             <i18-n msgid="You can upload">You can upload files with following extensions:</i18-n>
                             <div class="exts">
-                                jpg, png, gif, psd, eps, ai, pdf, zip, rar, txt, doc, ttf, eot, ttf, bmp
+                                [[_showAllowedExtension(allowedExtension.*)]]
                             </div>
                         </div>
                         <div id="message" hidden$="[[!fileUploadLoading]]">
@@ -180,7 +180,7 @@
                                 </div>
                             </div>
                         </template>
-                        <!--<div id="warning" class="warning" hidden$="[[!computeWarning(storage,buttonFiles.length)]]">
+                        <!--<div id="warning" class="warning" hidden$="[[!_computeWarning(storage,buttonFiles.length)]]">
                             <i18-n msgid="Designmap storage in demo mode">Attention! Currently Designmap storage is in
                                 beta. DO NOT Store important files here. It can be removed automatically.
                             </i18-n>
@@ -479,8 +479,11 @@
             computeLength: function (length) {
                 return !length;
             },
-            computeWarning: function (storage, buttonFilesLength) {
+            _computeWarning: function (storage, buttonFilesLength) {
                 return storage == 'designmap' && buttonFilesLength;
+            },
+            _showAllowedExtension: function(){
+                return this.allowedExtension.join(', ');
             }
         })
     </script>

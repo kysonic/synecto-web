@@ -206,6 +206,9 @@
   "File was removed successfuly.": {
     "message": "File \"#FILE#\" was removed."
   },
+  "File was renamed successfuly.": {
+    "message": "File \"#OLDNAME#\" was renamed to #NEWNAME#."
+  },
   "File was updated successfuly.": {
     "message": "File \"#FILE#\" was updated successfuly."
   },
@@ -586,6 +589,9 @@
   },
   "Folder name": {
     "message": "Enter folder name"
+  },
+  "File name": {
+    "message": "Enter file name"
   },
   "Project name error": {
     "message": "Enter name!"

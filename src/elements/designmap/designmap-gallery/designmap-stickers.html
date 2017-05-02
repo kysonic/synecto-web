@@ -1,5 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/iron-resizable/iron-resizable-behavior.html">
 <link rel="import" href="../designmap-buttons/designmap-button.html">
 <link rel="import" href="../../plastic/plastic-custom-scroll.html">
 <link rel="import" href="./designmap-comment-service.html">
@@ -373,7 +374,7 @@
                                 </plastic-custom-scroll>
                             </div>
                             <iron-a11y-keys id="a11ySave" target="[[getTarget(sticker._id)]]" keys="ctrl+enter" on-keys-pressed="_postComment"></iron-a11y-keys>
-                            <textarea value="{{textAreaValue::input}}" on-blur="_checkSticker" class="add-comment"
+                            <textarea value="{{textAreaValue::input}}" on-keypress="_invocation" on-mousewheel="_textAreaMouseWheel" on-blur="_checkSticker" class="add-comment"
                                       placeholder="[[translate('Write a comment',language,i18Loaded)]]"></textarea>
                             <button class="post-comment-buttton" on-click="_postComment" hidden$="[[!textAreaValue]]">
                                 <i18-n msgid="Post a comment">Post a comment</i18-n>
@@ -490,7 +491,8 @@
                 },
                 isThereOpened: {
                     type: Boolean,
-                    value: false
+                    value: false,
+                    notify: true
                 },
                 pressed: {
                     type: Boolean
@@ -630,6 +632,12 @@
             _canUserManageSticker(sticker){
                 return sticker.owner._id === this.user._id || this.file.owner === this.user._id;
             },
+            /**
+             * Mouse down handler
+             * @param e
+             * @returns {boolean}
+             * @private
+             */
             _mouseDown: function (e) {
                 if(!e.target.classList.contains('bound') || this.zoom!=1) return;
                 if (e.currentTarget.classList.contains('opened')) return false;
@@ -752,6 +760,19 @@
             getTarget: function(id){
                 const stickerNode = Polymer.dom(this.$.wrapper).querySelector('#sticker-' + id);
                 return stickerNode ? stickerNode.querySelector('.dropdown .add-comment') : null;
+            },
+
+            _textAreaMouseWheel: function(e){
+                e.stopPropagation();
+            },
+
+            /**
+             * Will implement invocation of user via
+             * @name/email/etc.. To add
+             * @private
+             */
+            _invocation: function(){
+
             }
         })
     </script>

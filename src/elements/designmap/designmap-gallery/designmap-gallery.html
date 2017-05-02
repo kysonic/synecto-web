@@ -1,5 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-image/iron-image.html">
+<link rel="import" href="/bower_components/iron-resizable/iron-resizable-behavior.html">
 <link rel="import" href="/bower_components/iron-icons/social-icons.html">
 <link rel="import" href="/bower_components/cbn-copy-clipboard/cbn-copy-clipboard.html">
 <link rel="import" href="../designmap-buttons/designmap-gallery-button.html">
@@ -111,16 +112,18 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 100%;
-                height: 100%;
                 overflow: hidden;
                 background: var(--designmap-gallery-striped-background);
+                flex: 2;
             }
 
             .content .item {
+                cursor: crosshair;
                 height: 100%;
                 position: relative;
-                cursor: crosshair;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
 
             .content .item.zoomed {
@@ -129,22 +132,18 @@
 
             /** IMAGES **/
             .content iron-image {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                max-width: 100%;
-                max-height: 100%;
-                width: 100%;
-                height: 100%;
+
+                /*height: calc(100vh - 150px);
+                width: calc(100% - 200px);*/
                 --iron-image-mixin: {
-                    max-width: 100%;
+                    /*max-width: 100%;
                     max-height: 100%;
                     min-width: 120px;
-                    min-height: 200px;
-                    object-fit: contain;
-
+                    min-height: 200px;*/
+                    /*object-fit: contain;*/
+                    max-height: calc(100vh - 150px);
+                    max-width: calc(100vw - 200px);
                     background: url('/images/svg/three-dots-gray.svg') no-repeat center;
-
                     -khtml-user-select: none;
                     -o-user-select: none;
                     -moz-user-select: none;
@@ -164,6 +163,10 @@
 
             .content iron-image.zoomed:active {
                 cursor: move;
+            }
+
+            .content #stickers {
+                /*position: relative;*/
             }
 
             /** LEFT RIGHT **/
@@ -512,10 +515,12 @@
                          on-mouseup="mouseUp">
 
                         <iron-image
+                                id="image"
                                 on-load="imageHasLoaded"
                                 on-error="imageError"
                                 src="{{computeFileSrc(file)}}"></iron-image>
-                        <designmap-stickers class$="[[zoomClasses(zoom)]]" id="stickers" sticker-catch="{{stickerCatch}}" moved="[[moved]]" pressed="[[pressed]]" file="[[file]]" zoom="[[zoom]]"></designmap-stickers>
+
+                        <designmap-stickers class$="[[zoomClasses(zoom)]]" is-there-opened="{{isThereOpened}}" id="stickers" sticker-catch="{{stickerCatch}}" moved="[[moved]]" pressed="[[pressed]]" file="[[file]]" zoom="[[zoom]]"></designmap-stickers>
                     </div>
                     <div class="hint" hidden$="[[!showHint]]">
                         <i18-n msgid="Click on image to leave comment">Click on image to leave comment</i18-n>
@@ -592,6 +597,7 @@
             behaviors: [
                 Polymer.IronOverlayBehavior,
                 Polymer.NeonAnimationRunnerBehavior,
+                Polymer.IronResizableBehavior,
                 Polymer.DesignMapMessagesBehavior,
                 Polymer.DesignMapWebAnimationBehavior,
                 Polymer.DesignMapUtilsBehavior,
@@ -709,6 +715,10 @@
                 error: {
                     type: String,
                     value: ''
+                },
+                isThereOpened: {
+                    type: Boolean,
+                    value: false
                 }
             },
             observers: [
@@ -716,8 +726,10 @@
             ],
             listeners: {
                 'open-protocol-showcase': "openProtocolShowCase",
-                'close-showcase-dialog': "closeShowCaseDialog"
+                'close-showcase-dialog': "closeShowCaseDialog",
+                'iron-resize': '_onIronResize'
             },
+
             /**
              * Whe file id changed
              */
@@ -819,6 +831,8 @@
             imageMouseWheel: function (e) {
                 /*var stickers = Polymer.dom(this.$.pages).querySelector('*[file-id="' + e.model.file._id + '"]');
                  if (stickers.overArea) return;*/
+                if(this.isThereOpened) return;
+
                 var target = this.$$('#item');
                 // Define mouse wheel event details
                 var delta = e.deltaY || e.detail || e.wheelDelta;
@@ -940,6 +954,7 @@
             imageHasLoaded: function (e) {
                 e.model.file.hadLoaded = true;
                 e.target.classList.add('cancel-loading');
+                this.refitStickers();
             },
             /**
              * Get extension of the file
@@ -982,7 +997,7 @@
              * @param e
              */
             imageError: function (e) {
-                e.model.file.path
+                this.refitStickers();
             },
             /**
              * Remove file.
@@ -1124,6 +1139,21 @@
                 this.$.chatShowCaseDialog.close();
                 this.$.callShowCaseDialog.close();
                 this.$.protocolShowCaseDialog.close();
+            },
+
+            _onIronResize: function(){
+                this.refitStickers();
+            },
+
+            refitStickers: function(){
+                var image = this.$$('#image');
+                var img = image?image.$.img:null;
+                if(img) {
+                    var b = img.getBoundingClientRect();
+                    this.$$('#stickers').style.height = b.height + 'px';
+                    this.$$('#stickers').style.top = '50%';
+                    this.$$('#stickers').style.marginTop = -(b.height/2) + 'px';
+                }
             }
         });
     </script>

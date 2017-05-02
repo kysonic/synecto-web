@@ -530,6 +530,16 @@
             },350)
         },
         /**
+         * Open rename file context
+         */
+        openRenameFileContext: function (e) {
+            this.$$('#renameFile').value = this.currentElement.name || (this.currentElement.data?this.cutFileNameAndExt(this.currentElement):'');
+            this.$$('#renameFileContext').toggle(e);
+            this.async(function(){
+                this.$$('#renameFile').focus();
+            },350)
+        },
+        /**
          * Rename folder
          */
         renameFolder: function () {
@@ -551,6 +561,29 @@
                 oldName: this.currentElement.name,
                 data: {name: this.$$('#renameFolder').value}
             });
+        },
+        /**
+         * Rename file name
+         */
+        renameFile: function(){
+            if (!this.$$('#renameFile').value) return this.showErrorMessage('Name can\'t be empty.');
+            this.async(function () {
+                this.$$('#renameFileContext').close();
+            }, 50);
+            this.async(function () {
+                this.$$('#contextMenu').close();
+            }, 200);
+            if (this.currentElement.data.name == this.$$('#renameFile').value) return;
+            var oldName = this.currentElement.data.name;
+            var ext = this.getExtensionWithoutDot(oldName);
+            this.currentElement.data.name = this.cutFileNameAndExt({data:{name:this.$$('#renameFile').value}});
+            if(this.currentElement.data.name.indexOf('.'+ext)===-1) this.currentElement.data.name+='.'+ext;
+            // Dispatch
+            this.dispatch('$updateFile', this.currentElement._id, {data: this.currentElement.data}).then(function (response) {
+                if (!response.success) throw new Error(response.errors.message);
+                this.showUndoMessage('File was renamed successfuly.', {"#OLDNAME#":oldName,"#NEWNAME#": this.cutFileName(this.currentElement)});
+            }.bind(this)).catch(this.manageErrorResponse.bind(this));
+
         },
         /**
          * Fire remove element event

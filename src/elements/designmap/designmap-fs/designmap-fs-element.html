@@ -165,14 +165,16 @@
         <div class="element" id="element">
             <div class$="label [[item.type]]"></div>
             <div class$="content [[item.type]]" on-click="selectElement" on-contextmenu="openContextMenu" data-hint$="[[item.type]]" data-id$="[[item._id]]">
-                <template is="dom-if" if="[[shouldViewImage(item)]]">
-                    <iron-image class$="[[item.orientation]]" preload src="[[computeImageSource(item)]]" />
-                </template>
-                <template is="dom-if" if="[[!shouldViewImage(item)]]">
-                    <div class="borders">
-                        <iron-icon icon="designmap-workspace:filer"></iron-icon>
-                        <span class="extension">[[getExtensionWithoutDot(item.data.name)]]</span>
-                    </div>
+                <template is="dom-if" if="[[isFile(item.type)]]">
+                    <template is="dom-if" if="[[shouldViewImage(item)]]">
+                        <iron-image class$="[[item.orientation]]" preload src="[[computeImageSource(item)]]" />
+                    </template>
+                    <template is="dom-if" if="[[!shouldViewImage(item)]]">
+                        <div class="borders">
+                            <iron-icon icon="designmap-workspace:filer"></iron-icon>
+                            <span class="extension">[[getExtensionWithoutDot(item.data.name)]]</span>
+                        </div>
+                    </template>
                 </template>
                 <div class="overlay">
                     <!--<div hidden$="[[!isFile(item.type)]]" class="open"><i18-n msgid="Open">Open</i18-n></div>-->
@@ -262,7 +264,7 @@
              * Is there necessity to show image?
              */
             shouldViewImage: function (element) {
-                if(element.type=='folder') return true;
+                if(element.type=='folder') return false;
                 return element.type == 'file' && (this.canBeDisplayedExt.indexOf('.' + this.getExtensionWithoutDot(element.data.name).toLowerCase()) != -1 || element.data.preview);
             },
             /**

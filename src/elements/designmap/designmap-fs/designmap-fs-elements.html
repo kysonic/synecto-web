@@ -1,6 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <!-- Components -->
-<link rel="import" href="./designmap-fs-element.html">
+<link rel="import" href="./designmap-fs-element.html?v=12345">
 <link rel="import" href="../designmap-ui/designmap-hidden-panel.html">
 <link rel="import" href="../designmap-ui/designmap-file-uploader.html">
 <link rel="import" href="../../plastic/plastic-custom-scroll.html">
@@ -187,6 +187,23 @@
                             <li on-click="download">
                                 <i18-n msgid="Download">Download</i18-n>
                             </li>
+                            <li on-click="openRenameFileContext">
+                                <i18-n msgid="Rename">Rename</i18-n>
+                            </li>
+                            <!-- Rename Folder -->
+                            <designmap-context-menu darker id="renameFileContext" previous>
+                                <div class="context-content">
+                                    <iron-a11y-keys id="a11yAddFolder" keys="enter"
+                                                    on-keys-pressed="renameFile"></iron-a11y-keys>
+                                    <paper-input label="[[translate('File name',language,i18Loaded)]]"
+                                                 id="renameFile"></paper-input>
+                                    <div class="button-container">
+                                        <button is="designmap-round-button" on-click="renameFile">
+                                            <iron-icon icon="icons:arrow-forward"></iron-icon>
+                                        </button>
+                                    </div>
+                                </div>
+                            </designmap-context-menu>
                         </template>
                     </template>
                     <template is="dom-if" if="[[trashMode]]">
@@ -298,7 +315,7 @@
                  */
                 allowedExtensions: {
                     type: String,
-                    value: [".jpg", ".png", ".gif", ".ttf", ".bmp", ".jpg",".psd",".eps",".ai",".pdf",".zip",".rar",".txt",".doc",".ttf",".eot"]
+                    value: [".jpg", ".png", ".gif", ".ttf", ".bmp", ".jpg",".psd",".eps",".ai",".pdf",".zip",".rar",".txt",".docx",".ttf",".eot"]
                 },
                 /**
                  * Selected elements

@@ -553,7 +553,10 @@
                         text: {
                             message: 'You received an access to project',
                             replacement: { "#PROJECT#": this.project.name},
-                            projectID: this.project._id
+                            projectID: this.project._id,
+                            info: {
+                                xlink: Designmap.config.appURL+this.project._id
+                            }
                         }
                     });
                 }.bind(this));

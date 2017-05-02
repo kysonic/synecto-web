@@ -215,6 +215,9 @@
   "File was removed successfuly.": {
     "message": "Файл \"#FILE#\" был удален."
   },
+  "File was renamed successfuly.": {
+    "message": "Файл \"#OLDNAME#\" был переименован в #NEWNAME#."
+  },
   "File was updated successfuly.": {
     "message": "Файл \"#FILE#\" был обнавлен."
   },
@@ -595,6 +598,9 @@
   },
   "Folder Name": {
     "message": "Введите имя папки"
+  },
+  "File name": {
+    "message": "Введите имя файла"
   },
   "Project name error": {
     "message": "Не должно быть пустым"

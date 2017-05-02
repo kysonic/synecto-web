@@ -75,6 +75,15 @@
             return str;
         },
         /**
+         * Get extension of the file without dot
+         */
+        getExtensionWithoutDot: function (name) {
+            if (!name) return null;
+            var splitter = name.split('.');
+            var ext = splitter[splitter.length - 1];
+            return ext;
+        },
+        /**
          * Object to query string
          * @param o
          * @returns {string}
@@ -120,6 +129,14 @@
         cutFileName: function(file){
             if(!file || !file.data || !file.data.name) return;
             return file.data.name.replace((file.folder=="null"?file.data.uid:file.folder)+"-","");
+        },
+        /**
+         * And extension
+         */
+        cutFileNameAndExt: function(file){
+            if(!file || !file.data || !file.data.name) return;
+            var ext = this.getExtensionWithoutDot(file.data.name);
+            return file.data.name.replace((file.folder=="null"?file.data.uid:file.folder)+"-","").replace('.'+ext,'');
         },
         /**
          * Compute user name
