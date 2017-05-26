@@ -8,6 +8,7 @@
 <link rel="import" href="reducers/notifications-reducer.html">
 <link rel="import" href="reducers/project-reducer.html">
 <link rel="import" href="reducers/project-id-reducer.html">
+<link rel="import" href="reducers/project-users-reducer.html">
 <link rel="import" href="reducers/file-id-reducer.html">
 <link rel="import" href="reducers/folder-id-reducer.html">
 <link rel="import" href="reducers/path-reducer.html">
@@ -15,6 +16,7 @@
 <link rel="import" href="reducers/projects-reducer.html">
 <link rel="import" href="reducers/shared-projects-reducer.html">
 <link rel="import" href="reducers/folders-reducer.html">
+<link rel="import" href="reducers/tasks-reducer.html">
 <link rel="import" href="reducers/files-reducer.html">
 <link rel="import" href="reducers/stickers-reducer.html">
 <link rel="import" href="reducers/comments-reducer.html">
@@ -27,6 +29,7 @@
         notifications: [],
         project: null,
         projectId: '',
+        projectUsers: [],
         fileId: '',
         folderId: '',
         path: '',
@@ -34,6 +37,7 @@
         projects: [],
         shared: [],
         folders: [],
+        tasks: [],
         files: [],
         stickers: [],
         comments: []
@@ -46,6 +50,7 @@
        notifications: filterActions(Reducers.NotificationsReducer,['ADD_NOTIFICATION','REMOVE_NOTIFICATION','UPDATE_NOTIFICATION','SET_NOTIFICATIONS','CLEAN_NOTIFICATIONS']),
        project: filterActions(Reducers.ProjectReducer,['SET_PROJECT_STATE','UPDATE_PROJECT_STATE']),
        projectId: filterActions(Reducers.ProjectIdReducer,['UPDATE_PROJECT_ID']),
+       projectUsers: filterActions(Reducers.ProjectUsersReducer,['SET_PROJECT_USERS']),
        fileId: filterActions(Reducers.FileIdReducer,['UPDATE_FILE_ID']),
        folderId: filterActions(Reducers.FolderIdReducer,['UPDATE_FOLDER_ID']),
        path: filterActions(Reducers.PathReducer,['UPDATE_PATH']),
@@ -53,6 +58,7 @@
        projects: filterActions(Reducers.ProjectsReducer,['ADD_PROJECT','REMOVE_PROJECT','UPDATE_PROJECT','SET_PROJECTS','CLEAN_PROJECTS']),
        sharedProjects: filterActions(Reducers.SharedProjectsReducer,['ADD_SHARED_PROJECT','UPDATE_SHARED_PROJECT','SET_SHARED_PROJECTS','CLEAN_SHARED_PROJECTS']),
        folders: filterActions(Reducers.FoldersReducer,['ADD_FOLDER','REMOVE_FOLDER','UPDATE_FOLDER','SET_FOLDERS','CLEAN_FOLDERS']),
+       tasks: filterActions(Reducers.TasksReducer,['ADD_TASK','REMOVE_TASK','UPDATE_TASK','SET_TASKS','CLEAN_TASKS']),
        files: filterActions(Reducers.FilesReducer,['ADD_FILE','REMOVE_FILE','UPDATE_FILE','SET_FILES','CLEAN_FILES']),
        stickers: filterActions(Reducers.StickersReducer,['ADD_STICKER','REMOVE_STICKER','UPDATE_STICKER','SET_STICKERS','CLEAN_STICKERS']),
        comments: filterActions(Reducers.CommentsReducer,['ADD_COMMENT','REMOVE_COMMENT','UPDATE_COMMENT','SET_COMMENTS','CLEAN_COMMENTS'])

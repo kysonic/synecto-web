@@ -50,7 +50,7 @@
                             index: this.findCommentIndexById(data._id)
                         });
                         //real time
-                        this.socket.emit('action', {type: 'ADD_COMMENT', data: response.comment, uid: Designmap.uid});
+                        Designmap.projectSocket.emit('action', {type: 'ADD_COMMENT', data: response.comment, uid: Designmap.uid});
                     }.bind(this)).catch(function (err) {
                         var index = this.findCommentIndexById(data._id);
                         dispatch({type: 'REMOVE_COMMENT', index: index});
@@ -77,7 +77,7 @@
                         response.comment.owner = historyData.owner;
                         dispatch({type:'UPDATE_COMMENT',data:response.comment,index:this.findCommentIndexById(id)});
                         // Real time
-                        this.socket.emit('action', {type: 'UPDATE_COMMENT', data: response.comment, index: this.findCommentIndexById(id), uid: Designmap.uid});
+                        Designmap.projectSocket.emit('action', {type: 'UPDATE_COMMENT', data: response.comment, index: this.findCommentIndexById(id), uid: Designmap.uid});
                     }.bind(this)).catch(function () {
                         dispatch({type:'UPDATE_COMMENT',data:historyData,index:this.findCommentIndexById(id)});
                     }.bind(this));
@@ -104,7 +104,7 @@
                     promise.then(function (response) {
                         if (!response.success) throw new Error();
                         // Real time
-                        this.socket.emit('action', {type: 'REMOVE_COMMENT', index: index, uid: Designmap.uid});
+                        Designmap.projectSocket.emit('action', {type: 'REMOVE_COMMENT', index: index, uid: Designmap.uid});
                     }.bind(this)).catch(function () {
                         dispatch({type: 'ADD_COMMENT', data: historyData});
                     }.bind(this));

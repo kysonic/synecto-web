@@ -1,5 +1,6 @@
 {
   "entrypoint": "index.html",
+  "hash": "26-05-2017-1",
   "shell": "src/designmap-app.html",
   "fragments": [
     "src/views/designmap-fs-view.html",
@@ -22,6 +23,7 @@
   "includeDependencies": [
     "manifest.json",
     "bower_components/webcomponentsjs/webcomponents-lite.min.js",
+    "bower_components/textarea-caret-position/index.js",
     "bower_components/page/page.js",
     "bower_components/moment/moment.js",
     "bower_components/moment/locale/ru.js",

@@ -1,7 +1,7 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="/bower_components/iron-image/iron-image.html">
-<link rel="import" href="./designmap-fs-service.html">
+<link rel="import" href="./designmap-fs-service.html?hash=26-05-2017-1">
 
 <dom-module is="designmap-fs-element">
     <template>
@@ -22,6 +22,10 @@
 
                 --iron-image-width: 100%;
                 --iron-image-height: 100%;
+            }
+
+            :host(.cutted) {
+                opacity: 0.3;
             }
 
             *[hidden] {
@@ -210,13 +214,6 @@
                     type: Number
                 },
                 /**
-                 * Current folder id
-                 */
-                currentFolderId: {
-                    type: String,
-                    notify: true
-                },
-                /**
                  * App language
                  */
                 user: {
@@ -252,6 +249,10 @@
                  */
                 role: {
                     type: String
+                },
+                cutted: {
+                    type: Boolean,
+                    observer: "_cuttedChanged"
                 }
             },
             /**
@@ -299,6 +300,9 @@
              */
             selectElement: function (e) {
                 this.fire('select-element', {e: e, item: this.item});
+            },
+            _cuttedChanged: function(cutted){
+                this.classList[cutted?'add':'remove']('cutted');
             }
         })
     </script>

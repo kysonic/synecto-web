@@ -1,4 +1,5 @@
 <script>
+    const EMAIL_REGEXP = /(\+\w*.\w*@\w*.\w.\S*)/g;
     Polymer.DesignmapCommentService = {
 
         _computeComments: function (id) {
@@ -11,14 +12,16 @@
          * Send notification
          */
         _sendNotification: function (file,sticker,comment) {
-            if (this.user._id == file.owner) return;
-
+            let emails = comment.text.match(EMAIL_REGEXP) || [];
+            emails = emails.splice(emails.indexOf(this.user.local.email),1);
+            if(emails.length>=5) return this.showErrorMessage("You cannot send notification more that 5 users at one time!");
+            //if(!(!emails.length || this.user._id != file.owner)) return;
             document.querySelector('designmap-app').$.notifier.create({
                 sender: this.user,
-                recipient: file.owner,
+                recipient: this.user._id == file.owner ? emails : emails.concat(file.owner),
                 type: 'new-sticker',
                 text: {
-                    message: comment.text,
+                    message: comment.text.replace(EMAIL_REGEXP,''),
                     replacement: {'#NAME#': this.cutFileName(file)},
                     info: {
                         file: this.cutFileName(file),
@@ -97,7 +100,7 @@
         },
 
         _canUserManageComment(file, comment){
-            return (comment.owner._id === this.user._id || file.owner === this.user._id);
+            return (comment.owner._id === this.user._id);
         },
 
         _editComment: function () {
@@ -105,10 +108,16 @@
             comment.edit = true;
             this.dispatch('_updateComment', comment._id, comment);
             this.$.dropdown.close();
+            const lastCommentNode = this.parents(this.lastCommentData.target, 'comment');
+            const textNodeBound = lastCommentNode.querySelector('.text').getBoundingClientRect();
+            if(textNodeBound.height>100) textNodeBound.height=100;
             this.async(function () {
-                const textAreaNode = this.parents(this.lastCommentData.target, 'comment').querySelector('textarea');
+                const textAreaNode = lastCommentNode.querySelector('textarea');
+                const buttonNode = lastCommentNode.querySelector('.edit-comment');
+                textAreaNode.style.height = textNodeBound.height + 'px';
+                buttonNode.style.top = textNodeBound.height + 20 + 'px';
                 textAreaNode.focus();
-            }, 100);
+            }, 0);
         },
 
         _saveComment: function () {
@@ -145,12 +154,15 @@
         },
 
         _checkSticker: function (e) {
+            if(this.$.select.$.dropdown.opened) return;
             this.async(function () {
                 this.lastCommentData = {sticker: e.model.sticker};
                 const stickersComments = this.comments.filter(function (comment) {
                     return comment.sticker == e.model.sticker._id
                 });
-                if (stickersComments && !stickersComments.length) this._removeSticker();
+                if (stickersComments && !stickersComments.length) {
+                    this._removeSticker();
+                }
             }, 200);
         }
     }

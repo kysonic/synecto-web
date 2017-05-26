@@ -274,10 +274,12 @@
                 this.$.dialog.open();
             },
             logout: function () {
+                document.getElementById('appLoading').style.display = 'flex';
                 if (this.$$('#logout').disabled) return;
                 page.redirect('/');
                 this.dispatch('userLogout').then(function () {
                     this.$$("#dropdown").close();
+                    document.getElementById('appLoading').style.display = 'none';
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));
             },
             selectLanguage: function (e) {

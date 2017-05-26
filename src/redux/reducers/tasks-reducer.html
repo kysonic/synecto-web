@@ -1,0 +1,28 @@
+<script>
+    Reducers.TasksReducer = function(state,action) {
+        if(!state) state = [];
+        switch(action.type) {
+            case "ADD_TASK":
+                return state.concat([action.data]);
+                break;
+            case "REMOVE_TASK":
+                return state.slice(0,action.index)
+                    .concat(state.slice(action.index+1));
+                break;
+            case "UPDATE_TASK":
+                return state.slice(0,action.index)
+                    .concat([Object.assign({},state[action.index],action.data)])
+                    .concat(state.slice(action.index+1));
+                break;
+            case "SET_TASKS":
+                return state.concat(action.tasks);
+                break;
+            case "CLEAN_TASKS":
+                return [];
+                break;
+            default:
+                return state;
+                break;
+        }
+    }
+</script>

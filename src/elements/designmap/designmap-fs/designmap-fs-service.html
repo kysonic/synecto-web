@@ -391,6 +391,15 @@
                 }
             }, this);
         },
+        updateCuttedPaths: function(path){
+            var reg = new RegExp(path);
+            ReduxStore.getState().folders.forEach(function (folder) {
+                if (reg.test(folder.path)) {
+                    var newPath = folder.path.replace(path, (this.findParentPath(path) || '/') + newName + '/');
+                    this.dispatch('_updateFolder', this.getFullPath(folder), {path: newPath});
+                }
+            }, this);
+        },
         /**
          * Validate children to be unique
          * @param name

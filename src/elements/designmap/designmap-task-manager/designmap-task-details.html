@@ -1,0 +1,946 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../../plastic/plastic-custom-scroll.html?hash=26-05-2017-1">
+<link rel="import" href="./designmap-assignee.html?hash=26-05-2017-1">
+<link rel="import" href="../designmap-ui/designmap-date-picker.html?hash=26-05-2017-1">
+<link rel="import" href="../designmap-ui/designmap-file-uploader.html?hash=26-05-2017-1">
+<link rel="import" href="/bower_components/paper-button/paper-button.html?hash=26-05-2017-1">
+
+<link rel="import" href="./deaignmap-task-service.html?hash=26-05-2017-1">
+<!-- Redux -->
+<link rel="import" href="../../../redux/redux-store.html?hash=26-05-2017-1">
+<link rel="import" href="../../../redux/actions/combine-actions.html?hash=26-05-2017-1">
+<link rel="import" href="../../../redux/actions/files-actions.html?hash=26-05-2017-1">
+<link rel="import" href="../../../redux/actions/user-actions.html?hash=26-05-2017-1">
+<link rel="import" href="../../../redux/actions/tasks-actions.html?hash=26-05-2017-1">
+
+<dom-module id="designmap-task-details">
+    <template>
+        <style>
+            :host {
+                margin-top: 33px;
+                flex: 1;
+                display: block;
+                box-sizing: border-box;
+                position: relative;
+                background: var(--white-color);
+
+                --details-color: var(--gray-saturated-color);
+
+                --details-incomplete: var(--incomplete);
+                --details-inprogress: var(--inprogress);
+                --details-completed: var(--completed);
+                --details-expired: var(--expired);
+            }
+
+            *[hidden] {
+                display: none !important;
+            }
+
+            /** DETAILS **/
+            .details {
+                width: 100%;
+                height: 100%;
+            }
+
+            .details .header {
+                height: 60px;
+                display: flex;
+            }
+
+            .details .header > .title {
+                width: 50%;
+            }
+
+            .details .content {
+                display: flex;
+            }
+
+            .details .content .left {
+                flex: 1;
+                display: flex;
+                justify-content: center;
+                align-items: flex-start;
+            }
+
+            .details .content .center {
+                flex: 11;
+                align-items: flex-start;
+            }
+
+            /** PANEL **/
+            .panel {
+                flex: 1;
+                display: flex;
+                justify-content: flex-end;
+                align-items: flex-start;
+            }
+
+            .panel designmap-circle-button, designmap-assignee {
+                width: 60px;
+                height: 60px;
+                --designmap-circle-button-circle-mixin: {
+                    stroke-width: 1px;
+                    stroke: var(--details-color) !important;
+                };
+            }
+
+            designmap-assignee {
+                margin-top: 3px;
+                margin-left: 5px;
+                --iron-icon-stroke-color: var(--gray-color);
+                --iron-icon-fill-color: var(--gray-color);
+            }
+
+            /** TYPE COLORS **/
+            
+
+            designmap-assignee {
+                --designmap-assignee-assigned-mixin: {
+                    width: 45px;
+                    height: 45px;
+                    margin: 7px 0 5px 5px;
+                    border: 2px solid var(--white-color);
+                }
+            }
+
+            .panel .panel-icon {
+                padding: 18px;
+            }
+
+            .panel-icon.remove {
+                width: 25px;
+                height: 25px;
+                padding: 17px !important;
+            }
+
+            /** Description **/
+            #desc {
+                margin-left: 2px;
+                max-width: 100%;
+            }
+
+            /** CUSTOM SCROLL **/
+            :host {
+                --plastic-custom-scroll-bar-mixin: {
+                    background: rgba(40, 133, 163, 0.2);
+                    margin-left: -16px;
+                };
+                --plastic-custom-scroll-bar-hover-mixin: {
+                    background: rgba(125, 186, 232, 0.3);
+                };
+                --plastic-custom-scroll-bar-grabbed-mixin: {
+                    background: rgba(125, 186, 232, 0.4);
+                };
+                --iron-autogrow-textarea: {
+                    color: var(--primary-color) !important;
+                };
+            }
+
+
+            /** DATE PICKER **/
+            :host {
+                --paper-date-picker: {
+                    margin-top: 0px !important;
+                    padding: 0;
+                }
+            }
+
+            /** FILE ATTACH **/
+
+            /** Paper Dialog **/
+            paper-dialog#addFileForm {
+                color: #fff;
+                z-index: 103 !important;
+            }
+
+            paper-dialog#addFileForm .content .message {
+                padding: 10px;
+                font-size: 16px;
+            }
+
+            /** ATTACHED FILE LIST **/
+            .files {
+                padding: 10px 0;
+                font-family: 'Open Sans';
+                font-weight: 300;
+                display: flex;
+                margin-top: 9px;
+            }
+
+            .files .wrapper {
+                margin-top: 1px;
+            }
+
+            .remove-file iron-icon {
+                width: 18px;
+                height: 18px;
+                margin-left: 3px;
+                position: relative;
+                bottom: 1px;
+            }
+
+            .files-title {
+                font-size: 18px;
+            }
+
+            .file {
+                font-size: 14px;
+            }
+
+            .file-name {
+                color: var(--gray-darkend-color);
+            }
+
+            .file-name, .remove-file {
+                display: inline-block;
+                cursor: pointer;
+            }
+
+            /** ASSIGNED **/
+            .assignee {
+                display: flex;
+                align-items: center;
+            }
+
+            /** BREAD CRUMBS **/
+            .breadcrumbs {
+                display: block;
+                color: var(--gray-darkend-color);
+                padding: 10px 10px 0 0;
+                font-weight: 100;
+            }
+
+            .crumb {
+                display: inline-block;
+                vertical-align: middle;
+                margin-left: 3px;
+            }
+
+            .crumb .title {
+                cursor: pointer;
+                display: inline-block;
+                vertical-align: middle;
+                font-size: 17px;
+            }
+
+            .crumb .title.selected {
+                border-radius: 40px;
+                background: var(--blue-color);
+                color: var(--white-color);
+                padding: 5px 14px;
+                max-width: 120px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            paper-dialog {
+                z-index: 2001;
+                background: var(--blue-darkest-color) !important;
+            }
+
+            paper-dialog .dialog-content {
+                color: var(--white-color);
+            }
+
+            paper-dialog .dialog-content .name {
+                text-align: center;
+                font-size: 22px;
+                font-family: "Open Sans";
+                font-weight:  700;
+                padding: 10px 0;
+                color: #fff;
+            }
+
+            paper-dialog .dialog-content .circle {
+                width: 75px;
+                height: 75px;
+                background: #fff;
+                border-radius: 50%;
+                display: block;
+                margin: 10px auto;
+            }
+
+            paper-dialog .dialog-content .circle .folder-wrapper {
+                height: 30px;
+                width: 50px;
+                padding: 24px 13px;
+            }
+
+            paper-dialog .dialog-content .circle .folder-wrapper .label {
+                height: 2px;
+                width: 18px;
+                background: #6EBAF9;
+            }
+
+            paper-dialog .dialog-content .circle .folder-wrapper .folder {
+                height: 28px;
+                width: 50px;
+                background: #8ECCFF;
+            }
+
+            paper-dialog .dialog-content .circle .ext {
+                color: #6EBAF9;
+                text-align: center;
+                font-size: 22px;
+                text-transform: uppercase;
+                padding: 29px 0;
+            }
+
+            paper-dialog .dialog-content .info {
+                padding: 10px;
+                text-align: center;
+            }
+
+            paper-dialog .dialog-content button {
+                margin-left: 20px;
+            }
+
+            paper-dialog .dialog-content button:first-child {
+                margin-left: 0px;
+            }
+
+            /** CONFIRMS **/
+            paper-dialog .content {
+                max-width: 320px;
+                margin: 0 !important;
+                color: var(--white-color);
+                padding: 20px;
+                font-size: 16px;
+                text-align: center;
+                background: #69b3f2;
+            }
+
+            paper-dialog .content button {
+                display: inline-block;
+                width: 150px;
+            }
+
+            /** DATE POPUP **/
+            #date-button {
+                position: relative;
+            }
+
+            #date-button:hover .date-popup {
+                display: block;
+                animation: appearance .3s forwards .3s;
+                transition: opacity .3s 1s
+            }
+
+            .date-popup {
+                z-index: 120;
+                opacity: 0;
+                display: none;
+                position: absolute;
+                padding: 20px;
+                background: var(--primary-color);
+                color: var(--white-color);
+                top: 70px;
+                width: 76px;
+                margin-left: -25px;
+                border-radius: 5px;
+                transition: opacity .2s
+            }
+
+            /** TRI **/
+            .triangle {
+                position: absolute;
+                left: 50%;
+                margin-left: -10px;
+                top: -10px;
+                width: 0;
+                height: 0;
+                border-style: solid;
+                border-width: 0 10px 10px 10px;
+                border-color: transparent transparent var(--primary-color) transparent;
+            }
+
+            .panel-mobile {
+                position: relative;
+            }
+
+            .mobile-panel-icon {
+                width: 64px;
+                height: 64px;
+                padding: 0;
+            }
+
+            .mobile-panel-icon {
+                --iron-icon-components-mixin: {
+                    stroke: #69b3f2;
+                    stroke-width: 6;
+                }
+            }
+
+            designmap-context-menu .menu {
+                margin: 0;
+                padding: 0;
+                list-style: none;
+                width: 200px;
+            }
+
+
+            designmap-context-menu .menu li {
+                padding: 10px;
+                text-align: center;
+                cursor: pointer;
+                font-size: 14px;
+                transition: background .2s ease-out;
+                color: #fff;
+            }
+
+            designmap-context-menu .menu li:hover {
+                background: var(--blue-darkest-color);
+                transition: background .2s ease-in;
+            }
+
+            designmap-context-menu .menu li.disabled {
+                opacity: 0.3;
+            }
+
+            #datePickerDialog paper-button {
+                color: var(--white-color);
+            }
+
+            /** SUB TASK **/
+            designmap-task-list {
+                display: block;
+                margin-top: 10px;
+                --designmap-task-list-add-task-wrapper-mixin: {
+                    padding: 0 66px;
+                };
+                --designmap-task-list-status-button-mixin: {
+                    margin-left: 0px;
+                };
+                --designmap-task-list-list-mixin: {
+                    padding-left: 12px;
+                };
+                --designmap-task-list-title-mixin: {
+                    margin-left: 6px;
+                };
+                --designmap-task-list-add-input-mixin: {
+                    margin-top: 0px;
+                    margin-left: 0px;
+                }
+            }
+            /** INPUTS **/
+
+            .pure-input {
+                font-family: var(--font-family);
+                font-weight: 100;
+                font-size: 34px;
+                color: var(--gray-darky-color);
+                border: none;
+                outline: none;
+                margin-top: 10px;
+                width: 100%;
+            }
+            .pure-textarea {
+                font-family: var(--font-family);
+                font-weight: 100;
+                font-size: 18px;
+                color: var(--gray-darky-color);
+                border: none;
+                outline: none;
+                margin-top: 10px;
+                width: 100%;
+                resize: none;
+                padding: 0;
+                height: 74px;
+            }
+            /** STATUSES **/
+            .details.completed .pure-input, .details.completed .pure-textarea{
+                color: var(--details-completed)
+            }
+            .details.expired .pure-input,.details.expired .pure-textarea {
+                color: var(--details-expired)
+            }
+
+            .details.incomplete .pure-input,.details.incomplete .pure-textarea {
+                color: var(--details-incomplete)
+            }
+
+            .details.in_progress .pure-input, .details.in_progress .pure-textarea {
+                color: var(--details-inprogress)
+            }
+
+            #datePickerDialog paper-button {
+                color: var(--white-color);
+            }
+
+            .paper-clip {
+                width: 40px;
+                height: 40px;
+            }
+
+            @keyframes appearance {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+
+        </style>
+        <plastic-custom-scroll fit max-height="[[maxHeight]]">
+            <div class$="details [[computeAssigneeStatus(task)]]" hidden$="{{!computeSelected(task)}}">
+                <div class="content hide-on-mobile">
+                    <div class="left">
+                        <designmap-assignee horizontal-offset="-165" vertical-offset="65"
+                                            class$="[[computeAssigneeStatus(task)]]"
+                                            disabled="[[!canUpdateTask(task)]]" task="[[task]]"
+                                            assignee="[[task.assignee]]" on-assign="selectAssignee"
+                                            on-remove="removeAssignee"></designmap-assignee>
+                    </div>
+                    <div class="center" id="center">
+                        <!-- TITLE -->
+                        <input id="title" is="iron-input"
+                                              on-blur="saveTitle"
+                                              class="pure-input"
+                                              placeholder="[[translate('Enter title',language,i18Loaded)]]"
+                                              value="[[task.name]]" />
+                        <!-- DESC -->
+                        <textarea id="desc" class="pure-textarea" max-rows="4"
+                                                 on-blur="saveDesc" value="[[task.description]]"
+                                                 placeholder="[[translate('Enter description',language,i18Loaded)]]"></textarea>
+                        <!-- FILES -->
+                        <div class="files" hidden$="[[!tasksFiles.length]]">
+                            <iron-icon class="paper-clip" icon="designmap:paper-clip"></iron-icon>
+                            <div class="wrapper">
+                                <template is="dom-repeat" items="[[tasksFiles]]" as="file">
+                                    <div class="file">
+                                        <a class="file-name" href="[[file.data.url]]" target="_blank">[[cutFileName(file)]]</a>
+                                        <div class="remove-file" on-click="openRemoveFileConfirm">
+                                            <iron-icon icon="designmap-task-manager:remove"></iron-icon>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                        <!-- BREADCRUMBS -->
+                        <div class="breadcrumbs" hidden$="[[!breadcrumbs.length]]">
+                            <!--<template is="dom-if" if="[[breadcrumbs.length]]">
+                              <div class="crumb"><</div>
+                            </template>-->
+                            <template is="dom-repeat" items="[[breadcrumbs]]" as="crumb">
+                                <div class="crumb" title="[[crumb.title]]">
+                                    <div class$="title [[calculateSelectedCrumb(breadcrumbs.length,index)]]"
+                                         on-click="goToParent">[[crumb.title]]
+                                    </div>
+                                    <iron-icon hidden$="[[hideLine(breadcrumbs.length,index)]]" class="arrow"
+                                               icon="designmap:arrow"></iron-icon>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <designmap-circle-button id="date-button" hidden$="[[!canUpdateTask(task)]]"
+                                                 on-click="openDatePicker">
+                            <iron-icon class="panel-icon" icon="designmap-task-manager:date"></iron-icon>
+                            <div class="date-popup">
+                                [[formatDate(date)]]
+                                <div class="triangle"></div>
+                            </div>
+                        </designmap-circle-button>
+                        <designmap-circle-button data-cls="blue"
+                                                 x-tooltip$="{{translate('Attach file',language,i18Loaded)}}"
+                                                 hidden$="[[!canUpdateTask(task)]]"
+                                                 on-click="openAddFileForm">
+                            <iron-icon class="panel-icon" icon="designmap-task-manager:attach_file"></iron-icon>
+                        </designmap-circle-button>
+                        <designmap-circle-button data-cls="blue"
+                                                 x-tooltip$="{{translate('Remove task',language,i18Loaded)}}"
+                                                 hidden$="[[!canUpdateTask(task)]]"
+                                                 on-click="openRemoveTaskConfirm">
+                            <iron-icon class="panel-icon remove" icon="designmap-task-manager:remove"></iron-icon>
+                        </designmap-circle-button>
+                    </div>
+                </div>
+                <!-- SUB TASKS -->
+                <div class="sub-tasks">
+                    <designmap-task-list id="list" placeholder="Add subtask" max-height="[[maxHeight]]"
+                                         max-height-offset="350" cannot-add="[[!canUpdateTask(task)]]"
+                                         parent="[[task._id]]"></designmap-task-list>
+                </div>
+            </div>
+            <!-- Date Picker -->
+            <paper-dialog id="datePickerDialog"
+                          entry-animation="scale-up-animation"
+                          exit-animation="scale-down-animation">
+                <designmap-date-picker id="datePicker" locale="[[language]]" min-date="April 1, 1990"
+                                   max-date="April 1, 2030" force-narrow id="picker"
+                                   date="{{date}}"></designmap-date-picker>
+                <div class="buttons">
+                    <paper-button dialog-dismiss><i18-n msgid="Cancel">Cancel</i18-n></paper-button>
+                    <paper-button dialog-confirm><i18-n msgid="Select" on-click="saveDate">Select</i18-n></paper-button>
+                </div>
+            </paper-dialog>
+            <!-- FILE UPLOADER -->
+            <designmap-file-uploader parent="task" animation-on="[[user.config.animationOn]]" _id="[[task._id]]"
+                                     files="[[task.files]]" id="uploader"></designmap-file-uploader>
+            <!-- Confirm -->
+            <designmap-confirm id="removeFileConfirm" animation-on="[[user.config.animationOn]]"
+                               message="AreYouSureThatYouWannaRemoveFile" on-continue="removeFile"
+                               on-suspend="suspendRemoving"></designmap-confirm>
+            <!-- Confirm -->
+            <designmap-confirm id="removeTaskConfirm" animation-on="[[user.config.animationOn]]"
+                               message="AreYouSureThatYouWannaRemoveTask" on-continue="removeTask"
+                               on-suspend="suspendRemoving"></designmap-confirm>
+        </plastic-custom-scroll>
+    </template>
+    <script>
+        var STATUSES = ['incomplete', 'in_progress', 'completed'];
+        Polymer({
+            is: 'designmap-task-details',
+            behaviors: [ReduxBehavior,
+                Polymer.IronResizableBehavior,
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapTaskService,
+                Polymer.DesignMapFsService,
+                Polymer.CombineActions(Polymer.TasksActions, Polymer.FilesActions)],
+            properties: {
+                /**
+                 * Task data
+                 */
+                task: {
+                    type: Object,
+                    value: null,
+                    observer: 'taskChanged'
+                },
+                /**
+                 * Date
+                 */
+                date: {
+                    type: Date,
+                    notify: true
+                },
+                /**
+                 * User language
+                 */
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
+                },
+                /**
+                 * i18Loaded
+                 */
+                i18Loaded: {
+                    type: Boolean,
+                    statePath: 'i18Loaded'
+                },
+                /**
+                 * All files of project bound
+                 * to current project
+                 */
+                files: {
+                    type: Array,
+                    statePath: 'files',
+                    observer: 'filesChanged'
+                },
+                /**
+                 * Files of current task
+                 */
+                tasksFiles: {
+                    type: Array,
+                    value: []
+                },
+                /**
+                 * Breadcrumbs
+                 */
+                breadcrumbs: {
+                    type: Array,
+                    value: []
+                },
+                /**
+                 * Designmap user
+                 */
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                /**
+                 * Role of current user
+                 */
+                role: {
+                    type: Object,
+                    statePath: 'role'
+                },
+                project: {
+                    type: Object,
+                    statePath: 'project'
+                },
+                wrapper: {
+                    type: Object,
+                    value: function () {
+                        return this.$.wrapper
+                    }
+                },
+                maxHeight: {
+                    type: Number
+                }
+            },
+            listeners: {
+                'iron-resize': 'onIronResize'
+            },
+            ready: function () {
+                this.notifier = document.querySelector('designmap-notifier');
+                this.manager = document.querySelector('designmap-task-manager');
+            },
+            attached: function () {
+                this.async(function () {
+                    this.onIronResize();
+                }, 3000);
+            },
+            /**
+             * When task was changed we have to
+             * change some additional data
+             * @param task - new task
+             */
+            taskChanged: function (task) {
+                this.tasksFiles = this.getTasksFiles();
+                if (this.$.datePicker && this.task && this.task.expired) this.date = new Date(this.task.expired);
+                this.set('breadcrumbs', []);
+                this.calculateBreadCrumbs();
+            },
+            /**
+             * Breadcrumbs will be calculated
+             * using parent path of all tasks before
+             * basic
+             */
+            calculateBreadCrumbs: function () {
+                if (!this.task) return;
+                var task = this.task;
+                while (task.parent) {
+                    task = this.findTaskById(task.parent);
+                    this.unshift('breadcrumbs', {id: task._id, title: task.name});
+                }
+                if (this.breadcrumbs.length) this.push('breadcrumbs', {id: this.task._id, title: this.task.name});
+            },
+            /**
+             * When project's files was changed -
+             * update tasks files
+             */
+            filesChanged: function () {
+                this.tasksFiles = this.getTasksFiles();
+            },
+            /**
+             * Save title
+             * @param e
+             */
+            saveTitle: function (e) {
+                if (!this.canUpdateTask(this.task)) {
+                    this.$.title.value = this.task.name;
+                    return this.showErrorMessage('You do not have access to make it');
+                }
+                if(!this.$.title.value) {
+                    this.$.title.value = this.task.name;
+                    return this.showErrorMessage('Task title should be not empty');
+                }
+                if (!this.validate(this.$.title.value)) {
+                    this.$.title.value = this.task.name;
+                    return this.showErrorMessage('Task title should be unique');
+                }
+                this.dispatch('$updateTask', this.task._id, {name: this.$.title.value})
+            },
+            /**
+             * Validate name of future task
+             * @returns {boolean}
+             */
+            validate: function (title) {
+                var found = null;
+                if (this.task.name == title) return true;
+                this.findTaskOneLevel(this.task.path).forEach(function (task) {
+                    if (task.name == title) found = task;
+                }.bind(this));
+                return !found;
+            },
+            /**
+             * Save description
+             * @param e
+             */
+            saveDesc: function (e) {
+                if (!this.canUpdateTask(this.task)) {
+                    this.$.desc.value = this.task.description;
+                    return this.showErrorMessage('You do not have access to make it');
+                }
+                this.dispatch('$updateTask', this.task._id, {description: this.$.desc.value});
+            },
+            /**
+             * Save date
+             * @param e
+             */
+            saveDate: function (e) {
+                this.dispatch('$updateTask', this.task._id, {expired: this.$.datePicker.dateFormat(this.date)});
+            },
+            /**
+             * Select new assignee to current task
+             * @param e
+             */
+            selectAssignee: function (e) {
+                if (!e.detail || !e.detail._id) return;
+                if (!this.canUpdateTask(e.detail.task)) return this.showErrorMessage('You do not have access to change status of this task.');
+                this.dispatch('$updateTask', this.task._id, {assignee: e.detail._id});
+                // Notify but do not do this if for itseld
+                if (e.detail._id == this.user._id) return;
+                this.sendNotification(e.detail.task, e.detail._id);
+            },
+            /**
+             * Send notification
+             */
+            sendNotification: function (task, assigneeID) {
+                var pth = this.getFullPath(task);
+                this.notifier = this.notifier || document.querySelector('designmap-app').$.notifier;
+                this.notifier.create({
+                    sender: this.user._id,
+                    recipient: assigneeID,
+                    type: 'new-assignee',
+                    text: {
+                        message: 'You was assigned to task', replacement: {"#TASK#": task.name},
+                        info: {
+                            xlink: this.getAppUrl() + this.project._id + '/task-manager' + pth,
+                            project: this.project.name
+                        }
+                    }
+                });
+            },
+            /**
+             * Remove assignee of curren task
+             * @param e
+             */
+            removeAssignee: function (e) {
+                if (!e.detail || !e.detail.task) return;
+                this.dispatch('$updateTask', e.detail.task._id, {assignee: null});
+            },
+            /**
+             * Remove task
+             * @param e
+             */
+            removeTask: function (e) {
+                var task = Object.assign({},this.task);
+                this.dispatch('$removeTask', this.task._id).then(function () {
+                    if (task.parent) return this.fire('select-task',this.findTaskById(task.parent));
+                    this.fire('reset');
+                }.bind(this));
+                if(this.$.removeTaskConfirm) this.$.removeTaskConfirm.close();
+                if(this.$.contextMenu) this.$.contextMenu.close();
+                if (task.parent) return this.fire('select-task',this.findTaskById(task.parent));
+                this.fire('reset');
+            },
+            /**
+             * Download file
+             * @param e
+             */
+            downloadFile: function (e) {
+                this.quickUpload(e.model.file.data.url);
+            },
+            /**
+             * Remove file
+             * @param e
+             */
+            removeFile: function () {
+                this.dispatch('removeFile', this.fileToRemove._id).then(function (response) {
+                    this.showMessage('File was removed successfuly.');
+                }.bind(this));
+                this.$.removeFileConfirm.close();
+            },
+            /**
+             * Change status of current task
+             */
+            /* changeStatus: function(){
+             if(this.isExpired(this.task.expired)) return;
+             var status = STATUSES[STATUSES.indexOf(this.task.status)+1] || STATUSES[0];
+             this.dispatch('updateTask', this.task._id,{status:status});
+             },*/
+            /**
+             * Redirect parent task
+             * @param e
+             */
+            goToParent: function (e) {
+                this.fire('select-task',this.findTaskById(e.model.crumb.id))
+            },
+            computeSelected: function (task) {
+                return !!(task && task._id);
+            },
+            /**
+             * Compute icon
+             * @param type - task status
+             * @param expired - task expired time
+             * @returns {*}
+             */
+            computeIcon: function (type, expired) {
+                var diff = moment.duration(moment(expired || moment()).diff(moment()));
+                if (diff._milliseconds < 0) return 'designmap-task-manager:expired';
+                return 'designmap-task-manager:' + type;
+            },
+            /**
+             * Checking of expired date
+             * @param expired - expired date
+             * @returns {boolean}
+             */
+            isExpired: function (expired, status) {
+                var diff = moment.duration(moment(expired).diff(moment()));
+                return diff._milliseconds < 0 && status != 'completed';
+            },
+            /**
+             * Open date picker
+             */
+            openDatePicker: function () {
+                this.$.datePickerDialog.open();
+                this.async(function () {
+                    this.$.datePicker.$.calendar._resizeHandler();
+                }, 0);
+            },
+            /**
+             * Attach file form
+             */
+            openAddFileForm: function () {
+                if (this.$.uploader) this.$.uploader.openForm()
+                if (this.$.contextMenu) this.$.contextMenu.close()
+            },
+            /**
+             * Files of current task
+             * @returns {*}
+             */
+            getTasksFiles: function () {
+                return this.files && this.task ? this.files.filter(function (file) {
+                        return file.task == this.task._id;
+                    }.bind(this)) : [];
+            },
+            hideLine: function (length, index) {
+                return (length - 1) == index;
+            },
+            calculateSelectedCrumb: function (length, index) {
+                return (length - 1) == index ? 'selected' : '';
+            },
+            focusInput: function () {
+                this.$.list.$$('#addTask').focus();
+            },
+            openRemoveFileConfirm: function (e) {
+                this.fileToRemove = e.model.file;
+                this.$.removeFileConfirm.toggle();
+            },
+            openRemoveTaskConfirm: function (e) {
+                this.$.removeTaskConfirm.toggle();
+            },
+            suspendRemoving: function () {
+                this.$.removeFileConfirm.close();
+                this.$.removeTaskConfirm.close();
+            },
+            openContextMenu: function (e) {
+                if (!this.canUpdateTask(this.task)) return;
+                this.$.contextMenu.toggle(e);
+            },
+            computeAssigneeStatus: function (task) {
+                return task ? this.isExpired(task.expired, task.status) ? 'expired' : task.status : '';
+            },
+            onIronResize: function () {
+                this.$.center.style.width = this.$.center.getBoundingClientRect().width - 250 + 'px';
+                this.async(function () {
+                    this.maxHeight = window.innerHeight;
+                });
+            }
+        })
+    </script>
+</dom-module>

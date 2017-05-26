@@ -1,0 +1,961 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../../plastic/plastic-custom-scroll.html?hash=26-05-2017-1">
+<link rel="import" href="./designmap-assignee.html?hash=26-05-2017-1">
+
+<link rel="import" href="./deaignmap-task-service.html?hash=26-05-2017-1">
+<!-- Redux -->
+<link rel="import" href="../../../redux/redux-store.html?hash=26-05-2017-1">
+<link rel="import" href="../../../redux/actions/combine-actions.html?hash=26-05-2017-1">
+<link rel="import" href="../../../redux/actions/files-actions.html?hash=26-05-2017-1">
+<link rel="import" href="../../../redux/actions/user-actions.html?hash=26-05-2017-1">
+<link rel="import" href="../../../redux/actions/tasks-actions.html?hash=26-05-2017-1">
+
+<dom-module id="designmap-task-list">
+    <template>
+        <style>
+            :host {
+                flex: 1;
+                position: relative;
+                padding-right: 4px;
+                background: var(--white-color);
+                --plastic-custom-scroll-bar-mixin: {
+                    margin-left: -8px;
+                };
+                --plastic-custom-scroll-bar-hover-mixin: {
+                    margin-left: -10px;
+                };
+
+                --designmap-circle-button-circle-mixin: {
+                    stroke-width: 1px !important;
+                    stroke: var(--gray-saturated-color) !important;
+                };
+
+                --filter-color: var(--gray-saturated-color);
+                --filter-all: var(--blue-darker-color);
+                --filter-incomplete: var(--incomplete);
+                --filter-inprogress: var(--inprogress);
+                --filter-completed: var(--completed);
+                --filter-expired: var(--expired);
+            }
+
+            :host(.notask) {
+                border-rigth: 1px solid #ccc;
+            }
+
+            *[hidden] {
+                display: none !important;
+            }
+
+            /** FILTER **/
+            .filters {
+                height: 42px;
+                width: 100%;
+                display: flex;
+                align-items: center;
+                font-family: var(--font-family);
+                font-weight: 300;
+                font-size: 15px;
+                color: var(--filter-color);
+            }
+
+            .filter-wrapper {
+                display: block;
+                padding-left: 20px;
+            }
+
+            .filters .filter {
+                margin-left: 10px;
+                height: 50px;
+                width: 100%;
+                display: flex;
+                align-items: center;
+                cursor: pointer;
+            }
+
+            .filters .filter iron-icon {
+                width: 20px;
+                height: 20px;
+            }
+
+            .filters .filter span {
+                line-height: 0px;
+                margin-left: 18px;
+            }
+
+            /** DROP DOWN **/
+            .filters #filterSelector {
+                --designmap-dropdown-mixin: {
+                    border: 1px solid var(--gray-lighty-color);
+                    box-shadow: 0px 4px 8px -1px rgba(0, 0, 0, 0.15);
+                    padding: 28px;
+                    max-width: 200px;
+                };
+                --designmap-dropdown-triangle-mixin: {
+                    left: 0px;
+                    margin-left: 19px;
+                };
+                --designmap-dropdown-triangle-border-mixin: {
+                    z-index: 9;
+                    margin-left: 17px;
+                    top: -12px;
+                };
+                --designmap-dropdown-triangle-border-color: var(--gray-lighty-color);
+                --designmap-dropdown-background: var(--white-color);
+                --designmap-dropdown-color: var(--filter-color);
+            }
+
+            #filterSelector .row iron-icon {
+                width: 20px;
+                height: 20px;
+            }
+
+            #filterSelector .row {
+                cursor: pointer;
+            }
+
+            #filterSelector .row span {
+                font-size: 15px;
+                margin-left: 18px;
+            }
+
+            /** NOT FOUND **/
+            .not-found-msg {
+                font-family: 'Open Sans';
+                font-weight: 300;
+                text-align: left;
+                margin: 10px 49px;
+                color: var(--filter-color);
+            }
+
+            /** LIST **/
+            .list {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                padding-left: 15px;
+                @apply(--designmap-task-list-list-mixin);
+            }
+
+            .list li {
+                height: 50px;
+                font-family: 'Open Sans';
+                font-weight: 300;
+                font-size: 20px;
+                color: var(--filter-color);
+                display: flex;
+                align-items: center;
+                transition: background .3s;
+            }
+
+            .list li:hover {
+                /*background: #f7f7f7;*/
+                cursor: pointer;
+                transition: background .3s;
+            }
+
+            .list li .title {
+                width: 100%;
+                height: 100%;
+                line-height: 50px;
+                flex-grow: 8;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                text-align: left;
+                @apply(--designmap-task-list-title-mixin);
+            }
+
+            .list li .status-button {
+                min-width: 50px;
+                min-height: 50px;
+                height: 50px;
+                @apply(--designmap-task-list-status-button-mixin);
+            }
+
+            .list li .status-button .status-icon {
+                padding: 15px 16px;
+            }
+
+            .status-icon {
+                --iron-icon-components-mixin: {
+                    stroke: var(--filter-color) !important;
+                };
+            }
+            .list li.selected .status-icon {
+                --iron-icon-components-mixin: {
+                    stroke: var(--white-color) !important;
+                };
+            }
+
+            .list li designmap-circle-button {
+                --designmap-circle-button-circle-mixin: {
+                    stroke-width: 1px !important;
+                    stroke: var(--filter-color) !important;
+                }
+            }
+
+            .list li.selected designmap-circle-button {
+                --designmap-circle-button-circle-mixin: {
+                    stroke-width: 1px !important;
+                    stroke: var(--white-color) !important;
+                };
+            }
+
+            .list li:nth-child(2n+1) {
+                transition: background .3s;
+            }
+
+            .list li:nth-child(2n+1):hover {
+                /*background: #e9e9e9;*/
+                transition: background .3s;
+            }
+
+            /** SELECTED **/
+            .list li.selected {
+                color: var(--white-color);
+            }
+
+            .list li.selected designmap-assignee, .list li.selected .expired_row {
+                display: none;
+            }
+
+            .list li.selected.in_progress {
+                background: var(--filter-inprogress);
+                transition: background .2s;
+            }
+
+            .list li.selected.incomplete {
+                background: var(--filter-incomplete);
+                transition: background .2s;
+            }
+
+            .list li.selected.completed {
+                background: var(--filter-completed);
+                transition: background .2s;
+            }
+
+            .list li.selected.expired {
+                background: var(--filter-expired);
+                transition: background .2s;
+            }
+
+            /** ASSIGNEE **/
+            li designmap-assignee {
+                min-width: 50px;
+                min-height: 50px;
+                height: 50px;
+                width: 50px;
+            }
+
+            li designmap-assignee {
+                --designmap-assignee-assigned-mixin: {
+                    background: #f4f4f4;
+                    color: var(--filter-color);
+                    margin: 0 auto !important;
+                    margin-top: 3px !important;
+                    width: 40px;
+                    height: 40px;
+                    line-height: 41px;
+                };
+
+            }
+
+            li designmap-assignee {
+                --designmap-circle-button-content-icon-mixin: {
+                    width: 55%;
+                    height: 55%;
+                    padding: 16% 19% !important;
+                }
+            }
+
+
+            /** SUBTASKS **/
+            li .subtask {
+                padding: 0 15px 0 5px;
+                position: relative;
+            }
+
+            li .subtask iron-icon {
+                width: 30px;
+                height: 30px;
+                margin-top: 4px;
+            }
+
+
+            .subtask-count {
+                position: absolute;
+                font-size: 12px;
+                top: 15px;
+                left: 21px;
+                color: var(--filter-color);
+            }
+
+            .list li.selected .subtask-count {
+                color: var(--white-color);
+            }
+            .list li.selected .subtask iron-icon {
+                --iron-icon-components-mixin: {
+                    stroke: var(--white-color) !important;
+                };
+            }
+
+            /** MESSAGE **/
+            .message {
+                text-align: center;
+                margin: 10px 0;
+            }
+
+            .expired_row {
+                font-size: 14px;
+                white-space: nowrap;
+                padding: 0 10px;
+                flex-grow: 1;
+            }
+
+            /** ADD TASK FIELD **/
+            .add-task {
+                width: 100%;
+                height: 35px;
+            }
+
+            .add-task-wrapper {
+                position: relative;
+                padding: 0 68px;
+                @apply(--designmap-task-list-add-task-wrapper-mixin);
+            }
+
+            /** INPUT **/
+            .add-task-wrapper > input {
+                font-family: var(--font-family);
+                font-weight: 100;
+                font-size: 22px;
+                color: var(--gray-darky-color);
+                border: none;
+                outline: none;
+                margin-top: 10px;
+                width: 100%;
+                @apply(--designmap-task-list-add-input-mixin);
+            }
+
+            /** LINE **/
+            .line {
+                position: absolute;
+                width: 4px;
+                top: 42px;
+                height: calc(100% - 42px);
+                left: 100%;
+                margin-left: -4px;
+                background: var(--white-color);
+            }
+
+            .line.in_progress, .sub-line.in_progress {
+                background: var(--filter-inprogress);
+                transition: background .2s;
+            }
+
+            .line.incomplete, .sub-line.incomplete {
+                background: var(--filter-incomplete);
+                transition: background .2s;
+            }
+
+            .line.completed, .sub-line.completed {
+                background: var(--filter-completed);
+                transition: background .2s;
+            }
+
+            .line.expired, .sub-line.expired {
+                background: var(--filter-expired);
+                transition: background .2s;
+            }
+
+            /** SUB-LINE **/
+            .sub-line {
+                width: 5px;
+                height: 100%;
+                background: var(--white-color);
+            }
+
+        </style>
+        <div class="filters" hidden$="[[computeFiltersState(filter,selectedFilter,tasks)]]">
+            <div class="filter-wrapper">
+                <div class$="current-filter filter [[selectedFilter.type]]" on-click="openFilterSelector">
+                    <iron-icon class="filter-icon" icon="[[computeIcon(selectedFilter.type)]]"></iron-icon>
+                    <span>[[computeMsg(selectedFilter.type)]]</span>
+                </div>
+                <!-- Dropdown -->
+                <designmap-dropdown id="filterSelector" tri-border vertical-offset="45" horizontal-offset="-20"
+                                    previous>
+                    <template is="dom-repeat" items="[[filters]]" as="filter">
+                        <div class$="row [[filter.type]]" on-click="selectFilter">
+                            <iron-icon class="filter-icon" icon="[[computeIcon(filter.type)]]"></iron-icon>
+                            <span><i18-n msgid="[[filter.text]]">[[filter.text]]</i18-n></span>
+                        </div>
+                    </template>
+                </designmap-dropdown>
+            </div>
+        </div>
+        <plastic-custom-scroll id="scroller" fit small-bar max-height="[[computeMaxHeight(maxHeight)]]">
+            <ul class="list">
+                <template is="dom-repeat" items="[[tasks]]" as="task" filter="[[taskFilter(selectedFilter)]]">
+                    <li class$="[[computeItemClass(task,selected)]]">
+                        <!--<div class="line" class$="[[computeSubLineClass(task)]]"></div>-->
+                        <designmap-circle-button class="status-button" on-click="changeStatus" data-cls="blue"
+                                                 x-tooltip$="{{translate('Change status',language)}}">
+                            <iron-icon class="status-icon" icon="[[computeIcon(task.status,task.expired)]]"></iron-icon>
+                        </designmap-circle-button>
+                        <div class="title" on-click="select">[[task.name]]</div>
+                        <div class="expired_row">[[computeTimeLeft(task.expired,language)]]</div>
+                        <designmap-assignee horizontal-offset="-170" vertical-offset="60" class="hide-on-mobile"
+                                            no-details disabled="[[!canUpdateTask(canUpdateTasktask)]]"
+                                            assignee="[[task.assignee]]" task="[[task]]" on-assign="selectAssignee"
+                                            on-remove="removeAssignee"></designmap-assignee>
+                        <div class="subtask" data-cls="blue" x-tooltip$="{{translate('Subtask count',language)}}"
+                             on-click="selectWithFocus">
+                            <iron-icon icon="designmap-taskmanager:subtask"></iron-icon>
+                            <div class="subtask-count">[[findSubtasksLength(task,tasks)]]</div>
+                        </div>
+                    </li>
+                </template>
+                <div class="not-found-msg" hidden$="[[checkTaskFilter(selectedFilter)]]">
+                    <i18-n msgid="There are no found elements">There are no found elements</i18-n>
+                </div>
+            </ul>
+        </plastic-custom-scroll>
+        <!-- <div hidden$="{{computeTasksMessage(tasks.length)}}" class="message">
+           <i18-n msg-id="Create new task">There are no tasks bound to this project. Create new using a field below.</i18-n>
+         </div>-->
+        <template is="dom-if" if="[[!cannotAdd]]">
+            <div class="add-task" hidden$="[[!onlyAll(selectedFilter)]]">
+                <div class="add-task-wrapper">
+                    <iron-a11y-keys id="a11yEditor" keys="enter" on-keys-pressed="addTask"></iron-a11y-keys>
+                    <iron-a11y-keys id="a11yEditor" keys="backspace" on-keys-pressed="removeLastTask"></iron-a11y-keys>
+                    <input is="iron-input" placeholder="[[translate(placeholder,language,i18Loaded)]]" on-blur="addTask"
+                           value="{{taskName::keyup}}" auto-validate pattern="[\w\dа-яА-ЯёЁ ]+"
+                           error-message="{{translate('TaskNameError',language,i18nLoaded)}}" id="addTask"/>
+                </div>
+            </div>
+        </template>
+        <div hidden$="[[!filter]]" class$="[[computeLineClass(selected)]]"></div>
+    </template>
+    <script>
+        var STATUSES = ['incomplete', 'in_progress', 'completed'];
+        Polymer({
+            is: 'designmap-task-list',
+            behaviors: [
+                ReduxBehavior,
+                Polymer.IronResizableBehavior,
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapTaskService,
+                Polymer.CombineActions(Polymer.TasksActions)
+            ],
+            properties: {
+                /**
+                 * Should filter be displayed?
+                 */
+                filter: {
+                    type: Boolean,
+                    value: false
+                },
+                /**
+                 * If user cannot add task\subtask
+                 * into list
+                 */
+                cannotAdd: {
+                    type: Boolean,
+                    value: false
+                },
+                /**
+                 * Is there necessity to highlight selected
+                 * element?
+                 */
+                selecting: {
+                    type: Boolean,
+                    value: false
+                },
+                /**
+                 * Parent of current task. (null for top level)
+                 */
+                parent: {
+                    type: String,
+                    observer: 'parentChanged',
+                    value: null
+                },
+                /**
+                 * Tasks list
+                 */
+                tasks: {
+                    type: Array,
+                    statePath: function (state) {
+                        return state.tasks.filter(function (task) {
+                            return task.parent == this.parent;
+                        }.bind(this));
+                    }
+                },
+                /**
+                 * Currently selected filter
+                 */
+                selectedFilter: {
+                    type: Object,
+                    value: {type: 'all', text: 'all'}
+                },
+                /**
+                 * Filter array to provide dinamic
+                 * filters.
+                 */
+                filters: {
+                    type: Array,
+                    value: [
+                        {type: 'all', text: 'all'},
+                        {type: 'incomplete', text: 'incomplete'},
+                        {type: 'completed', text: 'completed'},
+                        {type: 'in_progress', text: 'in progress'},
+                        {type: 'expired', text: 'expired'}
+                    ]
+                },
+                /**
+                 * Currently selected task
+                 */
+                selected: {
+                    type: String,
+                    notify: true,
+                    value: {},
+                    observer: '_selectedChanged'
+                },
+                /**
+                 * Designmap user
+                 */
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                /**
+                 * Designmap user language
+                 */
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
+                },
+                /**
+                 * i18nLoaded
+                 */
+                i18Loaded: {
+                    type: Boolean,
+                    statePath: 'i18Loaded'
+                },
+                /**
+                 * Role
+                 */
+                role: {
+                    type: Object,
+                    statePath: 'role'
+                },
+                /**
+                 * Max height to plastic-custom-scroll
+                 */
+                maxHeight: Number,
+                /**
+                 * Offset helping to understand
+                 * task list height
+                 */
+                maxHeightOffset: {
+                    type: Number,
+                    value: 270
+                },
+                projectId: {
+                    type: String,
+                    statePath: 'projectId'
+                },
+                /**
+                 * Project
+                 */
+                project: {
+                    type: Object,
+                    statePath: 'project'
+                },
+                /**
+                 * Current name of the task
+                 */
+                taskName: {
+                    type: String,
+                    value: ''
+                },
+                placeholder: {
+                    type: String,
+                    value: 'Add task'
+                }
+            },
+            listeners: {
+                'iron-resize': 'onIronResize'
+            },
+            ready: function () {
+                if (/Firefox/.test(window.navigator.userAgent)) this.classList.add('firefox');
+                this.changeTime = null;
+                this.timer = null;
+            },
+            attached: function(){
+              this.updateStyles();
+            },
+            /**
+             * Compute icon.
+             * @param type - status of task
+             * @param expired - is task expired?
+             * @returns {*}
+             */
+            computeIcon: function (type, expired) {
+                var diff = moment.duration(moment(expired || moment()).diff(moment()));
+                if (diff._milliseconds < 0 && type != 'completed') return 'designmap-task-manager:expired';
+                return 'designmap-task-manager:' + type;
+            },
+            computeMsg: function (msg) {
+                return this.translate(msg);
+            },
+            /**
+             * Validate name of future task
+             * @returns {boolean}
+             */
+            validate: function () {
+                var found = null;
+                this.tasks.forEach(function (task) {
+                    if (task.name == this.taskName) found = task;
+                }.bind(this));
+                return !found;
+            },
+            openFilterSelector: function () {
+                this.$.filterSelector.open();
+            },
+            /**
+             * Change selected task to affect
+             * on task-details component
+             * @param e
+             */
+            select: function (e) {
+                /*this.details.$.title.mode = 'read';
+                this.details.$.desc.mode = 'read';
+                this.manager.mode = 'details';*/
+
+                this.fire('select-task',e.model.task);
+            },
+            /**
+             * Change selected task to affect
+             * on task-details component
+             * @param e
+             */
+            selectWithFocus: function (e) {
+                this.fire('select-task',e.model.task);
+                this.async(function () {
+                    this.fire('focus-input');
+                });
+            },
+            /*   /!**
+             *
+             * @param length
+             * @returns {boolean}
+             *!/
+             computeTasksMessage: function(length){
+             return !!length;
+             },*/
+            /**
+             * Compute special class related of task status
+             * @param task - task
+             * @returns {string}
+             */
+            computeItemClass: function (task) {
+                var cls = this.isExpired(task.expired, task.status) ? 'expired' : task.status;
+                if (!this.selected) return '';
+                return this.selected._id == task._id || this.isChildOf(this.selected._id, task._id) ? 'item ' + (this.selecting ? ' selected ' : ' ') + cls : 'item ' + cls;
+            },
+            /**
+             * Change task status
+             * @param e
+             */
+            changeStatus: function (e) {
+                if (!this.canUpdateStatus(e.model.task)) return this.showErrorMessage('You do not have access to change status of this task.');
+                // Tricky timer manipulation
+                clearInterval(this.timer);
+                var status = STATUSES[STATUSES.indexOf(e.model.task.status) + 1] || STATUSES[0];
+                this.dispatch('_updateTask', e.model.task._id, {status: status});
+                // Wait
+                this.timer = setTimeout(function () {
+                    this.dispatch('$updateTask', e.model.task._id, {status: status});
+                    // Notify
+                    this.sendTaskStatusNotification(e.model.task);
+                }.bind(this), 1000);
+            },
+            /**
+             * Compute class of the line which placed
+             * at right. It will depends on task status.
+             * @param selected - selected task
+             * @returns {string}
+             */
+            computeLineClass: function (selected) {
+                var root = this.findRoot(selected);
+                if (!root) return '';
+                var cls = this.isExpired(root.expired, root.status) ? 'expired' : root.status;
+                return 'line hide-on-mobile ' + (cls || '');
+            },
+            /**
+             * Compute class of the line which placed
+             * at right. It will depends on task status.
+             * @param selected - selected task
+             * @returns {string}
+             */
+            computeSubLineClass: function (selected) {
+                var cls = this.isExpired(selected.expired, selected.status) ? 'expired' : selected.status;
+                return 'sub-line ' + (cls || '');
+            },
+            /**
+             * Compute time left, and if time is gone we
+             * have to set expired status.
+             * @param expired - expired time ;
+             * @returns {*}
+             */
+            computeTimeLeft: function (expired) {
+                var diff = moment.duration(moment(expired).diff(moment()));
+                if (diff._milliseconds < 0) return this.translate('expired');
+                return (diff.asDays() > 1 ? (Math.round(diff.asDays()) + ' ' + this.translate('days')) : Math.round(diff.asHours()) + ' ' + this.translate('hours')) + ' ' + this.translate('left');
+            },
+            /**
+             *
+             * @param expired
+             * @returns {boolean}
+             */
+            isExpired: function (expired, status) {
+                var diff = moment.duration(moment(expired).diff(moment()));
+                return diff._milliseconds < 0 && status != 'completed';
+            },
+            /**
+             * Open date picker
+             * @param e
+             */
+            openDatePicker: function (e) {
+                this.selected = e.model.task;
+                this.async(function () {
+                    document.querySelector('designmap-task-details').openDatePicker();
+                })
+            },
+            /**
+             * Compute max height for x-custom scroll.
+             * It should be changed dinamically.
+             * @param maxHeight
+             * @returns {number}
+             */
+            computeMaxHeight: function (maxHeight) {
+                return maxHeight - this.maxHeightOffset;
+            },
+            /**
+             * Filter state
+             * @param filter
+             * @returns {boolean}
+             */
+            computeFiltersState: function (filter) {
+                return this.tasks && this.tasks.length && !filter;
+            },
+            /**
+             * When parent changed we have to
+             * change sub tasks.
+             */
+            parentChanged: function () {
+                if (!this.parent) return;
+                this.tasks = ReduxStore.getState().tasks.filter(function (task) {
+                    return task.parent == this.parent;
+                }.bind(this));
+            },
+            /**
+             * Compute filter classes
+             * @param filter
+             * @param selectedFilter
+             * @returns {string}
+             */
+            computeFilterClass: function (filter, selectedFilter) {
+                return filter.type + ' filter ' + (filter.type == selectedFilter ? 'selected' : '');
+            },
+            /**
+             * Add task new task using field
+             * placed at bottom of list.
+             * @returns {*}
+             */
+            addTask: function () {
+                // Validate
+                this.$$('#addTask').validate();
+                if (!this.taskName) return;
+                if (!this.validate()) return this.showErrorMessage('Task title should be unique.');
+                // Check roles
+                var task = {
+                    _id: this.generateUid(),
+                    created: new Date(),
+                    path: this.parent ? this.getPath(this.parent) : null,
+                    name: this.taskName,
+                    parent: this.parent,
+                    owner: this.user._id,
+                    status: 'incomplete',
+                    expired: moment().day(10)
+                };
+                // Notify
+                this.sendNewTaskNotification(task);
+                // Create task
+                this.dispatch('$addTask', task).then(function (response) {
+                    this.showUndoMessage('Task was added successfully.');
+                    this.$.scroller.calculate();
+                    this.$$('#addTask').focus();
+                    //this.fire('select-task',response.task);
+                }.bind(this)).catch(this.manageErrorResponse.bind(this));
+                this.taskName = '';
+            },
+            /**
+             * Select filter
+             */
+            selectFilter: function (e) {
+                this.selectedFilter = e.model.filter;
+                this.$.filterSelector.close();
+            },
+            /**
+             * Task filter
+             */
+            taskFilter: function (selectedFilter) {
+                return function (task) {
+                    if (selectedFilter.type == 'all') return true;
+                    if (selectedFilter.type == 'expired') return this.isExpired(task.expired, task.status);
+                    return selectedFilter.type == task.status;
+                }.bind(this)
+            },
+            /**
+             * Task filter to define message displaying
+             */
+            checkTaskFilter: function (selectedFilter) {
+                if (!this.filter) return true;
+                return this.tasks ? !!this.tasks.filter(function (task) {
+                        if (selectedFilter.type == 'all') return true;
+                        if (selectedFilter.type == 'expired') return this.isExpired(task.expired, task.status);
+                        return selectedFilter.type == task.status;
+                    }.bind(this)).length : false;
+            },
+            /**
+             * Tasks sort
+             */
+            taskSort: function () {
+                return function (a, b) {
+                    return 1;
+                }
+            },
+            /**
+             * Select new assignee to current task
+             * @param e
+             */
+            selectAssignee: function (e) {
+                if (!e.detail || !e.detail._id) return;
+                this.task = e.detail.task;
+                this.dispatch('$updateTask', e.detail.task._id, {assignee: e.detail._id});
+                // Notify but do not do this if for itseld
+                if (e.detail._id == this.user._id) return;
+                this.sendTaskAssigneeNotification(e.detail.task, e.detail._id);
+            },
+            /**
+             * Send notification
+             */
+            sendTaskAssigneeNotification: function (task, assigneeID) {
+                var pth = this.getFullPath(task);
+                this.notifier = this.notifier || document.querySelector('designmap-app').$.notifier;
+                this.notifier.create({
+                    sender: this.user._id,
+                    recipient: assigneeID,
+                    type: 'new-assignee',
+                    text: {
+                        message: 'You was assigned to task', replacement: {"#TASK#": task.name}, info: {
+                            link: this.getAppUrl() + this.project._id + '/task-manager' + pth,
+                            project: this.project.data.name
+                        }
+                    }
+                });
+            },
+            /**
+             * Send notification for status
+             * changing
+             */
+            sendTaskStatusNotification: function (task) {
+                if (!task.assignee) return;
+                if (this.user._id != task.assignee._id) return;
+                if (this.user._id == this.project.owner) return;
+                var pth = this.getFullPath(task);
+                this.notifier = this.notifier || document.querySelector('designmap-app').$.notifier;
+                this.notifier.create({
+                    sender: task.assignee._id,
+                    recipient: this.project.owner,
+                    type: 'new-status',
+                    text: {
+                        message: 'Status of task was changed on',
+                        replacement: {"#NAME#": task.name, '#STATUS#': this.translate(task.status)},
+                        info: {
+                            xlink: this.getAppUrl() + this.project._id + '/task-manager' + pth,
+                            project: this.project.name
+                        }
+                    }
+                });
+            },
+            /**
+             * Send new task notification
+             */
+            sendNewTaskNotification: function (task) {
+                var pth = (task.path ? task.path : Designmap.config.separator) + task.name;
+                if (this.project.owner == this.user._id) return;
+                this.notifier = this.notifier || document.querySelector('designmap-app').$.notifier;
+                this.notifier.create({
+                    sender: this.user._id,
+                    recipient: this.project.owner,
+                    type: 'new-task',
+                    text: {
+                        message: 'New task was added to project',
+                        replacement: {"#PROJECT#": this.project.name, "#NAME#": task.name},
+                        info: {
+                            xlink: this.getAppUrl() + this.project._id + '/task-manager' + pth
+                        }
+                    }
+                });
+            },
+            /**
+             * Remove assigne of curren task
+             * @param e
+             */
+            removeAssignee: function (e) {
+                if (!e.detail || !e.detail.task) return;
+                this.dispatch('$updateTask', e.detail.task._id, {assignee: null});
+            },
+            /**
+             * Change max height
+             */
+            onIronResize: function () {
+                this.maxHeight = window.innerHeight;
+            },
+            /**
+             * Remove task using backspace
+             */
+            removeLastTask: function () {
+                var tasks = this.tasks.filter(this.taskFilter(this.selectedFilter));
+                var task = tasks[tasks.length - 1];
+                if (!this.canUpdateTask(task)) return this.showErrorMessage('You do not have access to make it');
+                if (!task || this.taskName.length) return;
+                this.dispatch('$removeTask', task._id).then(function () {
+                    if (task.parent) return this.fire('select-task',this.findTaskById(task.parent));
+                    this.fire('reset');
+                }.bind(this));
+                if (task.parent) return this.fire('select-task',this.findTaskById(task.parent));
+                this.fire('reset');
+            },
+            /**
+             * Show input only if we have all filter!
+             * @param selectedFilter
+             * @returns {boolean}
+             */
+            onlyAll: function (selectedFilter) {
+                return selectedFilter.type == 'all';
+            },
+            resetFilter: function(){
+                var filter = this.selectedFilter;
+                this.selectedFilter = 'xxx';
+                this.selectedFilter = filter;
+            },
+            _selectedChanged: function(){
+                this.updateStyles();
+            }
+        })
+    </script>
+</dom-module>

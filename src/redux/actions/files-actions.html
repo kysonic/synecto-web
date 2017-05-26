@@ -12,6 +12,7 @@
                     promise.then(function(response){
                         if(!response.success) return;
                         dispatch({type:'ADD_FILE',data:response.file});
+                        dispatch({type:'SET_PROJECT_USERS',users:response.users});
                         if(this.user) {this.set('user.fileRole',response.role)}
                     }.bind(this));
                     return promise;

@@ -1406,10 +1406,25 @@
   "Preview is not available": {
     "message": "Preview is not available"
   },
+  "protocol": {
+    "message": "Protocol"
+  },
+  "You cannot notify yourself": {
+    "message": "You cannot notify yourself"
+  },
+  "": {
+    "message": ""
+  },
   "Protocol": {
     "message": "Protocol"
   },
   "Add users in project": {
     "message": "Select users who will be able to manage your project: <i>Create folders, upload files, comment images, etc. </i>. "
+  },
+  "Cut": {
+    "message": "Cut"
+  },
+  "Paste": {
+    "message": "Paste"
   }
 }

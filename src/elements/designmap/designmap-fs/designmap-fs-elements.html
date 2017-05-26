@@ -124,10 +124,9 @@
                                               id="element-[[index]]"
                                               type$="[[item.type]]"
                                               index="[[index]]"
+                                              class$="[[_computeElementClass(item.cutted)]]"
                                               trash-mode="[[trashMode]]"
-                                              current-element="{{currentElement}}"
                                               data-element-id$="[[item._id]]"
-                                              current-folder-id="{{currentFolderId}}"
                                               on-dblclick="applyAction"></designmap-fs-element>
                     </template>
                 </plastic-custom-scroll>
@@ -211,6 +210,9 @@
                             <i18-n msgid="Restore">Restore</i18-n>
                         </li>
                     </template>
+                    <li on-click="cutElement">
+                        <i18-n msgid="Cut">Cut</i18-n>
+                    </li>
                     <li on-click="openInformation">
                         <i18-n msgid="Information">Information</i18-n>
                     </li>
@@ -324,6 +326,10 @@
                     type: Array,
                     value: []
                 },
+                cutted: {
+                    type: Object,
+                    value: null
+                },
                 /**
                  * Trash mode
                  */
@@ -410,7 +416,6 @@
                 const files = state.files.filter(function (file) {
                     return this.trashMode ? file.removed : String(file.folder) == String(parent) && !file.removed && !(state.user && (state.user._id !== file.owner && file.locked));
                 }.bind(this));
-
                 return folders.concat(files);
             },
 
@@ -672,6 +677,20 @@
             download: function(e){
                 this.$$('#contextMenu').close();
                 window.open(this.currentElement.data.url.replace("#SERVER#", Designmap.config.apiURL));
+            },
+            /**
+             * Cut/Paste
+             */
+            cutElement: function(){
+                this.fire('set-cutted',this.currentElement);
+                const element = Object.assign({},this.currentElement);
+                element.cutted = true;
+                const searchCriteria = this.currentElement.type==='file'?this.currentElement._id:this.getFullPath(this.currentElement);
+                this.dispatch('_update'+this.capitalizeFirstLetter(this.currentElement.type),searchCriteria,element);
+                this.$$('#contextMenu').close();
+            },
+            _computeElementClass: function(cutted) {
+                return cutted?'cutted':'';
             }
         });
     </script>

@@ -1,15 +1,15 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="/bower_components/iron-resizable/iron-resizable-behavior.html">
-<link rel="import" href="../designmap-buttons/designmap-button.html">
-<link rel="import" href="../../plastic/plastic-custom-scroll.html">
-<link rel="import" href="./designmap-comment-service.html">
-<link rel="import" href="../designmap-login/designmap-login-form.html">
-<link rel="import" href="../../../behaviors/designmap-socket-behavior.html">
+<link rel="import" href="../designmap-buttons/designmap-button.html?hash=26-05-2017-1">
+<link rel="import" href="../../plastic/plastic-custom-scroll.html?hash=26-05-2017-1">
+<link rel="import" href="./designmap-comment-service.html?hash=26-05-2017-1">
+<link rel="import" href="../designmap-login/designmap-login-form.html?hash=26-05-2017-1">
+<link rel="import" href="../../../behaviors/designmap-socket-behavior.html?hash=26-05-2017-1">
 <!-- Redux -->
-<link rel="import" href="../../../redux/actions/stickers-actions.html">
-<link rel="import" href="../../../redux/actions/comments-action.html">
-<link rel="import" href="../../../redux/actions/user-actions.html">
+<link rel="import" href="../../../redux/actions/stickers-actions.html?hash=26-05-2017-1">
+<link rel="import" href="../../../redux/actions/comments-action.html?hash=26-05-2017-1">
+<link rel="import" href="../../../redux/actions/user-actions.html?hash=26-05-2017-1">
 
 <dom-module id="designmap-stickers">
     <template>
@@ -65,7 +65,10 @@
                     margin-left: -10px;
                     margin-top: -2px;
                     border-color: transparent transparent var(--gray-color) transparent;
-                }
+                };
+                --designmap-users-select-dropdown-mixin: {
+                    color: var(--gray-darkend-color) !important;
+                };
             }
 
             *[hidden] {
@@ -142,6 +145,7 @@
                 resize: none;
                 font-size: 14px !important;
                 width: calc(100% - 20px);
+                height: 50px;
                 max-height: 60px;
                 padding: 5px 10px;
                 color: var(--gray-super-dark);
@@ -182,7 +186,7 @@
             /** COMMENT **/
             .comment {
                 text-align: left;
-                padding: 8px 10px;
+                padding: 7px 10px;
                 color: var(--gray-super-dark);
                 border-bottom: 1px solid var(--gray-color);
                 cursor: default;
@@ -244,8 +248,8 @@
                 border: none;
                 resize: none;
                 font-size: 14px !important;
-                width: calc(100% - 40px);
-                max-height: 60px;
+                width: 100%;
+                max-height: 250px;
                 color: var(--gray-super-dark);
                 outline: none;
             }
@@ -253,7 +257,7 @@
             .ta .edit-comment {
                 position: absolute;
                 z-index: 1008;
-                top: 40px;
+                top: 60px;
                 left: -10px;
                 cursor: pointer;
                 width: calc(100% + 20px) !important;
@@ -322,6 +326,25 @@
                 display: none !important;
             }
 
+            .textarea-wrapper {
+                position: relative;
+            }
+
+            /** INVOCATION **/
+            .invocation {
+                display: none;
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 9999;
+                width: 230px;
+                color: var(--gray-darkend-color);
+            }
+
+            designmap-users-select {
+                height: 0;
+            }
+
         </style>
         <div class="marker" id="marker" >
             <i18-n msgid="Click to add a comment">Click to add a comment</i18-n>
@@ -349,7 +372,7 @@
                                                 [[comment.text]]
                                             </div>
                                             <div class="ta" hidden$="[[!comment.edit]]">
-                                            <textarea class="textarea" on-blur="_saveComment"
+                                            <textarea class="textarea"
                                                       value="{{comment.text}}"></textarea>
                                                 <button class="edit-comment" on-click="_saveComment">
                                                     <i18-n msgid="Edit a comment">Edit a comment</i18-n>
@@ -374,14 +397,19 @@
                                 </plastic-custom-scroll>
                             </div>
                             <iron-a11y-keys id="a11ySave" target="[[getTarget(sticker._id)]]" keys="ctrl+enter" on-keys-pressed="_postComment"></iron-a11y-keys>
-                            <textarea value="{{textAreaValue::input}}" on-keypress="_invocation" on-mousewheel="_textAreaMouseWheel" on-blur="_checkSticker" class="add-comment"
-                                      placeholder="[[translate('Write a comment',language,i18Loaded)]]"></textarea>
+                            <div class="textarea-wrapper">
+                                <textarea value="{{textAreaValue::input}}" on-keyup="_invocation" on-mousewheel="_textAreaMouseWheel" on-blur="_checkSticker" class="add-comment"
+                                          placeholder="[[translate('Write a comment',language,i18Loaded)]]"></textarea>
+                            </div>
                             <button class="post-comment-buttton" on-click="_postComment" hidden$="[[!textAreaValue]]">
                                 <i18-n msgid="Post a comment">Post a comment</i18-n>
                             </button>
                         </div>
                     </div>
                 </template>
+                <div id="invocationDropDown" class="invocation">
+                    <designmap-users-select id="select" on-close="_closeInvocationDropDown" on-selected="userSelect" dishonred options="[[projectUsers]]" search="{{search}}" limit="5"></designmap-users-select>
+                </div>
             </div>
             <!-- Dropdown-->
             <designmap-dropdown id="dropdown" class="bound" vertical-offset="30" horizontal-offset="-40" previous
@@ -407,7 +435,6 @@
             <div class="login-form-wrapper" hidden$="[[!stickerEvent]]">
                 <designmap-login-form fake-support></designmap-login-form>
             </div>
-
         </div>
         <!-- Hint -->
         <designmap-hint id="addCommentHint"
@@ -426,6 +453,9 @@
         </designmap-hint>
     </template>
     <script>
+        const INVOCATION_REGEXP = /(^@([\w\S]*)$| @([\w\S]*)$|\n@([\w\S]*)$)/;
+        const SYMBOL_REGEXP = /[ ]*/;
+        let tempSearch = '';
         Polymer({
             is: 'designmap-stickers',
             behaviors: [
@@ -517,6 +547,14 @@
                 hintTarget: {
                     type: Object,
                     value: null
+                },
+                projectUsers: {
+                    type: Array,
+                    statePath: 'projectUsers'
+                },
+                search: {
+                    type: String,
+                    value: ''
                 }
             },
             ready: function(){
@@ -599,7 +637,11 @@
                     if (except && except._id === sticker._id) return;
                     sticker.opened = false;
                     this.textAreaValue = '';
-                    this.dispatch('_updateSticker', sticker._id, sticker)
+                    this.dispatch('_updateSticker', sticker._id, sticker);
+                    let comment = this.lastCommentData && this.lastCommentData.comment;
+                    if(!comment) return;
+                    comment.edit = false;
+                    this.dispatch('_updateComment', comment._id, comment);
                 }.bind(this));
                 this.isThereOpened = false;
             },
@@ -630,7 +672,7 @@
                 return index + 1;
             },
             _canUserManageSticker(sticker){
-                return sticker.owner._id === this.user._id || this.file.owner === this.user._id;
+                return sticker.owner._id === this.user._id;
             },
             /**
              * Mouse down handler
@@ -739,7 +781,7 @@
             },
 
             _fileChanged: function (file) {
-                this.setupSocket(file._id, 'file');
+                this.setupSocket(file.project, 'project');
             },
 
             _followCursor: function(e){
@@ -768,11 +810,35 @@
 
             /**
              * Will implement invocation of user via
-             * @name/email/etc.. To add
+             * @name/email/etc.. To add notification
              * @private
              */
-            _invocation: function(){
+            _invocation: function(e){
+                if(!INVOCATION_REGEXP.test(this.textAreaValue)) {
+                    this.$.invocationDropDown.style.display = 'none';
+                    return this.$.select.$.dropdown.close();
+                }
+                const matches = this.textAreaValue.match(INVOCATION_REGEXP);
+                tempSearch = matches[1];
+                this.search = matches[2] || matches[3] || matches[4] || "";
+                e.target.parentNode.appendChild(this.$.invocationDropDown);
+                const cords = window.getCaretCoordinates(e.target,e.target.selectionEnd);
+                this.$.invocationDropDown.style.display = 'block';
+                this.$.invocationDropDown.style.left = cords.left + 'px';
+                this.$.invocationDropDown.style.top = cords.top - (e.target.scrollHeight-15) + 'px';
+                this.$.select.openDropdown();
+            },
 
+            _closeInvocationDropDown: function(){
+                this.$.invocationDropDown.style.display = 'none';
+            },
+
+            userSelect: function(e){
+                this.$.select.$.dropdown.close();
+                if(this.user.local.email==e.detail.local.email) return this.showErrorMessage('You cannot notify yourself');
+                const emails = this.textAreaValue.match(new RegExp('\\+'+e.detail.local.email));
+                if(emails && emails.length) return;
+                this.textAreaValue = this.textAreaValue.replace(new RegExp(tempSearch.replace(SYMBOL_REGEXP,'')+"$",'i'),"+"+e.detail.local.email+" ");
             }
         })
     </script>

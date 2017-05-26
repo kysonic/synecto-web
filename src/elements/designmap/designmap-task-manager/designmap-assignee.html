@@ -1,0 +1,345 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../redux/redux-store.html?hash=26-05-2017-1">
+<link rel="import" href="../../../redux/actions/combine-actions.html?hash=26-05-2017-1">
+<link rel="import" href="../../../redux/actions/user-actions.html?hash=26-05-2017-1">
+
+<dom-module is="designmap-assignee">
+    <template>
+        <style>
+            :host {
+                display: block;
+                width: 60px;
+                height: 60px;
+                color: var(--gray-darkend-color);
+                --dsignmap-user-select-option-mixin: {
+                    font-size: 14px;
+                    text-align: center;
+                };
+                --designmap-circle-button-circle-mixin: {
+                    stroke-width: 1px !important;
+                    stroke: var(--gray-darkend-color) !important;
+                };
+                --dsignmap-user-select-option-keyed-mixin: {
+                    background: var(--blue-super-dark-color);
+                };
+                --designmap-users-select-arrow-mixin: {
+                    top: 22px;
+                }
+            }
+
+            *[hidden] {
+                display: none !important;
+            }
+
+
+            paper-dialog {
+                overflow: visible !important;
+            }
+
+            /** IRON-DROPDOWN **/
+            designmap-users-select {
+                --iron-icon-stroke-color: var(--white-color);
+                --iron-icon-fill-color: var(--white-color);
+                --paper-input-container: {
+                    color: var(--white-color);
+                    padding: 0;
+                };
+                --designmap-users-select-close-mixin: {
+                    top: 24px;
+                }
+            }
+            /** DROPDOWN **/
+
+            .dropdown-content {
+                width: 280px;
+                position: relative;
+                background: var(--blue-darkest-color);
+                max-width: 280px;
+                padding: 20px;
+                color: var(--gray-color) !important;
+                overflow: visible !important;
+                @apply(--dsignmap-user-select-dropdown-content-mixin);
+            }
+
+            .dropdown-content .row {
+                width: 100%;
+                height: 26px;
+                margin-top: 30px;
+                font-family: 'Open Sans';
+                font-weight: 300;
+                font-size: 18px;
+            }
+
+            .dropdown-content .row:first-child {
+                margin-top: 0px;
+            }
+
+            .dropdown-content .row iron-icon {
+                display: inline-block;
+                vertical-align: top;
+            }
+
+            .dropdown-content .row .text {
+                display: inline-block;
+                margin-left: 10px;
+                line-height: 26px;
+                vertical-align: top;
+                cursor: pointer;
+            }
+
+            .dropdown-content .row .text:hover {
+                text-decoration: underline;
+            }
+
+            .dropdown-content .row designmap-language-switcher {
+                display: inline-block;
+            }
+
+            /** TRI **/
+            .triangle {
+                position: absolute;
+                left: 50%;
+                margin-left: 45px;
+                top: -10px;
+                width: 0;
+                height: 0;
+                border-style: solid;
+                border-width: 0 10px 10px 10px;
+                border-color: transparent transparent var(--blue-darkest-color) transparent;
+            }
+
+            /** ASSIGNED **/
+            .assignee {
+                position: relative;
+                overflow: hidden;
+                width: 54px;
+                height: 54px;
+                border-radius: 50%;
+                color: var(--white-color);
+                background: var(--blue-color);
+                font-family: 'Open Sans';
+                font-weight: 300;
+                font-size: 20px;
+                text-transform: uppercase;
+                text-align: center;
+                line-height: 46px;
+                cursor: pointer;
+                @apply(--designmap-assignee-assigned-mixin);
+            }
+
+            :host(.completed) .assignee {
+                background: var(--completed);
+            }
+            :host(.incomplete) .assignee {
+                background: var(--incomplete);
+            }
+            :host(.in_progress) .assignee {
+                background: var(--inprogress);
+            }
+            :host(.expired) .assignee {
+                background: var(--expired);
+            }
+
+            .assignee img {
+                width: 100%;
+                height: 100%;
+                max-width: 100%;
+            }
+
+            .assignee:hover .details {
+                display: block;
+                animation: appearance .3s forwards 1s;
+                transition: opacity .3s 1s;
+            }
+
+            /** DETAILS **/
+            .details {
+                padding: 10px;
+                opacity: 0;
+                display: none;
+                position: absolute;
+                top: 60px;
+                left: 0;
+                width: 200px;
+                height: 150px;
+                background: var(--blue-color);
+                z-index: 9999;
+                border-radius: 3px;
+            }
+
+            .details .avatar {
+                height: 100px;
+                width: 100%;
+            }
+
+            .details .name {
+                line-height: 40px;
+                text-align: center;
+                color: var(--white-color)
+            }
+
+            designmap-circle-button {
+                width: 100%;
+                height: 100%;
+                --designmap-circle-button-circle-mixin: {
+                    stroke-width: 1px;
+                    stroke: var( --gray-saturated-color) !important;
+                };
+                --designmap-circle-button-content-icon-mixin: {
+                    width: 55%;
+                    height: 55%;
+                    padding: 21% 19%;
+                }
+            }
+
+            @keyframes appearance {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+
+            @media only screen and (min-width: 300px) and (max-width: 768px) {
+                .hide-on-mobile {
+                    display: none !important;
+                }
+            }
+
+        </style>
+        <designmap-circle-button data-cls="blue" x-tooltip$="{{translate('Assign responsible',language,i18Loaded)}}"
+                                 on-click="openDialog" hidden$="[[computeAssignee(assignee)]]">
+            <iron-icon id="icon" icon="designmap-task-manager:assignee"></iron-icon>
+        </designmap-circle-button>
+        <div class="assignee" on-click="openDialog" hidden$="[[!assignee]]">
+            <template is="dom-if" if="[[assignee.profile.avatar]]">
+                <img src="[[computeAvatarPath(assignee.profile.avatar)]]" title="[[assignee.local.email]]">
+            </template>
+            <template is="dom-if" if="[[!assignee.profile.avatar]]">
+                <div class="text"> [[computeName(assignee)]]</div>
+            </template>
+            <!--<div class="details" hidden$="[[noDetails]]">
+              <div class="avatar"></div>
+              <div class="name">[[computeOwnerName(assignee)]]</div>
+            </div>-->
+        </div>
+        <iron-dropdown id="dropdown"
+                       hotizontal-align="center"
+                       position-target="[[target]]"
+                       horizontal-offset="[[horizontalOffset]]"
+                       vertical-offset="[[verticalOffset]]"
+                       open-animation-config="[[slideTopOpenAnimation]]"
+                       close-animation-config="[[slideTopCloseAnimation]]">
+            <div class="dropdown-content">
+                <designmap-users-select id="select" on-remove="removeAssignee" select-on-focus remover
+                                        label="[[translate('Assignee',language,i18Loaded)]]" options="[[shareUsers]]"
+                                        on-selected="select" search="{{search}}" limit="5"
+                                        label="[[label]]"></designmap-users-select>
+                <div class="triangle hide-on-mobile"></div>
+            </div>
+        </iron-dropdown>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-assignee',
+            behaviors: [
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignmapAnimationSet,
+                Polymer.NeonAnimatableBehavior,
+                Polymer.NeonAnimationRunnerBehavior,
+                ReduxBehavior,
+                Polymer.CombineActions(Polymer.UserActions)
+            ],
+            properties: {
+                assignee: {
+                    type: Object,
+                    value: null,
+                    observer: 'assigneeChanged'
+                },
+                project: {
+                    type: Object,
+                    statePath: 'project'
+                },
+                task: {
+                    type: Object,
+                    value: null
+                },
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                shareUsers: {
+                    type: Array,
+                    computed: "_computeUsers(project.users,project.ownerData)"
+                },
+                verticalOffset: {
+                    type: Number,
+                    value: 72
+                },
+                horizontalOffset: {
+                    type: Number,
+                    value: -150
+                },
+                disabled: {
+                    type: Boolean,
+                    value: false
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    statePath: 'i18Loaded'
+                },
+                noDetails: {
+                    type: Boolean,
+                    value: false
+                }
+            },
+            attached: function () {
+
+            },
+            openDialog: function () {
+                if (this.disabled) return this.showErrorMessage('You do not have access to make it');
+                this.$.select.text = this.assignee ? this.assignee.local.email : '';
+                this.$.dropdown.open();
+                this.$.select.$.dropdown.close();
+            },
+            select: function (e) {
+                this.fire('assign', {_id: e.detail._id, task: this.task});
+                this.$.dropdown.close();
+            },
+            computeAssignee: function (user) {
+                return !!user;
+            },
+            computeName: function (user) {
+                if (typeof user == 'string') return '...';
+                return user ? user.name && user.lastName ? user.name[0] + user.lastName[0] : user.local.email[0] : 'XX';
+            },
+            computeAvatarPath: function (path) {
+                if (!path) return '';
+                if (/images/.test(path)) return path + '?v=' + this.generateUid();
+                return Designmap.config.apiURL + path + '?v=' + this.generateUid();
+            },
+            assigneeChanged: function (assignee) {
+                /*this.verticalOffset = this.assignee ? 72 : 72;
+                 this.horizontalOffset = this.assignee ? -160 : -163;*/
+            },
+            removeAssignee: function () {
+                this.fire('remove', {task: this.task, _id: null});
+                this.assignee = null;
+                this.$.dropdown.close();
+            },
+            computeValue: function (user) {
+                return user ? user.local.email : '';
+            },
+            _computeUsers: function(users,ownerData){
+                return users.concat([ownerData]);
+            }
+        })
+    </script>
+</dom-module>

@@ -1,0 +1,143 @@
+<script>
+    /**
+     * Service will help to work with task path
+     * with tasks and etc.
+     *
+     * FullPath - It's structure like task.path+task.name
+     * Path - Can be full path for parent task
+     */
+    Polymer.DesignMapTaskService = {
+        /**
+         * Find task by full path
+         */
+        findTaskByPath: function (path) {
+            var found = null;
+            ReduxStore.getState().tasks.forEach(function (task, index) {
+                if (task.name == this.findNameByFullPath(path) && task.path == this.findParentPath(path)) found = task;
+            }, this);
+            return found;
+        },
+        /**
+         * Get full path of task
+         */
+        getFullPath: function (task,name) {
+            if (!task) return null;
+            return (task.path || Designmap.config.separator) + (name || task.name) + Designmap.config.separator;
+        },
+        /**
+         * Find name of folder using its full path
+         */
+        findNameByFullPath: function (path) {
+            var splitter = path.split(Designmap.config.separator).clean();
+            return splitter[splitter.length - 1] || null;
+        },
+        /**
+         * Find parent path for certain folder
+         */
+        findParentPath: function (path) {
+            var splitter = path.split(Designmap.config.separator).clean();
+            splitter.pop();
+            return splitter.length ? this.pathFromArray(splitter) : null;
+        },
+        /**
+         * Build path from array
+         */
+        pathFromArray: function (array) {
+            return Designmap.config.separator + array.join(Designmap.config.separator) + Designmap.config.separator;
+        },
+        /**
+         * Find task index by full path
+         */
+        findTaskIndexByPath: function (path) {
+            var found = null;
+            ReduxStore.getState().tasks.forEach(function (task, index) {
+                if (task.name == this.findNameByFullPath(path) && task.path == this.findParentPath(path)) found = index;
+            }, this);
+            return found;
+        },
+        /**
+         * Find task index by full path
+         */
+        findTaskOneLevel: function (path) {
+            var found = [];
+            ReduxStore.getState().tasks.forEach(function (task, index) {
+                if (task.path == path) found.push(task);
+            }, this);
+            return found;
+        },
+        /**
+         * Find task index by full path
+         */
+        findSubtasks: function (tsk) {
+            var found = [];
+            ReduxStore.getState().tasks.forEach(function (task, index) {
+                if (!task.path) return;
+                if (task.path == (tsk.path || '/') + tsk.name + '/') found.push(task);
+            }, this);
+            return found;
+        },
+        /**
+         * Find task index by full path
+         */
+        findSubtasksLength: function (tsk) {
+            return this.findSubtasks(tsk).length;
+        },
+        /**
+         * Find task by id
+         */
+        findTaskById: function (id) {
+            var found = null;
+            ReduxStore.getState().tasks.forEach(function (task, index) {
+                if (task._id == id) found = task;
+            }, this);
+            return found;
+        },
+        /**
+         * Find task index by id
+         */
+        findTaskIndexById: function (id) {
+            var found = null;
+            ReduxStore.getState().tasks.forEach(function (task, index) {
+                if (task._id == id) found = index;
+            }, this);
+            return found;
+        },
+        /**
+         * Whether element is child of another element
+         * @param childId - potential child
+         * @param parentId - parent
+         */
+        isChildOf: function (childId, parentId) {
+            var isChild = false;
+            var task = {parent: childId, _id: childId};
+            while (task && task.parent && !isChild) {
+                task = this.findTaskById(task.parent);
+                if (task && task._id == parentId) return isChild = true;
+            }
+            return isChild;
+        },
+        /**
+         * Find root task
+         */
+        findRoot: function (doc) {
+            if (!doc || !doc.path) return doc;
+            var parentName = doc.path.split(Designmap.config.separator).clean()[0];
+            return this.findTaskByPath(parentName)
+        },
+        /**
+         * Get full path of folder
+         */
+        getPath: function (parentId) {
+            var parent = this.findTaskById(parentId);
+            return (parent.path || Designmap.config.separator) + (parent.name) + Designmap.config.separator;
+        },
+        canUpdateTask: function (task) {
+            if(!this.user) return false;
+            return this.user._id==task.owner;
+        },
+        canUpdateStatus: function(task){
+            if(!this.user) return false;
+            return  this.user._id==task.owner || this.user._id==task.assignee || (task.assignee && this.user._id==task.assignee._id);
+        }
+    }
+</script>

@@ -17,28 +17,28 @@
 <!-- Components -->
 <link rel="import" href="../bower_components/i18-n/i18-n-domain.html">
 <link rel="import" href="../bower_components/i18-n/i18-n.html">
-<link rel="import" href="elements/designmap/designmap-login/designmap-user-menu.html">
-<link rel="import" href="elements/designmap/designmap-icons/designmap-logo-icons.html">
-<link rel="import" href="elements/designmap/designmap-icons/designmap-workspace-icons.html">
-<link rel="import" href="elements/designmap/designmap-workspace/designmap-advanced-menu.html">
-<link rel="import" href="elements/designmap/designmap-workspace/designmap-header.html">
-<link rel="import" href="elements/designmap/designmap-workspace/designmap-info.html">
-<link rel="import" href="elements/designmap/designmap-buttons/designmap-circle-button.html">
-<link rel="import" href="elements/designmap/designmap-notifications/designmap-notifier.html">
-<link rel="import" href="elements/designmap/designmap-tutorial/designmap-tutorial.html">
+<link rel="import" href="elements/designmap/designmap-login/designmap-user-menu.html?hash=26-05-2017-1">
+<link rel="import" href="elements/designmap/designmap-icons/designmap-logo-icons.html?hash=26-05-2017-1">
+<link rel="import" href="elements/designmap/designmap-icons/designmap-workspace-icons.html?hash=26-05-2017-1">
+<link rel="import" href="elements/designmap/designmap-workspace/designmap-advanced-menu.html?hash=26-05-2017-1">
+<link rel="import" href="elements/designmap/designmap-workspace/designmap-header.html?hash=26-05-2017-1">
+<link rel="import" href="elements/designmap/designmap-workspace/designmap-info.html?hash=26-05-2017-1">
+<link rel="import" href="elements/designmap/designmap-buttons/designmap-circle-button.html?hash=26-05-2017-1">
+<link rel="import" href="elements/designmap/designmap-notifications/designmap-notifier.html?hash=26-05-2017-1">
+<link rel="import" href="elements/designmap/designmap-tutorial/designmap-tutorial.html?hash=26-05-2017-1">
 <!-- Configs -->
-<link rel="import" href="config/designmap-app-config.html">
+<link rel="import" href="config/designmap-app-config.html?hash=26-05-2017-1">
 <!-- Styles -->
-<link rel="import" href="styles/app-theme.html">
-<link rel="import" href="styles/shared-styles.html">
+<link rel="import" href="styles/app-theme.html?hash=26-05-2017-1">
+<link rel="import" href="styles/shared-styles.html?hash=26-05-2017-1">
 <!-- Redux -->
-<link rel="import" href="redux/redux-store.html">
-<link rel="import" href="redux/actions/combine-actions.html">
-<link rel="import" href="redux/actions/user-actions.html">
-<link rel="import" href="redux/actions/project-actions.html">
+<link rel="import" href="redux/redux-store.html?hash=26-05-2017-1">
+<link rel="import" href="redux/actions/combine-actions.html?hash=26-05-2017-1">
+<link rel="import" href="redux/actions/user-actions.html?hash=26-05-2017-1">
+<link rel="import" href="redux/actions/project-actions.html?hash=26-05-2017-1">
 <!-- Behaviors -->
-<link rel="import" href="behaviors/designmap-messages-behavior.html">
-<link rel="import" href="deisgnmap-routing.html">
+<link rel="import" href="behaviors/designmap-messages-behavior.html?hash=26-05-2017-1">
+<link rel="import" href="deisgnmap-routing.html?hash=26-05-2017-1">
 
 <dom-module id="designmap-app">
     <template>
@@ -144,6 +144,7 @@
                         fallback-selection="designmap-404"
                         role="main">
                     <designmap-fs-view id="fsView" name="fs"></designmap-fs-view>
+                    <designmap-task-manager-view id="taskManagerView" name="task-manager"></designmap-task-manager-view>
                     <designmap-settings-view name="settings"></designmap-settings-view>
                     <designmap-gallery-view id="galleryView" name="gallery"></designmap-gallery-view>
                     <designmap-support-view name="support"></designmap-support-view>
@@ -247,6 +248,7 @@
             },
 
             _projectIdChanged: function (projectId) {
+                if(!projectId) return;
                 this.dispatch('updateProjectId', projectId);
             },
 

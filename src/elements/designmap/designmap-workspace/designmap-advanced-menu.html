@@ -1,15 +1,15 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../../../styles/context-menu-shared-styles.html">
-<link rel="import" href="../../../styles/lock-shared-styles.html">
-<link rel="import" href="../designmap-fs/designmap-fs-service.html">
-<link rel="import" href="../designmap-accesses/designmap-accesses.html">
+<link rel="import" href="../../../styles/context-menu-shared-styles.html?hash=26-05-2017-1">
+<link rel="import" href="../../../styles/lock-shared-styles.html?hash=26-05-2017-1">
+<link rel="import" href="../designmap-fs/designmap-fs-service.html?hash=26-05-2017-1">
+<link rel="import" href="../designmap-accesses/designmap-accesses.html?hash=26-05-2017-1">
 <!-- Redux -->
-<link rel="import" href="../../../redux/actions/combine-actions.html">
-<link rel="import" href="../../../redux/actions/user-actions.html">
-<link rel="import" href="../../../redux/actions/project-actions.html">
+<link rel="import" href="../../../redux/actions/combine-actions.html?hash=26-05-2017-1">
+<link rel="import" href="../../../redux/actions/user-actions.html?hash=26-05-2017-1">
+<link rel="import" href="../../../redux/actions/project-actions.html?hash=26-05-2017-1">
 
-<link rel="import" href="./designmap-projects-list.html">
+<link rel="import" href="./designmap-projects-list.html?hash=26-05-2017-1">
 
 <!-- icons:lock-outline -->
 <dom-module is="designmap-advanced-menu">
@@ -226,14 +226,15 @@
                         <i18-n msgid="Accesses">Accesses</i18-n>
                     </div>
                 </li>
-                <li id="taskManagerItem" on-click="goToTaskManager" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class="locked">
+                <li id="taskManagerItem" on-click="goToTaskManager" class$="[[_computeSelectedItem(page,trashMode,'task-manager')]]" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave">
                     <designmap-circle-button>
                         <iron-icon icon="designmap-workspace:taskmanager"></iron-icon>
                     </designmap-circle-button>
-                    <iron-icon hidden$="[[user.isPremium]]" class="locked-icon" icon="icons:lock-outline"></iron-icon>
+                    <!--<iron-icon hidden$="[[user.isPremium]]" class="locked-icon" icon="icons:lock-outline"></iron-icon>-->
                     <div class="text">
                         <i18-n msgid="Task manager">Task manager</i18-n>
                     </div>
+                    <div class="marker dot"></div>
                 </li>
 
                 <li id="protocolItem" on-click="goToProtocol" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class="locked">
@@ -352,9 +353,8 @@
                 page.redirect('/'+(this.projectId||''));
             },
             goToTaskManager: function (e) {
-                if(!this.user.isPremium) return this.$.taskManagerShowCaseDialog.open();
-                //if (e.currentTarget.getAttribute('disabled') != undefined) return this.showErrorMessage('You do not have access to make it');
-                //this.redirect('/task-manager/');
+                //if(!this.user.isPremium) return this.$.taskManagerShowCaseDialog.open();
+                page.redirect('/'+(this.projectId||'')+'/task-manager/');
             },
             goToProtocol: function(){
                 if(!this.user.isPremium) return this.$.protocolShowCaseDialog.open();
@@ -433,7 +433,7 @@
                 this.$.removeProjectConfirm.open();
             },
             _computeSelectedItem: function (page,trashMode,name) {
-                if(trashMode) page = 'trash';
+                if(trashMode && page!='task-manager') page = 'trash';
                 return page==name?'selected':'';
             },
             _mouseOver: function(e){

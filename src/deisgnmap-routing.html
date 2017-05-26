@@ -75,6 +75,21 @@
                 this.page = 'fs';
             }.bind(this));
 
+            page('/:id/task-manager', this._isAuth.bind(this), function(ctx,next){
+                if(!this.isObjectID(ctx.params.id)) return next();
+                this.projectId = ctx.params.id;
+                this.page = 'task-manager';
+                this.path = '/';
+            }.bind(this));
+
+            page(/^\/(.*?)\/task-manager\/(.*)/, this._isAuth.bind(this), function(ctx,next){
+                const id = ctx.params[0];
+                if(!this.isObjectID(id)) return next();
+                this.projectId = id;
+                this.page = 'task-manager';
+                this.path = '/'+ctx.params[1];
+            }.bind(this));
+
             page(/^\/(.*?)\/(.*)/, this._isAuth.bind(this), function(ctx,next){
                 const id = ctx.params[0];
                 if(!this.isObjectID(id)) return next();

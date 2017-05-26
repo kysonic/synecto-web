@@ -4,30 +4,33 @@
          * Setup socket
          */
         setupSocket: function (roomId, type) {
-            this.roomId = roomId;
             this.type = type;
-            if (this.socket) this.socket.disconnect();
-            if (!this.socket) {
+            //if (Designmap[type+'Socket']) Designmap[type+'Socket'].disconnect();
+            if (!Designmap[type+'Socket']) {
+                this.roomId = roomId;
                 // Connect to appropriate room created specially for this project.
-                this.socket = Designmap[type+'Socket'] = io.connect(Designmap.config.apiURL, {query: 'room=' + roomId});
-                this.setupSocketSubscribers();
-            } else {
+                Designmap[type+'Socket'] = io.connect(Designmap.config.apiURL, {query: 'room=' + roomId});
+                this.setupSocketSubscribers(type);
+            } else if(roomId) {
+                if(this.roomId==roomId) return;
+                this.roomId = roomId;
                 // Change room
-                this.socket.io.opts.query = 'room=' + roomId;
-                this.socket.connect();
+                Designmap[type+'Socket'].io.opts.query = 'room=' + roomId;
+                Designmap[type+'Socket'].connect();
+                console.log('Change '+type+' room on '+this.roomId);
             }
         },
         /**
          * Socket subscribers
          */
-        setupSocketSubscribers: function () {
-            this.socket.on('connect', function () {
-                console.log('DesignMap '+this.type+' socket is connected. Room ='+this.roomId);
+        setupSocketSubscribers: function (type) {
+            Designmap[type+'Socket'].on('connect', function () {
+                console.log('DesignMap '+type+' socket is connected. Room ='+this.roomId);
             }.bind(this));
             /**
              * Create file
              */
-            this.socket.on('action', function (o) {
+            Designmap[type+'Socket'].on('action', function (o) {
                 if (o.uid == Designmap.uid) return;
                 ReduxStore.dispatch(o);
             }.bind(this));
@@ -35,8 +38,8 @@
         /**
          * Add custom socket subscriber
          */
-        addSocketSubscriber: function(name,cb){
-            this.socket.on(name,cb);
+        addSocketSubscriber: function(type,name,cb){
+            Designmap[type+'Socket'].on(name,cb);
         }
     }
 </script>

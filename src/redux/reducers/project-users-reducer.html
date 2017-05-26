@@ -1,0 +1,13 @@
+<script>
+    Reducers.ProjectUsersReducer = function(state,action) {
+        if(!state) state = [];
+        switch(action.type) {
+            case "SET_PROJECT_USERS":
+                return action.users;
+                break;
+            default:
+                return state;
+                break;
+        }
+    }
+</script>

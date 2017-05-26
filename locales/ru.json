@@ -1238,6 +1238,12 @@
   "This user already added": {
     "message": "Этот пользовтель уже добавлен"
   },
+  "": {
+    "message": ""
+  },
+  "You cannot notify yourself": {
+    "message": "Не зачем упомянать себя самого..."
+  },
   "You cannot add yourself. You are already there!": {
     "message": "Вы не можете добавить сами себя. У Вас есть возможность управлять своим проектом..."
   },
@@ -1412,10 +1418,19 @@
   "Preview is not available": {
     "message": "Предпросмотр не доступен"
   },
+  "protocol": {
+    "message": "Протокол"
+  },
   "Protocol": {
     "message": "Протокол"
   },
   "Add users in project": {
     "message": "Выберите пользователей, которые смогут управлять Вашим проектом: <i>Создавать в нем папки, загружать файлы, комментировать изображения и тд</i>. "
+  },
+  "Cut": {
+    "message": "Вырезать"
+  },
+  "Paste": {
+    "message": "Вставить"
   }
 }

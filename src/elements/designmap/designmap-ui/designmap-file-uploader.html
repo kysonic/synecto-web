@@ -152,7 +152,7 @@
                                                on-notallowed="showFilesNotAllowedError" multiple="multiple" id="files">
                             <i18-n msgid="Select File">Select File</i18-n>
                         </designmap-file-button>
-                        <div class="msg" hidden$="[[!computeLength(buttonFiles.length)]]">
+                        <div class="msg" hidden$="[[computeLength(allowedExtension.length)]]">
                             <i18-n msgid="You can upload">You can upload files with following extensions:</i18-n>
                             <div class="exts">
                                 [[_showAllowedExtension(allowedExtension.*)]]
@@ -246,7 +246,10 @@
                 /**
                  * Extensions to transmitting into file button
                  */
-                allowedExtension: Array,
+                allowedExtension: {
+                    type: Array,
+                    value: []
+                },
                 /**
                  * Indicator which can show us loading of files
                  */
@@ -476,8 +479,8 @@
             computeLinkState: function (role) {
                 return role == 'owner';
             },
-            computeLength: function (length) {
-                return !length;
+            computeLength: function (extLength) {
+                return !extLength;
             },
             _computeWarning: function (storage, buttonFilesLength) {
                 return storage == 'designmap' && buttonFilesLength;

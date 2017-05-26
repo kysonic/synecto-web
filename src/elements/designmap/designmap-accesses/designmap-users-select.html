@@ -12,7 +12,8 @@
             }
             iron-dropdown {
                 z-index: 8 !important;
-                color: var(--white-color);
+                color: var(--gray-darkend-color);
+                font-size: 14px;
                 box-shadow: var(--box-shadow);
                 border: 1px solid var(--gray-color);
                 @apply(--designmap-users-select-dropdown-mixin);
@@ -83,6 +84,7 @@
                 --iron-icon-components-mixin: {
                     stroke: var(--gray-color);
                 };
+                @apply(--designmap-users-select-arrow-mixin);
             }
 
             .arrow.close {
@@ -90,7 +92,9 @@
                 height: 20px;
                 top: 12px;
                 margin-left: -20px;
+                @apply(--designmap-users-select-close-mixin);
             }
+
             designmap-avatar-projector {
                 width: 30px;
                 height: 30px;
@@ -117,13 +121,21 @@
                 height: 26px;
             }
 
+            :host([dishonred]) paper-input {
+                pointer-events: none;
+                visibility: hidden;
+            }
+            :host([dishonred]) iron-icon {
+                visibility: hidden;
+            }
+
         </style>
         <div id="wrapper" class$="wrapper {{readOnlyClass(readonly)}}">
             <paper-input on-keydown="pressKey" readonly="[[readonly]]" autofocus id="input" on-focus="focus" label="{{label}}" value="{{text}}" on-input="textChanged" on-click="openDropdown"></paper-input>
             <iron-icon icon="[[computeIcon(text)]]" class$="arrow [[computeClass(text)]]" on-click="action" ></iron-icon>
             <input type="hidden" value="{{value}}">
             <iron-dropdown on-iron-overlay-closed="onOverlayClose" id="dropdown" vertical-offset="[[verticalOffset]]" open-animation-config="[[slideTopOpenAnimation]]" close-animation-config="[[slideTopCloseAnimation]]">
-                <div class="dropdown-content">
+                <div class="dropdown-content bound">
                     <div class="items">
                         <template is="dom-repeat" items="[[options]]" as="option" filter="{{searchFilter(search)}}">
                             <div class$="item [[optionClasses(value,option,selectedOption,index)]]" style="padding: 10px" on-click="selectOption" value="[[option._id]]">
@@ -221,9 +233,14 @@
                 this.count = 0;
                 search = search.toLowerCase();
                 return function(option) {
-                    var condition = option.local ? new RegExp(search).test(option.local.email) : false;
-                    if(condition) this.count++;
-                    return condition&&this.count<=parseInt(this.limit);
+                    const reg = new RegExp(search,'ig');
+
+                    let cond1 = option.local ? reg.test(option.local.email) : false;
+                    let cond2 = option.profile ? reg.test(option.profile.name) : false;
+                    let cond3 = option.profile ? reg.test(option.profile.lastName) : false;
+
+                    if(cond1 || cond2 || cond3) this.count++;
+                    return (cond1 || cond2 || cond3)&&this.count<=parseInt(this.limit);
                 }.bind(this);
             },
             /**
@@ -235,9 +252,14 @@
               this.count = 0;
               search = search.toLowerCase();
               return this.options.filter(function(option) {
-                var condition = option.local ? new RegExp(search).test(option.local.email) : false;
-                if(condition) this.count++;
-                return condition&&this.count<=parseInt(this.limit);
+                  const reg = new RegExp(search,'ig');
+
+                  let cond1 = option.local ? reg.test(option.local.email) : false;
+                  let cond2 = option.profile ? reg.test(option.profile.name) : false;
+                  let cond3 = option.profile ? reg.test(option.profile.lastName) : false;
+
+                  if(cond1 || cond2 || cond3) this.count++;
+                  return (cond1 || cond2 || cond3)&&this.count<=parseInt(this.limit);
               }.bind(this))
             },
             action: function(){
@@ -348,6 +370,7 @@
              */
             onOverlayClose: function(){
                 this.$.input.focus();
+                this.fire('close');
             },
             getLabel: function(label){
                 return label;
@@ -363,9 +386,14 @@
                 var count = 0;
                 if(!this.options) return false;
                 var filtered = this.options.filter(function (option) {
-                    var condition = option.local ? new RegExp(search).test(option.local.email) : false;
-                    if (condition) count++;
-                    return condition && count <= parseInt(this.limit);
+                    const reg = new RegExp(search,'ig');
+
+                    let cond1 = option.local ? reg.test(option.local.email) : false;
+                    let cond2 = option.profile ? reg.test(option.profile.name) : false;
+                    let cond3 = option.profile ? reg.test(option.profile.lastName) : false;
+
+                    if(cond1 || cond2 || cond3) count++;
+                    return (cond1 || cond2 || cond3)&&count<=parseInt(this.limit);
                 }.bind(this));
                 return !!filtered.length;
             },

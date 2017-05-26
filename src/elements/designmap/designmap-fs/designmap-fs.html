@@ -1,24 +1,25 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <!-- Styles -->
-<link rel="import" href="../../../styles/context-menu-shared-styles.html">
-<link rel="import" href="../../../styles/loading-shared-styles.html">
+<link rel="import" href="../../../styles/context-menu-shared-styles.html?hash=26-05-2017-1">
+<link rel="import" href="../../../styles/loading-shared-styles.html?hash=26-05-2017-1">
 <!-- Icons -->
-<link rel="import" href="../designmap-icons/designmap-workspace-icons.html">
+<link rel="import" href="../designmap-icons/designmap-workspace-icons.html?hash=26-05-2017-1">
 <!-- Components -->
-<link rel="import" href="../designmap-ui/designmap-stub.html">
-<link rel="import" href="../designmap-ui/designmap-context-menu.html">
-<link rel="import" href="./designmap-fs-breadcrumbs.html">
-<link rel="import" href="./designmap-fs-panel.html">
-<link rel="import" href="./designmap-fs-elements.html">
+<link rel="import" href="../designmap-ui/designmap-stub.html?hash=26-05-2017-1">
+<link rel="import" href="../designmap-ui/designmap-context-menu.html?hash=26-05-2017-1">
+<link rel="import" href="./designmap-fs-breadcrumbs.html?hash=26-05-2017-1">
+<link rel="import" href="./designmap-fs-panel.html?hash=26-05-2017-1">
+<link rel="import" href="./designmap-fs-elements.html?hash=26-05-2017-1">
 <!-- Services -->
-<link rel="import" href="./designmap-fs-service.html">
-<link rel="import" href="../../../behaviors/designmap-socket-behavior.html">
+<link rel="import" href="./designmap-fs-service.html?hash=26-05-2017-1">
+<link rel="import" href="../../../behaviors/designmap-socket-behavior.html?hash=26-05-2017-1">
 <!-- Redux -->
-<link rel="import" href="../../../redux/actions/project-actions.html">
-<link rel="import" href="../../../redux/actions/folders-actions.html">
-<link rel="import" href="../../../redux/actions/files-actions.html">
-<link rel="import" href="../../../redux/actions/stickers-actions.html">
-<link rel="import" href="../../../redux/actions/comments-action.html">
+<link rel="import" href="../../../redux/actions/project-actions.html?hash=26-05-2017-1">
+<link rel="import" href="../../../redux/actions/folders-actions.html?hash=26-05-2017-1">
+<link rel="import" href="../../../redux/actions/tasks-actions.html?hash=26-05-2017-1">
+<link rel="import" href="../../../redux/actions/files-actions.html?hash=26-05-2017-1">
+<link rel="import" href="../../../redux/actions/stickers-actions.html?hash=26-05-2017-1">
+<link rel="import" href="../../../redux/actions/comments-action.html?hash=26-05-2017-1">
 
 <dom-module id="designmap-fs">
     <template>
@@ -174,6 +175,11 @@
                         <li class="sort-button" on-click="changeSort" data-sort="modified">
                             <i18-n msgid="Sort by date">Sort by date</i18-n>
                         </li>
+                        <template is="dom-if" if="[[cutted]]">
+                            <li class="sort-button" on-click="pasteElement">
+                                <i18-n msgid="Paste">Paste</i18-n>
+                            </li>
+                        </template>
                     </ul>
                 </designmap-context-menu>
             </template>
@@ -181,10 +187,6 @@
                 <div class="loading-wrapper">
                     <img src="/images/svg/three-dots-gray.svg" alt="Loading">
                 </div>
-            </template>
-            <template is="dom-if" if="[[shouldWeShowError(project)]]">
-                <designmap-stub image="designmap-workspace-stub:error" message="[[project.error]]"
-                                error></designmap-stub>
             </template>
             <template is="dom-if" if="[[shouldWeShowEmptyMessage(project)]]">
                 <designmap-stub value="{{projectName}}" on-action="onCreateProject"
@@ -208,7 +210,14 @@
                 Polymer.DesignmapSocketBehavior,
                 // Redux
                 ReduxBehavior,
-                Polymer.CombineActions(Polymer.UserActions, Polymer.ProjectActions, Polymer.FoldersActions, Polymer.FilesActions, Polymer.StickersActions, Polymer.CommentsActions)
+                Polymer.CombineActions(
+                    Polymer.UserActions,
+                    Polymer.ProjectActions,
+                    Polymer.FoldersActions,
+                    Polymer.FilesActions,
+                    Polymer.StickersActions,
+                    Polymer.TasksActions,
+                    Polymer.CommentsActions)
             ],
             properties: {
                 user: {
@@ -270,6 +279,13 @@
                 loading: {
                     type: Boolean,
                     value:true
+                },
+                /**
+                 * Cut\paste element
+                 */
+                cutted: {
+                    type: Object,
+                    value: null
                 }
             },
             listeners: {
@@ -285,7 +301,8 @@
                 'remove-all': 'removeAll',
                 'open-file-uploader': 'openFileUploader',
                 'open-context-menu': 'openContextMenuEvent',
-                'apply-route': 'applyRouteManually'
+                'apply-route': 'applyRouteManually',
+                'set-cutted': 'setCuttedElement'
             },
             doesUserHaveEditAccess: function () {
                 return true
@@ -396,14 +413,14 @@
              */
             _projectIdChanged: function (projectId) {
                 this.cleanProjectData();
-                if (!projectId) return;
+                if (!projectId) return ;
+                if(this.project) return this.getProjectData();
                 // Get project data
                 this.loading = true;
                 this.dispatch('getProject', projectId).then(function (response) {
                     if (!response.success) throw response.errors;
                     this.updateProject(response.project);
                 }.bind(this)).catch(function (err) {
-                    console.log(err);
                     const errorMessage = err.message || err + (err.stack ? err.stack : '');
                     this.dispatch('updateProjectState', {error: errorMessage, loading: false});
                     this.loading = false;
@@ -481,6 +498,30 @@
             },
             _computePanelState: function(id,error){
                 return !id || error;
+            },
+            setCuttedElement: function(e){
+                if(this.cutted) {
+                    this.cutted.cutted = false;
+                    const searchCriteria = this.cutted.type==='file'?this.cutted._id:this.getFullPath(this.cutted);
+                    this.dispatch('_update'+this.capitalizeFirstLetter(this.cutted.type),searchCriteria,this.cutted);
+                }
+                this.cutted = e.detail;
+            },
+            pasteElement: function(){
+                this['paste'+this.capitalizeFirstLetter(this.cutted.type)]();
+                this.cutted = null;
+                this.$$('#contextMenu').close();
+            },
+            pasteFile: function(){
+                this.dispatch('$updateFile',this.cutted._id,{folder:this.currentFolderId,cutted:false});
+            },
+            pasteFolder: function(){
+                const parentFolder = this.findFolderById(this.currentFolderId);
+                const folder = Object.assign({},this.cutted);
+                folder.parent = this.currentFolderId;
+                folder.path = this.getFullPath(parentFolder);
+                folder.cutted = false;
+                this.dispatch('$updateFolder',this.getFullPath(this.cutted),folder);
             }
         });
     </script>

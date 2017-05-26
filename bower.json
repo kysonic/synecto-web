@@ -39,7 +39,8 @@
     "paper-progress": "PolymerElements/paper-progress#^1.0.11",
     "iron-image": "kysonic/iron-image#^1.2.5",
     "cbn-copy-clipboard": "CBN-IT/cbn-copy-clipboard#^1.0.1",
-    "paper-tooltip": "PolymerElements/paper-tooltip#^1.1.3"
+    "paper-tooltip": "PolymerElements/paper-tooltip#^1.1.3",
+    "textarea-caret-position": "component/textarea-caret-position#^3.0.2"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"

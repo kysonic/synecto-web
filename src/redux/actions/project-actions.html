@@ -8,6 +8,7 @@
                         if (!response.success) return;
                         response.project.error = false;
                         dispatch({type: 'SET_PROJECT_STATE', project: response.project});
+                        dispatch({type: 'SET_PROJECT_USERS', users: response.users});
                         dispatch({type:'UPDATE_USER',user:{role: response.role, fileRole:response.role}});
                     });
                     return promise;
