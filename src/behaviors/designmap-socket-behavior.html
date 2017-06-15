@@ -15,8 +15,7 @@
                 if(this.roomId==roomId) return;
                 this.roomId = roomId;
                 // Change room
-                Designmap[type+'Socket'].io.opts.query = 'room=' + roomId;
-                Designmap[type+'Socket'].connect();
+                Designmap[type+'Socket'].emit('change-room',{room:this.roomId});
                 console.log('Change '+type+' room on '+this.roomId);
             }
         },

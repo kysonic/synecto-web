@@ -1,16 +1,20 @@
 {
   "entrypoint": "index.html",
-  "hash": "26-05-2017-1",
+  "builds": [{
+    "bundle": true,
+    "js": {"minify": true},
+    "css": {"minify": true},
+    "html": {"minify": true}
+  }],
   "shell": "src/designmap-app.html",
   "fragments": [
     "src/views/designmap-fs-view.html",
+    "src/views/designmap-activate-view.html",
     "src/views/designmap-login-view.html",
-    "src/views/designmap-profile-view.html",
     "src/views/designmap-gallery-view.html",
     "src/views/designmap-settings-view.html",
     "src/views/designmap-notifications-view.html",
     "src/views/designmap-support-view.html",
-    "src/views/designmap-docs-view.html",
     "src/views/designmap-404-view.html"
   ],
   "sources": [
