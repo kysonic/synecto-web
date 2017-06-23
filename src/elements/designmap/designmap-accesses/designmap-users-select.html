@@ -1,5 +1,5 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
-<link rel="import" href="../designmap-avatar/designmap-avatar-projector.html">
+<link rel="import" href="../designmap-avatar/designmap-avatar-projector.html?20170615">
 
 <dom-module id="designmap-users-select">
     <template>
@@ -138,7 +138,7 @@
                 <div class="dropdown-content bound">
                     <div class="items">
                         <template is="dom-repeat" items="[[options]]" as="option" filter="{{searchFilter(search)}}">
-                            <div class$="item [[optionClasses(value,option,selectedOption,index)]]" style="padding: 10px" on-click="selectOption" value="[[option._id]]">
+                            <div class$="item [[optionClasses(value,option,selectedOption,index)]]" style="padding: 10px" on-tap="selectOption" value="[[option._id]]">
                                 <div class="avatar">
                                     <designmap-avatar-projector user="[[option]]"></designmap-avatar-projector>
                                 </div>
@@ -408,6 +408,9 @@
             },
             haveAName: function(user){
               return !!(user.profile.name || user.profile.lastName);
+            },
+            blur: function(){
+                this.$.input.blur();
             }
         })
     </script>

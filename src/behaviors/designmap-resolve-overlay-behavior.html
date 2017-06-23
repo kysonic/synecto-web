@@ -1,0 +1,27 @@
+
+<script>
+    Polymer.lastTouchPath = [];
+    /**
+     * Solve glitches of overlay behavior...
+     * Polymer developers are shity guys they cannot
+     * handle simple overlays...
+     */
+    Polymer.DesignmapResolveOverlayBehavior = {
+        resolveDropDown: function(dropdown){
+            dropdown._onCaptureClick = function(e){}
+            window.addEventListener('touchstart',function(e){Polymer.lastTouchPath = e.path;});
+            dropdown._onCaptureClick = function(e){
+                if (this._overlayInPath(Polymer.lastTouchPath,dropdown)) return;
+                dropdown.close();
+            }.bind(this)
+        },
+        _overlayInPath: function(path,node) {
+            path = path || [];
+            for (var i = 0; i < path.length; i++) {
+                if (path[i] === node) {
+                    return path[i];
+                }
+            }
+        }
+    }
+</script>

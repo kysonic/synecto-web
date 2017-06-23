@@ -1,5 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-dropdown/iron-dropdown.html">
+<link rel="import" href="../../../behaviors/designmap-resolve-overlay-behavior.html?20170615">
 
 <dom-module id="designmap-context-menu">
     <template>
@@ -11,14 +12,13 @@
                 --dropdown-line-color: var(--blue-darkester-color);
             }
             iron-dropdown {
-                z-index: 999;
+                z-index: 9999;
             }
             /** IRON-DROPDOWN **/
             .dropdown-content {
                 position: relative;
                 background: var(--dropdown-color);
                 @apply(--designmap-context-menu-content-mixin);
-                overflow: visible !important;
             }
             /** LINE **/
             .line {
@@ -40,6 +40,11 @@
             :host([darker]) .line {
                 background: var(--dropdown-color-super-dark);
             }
+            @media (min-width: 320px) and (max-width: 560px) {
+                .dropdown-content, .content ::content ul.menu {
+                    max-width: 150px;
+                }
+            }
         </style>
         <iron-dropdown id="dd"  position-target="[[target]]" close-animation-config="[[defaultCloseAnimation]]"
                        open-animation-config="[[defaultOpenAnimation]]">
@@ -55,7 +60,8 @@
         Polymer({
             is: 'designmap-context-menu',
             behaviors: [
-                Polymer.DesignmapAnimationSet
+                Polymer.DesignmapAnimationSet,
+                Polymer.DesignmapResolveOverlayBehavior
             ],
             properties: {
                 /**
@@ -75,10 +81,6 @@
                     value: false
                 },
                 width: Number,
-                animationOn: {
-                    type: Boolean,
-                    value: true
-                },
                 absolute: {
                     type: Boolean,
                     value: false
@@ -87,6 +89,9 @@
             listeners: {
                 'iron-overlay-opened': 'afterOpened',
                 'iron-overlay-closed': 'afterClosed'
+            },
+            ready: function(){
+               this.resolveDropDown(this.$.dd);
             },
             attached: function () {
                 if (this.parent) {
@@ -128,7 +133,7 @@
              * @param e
              */
             stickToMouse: function (e) {
-                this.async(this.absolute ? this.absoluteStick.bind(this, e) : this.targetStick.bind(this, e),0);
+                this.async(this.absolute ? this.absoluteStick.bind(this, e) : this.targetStick.bind(this, e),50);
             },
             /**
              * Stick mouse to target
@@ -137,8 +142,8 @@
                 var menuRect = this.$.dd.getBoundingClientRect();
                 var menuWidth = this.width || menuRect.width || 200;
                 var cords = this.getCords(e);
-                this.$.dd.horizontalOffset = menuWidth + e.pageX < window.innerWidth ? cords.x : cords.x - menuWidth;
-                this.$.dd.verticalOffset = menuRect.height + e.pageY < window.innerHeight ? cords.y : cords.y - menuRect.height;
+                this.$.dd.horizontalOffset = menuWidth + e.pageX < window.innerWidth + 50 ? cords.x : cords.x - menuWidth;
+                this.$.dd.verticalOffset = menuRect.height + e.pageY < window.innerHeight + 50 ? cords.y : cords.y - menuRect.height;
                 this.$.dd.refit();
             },
             /**
@@ -147,6 +152,7 @@
             absoluteStick: function (e) {
                 this.$.dd.horizontalOffset = e.layerX;
                 this.$.dd.verticalOffset = e.layerY;
+                if(this.openTop) this.$.dd.verticalOffset = this.$.dd.verticalOffset - menuRect.height;
                 this.$.dd.refit();
             },
             /**

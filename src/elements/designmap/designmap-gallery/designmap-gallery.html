@@ -3,22 +3,22 @@
 <link rel="import" href="/bower_components/iron-resizable/iron-resizable-behavior.html">
 <link rel="import" href="/bower_components/iron-icons/social-icons.html">
 <link rel="import" href="/bower_components/cbn-copy-clipboard/cbn-copy-clipboard.html">
-<link rel="import" href="../designmap-buttons/designmap-gallery-button.html">
-<link rel="import" href="../designmap-tutorial/designmap-hint.html">
-<link rel="import" href="../designmap-ui/designmap-hidden-panel.html">
-<link rel="import" href="../designmap-ui/designmap-dropdown.html">
-<link rel="import" href="../designmap-ui/designmap-showcase.html">
-<link rel="import" href="../designmap-ui/designmap-stub.html">
-<link rel="import" href="./designmap-stickers.html">
-<link rel="import" href="../designmap-icons/designmap-logo-icons.html">
-<link rel="import" href="./designmap-gallery-user-list.html">
+<link rel="import" href="../designmap-buttons/designmap-gallery-button.html?20170615">
+<link rel="import" href="../designmap-tutorial/designmap-hint.html?20170615">
+<link rel="import" href="../designmap-ui/designmap-hidden-panel.html?20170615">
+<link rel="import" href="../designmap-ui/designmap-dropdown.html?20170615">
+<link rel="import" href="../designmap-ui/designmap-showcase.html?20170615">
+<link rel="import" href="../designmap-ui/designmap-stub.html?20170615">
+<link rel="import" href="./designmap-stickers.html?20170615">
+<link rel="import" href="../designmap-icons/designmap-logo-icons.html?20170615">
+<link rel="import" href="./designmap-gallery-user-list.html?20170615">
 <!-- Redux -->
-<link rel="import" href="../../../redux/actions/user-actions.html">
-<link rel="import" href="../../../redux/actions/files-actions.html">
-<link rel="import" href="../../../redux/actions/stickers-actions.html">
-<link rel="import" href="../../../redux/actions/comments-action.html">
+<link rel="import" href="../../../redux/actions/user-actions.html?20170615">
+<link rel="import" href="../../../redux/actions/files-actions.html?20170615">
+<link rel="import" href="../../../redux/actions/stickers-actions.html?20170615">
+<link rel="import" href="../../../redux/actions/comments-action.html?20170615">
 <!-- Styles -->
-<link rel="import" href="../../../styles/context-menu-shared-styles.html">
+<link rel="import" href="../../../styles/context-menu-shared-styles.html?20170615">
 
 <dom-module id="designmap-gallery">
     <template>
@@ -143,7 +143,7 @@
                     /*object-fit: contain;*/
                     max-height: calc(100vh - 150px);
                     max-width: calc(100vw - 200px);
-                    background: url('/images/svg/three-dots-gray.svg') no-repeat center;
+                    background: url('/assets/images/svg/three-dots-gray.svg') no-repeat center;
                     -khtml-user-select: none;
                     -o-user-select: none;
                     -moz-user-select: none;
@@ -547,8 +547,13 @@
                     </div>
                 </template>
             </template>
-            <template is="dom-if" if="[[loading]]">
-                <img src="/images/svg/three-dots-gray.svg" alt="Loading">
+            <template is="dom-if" if="[[_computeLoading(loading,error)]]">
+                <img src="/assets/images/svg/three-dots-gray.svg" alt="Loading">
+            </template>
+            <template is="dom-if" if="[[error]]">
+                <designmap-stub error
+                                image="designmap-workspace-stub:error"
+                                message="[[error]]"></designmap-stub>
             </template>
             <div class="next" on-click="next" hidden$="[[_computeButtons(files.*)]]">
                 <iron-icon icon="icons:chevron-right"></iron-icon>
@@ -617,8 +622,8 @@
             top: 0,
             left: 0,
             // Horizontal\vertical offset bounding image dragging.
-            horizontalRestriction: 60,
-            verticalRestriction: 0,
+            horizontalRestriction: 100,
+            verticalRestriction: 100,
             // Files with same extension can be displayed
             canBeDisplayedExt: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr", ".ppm", ".pbm",".ai",".psd",".eps"],
             objectIDRegexp: /^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/i,
@@ -918,7 +923,7 @@
                 var canMoveX = deltaX < 0 ? canMoveRight : canMoveLeft;
                 // Vertical
                 var canMoveTop = target.getBoundingClientRect().top < this.verticalRestriction;
-                var canMoveBottom = target.getBoundingClientRect().bottom > window.innerHeight + this.verticalRestriction;
+                var canMoveBottom = target.getBoundingClientRect().bottom > window.innerHeight - this.verticalRestriction;
                 var deltaY = (e.pageY - this.pageY);
                 if ((!canMoveTop && deltaY > 0) || (!canMoveBottom && deltaY < 0)) {
                     this.pageY = e.pageY;
@@ -1159,6 +1164,10 @@
                     this.$$('#stickers').style.top = '50%';
                     this.$$('#stickers').style.marginTop = -(b.height/2) + 'px';
                 }
+            },
+
+            _computeLoading: function(loading,error){
+                return loading && !error;
             }
         });
     </script>

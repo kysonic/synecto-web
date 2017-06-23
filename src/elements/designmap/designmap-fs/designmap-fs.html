@@ -1,25 +1,25 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <!-- Styles -->
-<link rel="import" href="../../../styles/context-menu-shared-styles.html">
-<link rel="import" href="../../../styles/loading-shared-styles.html">
+<link rel="import" href="../../../styles/context-menu-shared-styles.html?20170615">
+<link rel="import" href="../../../styles/loading-shared-styles.html?20170615">
 <!-- Icons -->
-<link rel="import" href="../designmap-icons/designmap-workspace-icons.html">
+<link rel="import" href="../designmap-icons/designmap-workspace-icons.html?20170615">
 <!-- Components -->
-<link rel="import" href="../designmap-ui/designmap-stub.html">
-<link rel="import" href="../designmap-ui/designmap-context-menu.html">
-<link rel="import" href="./designmap-fs-breadcrumbs.html">
-<link rel="import" href="./designmap-fs-panel.html">
-<link rel="import" href="./designmap-fs-elements.html">
+<link rel="import" href="../designmap-ui/designmap-stub.html?20170615">
+<link rel="import" href="../designmap-ui/designmap-context-menu.html?20170615">
+<link rel="import" href="./designmap-fs-breadcrumbs.html?20170615">
+<link rel="import" href="./designmap-fs-panel.html?20170615">
+<link rel="import" href="./designmap-fs-elements.html?20170615">
 <!-- Services -->
-<link rel="import" href="./designmap-fs-service.html">
-<link rel="import" href="../../../behaviors/designmap-socket-behavior.html">
+<link rel="import" href="./designmap-fs-service.html?20170615">
+<link rel="import" href="../../../behaviors/designmap-socket-behavior.html?20170615">
 <!-- Redux -->
-<link rel="import" href="../../../redux/actions/project-actions.html">
-<link rel="import" href="../../../redux/actions/folders-actions.html">
-<link rel="import" href="../../../redux/actions/tasks-actions.html">
-<link rel="import" href="../../../redux/actions/files-actions.html">
-<link rel="import" href="../../../redux/actions/stickers-actions.html">
-<link rel="import" href="../../../redux/actions/comments-action.html">
+<link rel="import" href="../../../redux/actions/project-actions.html?20170615">
+<link rel="import" href="../../../redux/actions/folders-actions.html?20170615">
+<link rel="import" href="../../../redux/actions/tasks-actions.html?20170615">
+<link rel="import" href="../../../redux/actions/files-actions.html?20170615">
+<link rel="import" href="../../../redux/actions/stickers-actions.html?20170615">
+<link rel="import" href="../../../redux/actions/comments-action.html?20170615">
 
 <dom-module id="designmap-fs">
     <template>
@@ -146,7 +146,13 @@
                 <!-- Context menu -->
                 <designmap-context-menu id="contextMenu" parent>
                     <ul class="menu">
-                        <li on-click="openAddFolderContext" hidden$="[[!doesUserHaveEditAccess(role,acl,trashMode)]]">
+                        <li on-click="restoreAll" hidden$="[[drawEdits(trashMode)]]">
+                            <i18-n msgid="Restore all">Restore all</i18-n>
+                        </li>
+                        <li on-click="openRemoveAllConfirm" hidden$="[[drawEdits(trashMode)]]">
+                            <i18-n msgid="Remove all">Restore all</i18-n>
+                        </li>
+                        <li on-click="openAddFolderContext" hidden$="[[!drawEdits(trashMode)]]">
                             <i18-n msgid="Add folder">Add folder</i18-n>
                         </li>
                         <!-- Add folder context -->
@@ -166,7 +172,7 @@
                             </div>
                         </designmap-context-menu>
                         <li on-click="openFileUploaderManually"
-                            hidden$="[[!doesUserHaveEditAccess(role,acl,trashMode)]]">
+                            hidden$="[[!drawEdits(trashMode)]]">
                             <i18-n msgid="Upload file">Upload file</i18-n>
                         </li>
                         <li class="sort-button" on-click="changeSort" data-sort="name">
@@ -175,7 +181,7 @@
                         <li class="sort-button" on-click="changeSort" data-sort="modified">
                             <i18-n msgid="Sort by date">Sort by date</i18-n>
                         </li>
-                        <template is="dom-if" if="[[cutted]]">
+                        <template is="dom-if" if="[[cutInTrash(cutted,trashMode)]]">
                             <li class="sort-button" on-click="pasteElement">
                                 <i18-n msgid="Paste">Paste</i18-n>
                             </li>
@@ -185,7 +191,7 @@
             </template>
             <template is="dom-if" if="[[shouldWeShowLoading(project)]]">
                 <div class="loading-wrapper">
-                    <img src="/images/svg/three-dots-gray.svg" alt="Loading">
+                    <img src="/assets/images/svg/three-dots-gray.svg" alt="Loading">
                 </div>
             </template>
             <template is="dom-if" if="[[shouldWeShowEmptyMessage(project)]]">
@@ -304,8 +310,8 @@
                 'apply-route': 'applyRouteManually',
                 'set-cutted': 'setCuttedElement'
             },
-            doesUserHaveEditAccess: function () {
-                return true
+            drawEdits: function (trashMode) {
+                return !trashMode
             },
             /**
              * Open file uploader
@@ -518,10 +524,23 @@
             pasteFolder: function(){
                 const parentFolder = this.findFolderById(this.currentFolderId);
                 const folder = Object.assign({},this.cutted);
+                if(this.getFullPath(parentFolder).indexOf(this.getFullPath(folder))!==-1) {
+                    folder.cutted = false;
+                    this.dispatch('$updateFolder',this.getFullPath(this.cutted),folder);
+                    return this.showErrorMessage('You cannot paste folder inside it\'s child')
+                }
                 folder.parent = this.currentFolderId;
                 folder.path = this.getFullPath(parentFolder);
                 folder.cutted = false;
                 this.dispatch('$updateFolder',this.getFullPath(this.cutted),folder);
+            },
+            cutInTrash: function(cutted,trashMode){
+                if(trashMode) return false;
+                return cutted;
+            },
+            openRemoveAllConfirm: function(){
+                this.$$('#contextMenu').close();
+                this.$.panel.removeAll();
             }
         });
     </script>

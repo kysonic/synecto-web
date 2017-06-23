@@ -1,6 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/google-signin/google-signin-aware.html">
-<link rel="import" href="/bower_components/i18-n/i18-n.html">
+
 <link rel="import" href="/bower_components/paper-input/paper-input.html">
 <link rel="import" href="/bower_components/iron-a11y-keys/iron-a11y-keys.html">
 <!-- Animation -->
@@ -8,15 +8,15 @@
 <link rel="import" href="/bower_components/neon-animation/neon-animatable.html">
 <link rel="import" href="/bower_components/neon-animation/neon-animations.html">
 <!-- Buttons -->
-<link rel="import" href="../designmap-buttons/designmap-button.html">
-<link rel="import" href="../designmap-buttons/designmap-loading-button.html">
+<link rel="import" href="../designmap-buttons/designmap-button.html?20170615">
+<link rel="import" href="../designmap-buttons/designmap-loading-button.html?20170615">
 <!-- Redux -->
-<link rel="import" href="../../../redux/redux-store.html">
-<link rel="import" href="../../../redux/actions/combine-actions.html">
-<link rel="import" href="../../../redux/actions/user-actions.html">
+<link rel="import" href="../../../redux/redux-store.html?20170615">
+<link rel="import" href="../../../redux/actions/combine-actions.html?20170615">
+<link rel="import" href="../../../redux/actions/user-actions.html?20170615">
 <!-- Mixins -->
-<link rel="import" href="../../../behaviors/designmap-messages-behavior.html">
-<link rel="import" href="../../../behaviors/deisgnmap-utils-behavior.html">
+<link rel="import" href="../../../behaviors/designmap-messages-behavior.html?20170615">
+<link rel="import" href="../../../behaviors/deisgnmap-utils-behavior.html?20170615">
 
 <dom-module id="designmap-login-form">
     <template>
@@ -251,6 +251,27 @@
                 text-align: center;
                 padding-top: 33px;
             }
+
+            @media screen and (min-width: 320px) and (max-width: 768px) {
+                :host {
+                    max-width: calc(100vw - 10px);
+                }
+                .wrapper {
+                    bottom: 0
+                }
+                .linkers {
+                    display: none;
+                }
+                .social .button-wrapper, .wrapper > .content, .forgot-password-form .content, .approval-form .content {
+                    padding: 0 25px;
+                }
+            }
+            /** MOBILE **/
+            @media screen and (min-width: 320px) and (max-width: 450px) {
+                :host {
+                    min-width: calc(100vw - 10px);
+                }
+            }
         </style>
         <google-signin-aware id="aware"
                              on-google-signin-aware-success="googleSigninSuccess"
@@ -261,7 +282,7 @@
             <div class="header-phantom"></div>
             <div class="header">
                 <iron-icon icon="designmap-logo:logo"></iron-icon>
-                <div class="beta">beta 3.0</div>
+                <div class="beta">beta 3.1</div>
             </div>
             <div class="social">
                 <div class="button-wrapper">

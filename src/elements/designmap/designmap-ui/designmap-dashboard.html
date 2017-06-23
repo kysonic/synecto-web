@@ -92,11 +92,12 @@
                 },
                 backUrl: {
                     type: String,
-                    value: '/'
+                    value: false
                 }
             },
             goBack: function () {
-                page.redirect(this.backUrl);
+                if(this.backUrl) page.redirect(this.backUrl);
+                this.fire('go-back');
             }
         })
     </script>

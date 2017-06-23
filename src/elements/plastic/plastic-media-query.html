@@ -1,0 +1,28 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/iron-media-query/iron-media-query.html">
+
+<dom-module id="plastic-media-query">
+    <template>
+        <iron-media-query id="sm" query="(min-width: 320px) and (max-width:768px)" query-matches="{{sm}}"></iron-media-query>
+        <iron-media-query id="md" query="(min-width: 768px) and (max-width:1280px)" query-matches="{{md}}"></iron-media-query>
+        <iron-media-query id="lg" query="(min-width: 1280px) and (max-width:1980px)" query-matches="{{lg}}"></iron-media-query>
+    </template>
+    <script>
+        Polymer({
+            is: 'plastic-media-query',
+            behaviors: [],
+            properties: {
+                sm:Boolean,
+                md:Boolean,
+                lg: Boolean
+            },
+            observers: [
+              '_mediaQueryChanged(sm,md,lg)'
+            ],
+            _mediaQueryChanged: function(sm,md,lg){
+                const qury = sm?'sm':md?'md':lg?'lg':'xx';
+                this.fire('query-changed',qury)
+            }
+        })
+    </script>
+</dom-module>

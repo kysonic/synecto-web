@@ -1426,5 +1426,8 @@
   },
   "Paste": {
     "message": "Paste"
+  },
+  "You cannot paste folder inside it's child": {
+    "message": "You cannot paste folder inside it's child"
   }
 }

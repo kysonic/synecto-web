@@ -1,9 +1,9 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/paper-input/paper-input.html">
-<link rel="import" href="../designmap-buttons/designmap-button.html">
-<link rel="import" href="../designmap-ui/designmap-dropdown.html">
-<link rel="import" href="../designmap-fs/designmap-fs-service.html">
-<link rel="import" href="../designmap-workspace/designmap-projects-list.html">
+<link rel="import" href="../designmap-buttons/designmap-button.html?20170615">
+<link rel="import" href="../designmap-ui/designmap-dropdown.html?20170615">
+<link rel="import" href="../designmap-fs/designmap-fs-service.html?20170615">
+<link rel="import" href="../designmap-workspace/designmap-projects-list.html?20170615">
 
 <dom-module id="designmap-header">
     <template>
@@ -173,7 +173,22 @@
                 --iron-icon-fill-color: var(--gray-darkend-color);
             }
 
+            .mobile-burger {
+                display: none;
+            }
 
+            @media (min-width: 320px) and (max-width: 768px) {
+                .left-content {
+                    display: none;
+                }
+                .mobile-burger {
+                    display: block;
+                    width: 28px;
+                    height: 28px;
+                    --iron-icon-stroke-color: var(--gray-darkend-color);
+                    --iron-icon-fill-color: var(--gray-darkend-color);
+                }
+            }
         </style>
 
         <!-- Add project -->
@@ -210,6 +225,7 @@
                     <designmap-projects-list></designmap-projects-list>
                 </designmap-dropdown>
             </div>
+            <iron-icon class="mobile-burger" style="margin-left: 5px" icon="icons:menu" on-tap="openMenu"></iron-icon>
         </div>
         <div class="center">
 
@@ -303,6 +319,9 @@
             },
             closeShowCaseDialog: function(){
                 this.$.projectsShowCaseDialog.close();
+            },
+            openMenu: function(){
+                this.fire('open-menu')
             }
         })
     </script>

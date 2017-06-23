@@ -1,0 +1,13 @@
+<script>
+    Reducers.MQReducer = function(state,action) {
+        if(!state) state = null;
+        switch(action.type) {
+            case "UPDATE_MQ":
+                return action.mq;
+                break;
+            default:
+                return state;
+                break;
+        }
+    }
+</script>

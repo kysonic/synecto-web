@@ -162,7 +162,7 @@
          */
         computeAvatarPath: function(path){
             if(!path) return '';
-            if(this.IMAGE_REGEXP.test(path)) return path+'?v='+this.generateUid();
+            if(this.IMAGE_REGEXP.test(path)) return "/assets/"+path+'?v='+this.generateUid();
             return Designmap.config.apiURL+path+'?v='+this.generateUid();
         },
         /**
@@ -257,6 +257,9 @@
         },
         lowAccess: function(role){
             return role === 'project-co-author' || role === 'project-owner';
+        },
+        isMobile: function(){
+            return /Mobi/.test(navigator.userAgent);
         }
     }
 </script>

@@ -1,6 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../designmap-icons/designmap-confirm-icons.html">
+<link rel="import" href="../designmap-icons/designmap-confirm-icons.html?20170615">
 
 <dom-module is="designmap-confirm">
     <template>
@@ -12,7 +12,7 @@
             }
             /** CONFIRMS **/
             paper-dialog {
-                z-index: 120 !important;
+                z-index: 202 !important;
                 white-space: normal;
                 @apply(--designmap-confirm-paper-dialog-mixin);
             }
@@ -65,10 +65,24 @@
                 color: var(--gray-darkend-color);
             }
 
+            @media (min-width: 320px) and (max-width: 768px) {
+                paper-dialog {
+                    max-width: 300px !important;
+                }
+                paper-dialog .content {
+                    min-width: 280px;
+                    max-width: 100%;
+                    padding: 10px;
+                }
+                paper-dialog .content button {
+                    min-width: 130px;
+                }
+            }
+
         </style>
         <paper-dialog id="dialog" entry-animation="scale-up-animation"
                       exit-animation="scale-down-animation">
-            <div class="content">
+            <div class="content" щт->
                 <!--<div class="title">
                     <i18-n msgid="[[computeTitle(title,language)]]">Confirm</i18-n>
                 </div>-->
@@ -77,10 +91,10 @@
                     <i18-n msgid="[[message]]">[[message]]</i18-n>
                 </div>
                 <div class="button-set">
-                    <button is="designmap-button" gray class$="[[computeAlertClass(alertYes)]]" thin on-click="forward">
+                    <button is="designmap-button" gray class$="[[computeAlertClass(alertYes)]]" thin on-tap="forward">
                         <i18-n msgid="Yes">Yes</i18-n>
                     </button>
-                    <button is="designmap-button" gray thin on-click="suspend">
+                    <button is="designmap-button" gray thin on-tap="suspend">
                         <i18-n msgid="No">No</i18-n>
                     </button>
                 </div>

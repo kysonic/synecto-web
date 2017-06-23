@@ -1,6 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="./designmap-fs-service.html">
+<link rel="import" href="./designmap-fs-service.html?20170615">
 
 <dom-module is="designmap-fs-breadcrumbs">
     <template>
@@ -81,6 +81,56 @@
                 margin-left: -32px;
             }
 
+            .arrow-back {
+                display: none;
+            }
+
+            .arrow-back {
+                border-radius: 50%;
+                margin-left: 9px;
+                cursor: pointer;
+                transition: background .2s ease-in;
+            }
+
+            .arrow-back:hover {
+                background: var(--gray-lightern-color);
+                transition: background .2s ease-in;
+            }
+
+            .arrow-back iron-icon {
+                width: 50px;
+                height: 50px;
+                transform: rotate(223deg);
+                --iron-icon-components-mixin: {
+                    stroke: var(--blue-color) !important;
+                    stroke-width: 2px !important;
+                }
+            }
+
+            @media (min-width: 320px) and (max-width: 768px) {
+                .project-name, .project, .of-project, .arrow-back.selected, .crumb, .crumb.selected iron-icon {
+                    display: none;
+                }
+                .project-name.selected, .arrow-back, .crumb.selected {
+                    display: block;
+                }
+                .crumb.selected {
+                    margin-left: 0;
+                }
+                .crumb.selected .title.selected {
+                    vertical-align: baseline;
+                    font-size: 26px;
+                    font-weight: 100;
+                    display: inline-block;
+                    flex: 1;
+                    cursor: pointer;
+                    white-space: nowrap;
+                    background: transparent;
+                    padding: 0;
+                    color: var(--breadcrumbs-text-color);
+                }
+            }
+
 
         </style>
         <div class$="project-name [[breadCrumbs(breadcrumbs.length)]]" hidden$="[[trashMode]]" on-click="goOnTop">
@@ -88,12 +138,15 @@
         </div>
         <div class="trash-name" hidden$="[[!trashMode]]">
             <i18-n msgid="Trash bin">Trash bin</i18-n>
-            <i18-n msgid="of project">of project</i18-n>
+            <i18-n class="of-project" msgid="of project">of project</i18-n>
             <div class="project">&laquo;<span>[[project.name]]</span>&raquo;</div>
         </div>
+        <div class$="arrow-back [[breadCrumbs(breadcrumbs.length)]]" on-click="goBack">
+            <iron-icon icon="designmap-workspace:open"></iron-icon>
+        </div>
         <template is="dom-repeat" items="[[breadcrumbs]]" as="crumb">
-            <div class="crumb">
-                <iron-icon class$="line [[isFirst(index,breadcrumbs)]]" icon="icons:chevron-left"></iron-icon>
+            <div class$="crumb [[calculateSelectedCrumb(breadcrumbs.length,index)]]">
+                <iron-icon class$="line [[isFirst(index,breadcrumbs)]] " icon="icons:chevron-left"></iron-icon>
                 <div class$="title [[calculateSelectedCrumb(breadcrumbs.length,index)]]" on-click="goToParent">
                     [[crumb.name]]
                 </div>
@@ -167,6 +220,12 @@
              */
             goToParent: function (e) {
                 const folder = this.findFolderById(e.model.crumb._id);
+                page.redirect('/'+this.projectId+this.getFullPath(folder));
+            },
+            goBack: function(){
+                if(this.breadcrumbs.length-2<0) return  page.redirect('/'+this.projectId);
+                const crumb = this.breadcrumbs[this.breadcrumbs.length-2];
+                const folder = this.findFolderById(crumb._id);
                 page.redirect('/'+this.projectId+this.getFullPath(folder));
             },
             /**

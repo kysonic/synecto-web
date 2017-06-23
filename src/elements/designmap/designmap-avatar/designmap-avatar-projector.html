@@ -67,7 +67,7 @@
             computeAvatarPath: function (path) {
                 if (!path) return '';
                 if (/images/.test(path)) return path + '?v=' + this.generateUid();
-                return Designmap.config.apiURL + path + '?v=' + this.generateUid();
+                return Designmap.config.apiURL +"/assets/"+path + '?v=' + this.generateUid();
             },
             computeName: function (user) {
                 if (typeof user == 'string') return '...';

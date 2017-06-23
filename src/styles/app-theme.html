@@ -83,6 +83,10 @@
         --paper-tooltip: {
             font-size: 14px;
             border-radius: 30px;
+            z-index: 99;
+        };
+        --paper-tooltip-host: {
+            z-index: 99;
         };
         --paper-tooltip-after: {
             content: '';
@@ -96,6 +100,12 @@
             border-width: 0 5px 10px 5px;
             border-color: transparent transparent var(--blue-darky-color) transparent;
         };
+        /** MOBILE **/
+        @media screen and (min-width: 320px) and (max-width: 768px) {
+            .hidden-on-mobile {
+                display: none;
+            }
+        }
     }
 
     .title {
@@ -135,4 +145,5 @@
     .select-panel-content .button-set button {
         margin-left: 10px;
     }
+
 </style>

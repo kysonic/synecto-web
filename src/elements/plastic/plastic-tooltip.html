@@ -88,7 +88,6 @@
             findNodes: function(){
                 if(!this.target) return;
                 var nodes = this.target.querySelectorAll('*[plastic-tooltip]');
-                console.log(nodes);
                 if(nodes.length) {
                     XTooltip.addEventListenerList(nodes,'mouseenter',this.mouseOver.bind(this));
                     XTooltip.addEventListenerList(nodes,'mouseleave',this.mouseLeave.bind(this));

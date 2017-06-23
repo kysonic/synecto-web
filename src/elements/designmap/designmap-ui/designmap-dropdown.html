@@ -1,14 +1,15 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-dropdown/iron-dropdown.html">
 <!-- Mixins -->
-<link rel="import" href="../../../behaviors/deisgnmap-animation-behavior.html">
+<link rel="import" href="../../../behaviors/deisgnmap-animation-behavior.html?20170615">
+<link rel="import" href="../../../behaviors/designmap-resolve-overlay-behavior.html?20170615">
 
 <dom-module is="designmap-dropdown">
     <template>
         <style>
             :host {
                 position: absolute;
-                z-index: 998;
+                z-index: 9999;
 
                 --designmap-dropdown-background: var(--white-color);
                 --designmap-dropdown-triangle-border-color: var(--white-color);
@@ -24,15 +25,18 @@
                 overflow: visible !important;
                 @apply(--designmap-dropdown-mixin);
             }
+
             .dropdown-content ::content .row {
                 width: 100%;
                 height: 26px;
-                margin-top: 30px;
+                margin-top: 20px;
                 font-family: 'Open Sans', sans-serif;
                 font-weight: 100;
                 font-size: 18px;
                 display: flex;
                 align-items: center;
+                padding: 5px 0;
+                overflow: hidden;
             }
             .dropdown-content ::content  .row:first-child {
                 margin-top: 0;
@@ -51,6 +55,10 @@
             }
             .dropdown-content ::content  .row .text:hover {
                 text-decoration: underline;
+            }
+
+            .dropdown-content ::content * {
+                overflow: auto;
             }
 
             iron-dropdown {
@@ -110,8 +118,7 @@
         </style>
         <iron-dropdown id="dropdown"
                        opened="{{opened}}"
-                       no-cancel-on-outside-click="[[noCancelOnOutsideClick]]"
-                       hotizontal-align="center"
+                       no-cancel-on-outside-click="[[noCancelOutsideClick]]"
                        position-target="[[target]]"
                        vertical-offset="[[verticalOffset]]"
                        horizontal-offset="[[horizontalOffset]]"
@@ -128,7 +135,8 @@
         Polymer({
             is: 'designmap-dropdown',
             behaviors: [
-                Polymer.DesignmapAnimationSet
+                Polymer.DesignmapAnimationSet,
+                Polymer.DesignmapResolveOverlayBehavior
             ],
             properties: {
                 opened: {
@@ -170,7 +178,9 @@
             ready: function () {
                 if (this.parent) this.target = this.parentNode;
                 if (this.previous) this.target = this.previousElementSibling;
+                this.resolveDropDown(this.$.dropdown);
             },
+
             open: function () {
                 this.$.dropdown.open();
             },

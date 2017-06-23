@@ -14,31 +14,33 @@
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/iron-iconset-svg/iron-iconset-svg.html">
+
 <!-- Components -->
 <link rel="import" href="../bower_components/i18-n/i18-n-domain.html">
 <link rel="import" href="../bower_components/i18-n/i18-n.html">
-<link rel="import" href="elements/designmap/designmap-login/designmap-user-menu.html">
-<link rel="import" href="elements/designmap/designmap-icons/designmap-logo-icons.html">
-<link rel="import" href="elements/designmap/designmap-icons/designmap-workspace-icons.html">
-<link rel="import" href="elements/designmap/designmap-workspace/designmap-advanced-menu.html">
-<link rel="import" href="elements/designmap/designmap-workspace/designmap-header.html">
-<link rel="import" href="elements/designmap/designmap-workspace/designmap-info.html">
-<link rel="import" href="elements/designmap/designmap-buttons/designmap-circle-button.html">
-<link rel="import" href="elements/designmap/designmap-notifications/designmap-notifier.html">
-<link rel="import" href="elements/designmap/designmap-tutorial/designmap-tutorial.html">
+<link rel="import" href="elements/designmap/designmap-login/designmap-user-menu.html?20170615">
+<link rel="import" href="elements/designmap/designmap-icons/designmap-logo-icons.html?20170615">
+<link rel="import" href="elements/designmap/designmap-icons/designmap-workspace-icons.html?20170615">
+<link rel="import" href="elements/designmap/designmap-workspace/designmap-advanced-menu.html?20170615">
+<link rel="import" href="elements/designmap/designmap-workspace/designmap-header.html?20170615">
+<link rel="import" href="elements/designmap/designmap-workspace/designmap-info.html?20170615">
+<link rel="import" href="elements/designmap/designmap-buttons/designmap-circle-button.html?20170615">
+<link rel="import" href="elements/designmap/designmap-notifications/designmap-notifier.html?20170615">
+<link rel="import" href="elements/designmap/designmap-tutorial/designmap-tutorial.html?20170615">
+<link rel="import" href="elements/plastic/plastic-media-query.html?20170615">
 <!-- Configs -->
-<link rel="import" href="config/designmap-app-config.html">
+<link rel="import" href="config/designmap-app-config.html?20170615">
 <!-- Styles -->
-<link rel="import" href="styles/app-theme.html">
-<link rel="import" href="styles/shared-styles.html">
+<link rel="import" href="styles/app-theme.html?20170615">
+<link rel="import" href="styles/shared-styles.html?20170615">
 <!-- Redux -->
-<link rel="import" href="redux/redux-store.html">
-<link rel="import" href="redux/actions/combine-actions.html">
-<link rel="import" href="redux/actions/user-actions.html">
-<link rel="import" href="redux/actions/project-actions.html">
+<link rel="import" href="redux/redux-store.html?20170615">
+<link rel="import" href="redux/actions/combine-actions.html?20170615">
+<link rel="import" href="redux/actions/user-actions.html?20170615">
+<link rel="import" href="redux/actions/project-actions.html?20170615">
 <!-- Behaviors -->
-<link rel="import" href="behaviors/designmap-messages-behavior.html">
-<link rel="import" href="deisgnmap-routing.html">
+<link rel="import" href="behaviors/designmap-messages-behavior.html?20170615">
+<link rel="import" href="deisgnmap-routing.html?20170615">
 
 <dom-module id="designmap-app">
     <template>
@@ -107,22 +109,36 @@
                 margin-left: -46px;
             }
 
+
+
         </style>
         <!-- Keys -->
         <iron-a11y-keys id="a11yUndo" keys="(ctrl||cmd)+z" target="[[keysTarget]]" on-keys-pressed="undo"></iron-a11y-keys>
         <iron-a11y-keys id="a11yRedo" keys="(ctrl||cmd)+shift+z" target="[[keysTarget]]" on-keys-pressed="redo"></iron-a11y-keys>
+        <!-- Query -->
+        <plastic-media-query on-query-changed="_queryChanged"></plastic-media-query>
         <!-- Notifier -->
         <designmap-notifier id="notifier"></designmap-notifier>
         <!-- i18-n -->
-        <i18-n-domain id="i18nDomain" locale="[[language]]" messages-url="/locales"></i18-n-domain>
+        <i18-n-domain id="i18nDomain" locale="[[language]]" messages-url="/assets/locales"></i18-n-domain>
         <!-- Titorial -->
         <designmap-tutorial id="tutorial"></designmap-tutorial>
-        <app-drawer-layout fullbleed>
+        <!-- Sharing dialog -->
+        <paper-dialog id="sharingDialog" cancel-auto-refit entry-animation="scale-up-animation"
+                      exit-animation="scale-down-animation">
+            <designmap-accesses id="accesses"></designmap-accesses>
+            <!--<iron-icon dialog-dismiss class="dialog-close access" icon="icons:close"></iron-icon>-->
+        </paper-dialog>
+        <!-- Confirms -->
+        <designmap-confirm id="removeProjectConfirm" message="AreYouSureThatYouWannaRemoveProject"
+                           on-continue="removeIt" on-suspend="suspendRemoving"></designmap-confirm>
+
+        <app-drawer-layout fullbleed responsive-width="770px">
             <!-- Drawer content -->
             <app-drawer id="drawer">
                 <app-toolbar>
-                    <a style="text-decoration: none" href="#" on-click="goToHome">
-                        <iron-icon class="designmap-logo" icon="designmap-logo:logo"></iron-icon>
+                    <a style="text-decoration: none" tabindex="-1" on-click="goToHome">
+                        <iron-icon class="designmap-logo" tabindex="-1" icon="designmap-logo:logo"></iron-icon>
                         <span class="beta">beta v3.0</span>
                     </a>
                 </app-toolbar>
@@ -144,6 +160,7 @@
                         fallback-selection="designmap-404"
                         role="main">
                     <designmap-fs-view id="fsView" name="fs"></designmap-fs-view>
+                    <designmap-accesses-view id="accessesView" name="accesses"></designmap-accesses-view>
                     <designmap-task-manager-view id="taskManagerView" name="task-manager"></designmap-task-manager-view>
                     <designmap-settings-view name="settings"></designmap-settings-view>
                     <designmap-gallery-view id="galleryView" name="gallery"></designmap-gallery-view>
@@ -222,8 +239,14 @@
             },
 
             listeners: {
-                'open-info': 'openInfo'
+                'open-info': 'openInfo',
+                'close-share-dialog': 'closeShareDialog',
+                'open-menu': 'openMenu',
+                'close-menu': 'closeMenu',
+                'open-sharing':'_openSharing',
+                'open-project-remove':'_openProjectRemoveConfirm'
             },
+
 
             ready: function () {
                 this.uid = Designmap.uid = this.generateUid();
@@ -264,6 +287,10 @@
                 this.dispatch('updateTrashMode', trashMode);
             },
 
+            _queryChanged: function(e){
+                this.dispatch('updateMQ', e.detail);
+            },
+
             _userChanged: function (user) {
                 page.redirect(this.previousPath);
             },
@@ -294,6 +321,14 @@
                 this.$.right.open();
             },
 
+            openMenu: function () {
+                this.$.drawer.open();
+            },
+
+            closeMenu: function () {
+                this.$.drawer.close();
+            },
+
             goToHome: function(){
                 page.redirect('/'+(this.projectId?this.projectId:''))
             },
@@ -304,6 +339,28 @@
 
             redo: function(){
                 Designmap.undoManager.redo();
+            },
+
+            _openProjectRemoveConfirm: function(){
+                this.$.removeProjectConfirm.open();
+            },
+
+            /**
+             * Cancel project removing
+             */
+            suspendRemoving: function () {
+                this.$.removeProjectConfirm.close();
+            },
+
+            closeShareDialog: function(){
+                this.$.sharingDialog.close();
+            },
+
+            _openSharing: function(){
+                this.$.sharingDialog.open();
+                this.async(function(){
+                    this.$.sharingDialog.refit();
+                },50);
             }
         });
     </script>

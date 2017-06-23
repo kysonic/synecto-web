@@ -1,10 +1,10 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
-<link rel="import" href="../../plastic/plastic-custom-scroll.html">
-<link rel="import" href="../designmap-ui/designmap-showcase.html">
-<link rel="import" href="./designmap-users-combo.html">
+<link rel="import" href="../../plastic/plastic-custom-scroll.html?20170615">
+<link rel="import" href="../designmap-ui/designmap-showcase.html?20170615">
+<link rel="import" href="./designmap-users-combo.html?20170615">
 <!-- Redux -->
-<link rel="import" href="../../../redux/actions/combine-actions.html">
-<link rel="import" href="../../../redux/actions/project-actions.html">
+<link rel="import" href="../../../redux/actions/combine-actions.html?20170615">
+<link rel="import" href="../../../redux/actions/project-actions.html?20170615">
 <!-- Animation -->
 <link rel="import" href="/bower_components/neon-animation/neon-animated-pages.html">
 <link rel="import" href="/bower_components/neon-animation/neon-animatable.html">
@@ -347,62 +347,84 @@
                 display: block;
             }
 
+            @media  (min-width: 320px) and (max-width: 560px){
+                .msg {
+                    font-size: 14px;
+                    font-weight: 100;
+                }
+                .premium-message {
+                    font-size: 13px;
+                }
+                .premium-message .button-set {
+                    margin-bottom: 5px;
+                }
+                .premium-message .button-set button {
+                    font-size: 13px;
+                }
+                .premium-message .message {
+                    padding: 10px 0 0 0;
+                }
+            }
+
         </style>
-        <neon-animated-pages id="pages" selected="{{selected}}" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
-            <neon-animateable>
-                <div class="title">
-                    <span class="pre"><i18-n msgid="Manage accesses">Manage accesses</i18-n></span>
-                    <span class="name">&laquo;<span>[[project.name]]</span>&raquo;</span>
-                </div>
-                <div id="formContent" class="animatable-content">
-                    <div class$="personalSharing sharing">
-                        <div id="personalSharingContent">
-                            <plastic-custom-scroll id="usersScroll" max-height="133"
-                                                   fit>
-                                <template is="dom-repeat" items="[[project.users]]" as="user">
-                                    <div class="share">
-                                        <div class="email">{{user.local.email}}</div>
-                                        <div class="remove" on-click="remove">
-                                            <iron-icon icon="designmap:close"></iron-icon>
-                                        </div>
-                                    </div>
-                                </template>
-                            </plastic-custom-scroll>
-                            <div class="msg" hidden$="[[_isThereUsers(project.users.length)]]">
-                                <i18-n msgid="Add users in project">Add users in project</i18-n>
-                            </div>
-                            <div hidden$="[[!showPremiumMessage]]" class="premium-message">
-                                <div class="line"></div>
-                                <div class="content">
-                                    <div class="message">
-                                        <i18-n msgid="accessPremiumMsg">accessPremiumMsg</i18-n>
-                                    </div>
-                                    <div class="more" on-click="_showMoreInfo">
-                                        <i18-n msgid="More info">More info</i18-n>
-                                    </div>
-                                    <div class="button-set">
-                                        <button is="designmap-button" blue on-click="activatePremium" thin>
-                                            <i18-n msgid="Activate">Activate</i18-n>
-                                        </button>
-                                        <a href="#" on-click="_cancelPremiumMessage">
-                                            <i18-n msgid="No thank you">No thank you</i18-n>
-                                        </a>
-                                    </div>
+        <div class="title" hidden$="[[onpage]]">
+            <span class="pre"><i18-n msgid="Manage accesses">Manage accesses</i18-n></span>
+            <span class="name">&laquo;<span>[[project.name]]</span>&raquo;</span>
+        </div>
+        <div id="formContent" class="animatable-content">
+            <div class$="personalSharing sharing">
+                <div id="personalSharingContent">
+                    <designmap-users-combo hidden$="[[!onpage]]" label="[[translate('User email',language,i18Loaded)]]" id="userCombo"
+                                           on-selected="select"></designmap-users-combo>
+                    <plastic-custom-scroll id="usersScroll" max-height="133"
+                                           fit>
+                        <template is="dom-repeat" items="[[project.users]]" as="user">
+                            <div class="share">
+                                <div class="email">{{user.local.email}}</div>
+                                <div class="remove" on-click="remove">
+                                    <iron-icon icon="designmap:close"></iron-icon>
                                 </div>
                             </div>
-                            <designmap-users-combo label="[[translate('User email',language,i18Loaded)]]" id="userCombo"
-                                                   on-selected="select"></designmap-users-combo>
+                        </template>
+                    </plastic-custom-scroll>
+                    <div class="msg" hidden$="[[_isThereUsers(project.users.length)]]">
+                        <i18-n msgid="Add users in project">Add users in project</i18-n>
+                    </div>
+                    <div hidden$="[[!showPremiumMessage]]" class="premium-message">
+                        <div class="line"></div>
+                        <div class="content">
+                            <div class="message">
+                                <i18-n msgid="accessPremiumMsg">accessPremiumMsg</i18-n>
+                            </div>
+                            <!--<div class="more" on-click="_showMoreInfo">
+                                <i18-n msgid="More info">More info</i18-n>
+                            </div>-->
+                            <div class="button-set" style="margin-top: 10px">
+                                <button is="designmap-button" blue on-click="activatePremium" thin>
+                                    <i18-n msgid="Activate">Activate</i18-n>
+                                </button>
+                                <a href="#" on-click="_cancelPremiumMessage">
+                                    <i18-n msgid="No thank you">No thank you</i18-n>
+                                </a>
+                            </div>
                         </div>
                     </div>
-                    <div class="button-set">
-                        <button is="designmap-button" blue on-click="saveAccesses" thin>
-                            <i18-n msgid="Update">Update</i18-n>
-                        </button>
-                        <button is="designmap-button" gray on-click="cancel" thin>
-                            <i18-n msgid="Cancel">Cancel</i18-n>
-                        </button>
-                    </div>
+                    <designmap-users-combo hidden$="[[onpage]]" label="[[translate('User email',language,i18Loaded)]]" id="userCombo"
+                                           on-selected="select"></designmap-users-combo>
                 </div>
+            </div>
+            <div class="button-set">
+                <button is="designmap-button" blue on-click="saveAccesses" thin>
+                    <i18-n msgid="Update">Update</i18-n>
+                </button>
+                <button is="designmap-button" hidden$="[[onpage]]" gray on-click="cancel" thin>
+                    <i18-n msgid="Cancel">Cancel</i18-n>
+                </button>
+            </div>
+        </div>
+        <!--<neon-animated-pages id="pages" selected="{{selected}}" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
+            <neon-animateable>
+
             </neon-animateable>
             <neon-animateable>
                 <designmap-showcase no-cancel-on-outside-click name="team" items="[[teamPremium]]"></designmap-showcase>
@@ -410,7 +432,7 @@
                     <i18-n msgid="return">Return</i18-n>
                 </div>
             </neon-animateable>
-        </neon-animated-pages>
+        </neon-animated-pages>-->
 
     </template>
     <script>
@@ -470,13 +492,17 @@
                     value: [
                         {icon: 'designmap-showcase:team',message:'accessOneMsg'}
                     ]
+                },
+                onpage: {
+                    type: Boolean,
+                    value: false
                 }
             },
             ready: function(){
-                Designmap.erd.listenTo(this.$.formContent, function(element) {
+                /*Designmap.erd.listenTo(this.$.formContent, function(element) {
                     this.$.pages.style.height = element.offsetHeight + 60 + "px";
                     this.fire('resize');
-                }.bind(this));
+                }.bind(this));*/
             },
             /**
              * Cancel updating\creating
@@ -495,7 +521,10 @@
                 // Prevent repeats
                 if (this.checkUsers(e.detail.local.email)) return this.showErrorMessage('This user already added');
                 if (e.detail.local.email == this.user.local.email) return this.showErrorMessage('You cannot add yourself. You are already there!');
-                if (this.project.users && (this.project.users.length+1)>2 && !this.user.isPremium) return this.showPremiumMessage = true;
+                if (this.project.users && (this.project.users.length+1)>2 && !this.user.isPremium) {
+                    this.$.userCombo.blur();
+                    return this.showPremiumMessage = true;
+                }
                 // Dispatch event
                 if(!this.project.users) this.set('project.users',[]);
                 this.push('project.users',e.detail);

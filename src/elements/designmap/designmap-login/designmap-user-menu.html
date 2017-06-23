@@ -1,17 +1,17 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/paper-tooltip/paper-tooltip.html">
 <!-- Components -->
-<link rel="import" href="../designmap-ui/designmap-dropdown.html">
-<link rel="import" href="./designmap-language-switcher.html">
+<link rel="import" href="../designmap-ui/designmap-dropdown.html?20170615">
+<link rel="import" href="./designmap-language-switcher.html?20170615">
 <!-- Mixins -->
-<link rel="import" href="../../../behaviors/designmap-messages-behavior.html">
-<link rel="import" href="../../../behaviors/deisgnmap-utils-behavior.html">
+<link rel="import" href="../../../behaviors/designmap-messages-behavior.html?20170615">
+<link rel="import" href="../../../behaviors/deisgnmap-utils-behavior.html?20170615">
 <!-- Redux -->
-<link rel="import" href="../../../redux/redux-store.html">
-<link rel="import" href="../../../redux/actions/combine-actions.html">
-<link rel="import" href="../../../redux/actions/user-actions.html">
+<link rel="import" href="../../../redux/redux-store.html?20170615">
+<link rel="import" href="../../../redux/actions/combine-actions.html?20170615">
+<link rel="import" href="../../../redux/actions/user-actions.html?20170615">
 <!-- Icons -->
-<link rel="import" href="../designmap-icons/designmap-user-menu-icons.html">
+<link rel="import" href="../designmap-icons/designmap-user-menu-icons.html?20170615">
 
 <dom-module id="designmap-user-menu">
     <template>
@@ -170,18 +170,54 @@
                 background: var(--designmap-user-menu-indicator-color);
             }
 
+            .row.support, .row.notify {
+                display: none !important;
+            }
+
+            @media screen and (min-width: 320px) and (max-width: 768px) {
+                :host {
+                    --designmap-dropdown-triangle-mixin: {
+                        border-color: transparent transparent var(--white-color) transparent;
+                        margin-left: 96px;
+                    };
+                    --designmap-dropdown-triangle-mixin: {
+                        margin-left: 96px;
+                        border-color: transparent transparent var(--white-color) transparent !important;
+                    };
+                    --designmap-dropdown-triangle-border-mixin: {
+                        margin-left: 94px;
+                        margin-top: -2px;
+                        border-color: transparent transparent var(--gray-color) transparent !important;
+                    };
+                }
+
+                .question, .email {
+                    display: none;
+                }
+
+                designmap-dropdown {
+                    z-index: 9999;
+                    margin-left: -180px;
+                }
+
+                .row.support, .row.notify {
+                    display: block !important;
+                }
+
+            }
+
         </style>
         <!-- Auth -->
         <template is="dom-if" if="[[!!user]]">
             <div class="info">
                 <div class="block" id="support">
-                    <div class="question" on-click="goToDocs" x-tooltip$="[[translate('Support',language,i18Loaded)]]"
+                    <div class="question" on-tap="goToDocs" x-tooltip$="[[translate('Support',language,i18Loaded)]]"
                          data-cls="blue">
                         <iron-icon icon="designmap-workspace:help"></iron-icon>
                     </div>
                 </div>
                 <paper-tooltip for="support"><i18-n msgid="Support">Support</i18-n></paper-tooltip>
-                <div id="menu" class="block" on-click="openUserMenu" data-hint="login">
+                <div id="menu" class="block" on-tap="openUserMenu" data-hint="login">
                     <div class="email" title="[[user.local.email]]">
                         [[user.local.email]]
                     </div>
@@ -197,9 +233,9 @@
                 </div>
             </div>
             <!-- Account menu -->
-            <designmap-dropdown id="dropdown" tri-border horizontal-offset="[[horizontalOffset]]"
+            <designmap-dropdown id="dropdown" use-capture="true" tri-border horizontal-offset="[[horizontalOffset]]"
                                 vertical-offset="[[verticalOffset]]">
-                <div class="row" on-click="goToProfile">
+                <div class="row" on-tap="goToProfile">
                     <iron-icon icon="designmap-user-menu:settings"></iron-icon>
                     <div class="text">
                         <i18-n msgid="Account Settings">Account Settings</i18-n>
@@ -209,19 +245,25 @@
                     <iron-icon icon="designmap-user-menu:language"></iron-icon>
                     <designmap-language-switcher></designmap-language-switcher>
                 </div>
-                <div class="row" on-click="goToNotification">
+                <div class="row notify" on-tap="goToNotification">
                     <iron-icon icon="designmap-user-menu:notify"></iron-icon>
                     <div class="text">
                         <i18-n msgid="Notifications">Notifications</i18-n>
                         &nbsp;<span hidden$="[[!notifications.length]]">([[notifications.length]])</span></div>
                 </div>
-                <div class="row" on-click="goToTypeForm">
+                <div class="row support" on-tap="goToDocs">
+                    <iron-icon icon="icons:question-answer"></iron-icon>
+                    <div class="text">
+                        <i18-n msgid="Support">Support</i18-n>
+                    </div>
+                </div>
+                <div class="row" on-tap="goToTypeForm">
                     <iron-icon icon="designmap-user-menu:feedback"></iron-icon>
                     <div class="text">
                         <i18-n msgid="Leave a feedback">Leave a feedback</i18-n>
                     </div>
                 </div>
-                <div class="row" on-click="logout" id="logout">
+                <div class="row" on-tap="logout" id="logout">
                     <iron-icon icon="designmap-user-menu:sign_out"></iron-icon>
                     <div class="text">
                         <i18-n msgid="SignOut">Sign out</i18-n>
@@ -263,7 +305,7 @@
                 },
                 horizontalOffset: {
                     type: Number,
-                    value: -45
+                    value: -42
                 },
                 notifications: {
                     type: Array,

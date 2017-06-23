@@ -19,9 +19,7 @@
   ],
   "sources": [
     "src/**/*",
-    "locales/**/*",
-    "images/**/*",
-    "fonts/**/*",
+    "assets/**/*",
     "bower.json"
   ],
   "includeDependencies": [

@@ -1,15 +1,15 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../../../styles/context-menu-shared-styles.html">
-<link rel="import" href="../../../styles/lock-shared-styles.html">
-<link rel="import" href="../designmap-fs/designmap-fs-service.html">
-<link rel="import" href="../designmap-accesses/designmap-accesses.html">
+<link rel="import" href="../../../styles/context-menu-shared-styles.html?20170615">
+<link rel="import" href="../../../styles/lock-shared-styles.html?20170615">
+<link rel="import" href="../designmap-fs/designmap-fs-service.html?20170615">
+<link rel="import" href="../designmap-accesses/designmap-accesses.html?20170615">
 <!-- Redux -->
-<link rel="import" href="../../../redux/actions/combine-actions.html">
-<link rel="import" href="../../../redux/actions/user-actions.html">
-<link rel="import" href="../../../redux/actions/project-actions.html">
+<link rel="import" href="../../../redux/actions/combine-actions.html?20170615">
+<link rel="import" href="../../../redux/actions/user-actions.html?20170615">
+<link rel="import" href="../../../redux/actions/project-actions.html?20170615">
 
-<link rel="import" href="./designmap-projects-list.html">
+<link rel="import" href="./designmap-projects-list.html?20170615">
 
 <!-- icons:lock-outline -->
 <dom-module is="designmap-advanced-menu">
@@ -159,19 +159,17 @@
 
     </style>
     <template>
-        <designmap-confirm id="removeProjectConfirm" message="AreYouSureThatYouWannaRemoveProject"
-                           on-continue="removeIt" on-suspend="suspendRemoving"></designmap-confirm>
 
         <designmap-projects-list menu-mode hidden$="[[project._id]]"></designmap-projects-list>
 
         <ul hidden$="[[!project._id]]">
             <!-- Context menu -->
-            <li on-click="goToTheProject" on-mouseover="_mouseOver" class$="[[_computeSelectedItem(page,trashMode,'fs')]]" on-mouseleave="_mouseLeave"
+            <li on-click="goToTheProject"   on-mouseover="_mouseOver" class$="[[_computeSelectedItem(page,trashMode,'fs')]]" on-mouseleave="_mouseLeave"
                 data-hint="task-manager-button">
-                <designmap-circle-button>
+                <designmap-circle-button on-touchend="_closeMenu">
                     <iron-icon icon="designmap-workspace:project"></iron-icon>
                 </designmap-circle-button>
-                <div class="text">
+                <div class="text" on-touchend="_closeMenu">
                     [[_computeProjectName(project.name)]]
                 </div>
                 <div class="marker dot"></div>
@@ -198,7 +196,7 @@
                                     </div>
                                 </div>
                             </designmap-context-menu>
-                            <li on-click="openRemoveProjectConfirm">
+                            <li on-click="openRemoveProjectConfirm" on-touchend="_closeMenu">
                                 <i18-n msgid="Remove">Remove</i18-n>
                             </li>
                         </ul>
@@ -207,7 +205,7 @@
                 </div>
             </li>
             <ul class="indented" hidden$="[[!project._id]]">
-                <li id="trashItem" on-click="goToTrashBox" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class$="[[_computeSelectedItem(page,trashMode,'trash')]]">
+                <li id="trashItem" on-click="goToTrashBox" on-touchend="_closeMenu" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class$="[[_computeSelectedItem(page,trashMode,'trash')]]">
                     <designmap-circle-button>
                         <iron-icon icon="designmap-workspace:bin"></iron-icon>
                         <div class="trash-count">[[trashLength]]</div>
@@ -217,7 +215,7 @@
                     </div>
                     <div class="marker dot"></div>
                 </li>
-                <li id="accessesItem" hidden$="[[!topAccess(user.role)]]" on-click="openSharingDialog" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave">
+                <li id="accessesItem" hidden$="[[!topAccess(user.role)]]" on-touchend="_closeMenu"  on-click="openSharingDialog" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave">
                     <designmap-circle-button>
                         <iron-icon icon="designmap-workspace:link"></iron-icon>
                     </designmap-circle-button>
@@ -226,7 +224,7 @@
                         <i18-n msgid="Accesses">Accesses</i18-n>
                     </div>
                 </li>
-                <li id="taskManagerItem" on-click="goToTaskManager" class$="[[_computeSelectedItem(page,trashMode,'task-manager')]]" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave">
+                <li id="taskManagerItem" on-click="goToTaskManager" on-touchend="_closeMenu"  class$="[[_computeSelectedItem(page,trashMode,'task-manager')]]" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave">
                     <designmap-circle-button>
                         <iron-icon icon="designmap-workspace:taskmanager"></iron-icon>
                     </designmap-circle-button>
@@ -237,7 +235,7 @@
                     <div class="marker dot"></div>
                 </li>
 
-                <li id="protocolItem" on-click="goToProtocol" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class="locked">
+                <li id="protocolItem" on-click="goToProtocol" on-touchend="_closeMenu"  on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class="locked">
                     <designmap-circle-button>
                         <iron-icon icon="designmap-workspace:protocol"></iron-icon>
                     </designmap-circle-button>
@@ -249,26 +247,21 @@
             </ul>
         </ul>
 
-        <!-- Sharing dialog -->
-        <paper-dialog id="sharingDialog" no-cancel-on-outside-click cancel-auto-refit entry-animation="scale-up-animation"
-                      exit-animation="scale-down-animation">
-            <designmap-accesses id="accesses"></designmap-accesses>
-            <!--<iron-icon dialog-dismiss class="dialog-close access" icon="icons:close"></iron-icon>-->
-        </paper-dialog>
+
 
         <!-- Showcase dialog -->
-        <paper-dialog no-cancel-on-outside-click id="taskManagerShowCaseDialog" entry-animation="scale-up-animation"
+        <!--<paper-dialog no-cancel-on-outside-click id="taskManagerShowCaseDialog" entry-animation="scale-up-animation"
                       exit-animation="scale-down-animation">
             <designmap-showcase name="task_manager" items="[[taskManagerShowCaseItems]]"></designmap-showcase>
-            <!--<iron-icon dialog-dismiss class="dialog-close" icon="icons:close"></iron-icon>-->
-        </paper-dialog>
+            &lt;!&ndash;<iron-icon dialog-dismiss class="dialog-close" icon="icons:close"></iron-icon>&ndash;&gt;
+        </paper-dialog>-->
 
         <!-- Showcase dialog -->
-        <paper-dialog no-cancel-on-outside-click id="protocolShowCaseDialog" class="showcase-dialog" entry-animation="scale-up-animation"
+        <!--<paper-dialog no-cancel-on-outside-click id="protocolShowCaseDialog" class="showcase-dialog" entry-animation="scale-up-animation"
                       exit-animation="scale-down-animation">
             <designmap-showcase name="protocol" items="[[protocolShowCaseItems]]"></designmap-showcase>
-           <!-- <iron-icon dialog-dismiss class="dialog-close" icon="icons:close"></iron-icon>-->
-        </paper-dialog>
+           &lt;!&ndash; <iron-icon dialog-dismiss class="dialog-close" icon="icons:close"></iron-icon>&ndash;&gt;
+        </paper-dialog>-->
 
     </template>
     <script>
@@ -339,6 +332,10 @@
                     value: [
                         {icon:'designmap-showcase:protocol',message:'protocolShowCaseOneMsg'}
                     ]
+                },
+                MQ: {
+                    type: String,
+                    statePath: 'MQ'
                 }
             },
             listeners: {
@@ -364,13 +361,8 @@
                 page.redirect('/'+this.projectId+'/trash');
             },
             openSharingDialog: function (e) {
-                this.$.sharingDialog.open();
-                this.async(function(){
-                    this._recalculateSharingPopup();
-                },50);
-            },
-            _recalculateSharingPopup: function(){
-                this.$.sharingDialog.refit();
+                if(this.MQ=='sm') return page.redirect('/'+this.projectId+'/accesses');
+                this.fire('open-sharing');
             },
             closeShareDialog: function(){
                 this.$.sharingDialog.close();
@@ -407,12 +399,7 @@
                     page.redirect('/');
                 }.bind(this));
             },
-            /**
-             * Cancel project removing
-             */
-            suspendRemoving: function () {
-                this.$.removeProjectConfirm.close();
-            },
+
             _computeProjectName: function(name){
                 return name || '';
             },
@@ -421,6 +408,8 @@
              * current selected project
              */
             openContext: function (e) {
+                e.preventDefault();
+                e.stopPropagation();
                 this.$.projectContextMenu.toggle(e);
             },
             openRenameProjectContext: function (e) {
@@ -430,7 +419,7 @@
                 }, 150);
             },
             openRemoveProjectConfirm: function (e) {
-                this.$.removeProjectConfirm.open();
+                this.fire('open-project-remove');
             },
             _computeSelectedItem: function (page,trashMode,name) {
                 if(trashMode && page!='task-manager') page = 'trash';
@@ -448,6 +437,10 @@
                 this.$.taskManagerShowCaseDialog.close();
                 this.$.protocolShowCaseDialog.close();
                 this.$.sharingDialog.close();
+            },
+            _closeMenu: function(){
+                if(!this.isMobile() || this.MQ!='sm') return;
+                this.fire('close-menu');
             }
         });
     </script>

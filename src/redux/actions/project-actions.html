@@ -112,6 +112,12 @@
                     type: 'UPDATE_FILE_ID',
                     fileId: fileId
                 }
+            },
+            updateMQ: function (mq) {
+                return {
+                    type: 'UPDATE_MQ',
+                    mq: mq
+                }
             }
         }
     }

@@ -1,15 +1,15 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <!-- Components -->
-<link rel="import" href="./designmap-fs-element.html?v=12345">
-<link rel="import" href="../designmap-ui/designmap-hidden-panel.html">
-<link rel="import" href="../designmap-ui/designmap-file-uploader.html">
-<link rel="import" href="../../plastic/plastic-custom-scroll.html">
+<link rel="import" href="./designmap-fs-element.html?v=12345?20170615">
+<link rel="import" href="../designmap-ui/designmap-hidden-panel.html?20170615">
+<link rel="import" href="../designmap-ui/designmap-file-uploader.html?20170615">
+<link rel="import" href="../../plastic/plastic-custom-scroll.html?20170615">
 
 <!-- Redux -->
-<link rel="import" href="../../../redux/actions/folders-actions.html">
-<link rel="import" href="../../../redux/actions/files-actions.html">
+<link rel="import" href="../../../redux/actions/folders-actions.html?20170615">
+<link rel="import" href="../../../redux/actions/files-actions.html?20170615">
 <!-- Services -->
-<link rel="import" href="./designmap-fs-service.html">
+<link rel="import" href="./designmap-fs-service.html?20170615">
 
 <dom-module id="designmap-fs-elements">
     <template>
@@ -42,6 +42,12 @@
                 };
                 --plastic-custom-scroll-bar-mixin: {
                     margin-left: -3px;
+                };
+                --plastic-custom-scroll-bar-hover-mixin: {
+                    margin-left: -5px;
+                };
+                --plastic-custom-scroll-bar-grabbed-mixin: {
+                    margin-left: -5px;
                 };
                 --designmap-circle-button-content-icon-mixin: {
                     padding: 40px;
@@ -113,11 +119,16 @@
                 --iron-icon-fill-color: var(--gray-color);
                 --iron-icon-stroke-color: var(--gray-color);
             }
+            @media (min-width: 320px) and (max-width: 540px) {
+                .elements {
+                    left: 10px;
+                }
+            }
         </style>
         <!-- Elements -->
         <template is="dom-if" if="[[elements.length]]">
             <div id="elementsWrapper" class="elements" hidden$="[[!elements.length]]">
-                <plastic-custom-scroll id="fsElementsCustomScroll" fit>
+                <plastic-custom-scroll id="fsElementsCustomScroll" fit small-bar>
                     <template id="elementsRepeater" is="dom-repeat" items="[[elements]]"
                               sort="[[elementsSort(sortWay)]]">
                         <designmap-fs-element item="[[item]]"
@@ -132,7 +143,7 @@
                 </plastic-custom-scroll>
             </div>
             <!-- Context menu -->
-            <designmap-context-menu id="contextMenu" previous>
+            <designmap-context-menu id="contextMenu" previous open-top="true">
                 <ul class="menu">
                     <template is="dom-if" if="[[!trashMode]]">
                         <li on-click="applyAction">
@@ -386,7 +397,8 @@
             },
             listeners: {
                 'open-element-context-menu': 'openElementContextMenu',
-                'select-element': 'selectElement'
+                'select-element': 'selectElement',
+                'apply-action':'applyAction'
             },
             observers: [
                 'selectedChanged(selected.splices)'
@@ -513,6 +525,7 @@
             applyAction: function (e) {
                 if (this.trashMode) return;
                 var element = e.model&&e.model.item ? e.model.item : this.currentElement;
+                if(e.detail && e.detail.item) element = e.detail.item;
                 var actionName = 'execute' + element.type.capitalize() + 'Action';
                 if (this[actionName] && typeof this[actionName] === 'function') this[actionName](element);
             },

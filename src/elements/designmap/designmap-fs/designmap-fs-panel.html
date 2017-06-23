@@ -1,13 +1,13 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="/bower_components/paper-tooltip/paper-tooltip.html">
-<link rel="import" href="../designmap-ui/designmap-confirm.html">
-<link rel="import" href="../designmap-tutorial/designmap-hint.html">
-<link rel="import" href="../designmap-buttons/designmap-circle-button.html">
-<link rel="import" href="../designmap-buttons/designmap-round-button.html">
-<link rel="import" href="./designmap-fs-service.html">
+<link rel="import" href="../designmap-ui/designmap-confirm.html?20170615">
+<link rel="import" href="../designmap-tutorial/designmap-hint.html?20170615">
+<link rel="import" href="../designmap-buttons/designmap-circle-button.html?20170615">
+<link rel="import" href="../designmap-buttons/designmap-round-button.html?20170615">
+<link rel="import" href="./designmap-fs-service.html?20170615">
 
-<link rel="import" href="../../../styles/context-menu-shared-styles.html">
+<link rel="import" href="../../../styles/context-menu-shared-styles.html?20170615">
 
 <dom-module is="designmap-fs-panel">
     <template>
@@ -83,6 +83,26 @@
                 margin-left: -3px;
                 margin-top: -6px;
             }
+            .mobile-menu {
+                display: none;
+            }
+
+            @media (min-width: 320px) and (max-width: 768px) {
+                #createFolderButton ,#uploadFileButton, #sortButton, #infoButton, #restoreButton,#removeButton {
+                    display: none;
+                }
+                .mobile-menu {
+                    display: block;
+                    position: relative;
+                    left: 10px;
+                    width: 50px;
+                    height: 50px;
+                    --iron-icon-components-mixin: {
+                        stroke: var(--gray-darkend-color);
+                        stroke-width: 1px;
+                    };
+                }
+            }
 
         </style>
         <!-- Confirms -->
@@ -153,7 +173,7 @@
                 <paper-tooltip for="removeButton"><i18-n msgid="Remove all">Remove all</i18-n></paper-tooltip>
             </div>
             <div class="right">
-                <designmap-circle-button id="sortButton" plastic-tooltip$="[[translate('Sort',language,i18Loaded)]]" data-cls="blue"
+                <designmap-circle-button id="sortButton" data-cls="blue"
                                          on-click="openMoreContext">
                     <iron-icon icon="designmap-workspace:sort"></iron-icon>
                 </designmap-circle-button>
@@ -168,11 +188,13 @@
                         </li>
                     </ul>
                 </designmap-context-menu>
-                <designmap-circle-button id="infoButton" plastic-tooltip$="[[translate('Info',language,i18Loaded)]]" data-cls="blue"
+                <designmap-circle-button id="infoButton" data-cls="blue"
                                          hidden$="[[infoOpened]]" on-click="openInfo" class="no-unselect">
                     <iron-icon icon="designmap-workspace:info"></iron-icon>
                 </designmap-circle-button>
                 <paper-tooltip for="infoButton"><i18-n msgid="Info">Info</i18-n></paper-tooltip>
+                <!--Mobile menu -->
+                <iron-icon class="mobile-menu" icon="designmap-workspace:more" on-click="openMobileMenu"></iron-icon>
             </div>
         </div>
     </template>
@@ -338,6 +360,10 @@
              */
             _canRemoveAll: function (role,trashMode) {
                 return this.topAccess(role) && trashMode;
+            },
+
+            openMobileMenu: function(e){
+               this.fire('open-context-menu',e);
             }
         })
     </script>

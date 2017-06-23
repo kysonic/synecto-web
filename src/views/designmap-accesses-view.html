@@ -1,0 +1,58 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../elements/designmap/designmap-accesses/designmap-accesses.html?20170615">
+<link rel="import" href="../elements/designmap/designmap-ui/designmap-dashboard.html?20170615">
+<!-- Redux -->
+<link rel="import" href="../redux/redux-store.html?20170615">
+<link rel="import" href="../redux/actions/project-actions.html?20170615">
+
+<dom-module id="designmap-accesses-view">
+    <style>
+        .content {
+            padding: 0 23px;
+        }
+
+        designmap-accesses {
+            width: calc(100vw - 45px);
+            max-width: calc(100vw - 45px);
+        }
+    </style>
+    <template>
+        <designmap-dashboard back>
+            <div class="title">
+                <i18-n msgid="Accesses">Accesses</i18-n>
+            </div>
+        </designmap-dashboard>
+        <div class="content">
+            <designmap-accesses onpage></designmap-accesses>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-accesses-view',
+            behaviors: [
+                ReduxBehavior,
+                Polymer.ProjectActions
+            ],
+            properties: {
+                projectId: {
+                    type: String,
+                    statePath: 'projectId'
+                },
+                project: {
+                    type: String,
+                    statePath: 'project'
+                },
+            },
+            attached: function(){
+                if(this.project) return;
+                this.dispatch('getProject', this.projectId);
+            },
+            listeners: {
+                'go-back': 'goBack'
+            },
+            goBack: function () {
+                page.redirect('/'+this.projectId);
+            }
+        });
+    </script>
+</dom-module>

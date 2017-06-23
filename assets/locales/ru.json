@@ -1432,5 +1432,8 @@
   },
   "Paste": {
     "message": "Вставить"
+  },
+  "You cannot paste folder inside it's child": {
+    "message": "Вы не можете встаить папку внутри ее потомка"
   }
 }

@@ -1,8 +1,8 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 
-<link rel="import" href="../../../redux/redux-store.html">
-<link rel="import" href="../../../redux/actions/combine-actions.html">
-<link rel="import" href="../../../redux/actions/user-actions.html">
+<link rel="import" href="../../../redux/redux-store.html?20170615">
+<link rel="import" href="../../../redux/actions/combine-actions.html?20170615">
+<link rel="import" href="../../../redux/actions/user-actions.html?20170615">
 
 <dom-module is="designmap-assignee">
     <template>
@@ -322,7 +322,7 @@
             },
             computeAvatarPath: function (path) {
                 if (!path) return '';
-                if (/images/.test(path)) return path + '?v=' + this.generateUid();
+                if (/images/.test(path)) return "/assets/"+path + '?v=' + this.generateUid();
                 return Designmap.config.apiURL + path + '?v=' + this.generateUid();
             },
             assigneeChanged: function (assignee) {

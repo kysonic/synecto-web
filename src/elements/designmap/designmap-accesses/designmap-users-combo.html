@@ -1,5 +1,5 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
-<link rel="import" href="./designmap-users-select.html">
+<link rel="import" href="./designmap-users-select.html?20170615">
 
 <dom-module id="designmap-users-combo">
     <template>
@@ -49,6 +49,9 @@
                 if(!this.$.select.isThereFilteredOptions(this.search)) {
                   this.getUsers(this.search);
                 }
+            },
+            blur: function(){
+                this.$.select.blur();
             }
         })
     </script>

@@ -146,6 +146,7 @@
             this.$$('#elements').elements.forEach(function (element) {
                 this['restore' + element.type.capitalize()]({detail: {element: element, skip: true}});
             }, this);
+            this.$$('#contextMenu').close();
             this.showMessage('All entities was restored');
         },
         /**
