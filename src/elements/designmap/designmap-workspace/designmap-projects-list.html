@@ -174,7 +174,7 @@
                     <i18-n msgid="Rename">Rename</i18-n>
                 </li>
                 <!-- Rename project -->
-                <designmap-context-menu id="renameProjectContext" previous>
+                <designmap-context-menu bound id="renameProjectContext" previous>
                     <div class="context-content">
                         <iron-a11y-keys id="a11yAddFolder" keys="enter" on-keys-pressed="renameIt"></iron-a11y-keys>
                         <paper-input label$="[[translate('Project Name',language,i18Loaded)]]"
@@ -335,6 +335,7 @@
              * Open rename project context
              */
             openRemoveProjectConfirm: function (e) {
+                this.$.projectContextMenu.close();
                 this.$.removeProjectConfirm.open();
             },
             /**

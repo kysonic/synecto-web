@@ -1,4 +1,5 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../../../behaviors/designmap-resolve-overlay-behavior.html">
 
 <link rel="import" href="../../../redux/redux-store.html?20170615">
 <link rel="import" href="../../../redux/actions/combine-actions.html?20170615">
@@ -55,7 +56,7 @@
                 width: 280px;
                 position: relative;
                 background: var(--blue-darkest-color);
-                max-width: 280px;
+                max-width: 280px !important;
                 padding: 20px;
                 color: var(--gray-color) !important;
                 overflow: visible !important;
@@ -190,7 +191,8 @@
                     width: 55%;
                     height: 55%;
                     padding: 21% 19%;
-                }
+                };
+                @apply(--designmap-assignee-empty-mixin);
             }
 
             @keyframes appearance {
@@ -202,9 +204,13 @@
                 }
             }
 
-            @media only screen and (min-width: 300px) and (max-width: 768px) {
-                .hide-on-mobile {
-                    display: none !important;
+            @media only screen and (min-width: 320px) and (max-width: 768px) {
+                .triangle {
+                    left: 0;
+                    margin-left: 28px;
+                }
+                .assignee {
+                    line-height: 42px;
                 }
             }
 
@@ -237,7 +243,7 @@
                                         label="[[translate('Assignee',language,i18Loaded)]]" options="[[shareUsers]]"
                                         on-selected="select" search="{{search}}" limit="5"
                                         label="[[label]]"></designmap-users-select>
-                <div class="triangle hide-on-mobile"></div>
+                <div class="triangle"></div>
             </div>
         </iron-dropdown>
     </template>
@@ -246,6 +252,7 @@
             is: 'designmap-assignee',
             behaviors: [
                 Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignmapResolveOverlayBehavior,
                 Polymer.DesignMapUtilsBehavior,
                 Polymer.DesignmapAnimationSet,
                 Polymer.NeonAnimatableBehavior,
@@ -301,7 +308,7 @@
                 }
             },
             attached: function () {
-
+                this.resolveDropDown(this.$.dropdown);
             },
             openDialog: function () {
                 if (this.disabled) return this.showErrorMessage('You do not have access to make it');
@@ -322,7 +329,7 @@
             },
             computeAvatarPath: function (path) {
                 if (!path) return '';
-                if (/images/.test(path)) return "/assets/"+path + '?v=' + this.generateUid();
+                if (/images/.test(path)) return path + '?v=' + this.generateUid();
                 return Designmap.config.apiURL + path + '?v=' + this.generateUid();
             },
             assigneeChanged: function (assignee) {

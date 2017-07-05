@@ -173,7 +173,7 @@
                                 <i18-n msgid="Rename">Rename</i18-n>
                             </li>
                             <!-- Rename Folder -->
-                            <designmap-context-menu darker id="renameFolderContext" previous>
+                            <designmap-context-menu bound darker id="renameFolderContext" previous>
                                 <div class="context-content">
                                     <iron-a11y-keys id="a11yAddFolder" keys="enter"
                                                     on-keys-pressed="renameFolder"></iron-a11y-keys>
@@ -201,7 +201,7 @@
                                 <i18-n msgid="Rename">Rename</i18-n>
                             </li>
                             <!-- Rename Folder -->
-                            <designmap-context-menu darker id="renameFileContext" previous>
+                            <designmap-context-menu bound darker id="renameFileContext" previous>
                                 <div class="context-content">
                                     <iron-a11y-keys id="a11yAddFolder" keys="enter"
                                                     on-keys-pressed="renameFile"></iron-a11y-keys>
@@ -298,6 +298,7 @@
         <div class="cloud">
             <iron-icon icon="cloud-upload"></iron-icon>
         </div>
+        <designmap-confirm id="restoreConfirm" message="ElementIsRemovedDoYouWantToResroreIt" on-continue="restoreElement" on-suspend="closeRestoreConfirm"></designmap-confirm>
     </template>
     <script>
         Polymer({
@@ -328,7 +329,7 @@
                  */
                 allowedExtensions: {
                     type: String,
-                    value: [".jpg", ".png", ".gif", ".ttf", ".bmp", ".jpg",".psd",".eps",".ai",".pdf",".zip",".rar",".txt",".docx",".ttf",".eot"]
+                    value: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr", ".ppm", ".pbm",".ai",".psd",".eps",".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx"]
                 },
                 /**
                  * Selected elements
@@ -523,8 +524,8 @@
              * file - open gallery
              */
             applyAction: function (e) {
-                if (this.trashMode) return;
                 var element = e.model&&e.model.item ? e.model.item : this.currentElement;
+                if (this.trashMode) return this.openRestoreDialog(element);
                 if(e.detail && e.detail.item) element = e.detail.item;
                 var actionName = 'execute' + element.type.capitalize() + 'Action';
                 if (this[actionName] && typeof this[actionName] === 'function') this[actionName](element);
@@ -704,6 +705,13 @@
             },
             _computeElementClass: function(cutted) {
                 return cutted?'cutted':'';
+            },
+            openRestoreDialog: function(element){
+                this.currentElement = element;
+                this.$.restoreConfirm.open();
+            },
+            closeRestoreConfirm: function(){
+                this.$.restoreConfirm.close();
             }
         });
     </script>

@@ -41,8 +41,17 @@
                 background: var(--dropdown-color-super-dark);
             }
             @media (min-width: 320px) and (max-width: 560px) {
-                .dropdown-content, .content ::content ul.menu {
-                    max-width: 150px;
+                :host([bound]) iron-dropdown {
+                    width: calc(100vw - 40px) !important;
+                    top: 70px !important;
+                    left: 20px !important;
+                    position: fixed;
+                    z-index: 9999;
+                }
+                :host([bound]) .dropdown-content {
+                    max-width: calc(100vw - 40px) !important;
+                    z-index: 9999;
+                    max-height: 68px !important;
                 }
             }
         </style>

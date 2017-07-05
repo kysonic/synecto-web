@@ -77,6 +77,16 @@
                 }
             }
 
+            /** DEVICES **/
+            @media (min-device-width: 300px) and (max-device-width: 1366px) {
+                .bar {
+                    display: none !important;
+                }
+                .content {
+                    overflow: auto;
+                }
+            }
+
         </style>
         <div class="content" id="content" on-track="track">
             <content></content>
@@ -98,6 +108,10 @@
                 uid: {
                     type: String,
                     reflectToAttribute: true
+                },
+                noScroll: {
+                    type: Boolean,
+                    value: false
                 }
             },
             listeners: {
@@ -105,6 +119,8 @@
             },
             ready: function () {
                 if (this.maxHeight) this.$.content.style.maxHeight = this.maxHeight + 'px';
+                // Skip preocessing for mobile devices. Because they have normal scroll
+                if(this.isMobileDevice() || this.noScroll) return;
                 // Mouse wheel
                 var wheelTarget = this.wheelTarget || this;
                 wheelTarget.addEventListener('wheel', this.mouseWheel.bind(this));
@@ -221,6 +237,9 @@
                 e.stopPropagation();
                 this.$.content.scrollTop -= e.detail.ddy;
                 this.calculate();
+            },
+            isMobileDevice: function(){
+                return /Mobi/.test(navigator.userAgent);
             }
         })
     </script>

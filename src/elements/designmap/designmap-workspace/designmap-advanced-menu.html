@@ -156,6 +156,23 @@
             margin-left: -51px;
             top: -15px;
         }
+        .mobile-project-menu {
+            display: none;
+        }
+        @media (min-width: 320px) and (max-width: 768px) {
+            .mobile-project-menu {
+                display: block;
+                margin-top: 20px;
+                border-top: 1px dashed var(--gray-color);
+            }
+            .mobile-project-menu li:first-child {
+                margin-top: 10px;
+            }
+            .mobile-project-menu li {
+                padding: 5px 30px;
+                color: var(--gray-darkend-color);
+            }
+        }
 
     </style>
     <template>
@@ -182,7 +199,7 @@
                                 <i18-n msgid="Rename">Rename</i18-n>
                             </li>
                             <!-- Rename project -->
-                            <designmap-context-menu id="renameProjectContext" previous>
+                            <designmap-context-menu darker id="renameProjectContext" previous >
                                 <div class="context-content">
                                     <iron-a11y-keys id="a11yAddFolder" keys="enter" on-keys-pressed="renameIt"></iron-a11y-keys>
                                     <paper-input label$="[[translate('Project Name',language,i18Loaded)]]"
@@ -247,7 +264,10 @@
             </ul>
         </ul>
 
-
+        <ul class="mobile-project-menu">
+            <li on-click="openCreateProjectDialog"><i18-n msgid="Create Project">Create Project</i18-n></li>
+            <li on-click="openSelectProjectDialog"><i18-n msgid="Open Project">Open Project</i18-n></li>
+        </ul>
 
         <!-- Showcase dialog -->
         <!--<paper-dialog no-cancel-on-outside-click id="taskManagerShowCaseDialog" entry-animation="scale-up-animation"
@@ -441,6 +461,14 @@
             _closeMenu: function(){
                 if(!this.isMobile() || this.MQ!='sm') return;
                 this.fire('close-menu');
+            },
+            openCreateProjectDialog: function(){
+                this.fire('close-menu');
+                this.fire('open-create-project-dialog');
+            },
+            openSelectProjectDialog: function(){
+                this.fire('close-menu');
+                this.fire('open-select-project-dialog');
             }
         });
     </script>

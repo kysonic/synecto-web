@@ -95,20 +95,35 @@
                 color: red;
             }
 
+            @media (min-width: 320px) and (max-width: 768px) {
+                .hidden-xs {
+                    display: none;
+                }
+                designmap-task-list.no-task, designmap-task-details.selected-task {
+                    display: block;
+                }
+                designmap-task-list.selected-task, designmap-task-details.no-task{
+                    display: none;
+                }
+                designmap-task-details {
+                    margin-top: 0px;
+                }
+            }
+
 
         </style>
         <div class="wrapper">
-            <designmap-dashboard hidden$="[[projectError]]" back back-url="[[_computeBackUrl(project._id)]]">
+            <designmap-dashboard hidden$="[[projectError]]" back on-go-back="_arrowBackAction">
                 <div class="title">
                     <i18-n msgid="Task manager">Task manager</i18-n>
-                    <i18-n msgid="of project">of project</i18-n>
-                    &laquo;<span>[[project.name]]</span>&raquo;
+                    <i18-n class="hidden-xs" msgid="of project">of project</i18-n>
+                    <span class="hidden-xs">&laquo;[[project.name]]&raquo;</span>
                 </div>
             </designmap-dashboard>
             <div class$="content [[mode]]">
-                <designmap-task-list hidden$="[[!computeMainState(tasks.length)]]" id="list"
+                <designmap-task-list class$="[[_isThereSelectedTaskClass(selectedTask)]]" hidden$="[[!computeMainState(tasks.length)]]" id="list"
                                      selected="{{selectedTask}}" filter selecting></designmap-task-list>
-                <designmap-task-details hidden$="[[!computeMainState(tasks.length)]]"
+                <designmap-task-details class$="[[_isThereSelectedTaskClass(selectedTask)]]" hidden$="[[!computeMainState(tasks.length)]]"
                                         id="details" task="[[selectedTask]]"></designmap-task-details>
                 <div class="no-task" hidden$="[[!computeNoTasksState(tasks.length,loading,error)]]">
                     <designmap-stub value="{{taskName}}" on-action="addTask"
@@ -201,12 +216,17 @@
                 error: {
                     type: String,
                     value: ''
+                },
+                MQ: {
+                    type: String,
+                    statePath: 'MQ'
                 }
             },
             listeners: {
                 'select-task': 'selectTask',
                 'focus-input': 'focusInput',
-                'reset': 'findDefaultTask'
+                'reset': 'findDefaultTask',
+                'mobile-go-back':'mobileGoBack'
             },
             /**
              * Create new task on level 1.
@@ -251,6 +271,10 @@
             },
             _computeBackUrl: function (projectId) {
                 return '/' + (projectId || '');
+            },
+            _arrowBackAction: function(){
+                if(this.MQ!=='sm') return page.redirect('/' + (this.projectId || ''));
+                this.mobileGoBack();
             },
             selectTask: function (e) {
                 page.redirect('/' + this.projectId + '/task-manager' + this.getFullPath(e.detail));
@@ -297,7 +321,7 @@
                 }.bind(this));
             },
             _pathChanged: function (path) {
-                if (path == '/' && !this.selectedTask) return this.findDefaultTask();
+                if (path == '/' && !this.selectedTask && this.MQ!=='sm') return this.findDefaultTask();
                 const task = this.findTaskByPath(path);
                 if (!task) return;
                 this.selectedTask = task;
@@ -312,6 +336,21 @@
                 if (!task) return page.redirect('/' + this.projectId + '/task-manager/');
                 page.redirect('/' + this.projectId + '/task-manager' + this.getFullPath(task));
             },
+            mobileGoBack: function(){
+                if(this.MQ!='sm') return;
+                // Mobile>>> If we are inside
+                if(this.selectedTask && this.selectedTask.parent) {
+                    var task = this.findTaskById(this.selectedTask.parent);
+                    return page.redirect('/'+this.projectId+'/task-manager/'+this.getFullPath(task));
+                }
+                // If task doesn't have parent
+                if(this.selectedTask && !this.selectedTask.parent) {
+                    this.selectedTask = false
+                    return page.redirect('/'+this.projectId+'/task-manager/');
+                }
+                // If we are on list
+                return page.redirect('/' + (this.projectId || ''));
+            },
             /**
              * Re-render task-details
              * after any changes
@@ -320,6 +359,9 @@
                 if(!this.selectedTask) return;
                 const task = Object.assign({},this.findTaskById(this.selectedTask._id));
                 this.selectedTask = task;
+            },
+            _isThereSelectedTaskClass: function(selectedTask){
+                return !!selectedTask ? 'selected-task' : 'no-task';
             }
         })
     </script>

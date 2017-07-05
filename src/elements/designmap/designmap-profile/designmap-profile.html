@@ -95,6 +95,8 @@
                 --paper-checkbox-checked-color: var(--blue-color);
             }
 
+
+
             .content {
                 max-width: 830px;
                 width: 90%;
@@ -308,6 +310,48 @@
                 padding: 55px 45px !important;
             }
 
+            paper-tabs.mobile {
+                --paper-tabs: {
+                    font-size: 16px;
+                };
+            }
+
+            .top25 {
+                margin-top: 25px;
+            }
+
+            @media (min-width: 320px) and (max-width: 768px) {
+                .tabs-row {
+                    margin-left: 0;
+                }
+                .col {
+                    padding: 0;
+                }
+                form .col {
+                    padding: 0 20px;
+                }
+                .lbl {
+                    text-align: center;
+                }
+                .slider-wrapper {
+                    max-width: calc(100vw - 35px);
+                    margin-right: 0;
+                }
+                paper-slider {
+                    max-width: calc(100vw - 35px);
+                }
+                .xcol {
+                    padding: 0 25px;
+                }
+                .top25 {
+                    margin-top: 0px;
+                }
+                .flexer {
+                    align-items: center;
+                    justify-content: center;
+                }
+            }
+
         </style>
         <designmap-dashboard>
             <div class="arrow-back" data-hint="back" on-click="goBack">
@@ -320,7 +364,7 @@
         <div class="content">
             <div class="row tabs-row">
                 <div class="col col-md-12 pad">
-                    <paper-tabs no-slide="[[!user.config.animationOn]]" noink selected="{{selector}}">
+                    <paper-tabs class$="[[_mobileClass(MQ)]]" id="tabs" noink selected="{{selector}}">
                         <paper-tab>
                             <i18-n msgid="Profile">Profile</i18-n>
                         </paper-tab>
@@ -358,7 +402,6 @@
                             <div class="row">
                                 <div class="col col-md-6 col-xs-12">
                                     <designmap-input-datepicker id="datePicker"
-                                                                animation-on="[[user.config.animationOn]]"
                                                                 on-date-changed="changeBirthDate"
                                                                 label="[[translate('Birth date',language,i18Loaded)]]"></designmap-input-datepicker>
                                 </div>
@@ -459,7 +502,7 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-6 col-xs-12" style="margin-top: 25px;">
+                                <div class="col-md-6 col-xs-12 top25">
                                     <div class="checkbox-label lbl">
                                         <i18-n msgid="Particular user">Particular user</i18-n>
                                     </div>
@@ -493,24 +536,24 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-md-12 col-xs-12">
+                                <div class="xcol col-md-12 col-xs-12">
                                     <div class="title">
                                         <i18-n msgid="Email settings">Email settings</i18-n>
                                     </div>
                                 </div>
-                                <div class="col-md-11 col-xs-10 centred">
+                                <div class="xcol col-md-11 col-xs-10 centred">
                                     <i18-n class="checkbox-label" msgid="Receive designmap news">Receive designmap
                                         news
                                     </i18-n>
                                 </div>
-                                <div class="col-md-1 col-xs-2 centred right">
+                                <div class=" col-md-1 col-xs-2 centred right">
                                     <paper-checkbox checked="{{user.config.designmapNews::change}}"></paper-checkbox>
                                 </div>
-                                <div class="col-md-11 col-xs-10 centred ">
+                                <div class="xcol col-md-11 col-xs-10 centred ">
                                     <i18-n class="checkbox-label" msgid="Receive notifications">Receive notifications
                                     </i18-n>
                                 </div>
-                                <div class="col-md-1 col-xs-2 centred right">
+                                <div class=" col-md-1 col-xs-2 centred right">
                                     <paper-checkbox checked="{{user.config.notifier::change}}"></paper-checkbox>
                                 </div>
                                 <!--<div class="col-md-11 col-xs-10 centred"><i18-n class="checkbox-label" msgid="Receive system alerts">Receive system alerts</i18-n></div>
@@ -593,7 +636,9 @@
                 stickerCountMax: {type: Number, value: 10},
                 maxHeight: {
                     type: Number,
-                    value: 300
+                    value: function(){
+                        return window.innerHeight - 160
+                    }
                 },
                 bodyNode: {
                     type: Object,
@@ -606,10 +651,18 @@
                     value: [
                         {icon: 'designmap-showcase:disk',message:'dataSpacePremiumOneMsg'}
                     ]
+                },
+                MQ: {
+                    type: String,
+                    statePath: 'MQ'
                 }
             },
             listeners: {
                 'iron-resize': 'onResize'
+            },
+            _mobileClass: function(MQ){
+                this.async(function(){this.updateStyles()});
+                return MQ=='sm' ? 'mobile' : 'desktop';
             },
             /**
              * Save user information
@@ -713,7 +766,7 @@
                 this.user[target.dataset.field] = target.value;
             },
             onResize: function () {
-                this.maxHeight = window.innerHeight - 130;
+                this.maxHeight = window.innerHeight - 160;
             },
             animationDuration: function (on) {
                 this.$.pages.duration = on ? 400 : 0;

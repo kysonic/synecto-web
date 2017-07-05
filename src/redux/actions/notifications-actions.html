@@ -1,98 +1,112 @@
 <script>
-  /**
-   * Notification actions
-   */
-  Polymer.NotificationsActions = {
-    actions: {
-      /**
-       * Get notifications
-       */
-      getNotifications: function (query) {
-        return function (dispatch) {
-          const promise = xhr.get(Designmap.config.apiURL + 'notification/' + this.objectToQueryString(query));
-          promise.then(function (response) {
-            if (!response.success) return;
-            dispatch({type: "SET_NOTIFICATIONS", notifications: response.notifications});
-          });
-          return promise;
-        }.bind(this);
-      },
-      /**
-       * Create notification
-       */
-      addNotification: function(data){
-        return function(dispatch) {
-          return xhr.post(Designmap.config.apiURL+'notification/', data);
-          return promise;
-        }.bind(this)
-      },
-      /**
-       * Add notification in Redux store
-       */
-      _addNotification: function(data){
-        return {
-          type: 'ADD_NOTIFICATION',
-          data: data
+    /**
+     * Notification actions
+     */
+    Polymer.NotificationsActions = {
+        actions: {
+            /**
+             * Get notifications
+             */
+            getNotifications: function (query) {
+                return function (dispatch) {
+                    const promise = xhr.get(Designmap.config.apiURL + 'notification/' + this.objectToQueryString(query));
+                    promise.then(function (response) {
+                        if (!response.success) return;
+                        dispatch({type: "SET_NOTIFICATIONS", notifications: response.notifications});
+                    });
+                    return promise;
+                }.bind(this);
+            },
+            /**
+             * Create notification
+             */
+            addNotification: function (data) {
+                return function (dispatch) {
+                    return xhr.post(Designmap.config.apiURL + 'notification/', data);
+                    return promise;
+                }.bind(this)
+            },
+            /**
+             * Add notification in Redux store
+             */
+            _addNotification: function (data) {
+                return {
+                    type: 'ADD_NOTIFICATION',
+                    data: data
+                }
+            },
+            /**
+             * Clean folders bunch
+             */
+            cleanNotifications: function () {
+                return {
+                    type: 'CLEAN_NOTIFICATIONS'
+                }
+            },
+            /**
+             * Update notification
+             * @param active - whether notification is active?
+             * @returns {function(this:Polymer.NotificationActions)}
+             */
+            updateNotification: function (data) {
+                return function (dispatch) {
+                    const promise = xhr.put(Designmap.config.apiURL + 'notification/' + data._id, data);
+                    promise.then(function (response) {
+                        if (!response.success) return;
+                        dispatch({
+                            type: 'UPDATE_NOTIFICATION',
+                            data: data,
+                            index: this.findNotificationIndexById(data._id)
+                        })
+                    }.bind(this));
+                    return promise;
+                }.bind(this)
+            },
+            /**
+             * Update notification
+             * @param active - whether notification is active?
+             * @returns {function(this:Polymer.NotificationActions)}
+             */
+            removeNotification: function (id) {
+                return function (dispatch) {
+                    const promise = xhr.delete(Designmap.config.apiURL + 'notification/' + id);
+                    dispatch({type: 'REMOVE_NOTIFICATION', index: this.findNotificationIndexById(id)})
+                    promise.then(function (response) {
+                        if (!response.success) return;
+                    }.bind(this)).catch(function (e) {
+                        console.log(e);
+                    });
+                    return promise;
+                }.bind(this)
+            },
+            /**
+             * Read notifications. Update {read:true}
+             * @param notifications
+             * @returns {function(this:Polymer.NotificationsActions)}
+             */
+            readNotifications: function (notifications) {
+                if (!notifications || !notifications.length) return {type:'NONE'};
+                var notificationsIds = notifications.filter(function (notification) {
+                    return !notification.read;
+                }).map(function (notification) {
+                    return notification._id;
+                });
+                if (!notificationsIds.length) return {type:'NONE'};
+                return function (dispatch) {
+                    const promise = xhr.put(Designmap.config.apiURL + 'notification/', {notifications: notificationsIds});
+                    promise.then(function (response) {
+                        if (!response.success) return;
+                        notifications.forEach(function (notification) {
+                            dispatch({
+                                type: 'UPDATE_NOTIFICATION',
+                                data: {read: true},
+                                index: this.findNotificationIndexById(notification._id)
+                            })
+                        }.bind(this));
+                    }.bind(this));
+                    return promise;
+                }.bind(this)
+            }
         }
-      },
-      /**
-       * Clean folders bunch
-       */
-      cleanNotifications: function(){
-        return {
-          type: 'CLEAN_NOTIFICATIONS'
-        }
-      },
-      /**
-       * Update notification
-       * @param active - whether notification is active?
-       * @returns {function(this:Polymer.NotificationActions)}
-       */
-      updateNotification: function (data) {
-        return function (dispatch) {
-          const promise = xhr.put(Designmap.config.apiURL + 'notification/' + data._id, data);
-          promise.then(function(response){
-            if(!response.success) return;
-            dispatch({type:'UPDATE_NOTIFICATION',data:data,index:this.findNotificationIndexById(data._id)})
-          }.bind(this));
-          return promise;
-        }.bind(this)
-      },
-      /**
-       * Update notification
-       * @param active - whether notification is active?
-       * @returns {function(this:Polymer.NotificationActions)}
-       */
-      removeNotification: function (id) {
-        return function (dispatch) {
-          const promise = xhr.delete(Designmap.config.apiURL + 'notification/' + id);
-          dispatch({type:'REMOVE_NOTIFICATION',index:this.findNotificationIndexById(id)})
-          promise.then(function(response){
-            if(!response.success) return;
-          }.bind(this));
-          return promise;
-        }.bind(this)
-      },
-      /**
-       * Read notifications. Update {read:true}
-       * @param notifications
-       * @returns {function(this:Polymer.NotificationsActions)}
-       */
-      readNotifications: function(notifications) {
-        var notificationsIds = notifications.map(function(notification){
-          return notification._id;
-        });
-        return function (dispatch) {
-          const promise = xhr.put(Designmap.config.apiURL + 'notification/', {notifications:notificationsIds});
-          promise.then(function(response){
-            if(!response.success) return;
-            notifications.forEach(function(notification){
-              dispatch({type:'UPDATE_NOTIFICATION',data:{read:true},index:this.findNotificationIndexById(notification._id)})
-            }.bind(this));
-          }.bind(this));
-          return promise;
-        }.bind(this)
-      }
     }
-  }
 </script>

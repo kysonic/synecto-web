@@ -1,5 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="../../plastic/plastic-custom-scroll.html?20170615">
+<link rel="import" href="../../plastic/plastic-textarea.html?20170615">
 <link rel="import" href="./designmap-assignee.html?20170615">
 <link rel="import" href="../designmap-ui/designmap-date-picker.html?20170615">
 <link rel="import" href="../designmap-ui/designmap-file-uploader.html?20170615">
@@ -113,26 +114,16 @@
                 padding: 17px !important;
             }
 
-            /** Description **/
-            #desc {
-                margin-left: 2px;
-                max-width: 100%;
-            }
-
             /** CUSTOM SCROLL **/
             :host {
                 --plastic-custom-scroll-bar-mixin: {
-                    background: rgba(40, 133, 163, 0.2);
-                    margin-left: -16px;
+                    margin-left: -10px;
                 };
                 --plastic-custom-scroll-bar-hover-mixin: {
-                    background: rgba(125, 186, 232, 0.3);
+                    margin-left: -12px;
                 };
                 --plastic-custom-scroll-bar-grabbed-mixin: {
-                    background: rgba(125, 186, 232, 0.4);
-                };
-                --iron-autogrow-textarea: {
-                    color: var(--primary-color) !important;
+                    margin-left: -12px;
                 };
             }
 
@@ -436,17 +427,14 @@
                 width: 100%;
             }
             .pure-textarea {
-                font-family: var(--font-family);
-                font-weight: 100;
-                font-size: 18px;
-                color: var(--gray-darky-color);
-                border: none;
-                outline: none;
-                margin-top: 10px;
-                width: 100%;
-                resize: none;
-                padding: 0;
-                height: 74px;
+                --pure-textarea-mixin: {
+                    margin-left: 67px;
+                    font-family: var(--font-family);
+                    color: var(--gray-darky-color);
+                    max-width: calc(100% - 90px);
+                    font-weight: 100;
+                    font-size: 18px;
+                }
             }
             /** STATUSES **/
             .details.completed .pure-input, .details.completed .pure-textarea{
@@ -482,13 +470,63 @@
                 }
             }
 
+            designmap-assignee.mobile {
+                --designmap-assignee-assigned-mixin: {
+                    width: 40px;
+                    height: 40px;
+                };
+                --designmap-assignee-empty-mixin: {
+                    width: 60px;
+                    height: 60px;
+                    position: relative;
+                    right: 13px;
+                    bottom: 12px;
+                }
+            }
+
+            .hidden-lg {
+                display: none;
+            }
+
+            @media (min-width: 320px) and (max-width: 768px) {
+                .hidden-xs {
+                    display: none;
+                }
+                .hidden-lg {
+                    display: block;
+                }
+                designmap-assignee {
+                    width: 42px;
+                    height: 42px;
+                    margin-left: 18px;
+                    margin-top: 14px;
+                }
+                .pure-input {
+                    margin-left: 5px;
+                    max-width: calc(100% - 10px);
+                }
+                .pure-textarea {
+                }
+
+                iron-icon.more-icon {
+                    width: 50px;
+                    height: 50px;
+                    padding: 13px !important;
+                }
+                paper-dialog {
+                    max-width: 300px !important;
+                    max-height: 475px !important;
+                    top: 52px !important;
+                }
+            }
+
         </style>
-        <plastic-custom-scroll fit max-height="[[maxHeight]]">
+        <plastic-custom-scroll id="scroller" small-bar max-height="[[maxHeight]]">
             <div class$="details [[computeAssigneeStatus(task)]]" hidden$="{{!computeSelected(task)}}">
-                <div class="content hide-on-mobile">
+                <div class="content">
                     <div class="left">
-                        <designmap-assignee horizontal-offset="-165" vertical-offset="65"
-                                            class$="[[computeAssigneeStatus(task)]]"
+                        <designmap-assignee id="assignee" horizontal-offset="-165" vertical-offset="65"
+                                            class$="[[computeAssigneeStatus(task)]] [[_isMobileClass(MQ)]]"
                                             disabled="[[!canUpdateTask(task)]]" task="[[task]]"
                                             assignee="[[task.assignee]]" on-assign="selectAssignee"
                                             on-remove="removeAssignee"></designmap-assignee>
@@ -500,10 +538,6 @@
                                               class="pure-input"
                                               placeholder="[[translate('Enter title',language,i18Loaded)]]"
                                               value="[[task.name]]" />
-                        <!-- DESC -->
-                        <textarea id="desc" class="pure-textarea" max-rows="4"
-                                                 on-blur="saveDesc" value="[[task.description]]"
-                                                 placeholder="[[translate('Enter description',language,i18Loaded)]]"></textarea>
                         <!-- FILES -->
                         <div class="files" hidden$="[[!tasksFiles.length]]">
                             <iron-icon class="paper-clip" icon="designmap:paper-clip"></iron-icon>
@@ -519,7 +553,7 @@
                             </div>
                         </div>
                         <!-- BREADCRUMBS -->
-                        <div class="breadcrumbs" hidden$="[[!breadcrumbs.length]]">
+                        <div class="breadcrumbs hidden-xs" hidden$="[[!breadcrumbs.length]]">
                             <!--<template is="dom-if" if="[[breadcrumbs.length]]">
                               <div class="crumb"><</div>
                             </template>-->
@@ -535,7 +569,7 @@
                         </div>
                     </div>
                     <div class="panel">
-                        <designmap-circle-button id="date-button" hidden$="[[!canUpdateTask(task)]]"
+                        <designmap-circle-button id="date-button" class="hidden-xs" hidden$="[[!canUpdateTask(task)]]"
                                                  on-click="openDatePicker">
                             <iron-icon class="panel-icon" icon="designmap-task-manager:date"></iron-icon>
                             <div class="date-popup">
@@ -543,25 +577,45 @@
                                 <div class="triangle"></div>
                             </div>
                         </designmap-circle-button>
-                        <designmap-circle-button data-cls="blue"
-                                                 x-tooltip$="{{translate('Attach file',language,i18Loaded)}}"
+                        <designmap-circle-button class="hidden-xs"
                                                  hidden$="[[!canUpdateTask(task)]]"
                                                  on-click="openAddFileForm">
                             <iron-icon class="panel-icon" icon="designmap-task-manager:attach_file"></iron-icon>
                         </designmap-circle-button>
-                        <designmap-circle-button data-cls="blue"
-                                                 x-tooltip$="{{translate('Remove task',language,i18Loaded)}}"
+                        <designmap-circle-button class="hidden-xs"
                                                  hidden$="[[!canUpdateTask(task)]]"
                                                  on-click="openRemoveTaskConfirm">
                             <iron-icon class="panel-icon remove" icon="designmap-task-manager:remove"></iron-icon>
                         </designmap-circle-button>
+
+                        <iron-icon on-click="openContextMenu" class="panel-icon hidden-lg more-icon" icon="designmap-workspace:more"></iron-icon>
+                        <!-- Context menu -->
+                        <designmap-context-menu id="contextMenu" previous width="150">
+                            <ul class="menu">
+                                <li on-click="openDatePicker">
+                                    <i18-n msgid="Due date">Due date</i18-n>
+                                </li>
+                                <li on-click="openAddFileForm">
+                                    <i18-n msgid="Upload file">Upload file</i18-n>
+                                </li>
+                                <li on-click="openRemoveTaskConfirm">
+                                    <i18-n msgid="Remove">Remove</i18-n>
+                                </li>
+                            </ul>
+                        </designmap-context-menu>
                     </div>
+                </div>
+                <div class="second-line">
+                    <!-- DESC -->
+                    <plastic-textarea id="desc" class="pure-textarea"
+                              on-change="_descChange"
+                              on-blur="saveDesc" value="[[task.description]]"
+                              placeholder="[[translate('Enter description',language,i18Loaded)]]"></plastic-textarea>
                 </div>
                 <!-- SUB TASKS -->
                 <div class="sub-tasks">
-                    <designmap-task-list id="list" placeholder="Add subtask" max-height="[[maxHeight]]"
-                                         max-height-offset="350" cannot-add="[[!canUpdateTask(task)]]"
-                                         parent="[[task._id]]"></designmap-task-list>
+                    <designmap-task-list id="list" placeholder="Add subtask" cannot-add="[[!canUpdateTask(task)]]"
+                                         parent="[[task._id]]" no-scroll></designmap-task-list>
                 </div>
             </div>
             <!-- Date Picker -->
@@ -573,7 +627,7 @@
                                    date="{{date}}"></designmap-date-picker>
                 <div class="buttons">
                     <paper-button dialog-dismiss><i18-n msgid="Cancel">Cancel</i18-n></paper-button>
-                    <paper-button dialog-confirm><i18-n msgid="Select" on-click="saveDate">Select</i18-n></paper-button>
+                    <paper-button dialog-confirm><i18-n msgid="Select" on-tap="saveDate">Select</i18-n></paper-button>
                 </div>
             </paper-dialog>
             <!-- FILE UPLOADER -->
@@ -671,6 +725,10 @@
                     type: Object,
                     statePath: 'project'
                 },
+                projectId: {
+                    type: Object,
+                    statePath: 'projectId'
+                },
                 wrapper: {
                     type: Object,
                     value: function () {
@@ -678,7 +736,14 @@
                     }
                 },
                 maxHeight: {
-                    type: Number
+                    type: Number,
+                    value: function(){
+                        return window.innerHeight - 150;
+                    }
+                },
+                MQ: {
+                    type: String,
+                    statePath: 'MQ'
                 }
             },
             listeners: {
@@ -687,6 +752,11 @@
             ready: function () {
                 this.notifier = document.querySelector('designmap-notifier');
                 this.manager = document.querySelector('designmap-task-manager');
+                if(this.MQ=='sm') this.$.assignee.classList.add('mobile');
+            },
+            _isMobileClass: function(MQ){
+                this.async(function(){this.updateStyles();});
+                return MQ=='sm'?'mobile':'desktop';
             },
             attached: function () {
                 this.async(function () {
@@ -761,17 +831,22 @@
              * @param e
              */
             saveDesc: function (e) {
+                var val = this.$.desc.$.textarea.value;
                 if (!this.canUpdateTask(this.task)) {
-                    this.$.desc.value = this.task.description;
+                    this.$.desc.$.textarea.value = this.task.description;
                     return this.showErrorMessage('You do not have access to make it');
                 }
-                this.dispatch('$updateTask', this.task._id, {description: this.$.desc.value});
+                this.dispatch('$updateTask', this.task._id, {description: val}).then(function(response){
+                    if(!response.success) return this.showErrorMessage('Cannot save description');
+                    this.showMessage('Description has been saved!');
+                }.bind(this));
             },
             /**
              * Save date
              * @param e
              */
             saveDate: function (e) {
+                if(this.$.contextMenu) this.$.contextMenu.close();
                 this.dispatch('$updateTask', this.task._id, {expired: this.$.datePicker.dateFormat(this.date)});
             },
             /**
@@ -821,12 +896,15 @@
                 var task = Object.assign({},this.task);
                 this.dispatch('$removeTask', this.task._id).then(function () {
                     if (task.parent) return this.fire('select-task',this.findTaskById(task.parent));
-                    this.fire('reset');
+                    if(this.MQ!='sm') {this.fire('reset');}
                 }.bind(this));
                 if(this.$.removeTaskConfirm) this.$.removeTaskConfirm.close();
-                if(this.$.contextMenu) this.$.contextMenu.close();
-                if (task.parent) return this.fire('select-task',this.findTaskById(task.parent));
-                this.fire('reset');
+
+                if(this.MQ!='sm') {
+                    if (task.parent) return this.fire('select-task',this.findTaskById(task.parent));
+                    return this.fire('reset');
+                }
+                this.fire('mobile-go-back');
             },
             /**
              * Download file
@@ -844,6 +922,7 @@
                     this.showMessage('File was removed successfuly.');
                 }.bind(this));
                 this.$.removeFileConfirm.close();
+
             },
             /**
              * Change status of current task
@@ -918,10 +997,12 @@
                 this.$.list.$$('#addTask').focus();
             },
             openRemoveFileConfirm: function (e) {
+                this.$.contextMenu.close();
                 this.fileToRemove = e.model.file;
                 this.$.removeFileConfirm.toggle();
             },
             openRemoveTaskConfirm: function (e) {
+                this.$.contextMenu.close();
                 this.$.removeTaskConfirm.toggle();
             },
             suspendRemoving: function () {
@@ -938,8 +1019,12 @@
             onIronResize: function () {
                 this.$.center.style.width = this.$.center.getBoundingClientRect().width - 250 + 'px';
                 this.async(function () {
-                    this.maxHeight = window.innerHeight;
+                    this.maxHeight = window.innerHeight - 150;
                 });
+            },
+            _descChange: function(){
+                this.maxHeight =  this.maxHeight = window.innerHeight - 150;
+                this.$.scroller.calculate();
             }
         })
     </script>

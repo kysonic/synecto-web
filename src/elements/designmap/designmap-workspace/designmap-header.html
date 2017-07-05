@@ -177,6 +177,7 @@
                 display: none;
             }
 
+
             @media (min-width: 320px) and (max-width: 768px) {
                 .left-content {
                     display: none;
@@ -187,6 +188,9 @@
                     height: 28px;
                     --iron-icon-stroke-color: var(--gray-darkend-color);
                     --iron-icon-fill-color: var(--gray-darkend-color);
+                }
+                paper-dialog {
+                    max-width: 300px !important;
                 }
             }
         </style>
@@ -219,12 +223,12 @@
                 <div class="open-projects" on-click="openProjectList">
                     <i18-n msgid="Open Project">Open Project</i18-n>
                 </div>
-                <!-- Project-list -->
-                <designmap-dropdown vertical-offset="80" horizontal-offset="-60" tri-border previous
-                                    id="projectList">
-                    <designmap-projects-list></designmap-projects-list>
-                </designmap-dropdown>
             </div>
+            <!-- Project-list -->
+            <designmap-dropdown class$="[[_computeMobileClass(MQ)]]" vertical-offset="80" horizontal-offset="[[_computeOffset(MQ)]]" tri-border previous
+                                id="projectList">
+                <designmap-projects-list></designmap-projects-list>
+            </designmap-dropdown>
             <iron-icon class="mobile-burger" style="margin-left: 5px" icon="icons:menu" on-tap="openMenu"></iron-icon>
         </div>
         <div class="center">
@@ -287,6 +291,10 @@
                     value: [
                         {icon: 'designmap-showcase:projects',message:'projectPremiumOneMsg'}
                     ]
+                },
+                MQ: {
+                    type: String,
+                    statePath:'MQ'
                 }
             },
             listeners: {
@@ -322,6 +330,13 @@
             },
             openMenu: function(){
                 this.fire('open-menu')
+            },
+            _computeMobileClass: function (MQ) {
+                this.async(function(){this.updateStyles()});
+                return MQ=='sm'?'mobile':'desktop';
+            },
+            _computeOffset: function(MQ){
+                return MQ=='sm'?((window.innerWidth-280)/2):70;
             }
         })
     </script>

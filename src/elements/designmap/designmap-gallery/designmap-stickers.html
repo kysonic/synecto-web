@@ -89,6 +89,18 @@
                 display: none;
             }
 
+            :host(.mobile) {
+                --plastic-custom-scroll-bar-mixin: {
+                    margin-left: -10px;
+                };
+                --plastic-custom-scroll-bar-hover-mixin: {
+                    margin-left: -12px;
+                };
+                --plastic-custom-scroll-bar-grabbed-mixin: {
+                    margin-left: -12px;
+                };
+            }
+
             /** STICKER **/
             .sticker {
                 position: absolute;
@@ -345,6 +357,35 @@
                 height: 0;
             }
 
+            @media (min-width: 320px) and (max-width: 768px) {
+                .marker {
+                    display: none !important;
+                }
+                .wrapper {
+                    position: relative;
+                }
+                .sticker .dropdown {
+                    top: 0px;
+                    left: 20px;
+                    position: fixed;
+                    transform: translateY(-100px);
+                    min-width: calc(100vw - 40px);
+                    transition: .2s transform ease-in;
+                }
+                .sticker.opened .dropdown {
+                    transform: translateY(0px);
+                    transition: .2s transform ease-in;
+                }
+                .menu .like {
+                    width: 29px;
+                    height: 31px;
+                }
+                .menu .more {
+                    width: 30px;
+                    height: 30px;
+                }
+            }
+
         </style>
         <div class="marker" id="marker" >
             <i18-n msgid="Click to add a comment">Click to add a comment</i18-n>
@@ -555,10 +596,18 @@
                 search: {
                     type: String,
                     value: ''
+                },
+                MQ: {
+                    type: String,
+                    statePath: 'MQ'
                 }
             },
             ready: function(){
               this.async(function(){
+                  if(this.MQ=='sm') {
+                      this.classList.add('mobile');
+                      this.updateStyles();
+                  }
                   if(!this.user) this.stickerEvent = true;
                   this.app = document.querySelector('designmap-app');
                   this.gallery = this.app.$.galleryView.$.gallery;
@@ -753,14 +802,21 @@
 
             _resolveStickerDropdownPosition(sticker){
                 if (!sticker) return;
+                if(this.MQ=='sm') return;
                 const stickerNode = this.$$('#sticker-' + sticker._id);
-                const bound = this.$.wrapper.getBoundingClientRect();
+                const stickerBound = stickerNode.getBoundingClientRect();
                 const dropdownNode = stickerNode.querySelector('.dropdown');
+                /*if(this.MQ=='sm') {
+                    console.log(dropdownNode);
+                    //this.appendChild(dropdownNode);
+                    return;
+                }*/
                 if (sticker.position.top <= 50) return dropdownNode.style.top = '33px';
                 this.async(function () {
                     const dropBound = dropdownNode.getBoundingClientRect();
                     dropdownNode.style.top = -(dropBound.height + 5) + 'px';
                 });
+
             },
 
             _textAreaValueChanged: function () {

@@ -162,7 +162,7 @@
          */
         computeAvatarPath: function(path){
             if(!path) return '';
-            if(this.IMAGE_REGEXP.test(path)) return "/assets/"+path+'?v='+this.generateUid();
+            if(this.IMAGE_REGEXP.test(path)) return path+'?v='+this.generateUid();
             return Designmap.config.apiURL+path+'?v='+this.generateUid();
         },
         /**
@@ -242,7 +242,8 @@
          */
         getElementName: function(element){
             if(!Object.keys(element).length) return '';
-            return  element.name || element.data.name.replace(element.folder+'-','').replace(this.UIDREGEXP,'');
+            if(element && element.name) return element.name
+            return  element.data&&element.data.name ? element.data.name.replace(element.folder+'-','').replace(this.UIDREGEXP,'') : 'xxx';
         },
         /**
          * Check object id

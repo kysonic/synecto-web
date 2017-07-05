@@ -3,6 +3,7 @@
 <!-- Components -->
 <link rel="import" href="../designmap-ui/designmap-dropdown.html?20170615">
 <link rel="import" href="./designmap-language-switcher.html?20170615">
+<link rel="import" href="../designmap-notifications/designmap-notifications.html?20170615">
 <!-- Mixins -->
 <link rel="import" href="../../../behaviors/designmap-messages-behavior.html?20170615">
 <link rel="import" href="../../../behaviors/deisgnmap-utils-behavior.html?20170615">
@@ -10,6 +11,7 @@
 <link rel="import" href="../../../redux/redux-store.html?20170615">
 <link rel="import" href="../../../redux/actions/combine-actions.html?20170615">
 <link rel="import" href="../../../redux/actions/user-actions.html?20170615">
+<link rel="import" href="../../../redux/actions/notifications-actions.html?20170615">
 <!-- Icons -->
 <link rel="import" href="../designmap-icons/designmap-user-menu-icons.html?20170615">
 
@@ -158,7 +160,7 @@
             }
 
             /** MESSAGE INDICATOR **/
-            .indicator {
+            .ntfy-indicator, .indicator {
                 position: absolute;
                 top: 2px;
                 left: 100%;
@@ -170,8 +172,25 @@
                 background: var(--designmap-user-menu-indicator-color);
             }
 
-            .row.support, .row.notify {
+            .ntfy-indicator {
+                width: 8px;
+                height: 8px;
+                border: 1px solid var(--white-color);
+                margin-left: -7px;
+            }
+
+            .row.notify {
                 display: none !important;
+            }
+
+            .indicator {
+                display: none;
+            }
+
+            /** Notification **/
+            .block.notification {
+                margin-right: 15px;
+                cursor: pointer;
             }
 
             @media screen and (min-width: 320px) and (max-width: 768px) {
@@ -191,7 +210,7 @@
                     };
                 }
 
-                .question, .email {
+                .question, .email, .block.notification {
                     display: none;
                 }
 
@@ -203,20 +222,46 @@
                 .row.support, .row.notify {
                     display: block !important;
                 }
-
+                .indicator {
+                    display: block;
+                }
+                .indicator[hidden] {
+                    display: none;
+                }
+            }
+            
+            #notifyDropdown {
+                --designmap-dropdown-mixin: {
+                    padding: 10px ;
+                    border: 1px solid var(--gray-color);
+                    box-shadow: var(--box-shadow);
+                    max-width: 450px !important;
+                    width: 450px !important;
+                    max-height: 370px;
+                }
             }
 
         </style>
         <!-- Auth -->
         <template is="dom-if" if="[[!!user]]">
             <div class="info">
-                <div class="block" id="support">
+                <!--<div class="block" id="support">
                     <div class="question" on-tap="goToDocs" x-tooltip$="[[translate('Support',language,i18Loaded)]]"
                          data-cls="blue">
                         <iron-icon icon="designmap-workspace:help"></iron-icon>
                     </div>
                 </div>
-                <paper-tooltip for="support"><i18-n msgid="Support">Support</i18-n></paper-tooltip>
+                <paper-tooltip for="support"><i18-n msgid="Support">Support</i18-n></paper-tooltip>-->
+                <div class="block notification" id="notify" on-tap="openNotifyDropdown">
+                    <div class="notify">
+                        <iron-icon icon="designmap-user-menu:notify"></iron-icon>
+                    </div>
+                    <div class="ntfy-indicator" hidden$="[[_areThereNotReadNotifications(notifications.*)]]"></div>
+                </div>
+                <designmap-dropdown horizontal-offset="-320" vertical-offset="60" id="notifyDropdown" tri-border previous>
+                    <designmap-notifications on-link="closeNotifyDropdown" cut on-removed="refitDropdown"></designmap-notifications>
+                </designmap-dropdown>
+                <paper-tooltip for="notify"><i18-n msgid="Notifications">Notifications</i18-n></paper-tooltip>
                 <div id="menu" class="block" on-tap="openUserMenu" data-hint="login">
                     <div class="email" title="[[user.local.email]]">
                         [[user.local.email]]
@@ -229,7 +274,7 @@
                             <div class="text">[[computeUserName(user)]]</div>
                         </template>
                     </div>
-                    <div class="indicator" hidden$="[[!notifications.length]]"></div>
+                    <div class="indicator" hidden$="[[_areThereNotReadNotifications(notifications.*)]]"></div>
                 </div>
             </div>
             <!-- Account menu -->
@@ -249,7 +294,7 @@
                     <iron-icon icon="designmap-user-menu:notify"></iron-icon>
                     <div class="text">
                         <i18-n msgid="Notifications">Notifications</i18-n>
-                        &nbsp;<span hidden$="[[!notifications.length]]">([[notifications.length]])</span></div>
+                        &nbsp;<span hidden$="[[_areThereNotReadNotifications(notifications.*)]]">([[_getNotReadNotifications(notifications.*)]])</span></div>
                 </div>
                 <div class="row support" on-tap="goToDocs">
                     <iron-icon icon="icons:question-answer"></iron-icon>
@@ -280,7 +325,7 @@
                 Polymer.DesignMapMessagesBehavior,
                 Polymer.DesignMapUtilsBehavior,
                 ReduxBehavior,
-                Polymer.CombineActions(Polymer.UserActions)
+                Polymer.CombineActions(Polymer.UserActions, Polymer.NotificationsActions)
             ],
             properties: {
                 user: {
@@ -345,6 +390,38 @@
             },
             goToTypeForm: function () {
                 window.open('https://kysonic.typeform.com/to/w61k3K', '_blank');
+            },
+            openNotifyDropdown: function(){
+                if(this.notifications) this.dispatch('readNotifications',this.notifications);
+                this.$$('#notifyDropdown').open()
+            },
+            closeNotifyDropdown: function(){
+                this.$$('#notifyDropdown').close()
+            },
+            _areThereNotReadNotifications: function(){
+                return !this.notifications.filter(function(n){
+                    return !n.read
+                }).length;
+            },
+            _getNotReadNotifications: function(){
+                return this.notifications.filter(function(n){
+                    return !n.read
+                }).length;
+            },
+            refitDropdown: function(){
+                this.$$('#notifyDropdown').$.dropdown.refit();
+            },
+            /**
+             * Service method allowing to find index by notification id
+             * @param id - notification id
+             * @returns {*}
+             */
+            findNotificationIndexById: function (id) {
+                var found = null;
+                ReduxStore.getState().notifications.forEach(function (notification, index) {
+                    if (notification._id == id) found = index;
+                }, this);
+                return found;
             }
         })
     </script>

@@ -85,6 +85,7 @@
                 position: relative;
                 right: 20px;
                 top: 2px;
+                white-space: nowrap;
                 color: var(--gray-darkend-color);
             }
 
@@ -114,7 +115,7 @@
                 justify-content: center;
                 overflow: hidden;
                 background: var(--designmap-gallery-striped-background);
-                flex: 2;
+                flex: 1;
             }
 
             .content .item {
@@ -131,8 +132,9 @@
             }
 
             /** IMAGES **/
-            .content iron-image {
-
+            .content iron-image, .swipe-image {
+                max-height: 100%;
+                max-width: 100%;
                 /*height: calc(100vh - 150px);
                 width: calc(100% - 200px);*/
                 --iron-image-mixin: {
@@ -149,6 +151,21 @@
                     -moz-user-select: none;
                     -webkit-user-select: none;
                     user-select: none;
+                };
+            }
+
+            .content .office-view {
+                height: 100%;
+                max-height: calc(100vh - 150px);
+                width: 850px;
+            }
+
+
+            .content iron-image.mobile, .mobile.swipe-image {
+                --iron-image-mixin: {
+                    padding: 10px;
+                    max-height: calc(100vh - 80px);
+                    max-width: calc(100vw - 20px);
                 };
             }
 
@@ -180,6 +197,7 @@
                 background: rgba(0, 0, 0, 0.02);
                 transition: .2s background;
                 cursor: pointer;
+                z-index: 9999;
             }
 
             .previous:hover, .next:hover {
@@ -421,10 +439,135 @@
                 background: var(--white-color);
             }
 
+            .designmap-logo-mobile, .swipe-image, .swipe-ext {
+                display: none;
+            }
+
+            designmap-stickers.show {
+                opacity: 1;
+                transition: 0.1s opacity ease-in;
+            }
+
+            designmap-stickers.hide {
+                opacity: 0;
+            }
+
+
+            @media (min-width: 320px) and (max-width: 768px) {
+                .designmap-logo-mobile {
+                    display: block;
+                }
+                .designmap-logo, .bottom-panel, #callButton, #shareButton, paper-tooltip, .content .previous, .content .next{
+                    display: none;
+                }
+                /** TOP PANEL **/
+                .top-panel {
+                    flex-basis: 60px;
+                }
+                .top-panel > .left {
+                    margin-left: 10px;
+                    max-width: 25px;
+                }
+
+                .top-panel > .center {
+                    max-width: 700px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+                .top-panel > .right {
+                    align-items: flex-end;
+                    flex-basis: 100px;
+                }
+                .right-button {
+                    margin-right: 0px;
+                }
+                .breadcrumbs {
+                    top: 0;
+                    right: 0;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                .breadcrumbs span {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                button[is="designmap-gallery-button"] {
+                    width: 40px;
+                    height: 40px;
+                    background: transparent;
+                    margin: 0;
+                }
+                .more-icon {
+                    width: 43px !important;
+                    height: 43px !important;
+                }
+                .close-icon, .more-icon {
+                    --iron-icon-components-mixin: {
+                        stroke: var(--gray-darkend-color) !important;
+                        fill: var(--gray-darkend-color) !important;
+                    };
+                }
+                #closeButton {
+                    margin-right: 5px;
+                }
+
+                .content .item {
+                    width: 100%;
+                }
+
+                .swipe-image, .swipe-ext {
+                    display: block;
+                    position: absolute;
+                }
+
+                #next-itm {
+                    transform: translateX(105vw);
+                }
+                #prev-itm {
+                    transform: translateX(-105vw);
+                }
+                .content .office-view {
+                    width: 100%;
+                }
+                .extension {
+                    width: auto;
+                    height: auto;
+                }
+                .content {
+                    max-height: calc(100vh - 60px);
+                }
+            }
+            @media (min-width: 768px) and (max-width: 850px) {
+                .content .office-view {
+                    width: 768px;
+                }
+            }
+            @media (min-device-width: 320px) and (max-device-width: 1366px) {
+                .swipe-image, .swipe-ext {
+                    display: block;
+                    position: absolute;
+                }
+
+                .hint {
+                    display: none;
+                }
+
+                #next-itm {
+                    transform: translateX(105vw);
+                }
+                #prev-itm {
+                    transform: translateX(-105vw);
+                }
+            }
+
+
         </style>
         <div class="top-panel panel">
             <div class="left">
                 <iron-icon class="designmap-logo" on-click="close" icon="designmap-logo:logo-gray"></iron-icon>
+                <iron-icon class="designmap-logo-mobile" on-click="close" icon="designmap-logo-mobile:logo-gray"></iron-icon>
             </div>
             <div class="center" data-hint="file-top-panel">
                 <div class="left" hidden$="[[!file]]">
@@ -445,7 +588,7 @@
                 <!--<button hidden$="[[!file]]" id="chatButton" class="top-panel-button" is="designmap-gallery-button" on-click="chat">
                     <iron-icon class="chat-icon" icon="designmap:chat"></iron-icon>
                 </button>-->
-                <paper-tooltip for="chatButton"><i18-n msgid="Chat">Chat</i18-n></paper-tooltip>
+                <!--<paper-tooltip for="chatButton"><i18-n msgid="Chat">Chat</i18-n></paper-tooltip>-->
                 <button hidden$="[[!file]]" id="shareButton" class="top-panel-button" is="designmap-gallery-button" on-click="share">
                     <iron-icon class="share-icon" icon="social:share"></iron-icon>
                 </button>
@@ -502,42 +645,129 @@
                 <iron-icon icon="icons:chevron-left"></iron-icon>
             </div>
             <template is="dom-if" if="[[!loading]]">
-                <template is="dom-if" if="[[canBeDisplayed(file)]]" restamp="true">
                     <div id="item"
                          draggable="false"
                          class$="item {{zoomClasses(zoom)}}"
                          ondragstart="return false;"
                          on-mousewheel="imageMouseWheel"
                          on-wheel="imageMouseWheel"
+
                          on-mouseleave="mouseLeave"
-                         on-mousedown="mouseDown"
                          on-mousemove="mouseMove"
-                         on-mouseup="mouseUp">
 
-                        <iron-image
-                                id="image"
-                                on-load="imageHasLoaded"
-                                on-error="imageError"
-                                src="{{computeFileSrc(file)}}"></iron-image>
+                         on-mousedown="mouseDown"
+                         on-mouseup="mouseUp"
 
-                        <designmap-stickers class$="[[zoomClasses(zoom)]]" is-there-opened="{{isThereOpened}}" id="stickers" sticker-catch="{{stickerCatch}}" moved="[[moved]]" pressed="[[pressed]]" file="[[file]]" zoom="[[zoom]]"></designmap-stickers>
+                         on-touchstart="_touchStart"
+                         on-touchmove="_touchMove"
+                         on-touchend="_touchEnd"
+                    >
+                        <!-- Prev item -->
+                        <template is="dom-if" if="[[_computeSwipeImageState(files.length)]]">
+
+                            <template is="dom-if" if="[[isOfficeFile(prevFile)]]" restamp="true">
+                                <div class="swipe-ext extension" id="prev-itm">
+                                    <div class="data">
+                                        <i18-n msgid="Preview is not available">Preview is not available</i18-n>
+                                        <div class="ext-icon">
+                                            <iron-icon icon="designmap-workspace:filer"></iron-icon>
+                                            <span class="ext">{{getExtensionWithoutDot(prevFile.data.name)}}</span>
+                                        </div>
+                                        <a href="#" >
+                                            <i18-n msgid="Download file">Download file</i18-n>
+                                        </a>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <template is="dom-if" if="[[isImageFile(prevFile)]]" restamp="true">
+                                <iron-image
+                                        id="prev-itm"
+                                        class$="swipe-image [[_computeIronImageClass(MQ)]]"
+                                        src="{{computeFileSrc(prevFile)}}"
+                                ></iron-image>
+                            </template>
+
+                        </template>
+                        <!-- Prev item -->
+
+
+                        <!-- Original -->
+                        <template is="dom-if" if="[[canBeDisplayed(file)]]" restamp="true">
+                            <template is="dom-if" if="[[isOfficeFile(file)]]" restamp="true" >
+                                <!--<div class="extension" id="itm">
+                                    <div class="data">
+                                        <i18-n msgid="Preview is not available">Preview is not available</i18-n>
+                                        <div class="ext-icon">
+                                            <iron-icon icon="designmap-workspace:filer"></iron-icon>
+                                            <span class="ext">{{getExtensionWithoutDot(file.data.name)}}</span>
+                                        </div>
+                                        <a href="#" on-click="downloadFile">
+                                            <i18-n msgid="Download file">Download file</i18-n>
+                                        </a>
+                                    </div>
+                                </div>-->
+                                <iframe id="itm" class$="office-view [[getExtensionWithoutDot(file.data.name)]]" src='[[_getOfficeFilePreview(file)]]' frameborder="0"></iframe>
+                            </template>
+                            <template is="dom-if" if="[[isImageFile(file)]]" restamp="true">
+                                <iron-image
+                                        id="itm"
+                                        on-load="imageHasLoaded"
+                                        on-error="imageError"
+                                        class$="[[_computeIronImageClass(MQ)]]"
+                                        src="{{computeFileSrc(file)}}"></iron-image>
+                            </template>
+                        </template>
+
+                        <template is="dom-if" if="[[!canBeDisplayed(file)]]">
+                            <div class="extension" id="itm">
+                                <div class="data">
+                                    <i18-n msgid="Preview is not available">Preview is not available</i18-n>
+                                    <div class="ext-icon">
+                                        <iron-icon icon="designmap-workspace:filer"></iron-icon>
+                                        <span class="ext">{{getExtensionWithoutDot(file.data.name)}}</span>
+                                    </div>
+                                    <a href="#" on-click="downloadFile">
+                                        <i18-n msgid="Download file">Download file</i18-n>
+                                    </a>
+                                </div>
+                            </div>
+                        </template>
+                        <!-- Original -->
+
+
+                        <!-- Next item -->
+                        <template is="dom-if" if="[[_computeSwipeImageState(files.length)]]">
+
+                                <template is="dom-if" if="[[isOfficeFile(nextFile)]]" restamp="true">
+                                    <div class="swipe-ext extension" id="next-itm">
+                                        <div class="data">
+                                            <i18-n msgid="Preview is not available">Preview is not available</i18-n>
+                                            <div class="ext-icon">
+                                                <iron-icon icon="designmap-workspace:filer"></iron-icon>
+                                                <span class="ext">{{getExtensionWithoutDot(nextFile.data.name)}}</span>
+                                            </div>
+                                            <a href="#">
+                                                <i18-n msgid="Download file">Download file</i18-n>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <template is="dom-if" if="[[isImageFile(nextFile)]]" restamp="true">
+                                    <iron-image
+                                            id="next-itm"
+                                            class$="swipe-image [[_computeIronImageClass(MQ)]]"
+                                            src="{{computeFileSrc(nextFile)}}"
+                                    ></iron-image>
+                                </template>
+
+                        </template>
+                        <!-- Next item -->
+                        <designmap-stickers class$="[[zoomClasses(zoom)]] [[stickerApperClass(hideStickers)]]" is-there-opened="{{isThereOpened}}" id="stickers" sticker-catch="{{stickerCatch}}" moved="[[moved]]" pressed="[[pressed]]" file="[[file]]" zoom="[[zoom]]"></designmap-stickers>
                     </div>
                     <div class="hint" hidden$="[[!showHint]]">
                         <i18-n msgid="Click on image to leave comment">Click on image to leave comment</i18-n>
-                    </div>
-                </template>
-                <template is="dom-if" if="[[!canBeDisplayed(file)]]" restamp="true">
-                    <div class="extension">
-                        <div class="data">
-                            <i18-n msgid="Preview is not available">Preview is not available</i18-n>
-                            <div class="ext-icon">
-                                <iron-icon icon="designmap-workspace:filer"></iron-icon>
-                                <span class="ext">{{getExtensionWithoutDot(file.data.name)}}</span>
-                            </div>
-                            <a href="#" on-click="downloadFile">
-                                <i18-n msgid="Download file">Download file</i18-n>
-                            </a>
-                        </div>
                     </div>
                 </template>
                 <template is="dom-if" if="[[error]]">
@@ -546,7 +776,6 @@
                                         error></designmap-stub>
                     </div>
                 </template>
-            </template>
             <template is="dom-if" if="[[_computeLoading(loading,error)]]">
                 <img src="/assets/images/svg/three-dots-gray.svg" alt="Loading">
             </template>
@@ -625,7 +854,9 @@
             horizontalRestriction: 100,
             verticalRestriction: 100,
             // Files with same extension can be displayed
-            canBeDisplayedExt: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr", ".ppm", ".pbm",".ai",".psd",".eps"],
+            canBeDisplayedExt: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr", ".ppm", ".pbm",".ai",".psd",".eps",".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx"],
+            imageFilesExt: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr", ".ppm", ".pbm",".ai",".psd",".eps"],
+            officeFileExt: [".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx"],
             objectIDRegexp: /^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/i,
             properties: {
                 projectId: {
@@ -655,7 +886,15 @@
                 },
                 file: {
                     type: Object,
-                    value: null
+                    value: null,
+                },
+                prevFile: {
+                    type: Object,
+                    value: null,
+                },
+                nextFile: {
+                    type: Object,
+                    value: null,
                 },
                 /**
                  * Current zoom
@@ -724,10 +963,20 @@
                 isThereOpened: {
                     type: Boolean,
                     value: false
+                },
+                MQ: {
+                    type: String,
+                    statePath: 'MQ',
+                    value: 'xx'
+                },
+                hideStickers: {
+                    type: Boolean,
+                    value: false
                 }
             },
             observers: [
-                '_entityIdChanged(entityId,entityType)'
+                '_entityIdChanged(entityId,entityType)',
+                '_fileChanged(file)'
             ],
             listeners: {
                 'open-protocol-showcase': "openProtocolShowCase",
@@ -736,6 +985,7 @@
             },
             attached: function(){
               this.refitStickers();
+              this._fileChanged();
               this.async(function(){
                   this.refitStickers();
               },1000)
@@ -996,6 +1246,22 @@
                 var ext = this.getExtension(name);
                 return this.canBeDisplayedExt.indexOf(ext.toLowerCase()) != -1 || file.preview;
             },
+            isOfficeFile: function(file) {
+                if(this.error) return false;
+                if(!file) return false;
+                if(!file.data) return false;
+                var name = file.data.name;
+                var ext = this.getExtension(name);
+                return this.officeFileExt.indexOf(ext.toLowerCase()) != -1;
+            },
+            isImageFile: function(file) {
+                if(this.error) return false;
+                if(!file) return false;
+                if(!file.data) return false;
+                var name = file.data.name;
+                var ext = this.getExtension(name);
+                return this.imageFilesExt.indexOf(ext.toLowerCase()) != -1;
+            },
             /**
              * Whether file locked?
              */
@@ -1007,7 +1273,7 @@
              * @param e
              */
             imageError: function (e) {
-                this.refitStickers();
+               // this.refitStickers();
             },
             /**
              * Remove file.
@@ -1156,8 +1422,8 @@
             },
 
             refitStickers: function(){
-                var image = this.$$('#image');
-                var img = image?image.$.img:null;
+                var image = this.$$('#itm');
+                var img = image&&image.$?image.$.img:null;
                 if(img) {
                     var b = img.getBoundingClientRect();
                     this.$$('#stickers').style.height = b.height + 'px';
@@ -1168,6 +1434,129 @@
 
             _computeLoading: function(loading,error){
                 return loading && !error;
+            },
+
+            _computeIronImageClass: function(MQ){
+                this.async(function(){this.updateStyles();},0);
+                return MQ=="sm"?'mobile':"screen";
+            },
+
+            _touchStart: function(e){
+                // Skip difficult gestures with two fingers
+                if(e.changedTouches.length>1 || this.files.length<2) return;
+                this.$$('#itm').style.transition = 'none';
+                this.$$('#prev-itm').style.transition = 'none';
+                this.$$('#next-itm').style.transition = 'none';
+                this.$$('#next-itm').style.transform = 'translateX(105vw)';
+                this.$$('#prev-itm').style.transform = 'translateX(-105vw)';
+                this.$$('#next-itm').style.display = 'block';
+                this.$$('#prev-itm').style.display = 'block';
+                this.startSwipeTouch = e.changedTouches[0];
+                this.startSwipeTouch.date = new Date();
+            },
+            _touchMove: function(e){
+                if(this.files.length<2) return;
+                const touch = e.changedTouches[0];
+                const dX = touch.pageX-this.startSwipeTouch.pageX;
+                const dY = touch.pageY-this.startSwipeTouch.pageY;
+                // Ignore vertical gestures and touches (not swipes)
+                const diffTime = new Date() - this.startSwipeTouch.date;
+                if(Math.abs(dY)>Math.abs(dX) || diffTime<50 || Math.abs(dX)<5) return;
+                this.hideStickers = true;
+                this.$$('#itm').style.transform = `translateX(${dX}px)`;
+                if(dX>0) this.$$('#prev-itm').style.transform = `translateX(calc(-105vw + ${Math.abs(dX)}px))`;
+                if(dX<0) this.$$('#next-itm').style.transform = `translateX(calc(105vw - ${Math.abs(dX)}px))`;
+            },
+            _touchEnd: function(e){
+                if(this.files.length<2) return;
+                const touch = e.changedTouches[0];
+                const dX = touch.pageX-this.startSwipeTouch.pageX;
+                const dY = touch.pageY-this.startSwipeTouch.pageY;
+                const diffTime = new Date() - this.startSwipeTouch.date;
+                if(Math.abs(dY)>Math.abs(dX) || diffTime<100 || Math.abs(dX)<5) {
+                    this.$$('#itm').style.transition = `${0.2}s transform`;
+                    this.$$('#next-itm').style.transition = `${0.2}s transform`;
+                    this.$$('#prev-itm').style.transition = `${0.2}s transform`;
+                    this.$$('#itm').style.transform = `translateX(0px)`;
+                    this.$$('#next-itm').style.transform = `translateX(105vw)`;
+                    this.$$('#prev-itm').style.transform = `translateX(-105vw)`;
+                    this.hideStickers = false;
+                    return;
+                }
+                const bound = this.$$('#item').getBoundingClientRect();
+                if(diffTime>250 && Math.abs(dX)<bound.width/2) {
+                    this.$$('#itm').style.transition = `${0.2}s transform`;
+                    this.$$('#next-itm').style.transition = `${0.2}s transform`;
+                    this.$$('#prev-itm').style.transition = `${0.2}s transform`;
+                    this.$$('#itm').style.transform = `translateX(0px)`;
+                    this.$$('#next-itm').style.transform = `translateX(105vw)`;
+                    this.$$('#prev-itm').style.transform = `translateX(-105vw)`;
+                    this.hideStickers = false;
+                    return;
+                }
+                const k = dX<0 ? -1 : 1;
+                const screenK = window.innerWidth>800 ? 0.4 : 0.3;
+                const duration =  screenK - (Math.abs(dX)*screenK)/window.innerWidth;
+
+                this.$$('#itm').style.transition = `${duration}s transform`;
+                this.$$('#next-itm').style.transition = `${duration}s transform`;
+                this.$$('#prev-itm').style.transition = `${duration}s transform`;
+                this.$$('#itm').style.transform = `translateX(${105*k}vw)`;
+                if(dX>0) this.$$('#prev-itm').style.transform = `translateX(0)`;
+                if(dX<0) this.$$('#next-itm').style.transform = `translateX(0)`;
+                // Change image after animation end
+                this.async(function(){
+                  dX<0 ? this.next() : this.previous();
+                  this.hideStickers = false;
+                },duration*1000);
+            },
+
+            _fileChanged: function(){
+              this.prevFile = this.getPrevFile(this.file);
+              this.nextFile = this.getNextFile(this.file);
+              if(this.$$('#itm') && this.$$('#prev-itm') && this.$$('#next-itm')) {
+                  this.$$('#itm').style.transition = 'none';
+                  this.$$('#prev-itm').style.transition = 'none';
+                  this.$$('#next-itm').style.transition = 'none';
+                  this.$$('#itm').style.transform = `translateX(0)`;
+                  this.$$('#prev-itm').style.transform = `translateX(-105vw)`;
+                  this.$$('#next-itm').style.transform = `translateX(105vw)`;
+              }
+              this.refitStickers();
+              this.async(function(){
+                  this.refitStickers();
+              },1000);
+              this.async(function(){
+                  this.refitStickers();
+              },2000);
+            },
+
+            _computeSwipeImageState: function(length){
+                return length>1;
+            },
+
+            getPrevFile: function(){
+                if(!this.files) return null;
+                let previousIndex = this.files.indexOf(this.file) - 1;
+                if (previousIndex < 0) previousIndex = this.files.length - 1;
+                const previousFile = this.files[previousIndex];
+                return previousFile;
+            },
+
+            getNextFile: function(){
+                if(!this.files) return null;
+                let nextIndex = this.files.indexOf(this.file) + 1;
+                if (nextIndex >= this.files.length) nextIndex = 0;
+                const nextFile = this.files[nextIndex];
+                return nextFile;
+            },
+
+            stickerApperClass: function(hideStickers){
+                return hideStickers?'hide':'show';
+            },
+
+            _getOfficeFilePreview: function(file) {
+                return 'https://view.officeapps.live.com/op/embed.aspx?src='+file.data.url;
             }
         });
     </script>

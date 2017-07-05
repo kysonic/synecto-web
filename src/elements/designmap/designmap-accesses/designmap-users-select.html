@@ -131,8 +131,8 @@
 
         </style>
         <div id="wrapper" class$="wrapper {{readOnlyClass(readonly)}}">
-            <paper-input on-keydown="pressKey" readonly="[[readonly]]" autofocus id="input" on-focus="focus" label="{{label}}" value="{{text}}" on-input="textChanged" on-click="openDropdown"></paper-input>
-            <iron-icon icon="[[computeIcon(text)]]" class$="arrow [[computeClass(text)]]" on-click="action" ></iron-icon>
+            <paper-input on-keydown="pressKey" readonly="[[readonly]]" autofocus id="input" on-focus="focus" label="{{label}}" value="{{text}}" on-input="textChanged" on-tap="openDropdown"></paper-input>
+            <iron-icon icon="[[computeIcon(text)]]" class$="arrow [[computeClass(text)]]" on-tap="action" ></iron-icon>
             <input type="hidden" value="{{value}}">
             <iron-dropdown on-iron-overlay-closed="onOverlayClose" id="dropdown" vertical-offset="[[verticalOffset]]" open-animation-config="[[slideTopOpenAnimation]]" close-animation-config="[[slideTopCloseAnimation]]">
                 <div class="dropdown-content bound">

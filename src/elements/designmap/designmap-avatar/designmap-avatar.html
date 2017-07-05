@@ -149,6 +149,12 @@
                 min-height: 290px;
             }
 
+            @media (min-width: 320px) and (max-width: 768px) {
+                .sub-title {
+                    display: none;
+                }
+            }
+
 
         </style>
         <template is='dom-if' if="[[!user.profile.avatar]]">
@@ -225,10 +231,13 @@
                     type: Boolean,
                     value: false
                 },
-                animationOn: {
-                    type: Boolean,
-                    value: true
+                MQ: {
+                    type: String,
+                    statePath: 'MQ'
                 }
+            },
+            attached: function(){
+              if(this.MQ=='sm') this.selectedPage = 1;
             },
             openDialog: function () {
                 this.$.cropper.lng();
@@ -274,7 +283,7 @@
             },
             computeAvatarPath: function (path) {
                 if (!path) return '';
-                if (/images/.test(path)) return "/assets/"+path + '?v=' + this.generateUid();
+                if (/images/.test(path)) return path + '?v=' + this.generateUid();
                 return Designmap.config.apiURL + path + '?v=' + this.generateUid();
             },
             removeAvatar: function () {

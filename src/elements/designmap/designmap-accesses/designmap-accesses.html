@@ -16,7 +16,6 @@
             :host {
                 display: block;
                 width: 450px;
-                overflow-y: auto;
                 color: var(--white-color);
                 --plastic-custom-scroll-bar-mixin: {
                     margin-left: 7px;
@@ -376,7 +375,7 @@
                 <div id="personalSharingContent">
                     <designmap-users-combo hidden$="[[!onpage]]" label="[[translate('User email',language,i18Loaded)]]" id="userCombo"
                                            on-selected="select"></designmap-users-combo>
-                    <plastic-custom-scroll id="usersScroll" max-height="133"
+                    <plastic-custom-scroll id="usersScroll" max-height="200"
                                            fit>
                         <template is="dom-repeat" items="[[project.users]]" as="user">
                             <div class="share">

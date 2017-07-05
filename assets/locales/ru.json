@@ -1435,5 +1435,11 @@
   },
   "You cannot paste folder inside it's child": {
     "message": "Вы не можете встаить папку внутри ее потомка"
+  },
+  "Due date": {
+    "message": "Срок выполнения"
+  },
+  "ElementIsRemovedDoYouWantToResroreIt": {
+    "message": "Элемент удален. Вы хотите восстановить его?"
   }
 }

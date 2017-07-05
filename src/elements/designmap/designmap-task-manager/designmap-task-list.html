@@ -64,7 +64,7 @@
             }
 
             .filters .filter {
-                margin-left: 10px;
+                margin-left: 4px;
                 height: 50px;
                 width: 100%;
                 display: flex;
@@ -132,7 +132,7 @@
                 list-style: none;
                 padding: 0;
                 margin: 0;
-                padding-left: 15px;
+                padding-left: 8px;
                 @apply(--designmap-task-list-list-mixin);
             }
 
@@ -146,6 +146,8 @@
                 align-items: center;
                 transition: background .3s;
             }
+
+
 
             .list li:hover {
                 /*background: #f7f7f7;*/
@@ -164,6 +166,10 @@
                 @apply(--designmap-task-list-title-mixin);
             }
 
+            .list li.completed .title{
+                text-decoration: line-through;
+            }
+
             .list li .status-button {
                 min-width: 50px;
                 min-height: 50px;
@@ -180,11 +186,14 @@
                     stroke: var(--filter-color) !important;
                 };
             }
+
             .list li.selected .status-icon {
                 --iron-icon-components-mixin: {
                     stroke: var(--white-color) !important;
                 };
             }
+
+            /** Buttons **/
 
             .list li designmap-circle-button {
                 --designmap-circle-button-circle-mixin: {
@@ -267,7 +276,6 @@
                 }
             }
 
-
             /** SUBTASKS **/
             li .subtask {
                 padding: 0 15px 0 5px;
@@ -280,7 +288,6 @@
                 margin-top: 4px;
             }
 
-
             .subtask-count {
                 position: absolute;
                 font-size: 12px;
@@ -292,6 +299,7 @@
             .list li.selected .subtask-count {
                 color: var(--white-color);
             }
+
             .list li.selected .subtask iron-icon {
                 --iron-icon-components-mixin: {
                     stroke: var(--white-color) !important;
@@ -319,7 +327,7 @@
 
             .add-task-wrapper {
                 position: relative;
-                padding: 0 68px;
+                padding: 0 57px;
                 @apply(--designmap-task-list-add-task-wrapper-mixin);
             }
 
@@ -374,6 +382,24 @@
                 background: var(--white-color);
             }
 
+            .hidden-lg {
+                display: none;
+            }
+
+            @media (min-width: 320px) and (max-width: 768px) {
+                .hidden-xs {
+                    display: none;
+                }
+
+                .hidden-lg {
+                    display: block;
+                }
+
+                .add-task-wrapper {
+                    padding: 0 25px;
+                }
+            }
+
         </style>
         <div class="filters" hidden$="[[computeFiltersState(filter,selectedFilter,tasks)]]">
             <div class="filter-wrapper">
@@ -393,7 +419,7 @@
                 </designmap-dropdown>
             </div>
         </div>
-        <plastic-custom-scroll id="scroller" fit small-bar max-height="[[computeMaxHeight(maxHeight)]]">
+        <plastic-custom-scroll no-scroll="[[noScroll]]" id="scroller" fit small-bar max-height="[[computeMaxHeight(maxHeight)]]">
             <ul class="list">
                 <template is="dom-repeat" items="[[tasks]]" as="task" filter="[[taskFilter(selectedFilter)]]">
                     <li class$="[[computeItemClass(task,selected)]]">
@@ -403,19 +429,21 @@
                             <iron-icon class="status-icon" icon="[[computeIcon(task.status,task.expired)]]"></iron-icon>
                         </designmap-circle-button>
                         <div class="title" on-click="select">[[task.name]]</div>
-                        <div class="expired_row">[[computeTimeLeft(task.expired,language)]]</div>
-                        <designmap-assignee horizontal-offset="-170" vertical-offset="60" class="hide-on-mobile"
+                        <div class="expired_row hidden-xs">[[computeTimeLeft(task.expired,language)]]</div>
+                        <div class="expired_row hidden-lg">[[computeTimeLeftFormMobile(task.expired,language)]]</div>
+                        <designmap-assignee horizontal-offset="-170" vertical-offset="60" class="hidden-xs"
                                             no-details disabled="[[!canUpdateTask(canUpdateTasktask)]]"
                                             assignee="[[task.assignee]]" task="[[task]]" on-assign="selectAssignee"
                                             on-remove="removeAssignee"></designmap-assignee>
-                        <div class="subtask" data-cls="blue" x-tooltip$="{{translate('Subtask count',language)}}"
+                        <div class="subtask hidden-xs" data-cls="blue"
+                             x-tooltip$="{{translate('Subtask count',language)}}"
                              on-click="selectWithFocus">
                             <iron-icon icon="designmap-taskmanager:subtask"></iron-icon>
                             <div class="subtask-count">[[findSubtasksLength(task,tasks)]]</div>
                         </div>
                     </li>
                 </template>
-                <div class="not-found-msg" hidden$="[[checkTaskFilter(selectedFilter)]]">
+                <div class="not-found-msg" hidden$="[[checkTaskFilter(filter,selectedFilter,tasks.*)]]">
                     <i18-n msgid="There are no found elements">There are no found elements</i18-n>
                 </div>
             </ul>
@@ -552,7 +580,12 @@
                 /**
                  * Max height to plastic-custom-scroll
                  */
-                maxHeight: Number,
+                maxHeight: {
+                    type: Number,
+                    value: function () {
+                        return window.innerHeight
+                    }
+                },
                 /**
                  * Offset helping to understand
                  * task list height
@@ -582,18 +615,29 @@
                 placeholder: {
                     type: String,
                     value: 'Add task'
+                },
+                MQ: {
+                    type: String,
+                    statePath: 'MQ'
+                },
+                noScroll: {
+                    type: Boolean,
+                    value: false
                 }
             },
             listeners: {
                 'iron-resize': 'onIronResize'
             },
+            observers: [
+                '_taskChanged(tasks)'
+            ],
             ready: function () {
                 if (/Firefox/.test(window.navigator.userAgent)) this.classList.add('firefox');
                 this.changeTime = null;
                 this.timer = null;
             },
-            attached: function(){
-              this.updateStyles();
+            attached: function () {
+                this.updateStyles();
             },
             /**
              * Compute icon.
@@ -630,10 +674,10 @@
              */
             select: function (e) {
                 /*this.details.$.title.mode = 'read';
-                this.details.$.desc.mode = 'read';
-                this.manager.mode = 'details';*/
+                 this.details.$.desc.mode = 'read';
+                 this.manager.mode = 'details';*/
 
-                this.fire('select-task',e.model.task);
+                this.fire('select-task', e.model.task);
             },
             /**
              * Change selected task to affect
@@ -641,7 +685,7 @@
              * @param e
              */
             selectWithFocus: function (e) {
-                this.fire('select-task',e.model.task);
+                this.fire('select-task', e.model.task);
                 this.async(function () {
                     this.fire('focus-input');
                 });
@@ -661,8 +705,8 @@
              */
             computeItemClass: function (task) {
                 var cls = this.isExpired(task.expired, task.status) ? 'expired' : task.status;
-                if (!this.selected) return '';
-                return this.selected._id == task._id || this.isChildOf(this.selected._id, task._id) ? 'item ' + (this.selecting ? ' selected ' : ' ') + cls : 'item ' + cls;
+                if (!this.selected) return task.type;
+                return (this.selected._id == task._id || this.isChildOf(this.selected._id, task._id) ? 'item ' + (this.selecting ? ' selected ' : ' ') + cls : 'item ' + cls)+' '+task.type;
             },
             /**
              * Change task status
@@ -715,6 +759,17 @@
                 return (diff.asDays() > 1 ? (Math.round(diff.asDays()) + ' ' + this.translate('days')) : Math.round(diff.asHours()) + ' ' + this.translate('hours')) + ' ' + this.translate('left');
             },
             /**
+             * Compute time left, and if time is gone we
+             * have to set expired status.
+             * @param expired - expired time ;
+             * @returns {*}
+             */
+            computeTimeLeftFormMobile: function (expired) {
+                var diff = moment.duration(moment(expired).diff(moment()));
+                if (diff._milliseconds < 0) return this.translate('expired');
+                return (diff.asDays() > 1 ? (Math.round(diff.asDays()) + ' ' + this.translate('days').substr(0, 1)) : Math.round(diff.asHours()) + ' ' + this.translate('hours').substr(0, 1));
+            },
+            /**
              *
              * @param expired
              * @returns {boolean}
@@ -740,6 +795,7 @@
              * @returns {number}
              */
             computeMaxHeight: function (maxHeight) {
+                if (this.MQ == 'sm') return maxHeight - 230;
                 return maxHeight - this.maxHeightOffset;
             },
             /**
@@ -821,13 +877,13 @@
             /**
              * Task filter to define message displaying
              */
-            checkTaskFilter: function (selectedFilter) {
+            checkTaskFilter: function (filter,selectedFilter) {
                 if (!this.filter) return true;
                 return this.tasks ? !!this.tasks.filter(function (task) {
                         if (selectedFilter.type == 'all') return true;
                         if (selectedFilter.type == 'expired') return this.isExpired(task.expired, task.status);
                         return selectedFilter.type == task.status;
-                    }.bind(this)).length : false;
+                    }.bind(this)).length : true;
             },
             /**
              * Tasks sort
@@ -934,11 +990,14 @@
                 if (!this.canUpdateTask(task)) return this.showErrorMessage('You do not have access to make it');
                 if (!task || this.taskName.length) return;
                 this.dispatch('$removeTask', task._id).then(function () {
-                    if (task.parent) return this.fire('select-task',this.findTaskById(task.parent));
-                    this.fire('reset');
+                    if (this.MQ == 'sm') return;
+                    if (task.parent) return this.fire('select-task', this.findTaskById(task.parent));
+                    if(this.MQ!='sm') {this.fire('reset');}
                 }.bind(this));
-                if (task.parent) return this.fire('select-task',this.findTaskById(task.parent));
-                this.fire('reset');
+                if(this.MQ!='sm') {
+                    if (task.parent) return this.fire('select-task', this.findTaskById(task.parent));
+                    this.fire('reset');
+                }
             },
             /**
              * Show input only if we have all filter!
@@ -948,13 +1007,20 @@
             onlyAll: function (selectedFilter) {
                 return selectedFilter.type == 'all';
             },
-            resetFilter: function(){
+            resetFilter: function () {
                 var filter = this.selectedFilter;
                 this.selectedFilter = 'xxx';
                 this.selectedFilter = filter;
             },
-            _selectedChanged: function(){
+            _selectedChanged: function () {
                 this.updateStyles();
+            },
+            _taskChanged: function () {
+                this.updateScrollHeight();
+            },
+            updateScrollHeight: function () {
+                var offest = this.MQ == 'sm' ? 230 : this.maxHeightOffset;
+                this.$.scroller.$.content.style.maxHeight = window.innerHeight - offest + 'px';
             }
         })
     </script>

@@ -242,6 +242,8 @@
                 'open-info': 'openInfo',
                 'close-share-dialog': 'closeShareDialog',
                 'open-menu': 'openMenu',
+                'open-create-project-dialog': 'openCreateProjectDialog',
+                'open-select-project-dialog': 'openSelectProjectDialog',
                 'close-menu': 'closeMenu',
                 'open-sharing':'_openSharing',
                 'open-project-remove':'_openProjectRemoveConfirm'
@@ -361,6 +363,14 @@
                 this.async(function(){
                     this.$.sharingDialog.refit();
                 },50);
+            },
+
+            openCreateProjectDialog: function(){
+                if(this.$.dmHeader) this.$.dmHeader.openProjectMenu();
+            },
+
+            openSelectProjectDialog: function(){
+                if(this.$.dmHeader) this.$.dmHeader.openProjectList();
             }
         });
     </script>

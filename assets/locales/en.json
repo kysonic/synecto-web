@@ -1429,5 +1429,11 @@
   },
   "You cannot paste folder inside it's child": {
     "message": "You cannot paste folder inside it's child"
+  },
+  "Due date": {
+    "message": "Due date"
+  },
+  "ElementIsRemovedDoYouWantToResroreIt": {
+    "message": "Element is removed. Do you want to restore it?"
   }
 }

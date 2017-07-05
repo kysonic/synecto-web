@@ -3,6 +3,9 @@
 <link rel="import" href="../designmap-ui/designmap-dashboard.html?20170615">
 <link rel="import" href="../designmap-ui/designmap-stub.html?20170615">
 <link rel="import" href="../designmap-icons/designmap-notify-icons.html?20170615">
+<link rel="import" href="../../../behaviors/deisgnmap-utils-behavior.html?20170615">
+<link rel="import" href="../../../behaviors/designmap-messages-behavior.html?20170615">
+<link rel="import" href="/bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <!-- Redux -->
 <link rel="import" href="../../../redux/actions/notifications-actions.html?20170615">
 
@@ -33,7 +36,6 @@
                 width: 100%;
                 max-width: 750px;
                 font-weight: 100;
-                height: calc(100vh - 150px);
             }
 
             /** NOTIFICATION **/
@@ -42,9 +44,9 @@
                 font-family: var(--font-family);
                 font-weight: 100;
                 text-align: left;
-                margin-top: 5px;
                 background: var(--white-color);
-                padding: 15px;
+                padding: 5px 20px;
+                border-bottom: 1px dashed var(--gray-color);
             }
 
             .flex-wrapper {
@@ -99,7 +101,6 @@
 
             .notification .data {
                 margin-left: 16px;
-                flex: 48;
             }
 
             .notification .header {
@@ -125,23 +126,24 @@
             .notification .date {
                 display: block;
                 color: var(--designmap-notifications-date-color);
-                margin-left: 10px;
+                margin-left: 5px;
+                font-size: 12px;
                 text-transform: lowercase;
                 vertical-align: middle;
             }
 
             .notification .text {
-                font-size: 16px;
+                font-size: 14px;
                 text-align: left;
                 margin-left: 5px;
-                margin-top: 20px;
+                margin-top: 25px;
                 color: var(--gray-darkend-color);
 
             }
 
             .notification .info {
                 display: flex;
-                margin-top: 14px;
+                margin-top: 0px;
             }
 
             .notification .info .phantom {
@@ -151,12 +153,11 @@
             .notification .info .data {
                 margin-top: 7px;
                 margin-left: 10px;
-                display: flex;
-                align-items: center;
             }
 
             .notification .info-item {
-                display: block;
+                display: inline-block;
+                padding: 5px 0;
                 line-height: 10px;
                 text-align: left;
                 font-size: 14px;
@@ -165,27 +166,29 @@
             }
 
             .info-item-link {
+                margin-top: 5px;
+                margin-bottom: 10px;
                 display: block;
-                line-height: 10px;
-                text-align: left;
+                width: 60px;
+                color: var(--white-color);
+                font-weight: 100;
+                background: var(--blue-color);
                 font-size: 14px;
-                color: var(--orange-color);
-                white-space: nowrap;
-                margin-left: 10px;
+                padding: 5px 10px;
+                transition: .2s background ease-out;
                 cursor: pointer;
-                font-weight: 700;
             }
-
-            .notification .info-item:not(:first-child) {
-                margin-left: 5px;
+            .info-item-link:hover {
+                background: var(--blue-lighty-color);
+                transition: .2s background ease-out;
             }
 
             /** REMOVE **/
             .notification .remove {
-                flex-basis: 30px;
-                display: flex;
-                /*align-items: center;*/
-                justify-content: center;
+                position: absolute;
+                left: 100%;
+                margin-left: -30px;
+                top: 0px;
             }
 
             .notification .remove-icon {
@@ -193,6 +196,10 @@
                 width: 40px;
                 height: 40px;
                 transform: rotate(45deg);
+                --iron-icon-components-mixin: {
+                    stroke: var(--blue-darkest-color);
+                    stroke-width: 2px;
+                };
             }
 
             .content .message {
@@ -213,6 +220,69 @@
                 height: 267px;
             }
 
+            :host([cut]) designmap-dashboard{
+                display: none;
+            }
+
+            :host([cut]) {
+                --plastic-custom-scroll-bar-mixin: {
+                    margin-left: 2px;
+                };
+                --plastic-custom-scroll-bar-hover-mixin: {
+                    margin-left: 0px;
+                };
+                --plastic-custom-scroll-bar-grabbed-mixin: {
+                    margin-left: 0px;
+                };
+            }
+
+            :host([cut]) .notification {
+                padding: 0;
+            }
+
+            :host([cut]) .notification .data {
+                margin-left: 10px;
+            }
+
+            :host([cut]) .notification .info {
+                display: block;
+            }
+
+            :host([cut]) .notification .info .data {
+                align-items: flex-start;
+                justify-content: flex-start;
+                flex-direction: column;
+                margin-left: 14px;
+                margin-top: 0px;
+            }
+            :host([cut]) .content .message {
+                max-height: 350px;
+            }
+            :host([cut]) .wrapper {
+                max-height: 350px;
+            }
+
+            :host([cut]) .notification .remove {
+                margin-left: -40px;
+            }
+
+            @media (min-width: 320px) and (max-width: 768px) {
+                .notification .type {
+                    font-size: 20px;
+                }
+                .notification .data{
+                    margin-left: 0px;
+                }
+                .notification .info .data {
+                    margin-left: 5px;
+                }
+                .notification .info-item {
+                    max-width: calc(100vw - 30px);
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+            }
+
         </style>
         <div class="wrapper">
             <designmap-dashboard back back-url="[[_computeBackUrl(projectId)]]">
@@ -221,29 +291,30 @@
                 </div>
             </designmap-dashboard>
             <div class="content">
-                <plastic-custom-scroll fit max-height="[[maxHeight]]" wheel-target="[[bodyNode]]">
+                <plastic-custom-scroll fit max-height="[[maxHeight]]" small-bar wheel-target="[[bodyNode]]">
                     <template is="dom-repeat" items="[[notifications]]" as="notification"
                               sort="[[notifySorter(notifications)]]">
-                        <div class$="notification [[computeReadClass(notification)]]">
+                        <div class$="notification [[computeReadClass(notification)]]" >
                             <div class="flex-wrapper">
-                                <div class="icon" on-click="readNotification">
+                                <!--<div class="icon" on-click="readNotification">
                                     <iron-icon icon="[[computeNotificationIcon(notification.type)]]"></iron-icon>
                                     <div class="mark"></div>
-                                </div>
-                                <div class="data" on-click="readNotification">
-                                    <div class="header">
+                                </div>-->
+                                <div class="data">
+                                    <div class="header" on-click="readNotification">
                                         <div class="type">[[computeNotificationTypeText(notification.type)]]</div>
+                                        <span class="date">([[computeDate(notification.created)]])</span>
                                     </div>
                                     <div class="text">
                                         <span>[[computeNotificationText(notification.text)]]</span>
                                     </div>
-                                </div>
-                                <div class="remove" on-click="removeNotification">
-                                    <iron-icon class="remove-icon" icon="designmap-workspace:add"></iron-icon>
+                                    <div class="remove" on-tap="removeNotification">
+                                        <iron-icon class="remove-icon" icon="designmap-workspace:add"></iron-icon>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="info">
-                                <div class="phantom"></div>
+                            <div class="info" >
+                                <!--<div class="phantom"></div>-->
                                 <div class="data">
                                     <div class="info-item">
                                         <i18-n msgid="From"></i18-n>
@@ -255,7 +326,7 @@
                                             <template is="dom-if" if="[[isThatLink(info)]]">
                                                 <a class="info-item-link"
                                                    data-link$="[[notification.text.info.xlink]]"
-                                                   on-click="applyLink">
+                                                   on-tap="applyLink">
                                                     <i18-n msgid="[[info]]">[[info]]</i18-n>
                                                 </a>
                                             </template>
@@ -268,10 +339,10 @@
                                     </template>
                                 </div>
                             </div>
-                            <div class="info">
-                                <div class="phantom"></div>
-                                <div class="date"><span>[[computeDate(notification.created)]]</span></div>
-                            </div>
+                            <!--<div class="info">
+                                &lt;!&ndash;<div class="phantom"></div>&ndash;&gt;
+                                <div class="date"></div>
+                            </div>-->
                         </div>
                     </template>
                 </plastic-custom-scroll>
@@ -302,6 +373,10 @@
                     type: Array,
                     statePath: 'notifications'
                 },
+                cut: {
+                    type: Boolean,
+                    value: false
+                },
                 projectId: {
                     type: String,
                     statePath: 'projectId'
@@ -320,8 +395,19 @@
                         return document.body
                     }
                 },
-                maxHeight: Number
+                maxHeight: {
+                    type: Number,
+                    value: function(){
+                        return this.cut?250:window.innerHeight - 150;
+                    }
+                }
             },
+            listeners: {
+              'on-resize':'_onResize'
+            },
+            observers: [
+                '_cutChanged(cut)'
+            ],
             goBack: function () {
                 return page.redirect('/'+(this.project._id||''));
             },
@@ -342,6 +428,7 @@
              * Resolve notification text. Make special replacement.
              */
             computeNotificationText: function (text) {
+                if(!text) return 'xxx';
                 if (!text.replacement) return text.message || text;
                 Object.keys(text.replacement).forEach(function (key) {
                     text.message = this.translate(text.message).replace(key, text.replacement[key]);
@@ -352,10 +439,13 @@
                 return !notification.read ? 'not-read' : ''
             },
             readNotification: function (e) {
+                if(e.model.notification.read) return;
                 this.dispatch('readNotifications', [e.model.notification]);
             },
             removeNotification: function (e) {
+                e.stopPropagation();
                 this.dispatch('removeNotification', e.model.notification._id);
+                this.fire('removed');
             },
             nameSort: function () {
                 return function (a, b) {
@@ -385,7 +475,8 @@
             },
             computeDate: function (created) {
                 moment.locale(this.language);
-                return moment(created).format('LLLL');
+                //moment(created).format('LLLL')
+                return moment(created).format('MM-DD-YYYY HH:mm:ss');
             },
             computeNotificationsLength: function (length) {
                 return !!length;
@@ -403,7 +494,7 @@
              * @returns {*}
              */
             getText: function (info, name) {
-                return this.getElementName({data: {name: info[name]}});
+                return this.getElementName?this.getElementName({data: {name: info[name]}}):'xxx';
             },
             /**
              * Is that link?!
@@ -415,10 +506,17 @@
             },
             applyLink: function (e) {
                 const target = e.currentTarget;
+                this.fire('link')
                 page.redirect(this.removeAppUrl(target.dataset.link));
             },
             _computeBackUrl: function (projectId) {
                 return '/' + (projectId || '');
+            },
+            _onResize: function(){
+                this.maxHeight = this.cut?250:window.innerHeight - 150;
+            },
+            _cutChanged: function(){
+                this.maxHeight = this.cut?340:window.innerHeight - 150;
             }
         })
     </script>

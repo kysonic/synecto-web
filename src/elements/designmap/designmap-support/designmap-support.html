@@ -46,6 +46,7 @@
                 color: var(--blue-darky-color);
                 margin-top: 18px;
                 font-weight: 100;
+                text-decoration: underline;
             }
 
             .content .item .desc {
@@ -125,6 +126,30 @@
                 line-height: 28px;
             }
 
+            @media (min-width: 320px) and (max-width: 768px) {
+                .wrapper {
+                    height: auto;
+                }
+                .content {
+                    flex-direction: column;
+                    margin-top: 0;
+                    padding: 10px;
+                }
+                .content .item .title {
+                    margin-top: 5px;
+                    font-size: 22px;
+                }
+                .content .item .desc {
+                    font-size: 16px !important;
+                    margin-top: 10px;
+                }
+
+                #shortcutsDialog {
+                    min-width: calc(100vw - 20px);
+                    max-width: calc(100vw - 20px);
+                }
+            }
+
 
         </style>
         <designmap-dashboard back back-url="[[_computeBackUrl(projectId)]]">
@@ -134,41 +159,41 @@
         </designmap-dashboard>
         <div class="wrapper">
             <div class="content">
-                <div class="item">
-                    <div class="title">
+                <div class="item" >
+                    <div class="title" on-click="goToDocs">
                         <i18-n msgid="Documentation">Documentation</i18-n>
                     </div>
-                    <div class="desc">
+                    <div class="desc" on-click="goToDocs" >
                         <i18-n msgid="Documentation description">Detailed description</i18-n>
                     </div>
-                    <div class="icon">
-                        <designmap-circle-button on-click="goToDocs">
+                    <div class="icon" on-click="goToDocs">
+                        <designmap-circle-button>
                             <iron-icon icon="designmap-support:book"></iron-icon>
                         </designmap-circle-button>
                     </div>
                 </div>
                 <div class="item">
-                    <div class="title">
+                    <div class="title"  on-click="openShortcutsDialog">
                         <i18-n msgid="Shortcuts">Shortcuts</i18-n>
                     </div>
-                    <div class="desc">
+                    <div class="desc"  on-click="openShortcutsDialog">
                         <i18-n msgid="Shortcuts description">Shortcuts description</i18-n>
                     </div>
-                    <div class="icon">
-                        <designmap-circle-button on-click="openShortcutsDialog">
+                    <div class="icon"  on-click="openShortcutsDialog">
+                        <designmap-circle-button>
                             <iron-icon icon="designmap-support:rocket"></iron-icon>
                         </designmap-circle-button>
                     </div>
                 </div>
                 <div class="item">
-                    <div class="title">
+                    <div class="title" on-click="notSupported">
                         <i18-n msgid="Video tutorials">Video tutorials</i18-n>
                     </div>
-                    <div class="desc">
+                    <div class="desc" on-click="notSupported">
                         <i18-n msgid="Video tutorials description">Video tutorials description</i18-n>
                     </div>
-                    <div class="icon">
-                        <designmap-circle-button on-click="notSupported">
+                    <div class="icon" on-click="notSupported">
+                        <designmap-circle-button>
                             <iron-icon icon="designmap-support:play"></iron-icon>
                         </designmap-circle-button>
                     </div>

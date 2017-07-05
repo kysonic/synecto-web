@@ -1,0 +1,57 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module id="plastic-textarea">
+    <template>
+        <style>
+            :host {
+                display: block;
+                transition: .2s height;
+                overflow: hidden;
+            }
+            textarea {
+                border: none;
+                outline: none;
+                padding: 0;
+                resize: none !important;
+                width: 100%;
+                transition: .2s height;
+                overflow: hidden;
+                @apply(--pure-textarea-mixin);
+            }
+        </style>
+        <textarea id="textarea"
+                  placeholder="[[placeholder]]"
+                  on-keyup="_onChange"
+                  on-blur="_onBlur"
+                  value="[[value]]"
+        ></textarea>
+    </template>
+    <script>
+        Polymer({
+            is: 'plastic-textarea',
+            behaviors: [],
+            properties: {
+                value: {
+                    type: String,
+                    value: '',
+                    observer: '_valueChanged'
+                },
+                placeholder: {
+                    type: String,
+                    value: ''
+                }
+            },
+            ready: function(){
+                autosize(this.$.textarea);
+            },
+            _onChange: function(){
+              this.fire('change');
+            },
+            _valueChanged: function(){
+                this.async(function(){
+                    autosize.update(this.$.textarea)
+                },0);
+            }
+        });
+    </script>
+</dom-module>

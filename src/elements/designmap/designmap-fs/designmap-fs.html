@@ -292,6 +292,10 @@
                 cutted: {
                     type: Object,
                     value: null
+                },
+                MQ: {
+                    type: String,
+                    statePath: 'MQ'
                 }
             },
             listeners: {
@@ -390,14 +394,12 @@
             _isAuthChanged: function (isAuth) {
                 if (!isAuth) return this.cleanUp();
                 // Start tutorial
-                if(!this.user.system.firstVisitIsDone) {
-                    const system = this.user.system;
-                    system.firstVisitIsDone = true;
-                    this.dispatch('userUpdate',{system:system});
+                if(this.user && this.user.system && !this.user.system.firstVisitIsDone && this.MQ!='sm') {
+                    const user = Object.assign({},this.user);
+                    user.system.firstVisitIsDone = true;
+                    this.dispatch('userUpdate',user);
                     const tutorial = document.querySelector('designmap-app').$.tutorial;
-                    this.async(function(){
-                        tutorial.start();
-                    },2000);
+                    this.async(function(){tutorial.start();},2000);
                 }
                 // Get user's projects
                 this.dispatch('getProjects').then(function (response) {

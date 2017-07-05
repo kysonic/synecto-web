@@ -614,9 +614,10 @@
             });
         },
         /**
-         * Fire remove element event
+         * Fire restore element event
          */
         restoreElement: function () {
+            this.$.restoreConfirm.close();
             this.$$('#contextMenu').close();
             this.fire('restore-' + this.currentElement.type, {element: this.currentElement, skip: false});
         },
