@@ -132,7 +132,7 @@
             return (parent.path || Designmap.config.separator) + (parent.name) + Designmap.config.separator;
         },
         canUpdateTask: function (task) {
-            if(!this.user) return false;
+            if(!this.user || !task) return false;
             return this.user._id==task.owner;
         },
         canUpdateStatus: function(task){

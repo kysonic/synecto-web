@@ -249,7 +249,8 @@
             }
             .fake-signup-title {
                 text-align: center;
-                padding-top: 33px;
+                font-size: 13px;
+                padding-top: 11px;
             }
 
             @media screen and (min-width: 320px) and (max-width: 768px) {
@@ -427,6 +428,11 @@
                         <paper-input id="nameFakeSignup" required
                                      value="{{fakeName::keyup}}"
                                      label="[[translate('Enter your name',language,i18Loaded)]]"
+                                     type="text"></paper-input>
+                        <paper-input id="emailFakeSignup" required
+                                     value="{{fakeEmail::keyup}}"
+                                     label="E-mail"
+                                     pattern="[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*"
                                      type="text"></paper-input>
                         <div class="button-set">
                             <button is="designmap-loading-button" id="fakeSignupButton" thin on-click="fakeSignUp">
@@ -727,7 +733,8 @@
              */
             fakeSignUp: function(){
                 const unknownName = this.$.nameFakeSignup.value;
-                if (!unknownName) return;
+                const unknownEmail = this.$.emailFakeSignup.value;
+                if (!this.$.nameFakeSignup.validate() || !this.$.emailFakeSignup.validate()) return this.showErrorMessage("Form was not filled correctly");
                 const nameParts = unknownName.split(' ');
                 const user = {
                     _id: this.generateObjectId(),
@@ -735,6 +742,9 @@
                     profile: {
                         name: nameParts[0],
                         lastName: nameParts[1] || ''
+                    },
+                    local: {
+                        email: unknownEmail
                     }
                 };
                 this.dispatch('_userUpdate', user);

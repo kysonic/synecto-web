@@ -1,0 +1,13 @@
+<script>
+    Reducers.HashReducer = function(state,action) {
+        if(!state) state = null;
+        switch(action.type) {
+            case "UPDATE_HASH":
+                return action.hash;
+                break;
+            default:
+                return state;
+                break;
+        }
+    }
+</script>

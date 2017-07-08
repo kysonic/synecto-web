@@ -939,7 +939,7 @@
     "message": "Имя файла"
   },
   "There is no any notifications": {
-    "message": "У Вас еще нет ни единого оповещения..."
+    "message": "Пусто..."
   },
   "You do not have access to change status of this task.": {
     "message":"У Вас нет доступа чтобы изменить статус этой задачи."
@@ -1441,5 +1441,17 @@
   },
   "ElementIsRemovedDoYouWantToResroreIt": {
     "message": "Элемент удален. Вы хотите восстановить его?"
+  },
+  "will be notified": {
+    "message": "будут оповещен(ы)."
+  },
+  "persons": {
+    "message": "человек(а)"
+  },
+  "Form was not filled correctly": {
+    "message": "Форма была заполнена не верно"
+  },
+  "Add a comment": {
+    "message": "Добавить комментарий"
   }
 }

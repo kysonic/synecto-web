@@ -12,6 +12,7 @@
 <link rel="import" href="../../../redux/actions/project-actions.html?20170615">
 <link rel="import" href="../../../redux/actions/user-actions.html?20170615">
 <link rel="import" href="../../../redux/actions/tasks-actions.html?20170615">
+<link rel="import" href="../../../redux/actions/comments-action.html?20170615">
 <!-- Services -->
 <link rel="import" href="./deaignmap-task-service.html?20170615">
 <link rel="import" href="../../../behaviors/designmap-socket-behavior.html?20170615">
@@ -152,7 +153,7 @@
                 Polymer.DesignMapUtilsBehavior,
                 Polymer.DesignMapTaskService,
                 Polymer.DesignmapSocketBehavior,
-                Polymer.CombineActions(Polymer.ProjectActions, Polymer.TasksActions, Polymer.FilesActions)
+                Polymer.CombineActions(Polymer.ProjectActions, Polymer.TasksActions, Polymer.FilesActions, Polymer.CommentsActions)
             ],
             properties: {
                 /**
@@ -319,6 +320,7 @@
                     this._pathChanged(this.path);
                     this.loading = false;
                 }.bind(this));
+                this.dispatch('getComments');
             },
             _pathChanged: function (path) {
                 if (path == '/' && !this.selectedTask && this.MQ!=='sm') return this.findDefaultTask();

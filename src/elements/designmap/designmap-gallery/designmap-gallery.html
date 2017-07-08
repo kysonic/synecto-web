@@ -393,7 +393,7 @@
                 padding: 10px 5px;
                 border: 1px dashed var(--gray-color);
                 color: var(--gray-darkend-color);
-                overflow: hidden;
+                overflow: hidden !important;
                 text-overflow: ellipsis;
             }
 
@@ -452,6 +452,12 @@
                 opacity: 0;
             }
 
+            .mobile .close-icon, .mobile .more-icon{
+                --iron-icon-components-mixin: {
+                    stroke: var(--gray-darkend-color) !important;
+                    fill: var(--gray-darkend-color) !important;
+                };
+            }
 
             @media (min-width: 320px) and (max-width: 768px) {
                 .designmap-logo-mobile {
@@ -503,12 +509,7 @@
                     width: 43px !important;
                     height: 43px !important;
                 }
-                .close-icon, .more-icon {
-                    --iron-icon-components-mixin: {
-                        stroke: var(--gray-darkend-color) !important;
-                        fill: var(--gray-darkend-color) !important;
-                    };
-                }
+
                 #closeButton {
                     margin-right: 5px;
                 }
@@ -564,7 +565,7 @@
 
 
         </style>
-        <div class="top-panel panel">
+        <div class$="top-panel panel [[_computeIronImageClass(MQ)]]">
             <div class="left">
                 <iron-icon class="designmap-logo" on-click="close" icon="designmap-logo:logo-gray"></iron-icon>
                 <iron-icon class="designmap-logo-mobile" on-click="close" icon="designmap-logo-mobile:logo-gray"></iron-icon>
@@ -768,12 +769,6 @@
                     </div>
                     <div class="hint" hidden$="[[!showHint]]">
                         <i18-n msgid="Click on image to leave comment">Click on image to leave comment</i18-n>
-                    </div>
-                </template>
-                <template is="dom-if" if="[[error]]">
-                    <div class="error">
-                        <designmap-stub image="designmap-workspace-stub:error" message="[[error]]"
-                                        error></designmap-stub>
                     </div>
                 </template>
             <template is="dom-if" if="[[_computeLoading(loading,error)]]">
@@ -1050,6 +1045,11 @@
              */
             close: function () {
                 if(this.user && this.user.fake) this.dispatch('cleanUser');
+                if(this.user) {
+                    if(this.user.fake) return  page.redirect('/');
+                    const projectId = this.projectId || this.file.project;
+                    return page.redirect('/' + (projectId || '') + (this.path?this.path:''));
+                }
                 page.redirect('/' + (this.projectId || '') + (this.path?this.path:''));
             },
             /**

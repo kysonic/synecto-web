@@ -211,6 +211,10 @@
                     type: String,
                     observer: '_pathChanged'
                 },
+                hash: {
+                    type: String,
+                    observer: '_hashChanged'
+                },
                 user: {
                     type: Object,
                     statePath: 'user',
@@ -279,6 +283,10 @@
 
             _pathChanged: function (path) {
                 this.dispatch('updatePath', path);
+            },
+
+            _hashChanged: function (hash) {
+                this.dispatch('updateHash', hash);
             },
 
             _fileIdChanged: function (fileId) {

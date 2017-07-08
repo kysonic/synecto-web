@@ -7,6 +7,7 @@
                 display: block;
                 transition: .2s height;
                 overflow: hidden;
+                position: relative;
             }
             textarea {
                 border: none;
@@ -16,13 +17,13 @@
                 width: 100%;
                 transition: .2s height;
                 overflow: hidden;
-                @apply(--pure-textarea-mixin);
+                @apply(--plastic-textarea-mixin);
             }
         </style>
         <textarea id="textarea"
                   placeholder="[[placeholder]]"
                   on-keyup="_onChange"
-                  on-blur="_onBlur"
+                  on-track="_track"
                   value="[[value]]"
         ></textarea>
     </template>
@@ -44,13 +45,16 @@
             ready: function(){
                 autosize(this.$.textarea);
             },
-            _onChange: function(){
-              this.fire('change');
+            _onChange: function(e){
+              this.fire('change',e);
             },
             _valueChanged: function(){
                 this.async(function(){
                     autosize.update(this.$.textarea)
                 },0);
+            },
+            _track: function(e){
+                e.stopPropagation();
             }
         });
     </script>

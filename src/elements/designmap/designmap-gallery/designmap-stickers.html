@@ -1,4 +1,5 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="/bower_components/iron-resizable/iron-resizable-behavior.html">
 <link rel="import" href="../designmap-buttons/designmap-button.html?20170615">
@@ -43,7 +44,7 @@
                 --designmap-dropdown-triangle-border-mixin: {
                     margin-left: -20px;
                     margin-top: -2px;
-                    border-color: transparent transparent var(--header-line-color) transparent ;
+                    border-color: transparent transparent var(--header-line-color) transparent;
                 };
                 --designmap-dropdown-mixin: {
                     display: block;
@@ -69,6 +70,26 @@
                 --designmap-users-select-dropdown-mixin: {
                     color: var(--gray-darkend-color) !important;
                 };
+                --paper-tooltip-background: var(--gray-darkend-color);
+                --paper-tooltip-opacity: 1;
+                --paper-tooltip-text-color: var(--white-color);
+                --paper-tooltip: {
+                    font-size: 14px;
+                    border-radius: 4px;
+                    z-index: 99;
+                };
+                --paper-tooltip-after: {
+                    content: '';
+                    position: absolute;
+                    left: 50%;
+                    margin-left: -5px;
+                    top: -10px;
+                    width: 0;
+                    height: 0;
+                    border-style: solid;
+                    border-width: 0 5px 10px 5px;
+                    border-color: transparent transparent var(--gray-darkend-color) transparent;
+                };
             }
 
             *[hidden] {
@@ -85,7 +106,7 @@
                 cursor: default !important;
             }
 
-            .wrapper.hasOvered .marker{
+            .wrapper.hasOvered .marker {
                 display: none;
             }
 
@@ -157,15 +178,16 @@
                 resize: none;
                 font-size: 14px !important;
                 width: calc(100% - 20px);
-                height: 50px;
-                max-height: 60px;
+                height: 55px;
+                max-height: 80px;
                 padding: 5px 10px;
                 color: var(--gray-super-dark);
                 outline: none;
             }
+
             .sticker .dropdown .add-comment::-webkit-input-placeholder,
             .sticker .dropdown .add-comment::-moz-placeholder,
-            .sticker .dropdown .add-comment:-ms-input-placeholder{
+            .sticker .dropdown .add-comment:-ms-input-placeholder {
                 font-size: 14px !important;
             }
 
@@ -174,6 +196,12 @@
                     stroke-width: 4px;
                     r: 3px;
                 };
+            }
+
+            .reply {
+                width: 16px;
+                height: 16px;
+                margin-right: 3px;
             }
 
             .sticker .dropdown button {
@@ -187,6 +215,7 @@
                 border: none;
                 transition: .2s background;
             }
+
 
             .sticker .dropdown button:hover {
                 font-size: 14px;
@@ -321,6 +350,7 @@
                 background: rgba(0, 0, 0, 0.8);
                 width: 100%;
                 height: 100%;
+                cursor: default;
             }
 
             .marker {
@@ -328,10 +358,11 @@
                 position: absolute;
                 color: var(--white-color);
                 padding: 5px 10px;
-                background: rgba(0,0,0,0.6);
+                background: rgba(0, 0, 0, 0.6);
                 font-size: 10px;
                 border-radius: 10px;
                 font-weight: 100;
+                white-space: nowrap;
             }
 
             :host(.zoomed) .marker {
@@ -357,13 +388,62 @@
                 height: 0;
             }
 
+            .ripple {
+                display: none;
+                background: var(--google-btn-color);
+                position: absolute;
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                top: -15px;
+                left: -15px;
+                opacity: 0;
+            }
+
+            .ripple.animate {
+                animation: ripple;
+                animation-duration: .6s;
+            }
+
+            @keyframes ripple {
+                0% {
+                    opacity: 0;
+                    transform: scale(0);
+                }
+                50% {
+                    opacity: 0.4;
+                    transform: scale(1);
+                }
+                100% {
+                    opacity: 0;
+                    transform: scale(2);
+                }
+            }
+
+            /** Invoked\Notified **/
+
+            .invoked {
+                color: var(--gray-darkend-color);
+                cursor: default;
+                text-align: left;
+                padding-left: 10px;
+                border-top: 1px dashed var(--gray-color);
+            }
+
+            .invoked-count {
+                font-weight: 700;
+                text-decoration: underline;
+            }
+
             @media (min-width: 320px) and (max-width: 768px) {
                 .marker {
                     display: none !important;
                 }
+
                 .wrapper {
                     position: relative;
                 }
+
                 .sticker .dropdown {
                     top: 0px;
                     left: 20px;
@@ -372,14 +452,17 @@
                     min-width: calc(100vw - 40px);
                     transition: .2s transform ease-in;
                 }
+
                 .sticker.opened .dropdown {
                     transform: translateY(0px);
                     transition: .2s transform ease-in;
                 }
+
                 .menu .like {
                     width: 29px;
                     height: 31px;
                 }
+
                 .menu .more {
                     width: 30px;
                     height: 30px;
@@ -387,10 +470,11 @@
             }
 
         </style>
-        <div class="marker" id="marker" >
+        <div class="marker" id="marker">
             <i18-n msgid="Click to add a comment">Click to add a comment</i18-n>
         </div>
-        <div class$="wrapper {{_computeOpenedClasses(isThereOpened)}}" on-mousemove="_followCursor" on-mouseleave="_stickerOver" id="wrapper">
+        <div class$="wrapper {{_computeOpenedClasses(isThereOpened)}}" on-mousemove="_followCursor"
+             on-mouseleave="_stickerOver" id="wrapper">
             <div class="stickers" on-click="createSticker">
                 <template is="dom-repeat" id="stickersTemplate" observe="stickers.*" items="[[stickers]]" as="sticker">
                     <div id="{{returnStickerID(sticker)}}"
@@ -424,12 +508,14 @@
                                                     <div class="user">[[computeOwnerName(comment.owner)]]</div>
                                                 </div>
                                                 <div class="menu">
-                                                    <div class="like" on-click="_like">
+                                                    <iron-icon on-tap="_reply" hidden$="[[_hideForMySelf(user,comment)]]" class="reply"
+                                                               icon="icons:reply"></iron-icon>
+                                                    <div class="like" on-tap="_like">
                                                         <iron-icon class="heart"
                                                                    icon="icons:favorite-border"></iron-icon>
                                                         <span class="likesCount">[[_computeLikesCount(comment.likes.length)]]</span>
                                                     </div>
-                                                    <iron-icon on-click="_openDropdown" class="more"
+                                                    <iron-icon on-tap="_openDropdown" class="more"
                                                                icon="designmap-workspace:more"></iron-icon>
                                                 </div>
                                             </div>
@@ -437,32 +523,54 @@
                                     </template>
                                 </plastic-custom-scroll>
                             </div>
-                            <iron-a11y-keys id="a11ySave" target="[[getTarget(sticker._id)]]" keys="ctrl+enter" on-keys-pressed="_postComment"></iron-a11y-keys>
+
+                            <iron-a11y-keys id="a11ySave" keys="alt+enter ctrl+enter" on-keys-pressed="_postComment"></iron-a11y-keys>
                             <div class="textarea-wrapper">
-                                <textarea value="{{textAreaValue::input}}" on-keyup="_invocation" on-mousewheel="_textAreaMouseWheel" on-blur="_checkSticker" class="add-comment"
+                                <textarea value="{{textAreaValue::input}}" on-keyup="_invocation"
+                                          on-keydown="_specialActionForInvocation"
+                                          on-mousewheel="_textAreaMouseWheel" on-blur="_checkSticker"
+                                          class="add-comment"
                                           placeholder="[[translate('Write a comment',language,i18Loaded)]]"></textarea>
                             </div>
+                            <!-- Invoked -->
+                            <div class="invoked" hidden$="[[!invokedUsers.length]]">
+                                <span id="invoked-count" class="invoked-count">
+                                    [[invokedUsers.length]]
+                                </span>
+                                <paper-tooltip grayder for="invoked-count">[[_getInvokedUsersList(invokedUsers)]]</paper-tooltip>
+                                <span>
+                                    <i18-n msgid="persons">persons</i18-n>
+                                </span>
+                                <span>
+                                     <i18-n msgid="will be notified">will be notified</i18-n>
+                                </span>
+                            </div>
+                            <!-- Invoked -->
                             <button class="post-comment-buttton" on-click="_postComment" hidden$="[[!textAreaValue]]">
                                 <i18-n msgid="Post a comment">Post a comment</i18-n>
                             </button>
                         </div>
+                        <div class="ripple"></div>
                     </div>
                 </template>
+                <!-- Invocation dropdown -->
                 <div id="invocationDropDown" class="invocation">
-                    <designmap-users-select id="select" on-close="_closeInvocationDropDown" on-selected="userSelect" dishonred options="[[projectUsers]]" search="{{search}}" limit="5"></designmap-users-select>
+                    <designmap-users-select id="select" on-close="_closeInvocationDropDown" on-selected="userSelect"
+                                            dishonred options="[[projectUsers]]" search="{{search}}"
+                                            limit="5"></designmap-users-select>
                 </div>
             </div>
             <!-- Dropdown-->
             <designmap-dropdown id="dropdown" class="bound" vertical-offset="30" horizontal-offset="-40" previous
                                 tri-border>
                 <ul class="menu bound">
-                    <li class="bound" hidden$="[[!canUpdateAndRemove]]" on-click="_editComment">
+                    <li class="bound" hidden$="[[!canUpdateAndRemove]]" on-tap="_editComment">
                         <i18-n class="bound" msgid="Edit">Edit</i18-n>
                     </li>
-                    <li class="bound" on-click="_applyToProtocol">
+                    <!--<li class="bound" on-click="_applyToProtocol">
                         <i18-n class="bound" msgid="Apply to protocol">Apply to protocol</i18-n>
-                    </li>
-                    <li class="bound" hidden$="[[!canUpdateAndRemove]]" on-click="_removeComment">
+                    </li>-->
+                    <li class="bound" hidden$="[[!canUpdateAndRemove]]" on-tap="_removeComment">
                         <i18-n class="bound" msgid="Remove">Remove</i18-n>
                     </li>
                 </ul>
@@ -473,7 +581,7 @@
                                on-continue="_removeSticker"
                                on-suspend="_suspendStickerRemoving"></designmap-confirm>
             <!-- Form to login -->
-            <div class="login-form-wrapper" hidden$="[[!stickerEvent]]">
+            <div class="login-form-wrapper" hidden$="[[!stickerEvent]]" on-mousewheel="_mouseWheel">
                 <designmap-login-form fake-support></designmap-login-form>
             </div>
         </div>
@@ -494,8 +602,6 @@
         </designmap-hint>
     </template>
     <script>
-        const INVOCATION_REGEXP = /(^@([\w\S]*)$| @([\w\S]*)$|\n@([\w\S]*)$)/;
-        const SYMBOL_REGEXP = /[ ]*/;
         let tempSearch = '';
         Polymer({
             is: 'designmap-stickers',
@@ -591,7 +697,12 @@
                 },
                 projectUsers: {
                     type: Array,
-                    statePath: 'projectUsers'
+                    statePath: function(state){
+                        return state.projectUsers.filter(function(user){
+                            if(!this.user) return true;
+                            return user._id!==this.user._id;
+                        }.bind(this));
+                    }
                 },
                 search: {
                     type: String,
@@ -600,26 +711,67 @@
                 MQ: {
                     type: String,
                     statePath: 'MQ'
+                },
+                hash: {
+                    type: String,
+                    statePath: 'hash',
+                    observer: 'checkHash'
+                },
+                invokedUsers: {
+                    type: Array,
+                    value: []
                 }
             },
-            ready: function(){
-              this.async(function(){
-                  if(this.MQ=='sm') {
-                      this.classList.add('mobile');
-                      this.updateStyles();
-                  }
-                  if(!this.user) this.stickerEvent = true;
-                  this.app = document.querySelector('designmap-app');
-                  this.gallery = this.app.$.galleryView.$.gallery;
-                  this.tutorial = this.app.$.tutorial;
-              },1000)
+            ready: function () {
+                this.app = document.querySelector('designmap-app');
+                this.async(function () {
+                    if (this.MQ == 'sm') {
+                        this.classList.add('mobile');
+                        this.updateStyles();
+                    }
+                    if (!this.user) this.stickerEvent = true;
+                    this.app = document.querySelector('designmap-app');
+                    this.gallery = this.app.$.galleryView.$.gallery;
+                    this.tutorial = this.app.$.tutorial;
+                    this.checkHash(this.app.firstHash);
+                }, 1000);
+                this.INVOCATION_REGEXP = /(^@([\w\S]*)$| @([\w\S]*)$|\n@([\w\S]*)$)/;
+                this.SYMBOL_REGEXP = /[ ]*/;
+            },
+            checkHash: function (h) {
+                const hash = h || this.hash;
+                if (hash) {
+                    this.closeAllStickers();
+                    const stickerId = hash.replace('/', '');
+                    if (!stickerId) return;
+                    const sticker = this.findSrickerById(stickerId);
+                    if (!sticker) return;
+                    sticker.opened = true;
+                    this.dispatch('_updateSticker', sticker._id, sticker);
+                    this._resolveStickerDropdownPosition(sticker);
+                    const stickerNode = Polymer.dom(this.$.wrapper).querySelector('#sticker-' + sticker._id);
+                    this.async(function () {
+                        if(!stickerNode) return;
+                        this.animateRipple(stickerNode);
+                        const scroll = stickerNode.querySelector('plastic-custom-scroll');
+                        scroll.setScroll(1000);
+                    }, 10);
+                }
+            },
+            animateRipple: function(stickerNode){
+                const ripple = stickerNode.querySelector('.ripple');
+                ripple.style.display = 'block';
+                ripple.classList.add('animate');
+                this.async(function(){
+                    ripple.style.display = 'none';
+                },600);
             },
             /**
              * Create a new one.
              */
             createSticker: function (e) {
                 if (!this.user) return this._enterName(e);
-                if (this.parents(e.target, 'sticker') || this.zoom!=1 || this.parents(e.target, 'designmap-confirm') || e.target.classList.contains('bound') || this.pressed || this.moved) {
+                if (this.parents(e.target, 'sticker') || this.zoom != 1 || this.parents(e.target, 'designmap-confirm') || e.target.classList.contains('bound') || this.pressed || this.moved) {
                     return true;
                 }
                 else if (this.isThereOpened) {
@@ -659,13 +811,15 @@
                     this.isThereOpened = true;
                 });
                 // Hints
-                if(this.tutorial && this.tutorial.isRunning=='openFile') {
-                    this.async(function(){
+                if (this.tutorial && this.tutorial.isRunning == 'openFile') {
+                    this.async(function () {
                         const stickerNode = Polymer.dom(this.$.wrapper).querySelector('#sticker-' + sticker._id);
                         this.gallery.showHint = false;
                         this.tutorial.thumbUp();
                         this.hintTarget = stickerNode;
-                        this.async(function(){this.tutorial.next()});
+                        this.async(function () {
+                            this.tutorial.next()
+                        });
                     });
                 }
             },
@@ -675,7 +829,7 @@
             },
 
             _userChanged: function (user) {
-                if(user) this.set('stickerEvent', false);
+                if (user) this.set('stickerEvent', false);
             },
 
             /**
@@ -688,11 +842,12 @@
                     this.textAreaValue = '';
                     this.dispatch('_updateSticker', sticker._id, sticker);
                     let comment = this.lastCommentData && this.lastCommentData.comment;
-                    if(!comment) return;
+                    if (!comment) return;
                     comment.edit = false;
                     this.dispatch('_updateComment', comment._id, comment);
                 }.bind(this));
                 this.isThereOpened = false;
+                this.set('invokedUsers',[]);
             },
             /**
              * Calculate styles for each sticker according their position and zoom
@@ -730,8 +885,8 @@
              * @private
              */
             _mouseDown: function (e) {
-                if(!e.target.classList.contains('bound') || this.zoom!=1) return;
-                if (e.currentTarget.classList.contains('opened')) return false;
+                if (!e.target.classList.contains('bound') || this.zoom != 1) return;
+                //if (e.currentTarget.classList.contains('opened')) return false;
                 this.stickerCatch = true;
                 let sticker = e.model.sticker;
                 document.body.classList.add('non-select');
@@ -745,7 +900,7 @@
 
                 function _drag(e) {
                     if (_this.stickerCatch && !_this._canUserManageSticker(sticker)) {
-                        if (!_this.messageShowed) _this.showErrorMessage('It is not your comment. You cannot drag it');
+                        //if (!_this.messageShowed) _this.showErrorMessage('It is not your comment. You cannot drag it');
                         _this.messageShowed = true;
                         _this.async(function () {
                             _this.messageShowed = false;
@@ -764,8 +919,9 @@
                     if (x < 0 || x > bound.width) position.left = sticker.position.left;
                     if (y < 0 || y > bound.height) position.top = sticker.position.top;
                     sticker.position = position;
-                    if(Math.abs(deltaX)>5 || Math.abs(deltaY)>5) _this.stickerDrag = true;
+                    if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) _this.stickerDrag = true;
                     _this.dispatch('_updateSticker', sticker._id, sticker);
+                    if (sticker.opened) _this._resolveStickerDropdownPosition(sticker);
                 }
 
                 function _stop(e) {
@@ -783,7 +939,7 @@
             },
 
             _toogleSticker: function (e) {
-                if (!e.target.classList.contains('bound') || this.stickerDrag || this.zoom!=1) return;
+                if (!e.target.classList.contains('bound') || this.stickerDrag || this.zoom != 1) return;
                 const sticker = e.model.sticker;
                 this.closeAllStickers(sticker);
                 sticker.opened = !sticker.opened;
@@ -793,31 +949,28 @@
                 this.dispatch('_updateSticker', sticker._id, sticker);
                 // Resolve position
                 this._resolveStickerDropdownPosition(sticker);
-                 // calc scroll
-                 this.async(function () {
+                // calc scroll
+                this.async(function () {
                     const stickerNode = this.$$('#sticker-' + sticker._id);
                     stickerNode.querySelector('plastic-custom-scroll').calculate();
-                 });
+                });
             },
 
             _resolveStickerDropdownPosition(sticker){
                 if (!sticker) return;
-                if(this.MQ=='sm') return;
+                if (this.MQ == 'sm') return;
                 const stickerNode = this.$$('#sticker-' + sticker._id);
-                const stickerBound = stickerNode.getBoundingClientRect();
-                const dropdownNode = stickerNode.querySelector('.dropdown');
-                /*if(this.MQ=='sm') {
-                    console.log(dropdownNode);
-                    //this.appendChild(dropdownNode);
-                    return;
-                }*/
-                if (sticker.position.top <= 50) return dropdownNode.style.top = '33px';
+                const dropdownNode = stickerNode ? stickerNode.querySelector('.dropdown') : null;
+                if (!dropdownNode) return;
                 this.async(function () {
                     const dropBound = dropdownNode.getBoundingClientRect();
                     dropdownNode.style.top = -(dropBound.height + 5) + 'px';
+                    if (sticker.position.top <= 50) dropdownNode.style.top = '33px';
+                    if (sticker.position.left > 50) dropdownNode.style.left = -dropBound.width + 25 + 'px';
+                    if (sticker.position.left < 50) dropdownNode.style.left = 0 + 'px';
                 });
-
             },
+
 
             _textAreaValueChanged: function () {
                 this._resolveStickerDropdownPosition(this._findOpenedSticker());
@@ -837,30 +990,31 @@
             },
 
             _fileChanged: function (file) {
+                this.async(this.checkHash);
                 this.setupSocket(file.project, 'project');
             },
 
-            _followCursor: function(e){
-                if(!e.target.classList.contains('stickers')) return;
+            _followCursor: function (e) {
+                if (!e.target.classList.contains('stickers')) return;
                 this.$.marker.style.display = 'block';
-                this.$.marker.style.left = e.layerX+20 + 'px';
-                this.$.marker.style.top = e.layerY-10 + 'px';
+                this.$.marker.style.left = e.layerX + 20 + 'px';
+                this.$.marker.style.top = e.layerY - 10 + 'px';
             },
 
-            _stickerOver: function(e){
-               this.$.marker.style.display = 'none';
+            _stickerOver: function (e) {
+                this.$.marker.style.display = 'none';
             },
 
-            _stickerLeave: function(e){
+            _stickerLeave: function (e) {
                 this.$.marker.style.display = 'block';
             },
 
-            getTarget: function(id){
+            getTarget: function (id) {
                 const stickerNode = Polymer.dom(this.$.wrapper).querySelector('#sticker-' + id);
                 return stickerNode ? stickerNode.querySelector('.dropdown .add-comment') : null;
             },
 
-            _textAreaMouseWheel: function(e){
+            _textAreaMouseWheel: function (e) {
                 e.stopPropagation();
             },
 
@@ -869,32 +1023,93 @@
              * @name/email/etc.. To add notification
              * @private
              */
-            _invocation: function(e){
-                if(!INVOCATION_REGEXP.test(this.textAreaValue)) {
+            _invocation: function (e) {
+                this.async(this.resolveInvokedUsers);
+                if (!this.INVOCATION_REGEXP.test(this.textAreaValue)) {
                     this.$.invocationDropDown.style.display = 'none';
+                    this.$.invocationDropDown.classList.remove('opened');
                     return this.$.select.$.dropdown.close();
                 }
-                const matches = this.textAreaValue.match(INVOCATION_REGEXP);
+                const matches = this.textAreaValue.match(this.INVOCATION_REGEXP);
                 tempSearch = matches[1];
                 this.search = matches[2] || matches[3] || matches[4] || "";
                 e.target.parentNode.appendChild(this.$.invocationDropDown);
-                const cords = window.getCaretCoordinates(e.target,e.target.selectionEnd);
+                const cords = window.getCaretCoordinates(e.target, e.target.selectionEnd);
                 this.$.invocationDropDown.style.display = 'block';
+                this.$.invocationDropDown.classList.add('opened');
                 this.$.invocationDropDown.style.left = cords.left + 'px';
-                this.$.invocationDropDown.style.top = cords.top - (e.target.scrollHeight-15) + 'px';
+                this.$.invocationDropDown.style.top = cords.top - (e.target.scrollHeight - 15) + 'px';
                 this.$.select.openDropdown();
             },
 
-            _closeInvocationDropDown: function(){
+            resolveInvokedUsers: function(){
+                const users = [];
+                this.projectUsers.forEach(function (user) {
+                    const regExpStr = user.profile&&user.profile.name?'@'+user.profile.name:"\\+" + user.local.email;
+                    const regExp = new RegExp(regExpStr,'i');
+                    if(regExp.test(this.textAreaValue)) users.push(user);
+                }.bind(this));
+                this.set('invokedUsers',users);
+            },
+
+            _closeInvocationDropDown: function () {
                 this.$.invocationDropDown.style.display = 'none';
             },
 
-            userSelect: function(e){
+            userSelect: function (e) {
                 this.$.select.$.dropdown.close();
-                if(this.user.local.email==e.detail.local.email) return this.showErrorMessage('You cannot notify yourself');
-                const emails = this.textAreaValue.match(new RegExp('\\+'+e.detail.local.email));
-                if(emails && emails.length) return;
-                this.textAreaValue = this.textAreaValue.replace(new RegExp(tempSearch.replace(SYMBOL_REGEXP,'')+"$",'i'),"+"+e.detail.local.email+" ");
+                const user = e.detail;
+                if(!user) return;
+                if (this.user.local.email == user.local.email) return this.showErrorMessage('You cannot notify yourself');
+                /*const emails = this.textAreaValue.match(new RegExp('\\+' + user.local.email));
+                if (emails && emails.length) return;*/
+                const replacement = user.profile&&user.profile.name?'@'+user.profile.name+' ':"+" + user.local.email + " ";
+                this.textAreaValue = this.textAreaValue.replace(new RegExp(tempSearch.replace(this.SYMBOL_REGEXP, '') + "$", 'i'), replacement);
+                const textArea =  Polymer.dom(this.$.wrapper).querySelector('.sticker.opened .add-comment');
+                textArea.focus();
+                this.resolveInvokedUsers();
+            },
+
+            _specialActionForInvocation: function(e){
+
+                const dropDown = Polymer.dom(this.$.wrapper).querySelector('.sticker.opened #invocationDropDown.opened');
+                if(!dropDown || [13,40,38].indexOf(e.keyCode)==-1) return;
+                e.preventDefault();
+                e.stopPropagation();
+                const userSelect = dropDown.querySelector('designmap-users-select');
+
+                if(e.keyCode==13) userSelect.add();
+                if(e.keyCode==38) userSelect.up();
+                if(e.keyCode==40) userSelect.down();
+
+            },
+
+            _hidePersons: function(length) {
+                return length==1;
+            },
+
+            _getInvokedUsersList: function(){
+                return this.invokedUsers.map(function(user){
+                    return user.profile&&user.profile.name?user.profile.name:user.local.email;
+                }).join('; ');
+            },
+
+            _mouseWheel: function(e){
+                e.preventDefault();
+                e.stopPropagation();
+            },
+
+            _reply: function(e){
+                const user = e.model.comment.owner;
+                const figure = user.profile&&user.profile.name?'@'+user.profile.name+' ':"+" + user.local.email + " ";
+                this.textAreaValue = figure+ this.textAreaValue;
+                const textArea =  Polymer.dom(this.$.wrapper).querySelector('.sticker.opened .add-comment');
+                textArea.focus();
+                this.resolveInvokedUsers();
+            },
+
+            _hideForMySelf: function(user,comment) {
+                return user&&user._id==comment.owner._id;
             }
         })
     </script>

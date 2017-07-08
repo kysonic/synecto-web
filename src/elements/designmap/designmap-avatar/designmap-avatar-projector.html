@@ -11,14 +11,15 @@
                 width: 30px;
                 height: 30px;
                 border-radius: 50%;
-                color: var(--white-color);
-                background: var(--blue-color);
+                color: var(--gray-darkend-color);
+                background: transparent;
                 font-family: 'Open Sans'; font-weight: 300;
                 font-size: 20px;
                 text-transform: uppercase;
                 text-align: center;
                 line-height: 30px;
                 cursor: pointer;
+                border: 1px solid var(--gray-darkend-color);
                 @apply(--designmap-avatar-projector-mixin);
             }
             :host img {
@@ -71,7 +72,8 @@
             },
             computeName: function (user) {
                 if (typeof user == 'string') return '...';
-                return user ? user.profile.name && user.lastName ? user.profile.name[0] + user.profile.lastName[0] : user.local.email[0] : 'XX';
+                return user ? user.profile.name && user.profile.lastName ? user.profile.name[0] + user.profile.lastName[0] :
+                        user.profile.name ? user.profile.name[0] :user.local.email[0] : 'XX';
             }
         })
     </script>

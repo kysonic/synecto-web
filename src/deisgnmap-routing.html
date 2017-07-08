@@ -6,6 +6,8 @@
     Polymer.DesignmapRouting = {
         ready: function(){
             page('*', function(ctx, next) {
+                this.firstHash = this.firstHash || ctx.hash;
+                this.hash = ctx.hash;
                 this.previousPath = ctx.path;
                 // Common for all routes
                 next();

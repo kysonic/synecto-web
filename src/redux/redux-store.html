@@ -21,6 +21,7 @@
 <link rel="import" href="reducers/stickers-reducer.html?20170615">
 <link rel="import" href="reducers/comments-reducer.html?20170615">
 <link rel="import" href="reducers/mq-reducer.html?20170615">
+<link rel="import" href="reducers/hash-reducer.html?20170615">
 
 <script>
     const initialState = {
@@ -41,7 +42,9 @@
         tasks: [],
         files: [],
         stickers: [],
-        comments: []
+        comments: [],
+        MQ: '',
+        hash: ''
     };
     // Combine reducers
     const reducer = Redux.combineReducers({
@@ -55,6 +58,7 @@
        fileId: filterActions(Reducers.FileIdReducer,['UPDATE_FILE_ID']),
        folderId: filterActions(Reducers.FolderIdReducer,['UPDATE_FOLDER_ID']),
        MQ: filterActions(Reducers.MQReducer,['UPDATE_MQ']),
+       hash: filterActions(Reducers.HashReducer,['UPDATE_HASH']),
        path: filterActions(Reducers.PathReducer,['UPDATE_PATH']),
        trashMode: filterActions(Reducers.TrashModeReducer,['UPDATE_TRASH_MODE']),
        projects: filterActions(Reducers.ProjectsReducer,['ADD_PROJECT','REMOVE_PROJECT','UPDATE_PROJECT','SET_PROJECTS','CLEAN_PROJECTS']),

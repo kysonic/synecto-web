@@ -4,6 +4,7 @@
 <link rel="import" href="./designmap-assignee.html?20170615">
 <link rel="import" href="../designmap-ui/designmap-date-picker.html?20170615">
 <link rel="import" href="../designmap-ui/designmap-file-uploader.html?20170615">
+<link rel="import" href="../designmap-accesses/designmap-users-select.html?20170615">
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
 
 <link rel="import" href="./deaignmap-task-service.html?20170615">
@@ -13,6 +14,7 @@
 <link rel="import" href="../../../redux/actions/files-actions.html?20170615">
 <link rel="import" href="../../../redux/actions/user-actions.html?20170615">
 <link rel="import" href="../../../redux/actions/tasks-actions.html?20170615">
+<link rel="import" href="../../../redux/actions/comments-action.html?20170615">
 
 <dom-module id="designmap-task-details">
     <template>
@@ -20,10 +22,12 @@
             :host {
                 margin-top: 33px;
                 flex: 1;
-                display: block;
                 box-sizing: border-box;
                 position: relative;
                 background: var(--white-color);
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
 
                 --details-color: var(--gray-saturated-color);
 
@@ -35,6 +39,10 @@
 
             *[hidden] {
                 display: none !important;
+            }
+
+            plastic-custom-scroll {
+                flex: 11;
             }
 
             /** DETAILS **/
@@ -93,7 +101,6 @@
             }
 
             /** TYPE COLORS **/
-            
 
             designmap-assignee {
                 --designmap-assignee-assigned-mixin: {
@@ -126,7 +133,6 @@
                     margin-left: -12px;
                 };
             }
-
 
             /** DATE PICKER **/
             :host {
@@ -197,7 +203,7 @@
             .breadcrumbs {
                 display: block;
                 color: var(--gray-darkend-color);
-                padding: 10px 10px 0 0;
+                padding-left: 64px;
                 font-weight: 100;
             }
 
@@ -238,7 +244,7 @@
                 text-align: center;
                 font-size: 22px;
                 font-family: "Open Sans";
-                font-weight:  700;
+                font-weight: 700;
                 padding: 10px 0;
                 color: #fff;
             }
@@ -370,7 +376,6 @@
                 width: 200px;
             }
 
-
             designmap-context-menu .menu li {
                 padding: 10px;
                 text-align: center;
@@ -396,15 +401,15 @@
             /** SUB TASK **/
             designmap-task-list {
                 display: block;
-                margin-top: 10px;
+                margin-top: 0px;
                 --designmap-task-list-add-task-wrapper-mixin: {
-                    padding: 0 66px;
+                    padding: 0 65px;
                 };
                 --designmap-task-list-status-button-mixin: {
                     margin-left: 0px;
                 };
                 --designmap-task-list-list-mixin: {
-                    padding-left: 12px;
+                    padding-left: 10px;
                 };
                 --designmap-task-list-title-mixin: {
                     margin-left: 6px;
@@ -414,6 +419,7 @@
                     margin-left: 0px;
                 }
             }
+
             /** INPUTS **/
 
             .pure-input {
@@ -426,8 +432,10 @@
                 margin-top: 10px;
                 width: 100%;
             }
+
             .pure-textarea {
-                --pure-textarea-mixin: {
+                margin-bottom: 5px;
+                --plastic-textarea-mixin: {
                     margin-left: 67px;
                     font-family: var(--font-family);
                     color: var(--gray-darky-color);
@@ -436,19 +444,21 @@
                     font-size: 18px;
                 }
             }
+
             /** STATUSES **/
-            .details.completed .pure-input, .details.completed .pure-textarea{
+            .details.completed .pure-input {
                 color: var(--details-completed)
             }
-            .details.expired .pure-input,.details.expired .pure-textarea {
+
+            .details.expired .pure-input {
                 color: var(--details-expired)
             }
 
-            .details.incomplete .pure-input,.details.incomplete .pure-textarea {
+            .details.incomplete .pure-input {
                 color: var(--details-incomplete)
             }
 
-            .details.in_progress .pure-input, .details.in_progress .pure-textarea {
+            .details.in_progress .pure-input {
                 color: var(--details-inprogress)
             }
 
@@ -488,23 +498,199 @@
                 display: none;
             }
 
+            /** Comments **/
+            .comments {
+                position: relative;
+                flex: 1;
+                border-top: 1px dashed var(--gray-darkend-color);
+                min-height: 60px;
+                display: flex;
+                padding: 10px 0 0 20px;
+            }
+
+            .field {
+                width: 100%;
+            }
+
+            .comments .add-comment {
+                margin-left: 15px;
+                width: calc(100% - 40px);
+                --plastic-textarea-mixin: {
+                    font-family: var(--font-family);
+                    color: var(--gray-darky-color);
+                    font-weight: 100;
+                    font-size: 16px;
+                }
+            }
+
+            .comment-arrow {
+                position: absolute;
+                left: 100%;
+                margin-left: -40px;
+                top: 7px;
+                cursor: pointer;
+            }
+
+            .comment-arrow iron-icon {
+                --iron-icon-stroke-color: var(--gray-super-dark);
+                --iron-icon-fill-color: var(--gray-super-dark);
+            }
+
+            .comments-list {
+                margin: 20px 0 0 0;
+                padding: 0 0 0 20px;
+                list-style: none;
+                color: var(--gray-darkend-color);
+            }
+
+            .comments-list li {
+                padding: 5px 0;
+                display: flex;
+
+            }
+
+            .comments-list li designmap-avatar-projector {
+                min-width: 30px;
+            }
+
+            .comments-list li .text {
+                margin-left: 10px;
+                padding-right: 20px;
+
+            }
+
+            .comments-list li .text .content {
+                white-space: pre-line;
+                position: relative;
+            }
+
+            .comments-list li .text .content .comment-arrow {
+                top: -25px;
+                margin-left: -25px;
+            }
+
+            .comments-list .panel {
+                margin-right: 15px;
+            }
+
+            .comments-list .panel .like {
+                display: inline-block;
+                cursor: pointer;
+            }
+
+            .comments-list .panel iron-icon {
+                cursor: pointer;
+            }
+
+            .comments-list .panel .heart {
+                width: 14px;
+                height: 14px;
+            }
+
+            .comments-list .panel .likesCount {
+                font-size: 10px;
+            }
+
+            .more {
+                position: relative;
+                top: 2px;
+                --iron-icon-components-mixin: {
+                    stroke-width: 4px;
+                    r: 3px;
+                };
+            }
+
+            .reply {
+                width: 16px;
+                height: 16px;
+                margin-right: 5px;
+                position: relative;
+                top: 5px;
+            }
+
+            .comment-edit {
+                border: none;
+                font-size: 16px;
+                padding: 0;
+                width: 100%;
+                color: var(--gray-darkend-color);
+                resize: none;
+                font-weight: 100;
+                outline: none;
+                line-height: 24px;
+                font-family: 'Open Sans', 'Noto', sans-serif;
+            }
+
+            /** INVOCATION **/
+            .invocation {
+                display: none;
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 9999;
+                width: 230px;
+                color: var(--gray-darkend-color);
+            }
+
+            designmap-users-select {
+                height: 0;
+            }
+
+            /** MENU DROPDOWN **/
+            designmap-dropdown {
+                z-index: 1001;
+                --designmap-dropdown-triangle-mixin: {
+                    margin-left: 32px;
+                };
+                --designmap-dropdown-triangle-border-mixin: {
+                    border-color: transparent transparent var(--gray-color) transparent;
+                    margin-left: 30px;
+                    top: -12px;
+                }
+            }
+
+            designmap-dropdown .menu {
+                margin: 0;
+                padding: 0;
+                list-style: none;
+                color: var(--gray-darky-hovered-color);
+                text-align: center;
+                font-size: 12px;
+                font-weight: 100;
+            }
+
+            designmap-dropdown .menu li {
+                padding: 6px 0;
+                cursor: pointer;
+                transition: .2s background;
+            }
+
+            designmap-dropdown .menu li:hover {
+                background: var(--gray-lightern-color);
+                transition: .2s background;
+            }
+
             @media (min-width: 320px) and (max-width: 768px) {
                 .hidden-xs {
                     display: none;
                 }
+
                 .hidden-lg {
                     display: block;
                 }
+
                 designmap-assignee {
                     width: 42px;
                     height: 42px;
                     margin-left: 18px;
                     margin-top: 14px;
                 }
+
                 .pure-input {
                     margin-left: 5px;
                     max-width: calc(100% - 10px);
                 }
+
                 .pure-textarea {
                 }
 
@@ -513,6 +699,7 @@
                     height: 50px;
                     padding: 13px !important;
                 }
+
                 paper-dialog {
                     max-width: 300px !important;
                     max-height: 475px !important;
@@ -521,7 +708,7 @@
             }
 
         </style>
-        <plastic-custom-scroll id="scroller" small-bar max-height="[[maxHeight]]">
+        <plastic-custom-scroll id="scroller" fit small-bar max-height="[[maxHeight]]">
             <div class$="details [[computeAssigneeStatus(task)]]" hidden$="{{!computeSelected(task)}}">
                 <div class="content">
                     <div class="left">
@@ -534,12 +721,12 @@
                     <div class="center" id="center">
                         <!-- TITLE -->
                         <input id="title" is="iron-input"
-                                              on-blur="saveTitle"
-                                              class="pure-input"
-                                              placeholder="[[translate('Enter title',language,i18Loaded)]]"
-                                              value="[[task.name]]" />
+                               on-blur="saveTitle"
+                               class="pure-input"
+                               placeholder="[[translate('Enter title',language,i18Loaded)]]"
+                               value="[[task.name]]"/>
                         <!-- FILES -->
-                        <div class="files" hidden$="[[!tasksFiles.length]]">
+                        <!--<div class="files" hidden$="[[!tasksFiles.length]]">
                             <iron-icon class="paper-clip" icon="designmap:paper-clip"></iron-icon>
                             <div class="wrapper">
                                 <template is="dom-repeat" items="[[tasksFiles]]" as="file">
@@ -551,22 +738,8 @@
                                     </div>
                                 </template>
                             </div>
-                        </div>
-                        <!-- BREADCRUMBS -->
-                        <div class="breadcrumbs hidden-xs" hidden$="[[!breadcrumbs.length]]">
-                            <!--<template is="dom-if" if="[[breadcrumbs.length]]">
-                              <div class="crumb"><</div>
-                            </template>-->
-                            <template is="dom-repeat" items="[[breadcrumbs]]" as="crumb">
-                                <div class="crumb" title="[[crumb.title]]">
-                                    <div class$="title [[calculateSelectedCrumb(breadcrumbs.length,index)]]"
-                                         on-click="goToParent">[[crumb.title]]
-                                    </div>
-                                    <iron-icon hidden$="[[hideLine(breadcrumbs.length,index)]]" class="arrow"
-                                               icon="designmap:arrow"></iron-icon>
-                                </div>
-                            </template>
-                        </div>
+                        </div>-->
+                        <!-- FILES -->
                     </div>
                     <div class="panel">
                         <designmap-circle-button id="date-button" class="hidden-xs" hidden$="[[!canUpdateTask(task)]]"
@@ -588,8 +761,9 @@
                             <iron-icon class="panel-icon remove" icon="designmap-task-manager:remove"></iron-icon>
                         </designmap-circle-button>
 
-                        <iron-icon on-click="openContextMenu" class="panel-icon hidden-lg more-icon" icon="designmap-workspace:more"></iron-icon>
-                        <!-- Context menu -->
+                        <iron-icon on-click="openContextMenu" class="panel-icon hidden-lg more-icon"
+                                   icon="designmap-workspace:more"></iron-icon>
+                        <!-- Mobile Context menu -->
                         <designmap-context-menu id="contextMenu" previous width="150">
                             <ul class="menu">
                                 <li on-click="openDatePicker">
@@ -608,43 +782,141 @@
                 <div class="second-line">
                     <!-- DESC -->
                     <plastic-textarea id="desc" class="pure-textarea"
-                              on-change="_descChange"
-                              on-blur="saveDesc" value="[[task.description]]"
-                              placeholder="[[translate('Enter description',language,i18Loaded)]]"></plastic-textarea>
+                                      on-change="_descChange"
+                                      on-blur="saveDesc" value="[[task.description]]"
+                                      placeholder="[[translate('Enter description',language,i18Loaded)]]"></plastic-textarea>
+                </div>
+                <div class="third-line">
+                    <!-- BREADCRUMBS -->
+                    <div class="breadcrumbs hidden-xs" hidden$="[[!breadcrumbs.length]]">
+                        <template is="dom-repeat" items="[[breadcrumbs]]" as="crumb">
+                            <div class="crumb" title="[[crumb.title]]">
+                                <div class$="title [[calculateSelectedCrumb(breadcrumbs.length,index)]]"
+                                     on-click="goToParent">[[crumb.title]]
+                                </div>
+                                <iron-icon hidden$="[[hideLine(breadcrumbs.length,index)]]" class="arrow"
+                                           icon="designmap:arrow"></iron-icon>
+                            </div>
+                        </template>
+                    </div>
                 </div>
                 <!-- SUB TASKS -->
                 <div class="sub-tasks">
                     <designmap-task-list id="list" placeholder="Add subtask" cannot-add="[[!canUpdateTask(task)]]"
                                          parent="[[task._id]]" no-scroll></designmap-task-list>
                 </div>
+                <!-- Comments list -->
+                <ul class="comments-list">
+                    <template is="dom-repeat" items="[[_getComments(task._id,comments.*)]]" as="comment">
+                        <li>
+                            <designmap-avatar-projector user="[[comment.owner]]"></designmap-avatar-projector>
+                            <div class="text">
+                                <div class="head">
+                                    <strong>[[computeOwnerName(comment.owner)]]</strong>
+                                    &nbsp;
+                                    (
+                                    <small>[[_getDate(comment.created)]]</small>
+                                    )
+                                </div>
+                                <div class="content">
+                                    <template is="dom-if" if="[[!comment.edit]]">
+                                        <div class="comment-text">[[comment.text]]</div>
+                                    </template>
+                                    <template is="dom-if" if="[[comment.edit]]">
+                                        <textarea on-blur="_saveComment" value="[[comment.text]]"
+                                                  class="comment-edit"></textarea>
+                                        <div class="comment-arrow" on-tap="_saveComment">
+                                            <iron-icon icon="icons:arrow-forward"></iron-icon>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            <div class="panel">
+                                <iron-icon on-tap="_reply" hidden$="[[_hideForMySelf(user,comment)]]" class="reply"
+                                           icon="icons:reply"></iron-icon>
+                                <div class="like" on-tap="_like">
+                                    <iron-icon class="heart"
+                                               icon="icons:favorite-border"></iron-icon>
+                                    <span class="likesCount">[[_computeLikesCount(comment.likes.length)]]</span>
+                                </div>
+                                <iron-icon on-tap="_openDropdown" class="more"
+                                           icon="designmap-workspace:more"></iron-icon>
+                            </div>
+                        </li>
+                    </template>
+                </ul>
+                <!-- Comments list Dropdown-->
+                <designmap-dropdown id="dropdown" class="bound" vertical-offset="30" horizontal-offset="-100" previous
+                                    tri-border>
+                    <ul class="menu">
+                        <li on-tap="_editComment">
+                            <i18-n class="bound" msgid="Edit">Edit</i18-n>
+                        </li>
+                        <li on-tap="_removeComment">
+                            <i18-n class="bound" msgid="Remove">Remove</i18-n>
+                        </li>
+                    </ul>
+                </designmap-dropdown>
             </div>
-            <!-- Date Picker -->
-            <paper-dialog id="datePickerDialog"
-                          entry-animation="scale-up-animation"
-                          exit-animation="scale-down-animation">
-                <designmap-date-picker id="datePicker" locale="[[language]]" min-date="April 1, 1990"
+        </plastic-custom-scroll>
+        <!-- Invoked -->
+        <div class="invoked" hidden$="[[!invokedUsers.length]]">
+                                <span id="invoked-count" class="invoked-count">
+                                    [[invokedUsers.length]]
+                                </span>
+            <paper-tooltip grayder for="invoked-count">[[_getInvokedUsersList(invokedUsers)]]</paper-tooltip>
+            <span>
+                                    <i18-n msgid="persons">persons</i18-n>
+                                </span>
+            <span>
+                                     <i18-n msgid="will be notified">will be notified</i18-n>
+                                </span>
+        </div>
+        <div id="comments" class="comments">
+            <designmap-avatar-projector user="[[user]]"></designmap-avatar-projector>
+            <div class="field">
+                <plastic-textarea id="commentTextarea" on-change="_commentChange" class="add-comment"
+                                  placeholder="[[translate('Add a comment',language,i18Loaded)]]"></plastic-textarea>
+            </div>
+            <div class="comment-arrow" hidden$="[[!commentText]]" on-tap="_postComment">
+                <iron-icon icon="icons:arrow-forward"></iron-icon>
+            </div>
+            <!-- Invocation dropdown -->
+            <div id="invocationDropDown" class="invocation">
+                <designmap-users-select id="select" on-close="_closeInvocationDropDown" on-selected="userSelect"
+                                        dishonred options="[[projectUsers]]" search="{{search}}"
+                                        limit="5"></designmap-users-select>
+        </div>
+
+        </div>
+        <!-- Date Picker -->
+        <paper-dialog id="datePickerDialog"
+                      entry-animation="scale-up-animation"
+                      exit-animation="scale-down-animation">
+            <designmap-date-picker id="datePicker" locale="[[language]]" min-date="April 1, 1990"
                                    max-date="April 1, 2030" force-narrow id="picker"
                                    date="{{date}}"></designmap-date-picker>
-                <div class="buttons">
-                    <paper-button dialog-dismiss><i18-n msgid="Cancel">Cancel</i18-n></paper-button>
-                    <paper-button dialog-confirm><i18-n msgid="Select" on-tap="saveDate">Select</i18-n></paper-button>
-                </div>
-            </paper-dialog>
-            <!-- FILE UPLOADER -->
-            <designmap-file-uploader parent="task" animation-on="[[user.config.animationOn]]" _id="[[task._id]]"
-                                     files="[[task.files]]" id="uploader"></designmap-file-uploader>
-            <!-- Confirm -->
-            <designmap-confirm id="removeFileConfirm" animation-on="[[user.config.animationOn]]"
-                               message="AreYouSureThatYouWannaRemoveFile" on-continue="removeFile"
-                               on-suspend="suspendRemoving"></designmap-confirm>
-            <!-- Confirm -->
-            <designmap-confirm id="removeTaskConfirm" animation-on="[[user.config.animationOn]]"
-                               message="AreYouSureThatYouWannaRemoveTask" on-continue="removeTask"
-                               on-suspend="suspendRemoving"></designmap-confirm>
-        </plastic-custom-scroll>
+            <div class="buttons">
+                <paper-button dialog-dismiss>
+                    <i18-n msgid="Cancel">Cancel</i18-n>
+                </paper-button>
+                <paper-button dialog-confirm>
+                    <i18-n msgid="Select" on-tap="saveDate">Select</i18-n>
+                </paper-button>
+            </div>
+        </paper-dialog>
+        <!-- Confirm -->
+        <designmap-confirm id="removeFileConfirm" animation-on="[[user.config.animationOn]]"
+                           message="AreYouSureThatYouWannaRemoveFile" on-continue="removeFile"
+                           on-suspend="suspendRemoving"></designmap-confirm>
+        <!-- Confirm -->
+        <designmap-confirm id="removeTaskConfirm" animation-on="[[user.config.animationOn]]"
+                           message="AreYouSureThatYouWannaRemoveTask" on-continue="removeTask"
+                           on-suspend="suspendRemoving"></designmap-confirm>
     </template>
     <script>
-        var STATUSES = ['incomplete', 'in_progress', 'completed'];
+        const offset = 230;
+        const INVOCATION_REGEXP = /(^@([\w\S]*)$| @([\w\S]*)$|\n@([\w\S\s]*)$)/;
         Polymer({
             is: 'designmap-task-details',
             behaviors: [ReduxBehavior,
@@ -653,7 +925,7 @@
                 Polymer.DesignMapUtilsBehavior,
                 Polymer.DesignMapTaskService,
                 Polymer.DesignMapFsService,
-                Polymer.CombineActions(Polymer.TasksActions, Polymer.FilesActions)],
+                Polymer.CombineActions(Polymer.TasksActions, Polymer.FilesActions, Polymer.CommentsActions)],
             properties: {
                 /**
                  * Task data
@@ -696,10 +968,10 @@
                 /**
                  * Files of current task
                  */
-                tasksFiles: {
-                    type: Array,
-                    value: []
-                },
+                /*tasksFiles: {
+                 type: Array,
+                 value: []
+                 },*/
                 /**
                  * Breadcrumbs
                  */
@@ -737,13 +1009,30 @@
                 },
                 maxHeight: {
                     type: Number,
-                    value: function(){
-                        return window.innerHeight - 150;
+                    value: function () {
+                        return window.innerHeight - offset;
                     }
                 },
                 MQ: {
                     type: String,
                     statePath: 'MQ'
+                },
+                comments: {
+                    type: Array,
+                    statePath: 'comments'
+                },
+                projectUsers: {
+                    type: Array,
+                    statePath: function (state) {
+                        return state.projectUsers.filter(function (user) {
+                            if (!this.user) return true;
+                            return user._id !== this.user._id;
+                        }.bind(this));
+                    }
+                },
+                invokedUsers: {
+                    type: Array,
+                    value: []
                 }
             },
             listeners: {
@@ -752,16 +1041,22 @@
             ready: function () {
                 this.notifier = document.querySelector('designmap-notifier');
                 this.manager = document.querySelector('designmap-task-manager');
-                if(this.MQ=='sm') this.$.assignee.classList.add('mobile');
+                if (this.MQ == 'sm') this.$.assignee.classList.add('mobile');
+                this.INVOCATION_REGEXP = /(^@([\w\S]*)$| @([\w\S]*)$|\n@([\w\S]*)$)/;
+                this.SYMBOL_REGEXP = /[ ]*/;
             },
-            _isMobileClass: function(MQ){
-                this.async(function(){this.updateStyles();});
-                return MQ=='sm'?'mobile':'desktop';
+            _isMobileClass: function (MQ) {
+                this.async(function () {
+                    this.updateStyles();
+                });
+                return MQ == 'sm' ? 'mobile' : 'desktop';
             },
             attached: function () {
+                this.$.scroller.calculate();
                 this.async(function () {
                     this.onIronResize();
-                }, 3000);
+                    this.$.scroller.calculate();
+                }, 500);
             },
             /**
              * When task was changed we have to
@@ -769,7 +1064,7 @@
              * @param task - new task
              */
             taskChanged: function (task) {
-                this.tasksFiles = this.getTasksFiles();
+                //this.tasksFiles = this.getTasksFiles();
                 if (this.$.datePicker && this.task && this.task.expired) this.date = new Date(this.task.expired);
                 this.set('breadcrumbs', []);
                 this.calculateBreadCrumbs();
@@ -804,7 +1099,7 @@
                     this.$.title.value = this.task.name;
                     return this.showErrorMessage('You do not have access to make it');
                 }
-                if(!this.$.title.value) {
+                if (!this.$.title.value) {
                     this.$.title.value = this.task.name;
                     return this.showErrorMessage('Task title should be not empty');
                 }
@@ -836,9 +1131,9 @@
                     this.$.desc.$.textarea.value = this.task.description;
                     return this.showErrorMessage('You do not have access to make it');
                 }
-                this.dispatch('$updateTask', this.task._id, {description: val}).then(function(response){
-                    if(!response.success) return this.showErrorMessage('Cannot save description');
-                    this.showMessage('Description has been saved!');
+                this.dispatch('$updateTask', this.task._id, {description: val}).then(function (response) {
+                    if (!response.success) return this.showErrorMessage('Cannot save description');
+                    //this.showMessage('Description has been saved!');
                 }.bind(this));
             },
             /**
@@ -846,7 +1141,7 @@
              * @param e
              */
             saveDate: function (e) {
-                if(this.$.contextMenu) this.$.contextMenu.close();
+                if (this.$.contextMenu) this.$.contextMenu.close();
                 this.dispatch('$updateTask', this.task._id, {expired: this.$.datePicker.dateFormat(this.date)});
             },
             /**
@@ -893,15 +1188,17 @@
              * @param e
              */
             removeTask: function (e) {
-                var task = Object.assign({},this.task);
+                var task = Object.assign({}, this.task);
                 this.dispatch('$removeTask', this.task._id).then(function () {
-                    if (task.parent) return this.fire('select-task',this.findTaskById(task.parent));
-                    if(this.MQ!='sm') {this.fire('reset');}
+                    if (task.parent) return this.fire('select-task', this.findTaskById(task.parent));
+                    if (this.MQ != 'sm') {
+                        this.fire('reset');
+                    }
                 }.bind(this));
-                if(this.$.removeTaskConfirm) this.$.removeTaskConfirm.close();
+                if (this.$.removeTaskConfirm) this.$.removeTaskConfirm.close();
 
-                if(this.MQ!='sm') {
-                    if (task.parent) return this.fire('select-task',this.findTaskById(task.parent));
+                if (this.MQ != 'sm') {
+                    if (task.parent) return this.fire('select-task', this.findTaskById(task.parent));
                     return this.fire('reset');
                 }
                 this.fire('mobile-go-back');
@@ -937,7 +1234,7 @@
              * @param e
              */
             goToParent: function (e) {
-                this.fire('select-task',this.findTaskById(e.model.crumb.id))
+                this.fire('select-task', this.findTaskById(e.model.crumb.id))
             },
             computeSelected: function (task) {
                 return !!(task && task._id);
@@ -975,8 +1272,7 @@
              * Attach file form
              */
             openAddFileForm: function () {
-                if (this.$.uploader) this.$.uploader.openForm()
-                if (this.$.contextMenu) this.$.contextMenu.close()
+
             },
             /**
              * Files of current task
@@ -1017,15 +1313,170 @@
                 return task ? this.isExpired(task.expired, task.status) ? 'expired' : task.status : '';
             },
             onIronResize: function () {
-                this.$.center.style.width = this.$.center.getBoundingClientRect().width - 250 + 'px';
+                //this.$.center.style.width = this.$.center.getBoundingClientRect().width - 250 + 'px';
                 this.async(function () {
-                    this.maxHeight = window.innerHeight - 150;
+                    this.maxHeight = window.innerHeight - offset;
+                    this.$.scroller.calculate();
                 });
             },
-            _descChange: function(){
-                this.maxHeight =  this.maxHeight = window.innerHeight - 150;
+            _descChange: function () {
+                this.maxHeight = this.maxHeight = window.innerHeight - offset;
                 this.$.scroller.calculate();
-            }
+            },
+            _commentChange: function (e) {
+                // Notify users
+                this._invocation(e.detail);
+                // Work further
+                const textarea = e.detail.target;
+                this.commentText = textarea.value;
+                const bound = textarea.getBoundingClientRect();
+                if (bound.height > 60) {
+                    return this.async(function () {
+                        this.$.comments.style.minHeight = bound.height + 10 + 'px';
+                        this.maxHeight = window.innerHeight - (230 + bound.height - 55);
+                    }, 0);
+                }
+                this.async(function () {
+                    this.$.comments.style.minHeight = 45 + 'px';
+                    this.maxHeight = window.innerHeight - offset;
+                }, 0);
+            },
+            _postComment: function () {
+                if (!this.commentText.trim()) return false;
+                const comment = {
+                    text: this.commentText,
+                    owner: this.user,
+                    task: this.task._id,
+                    project: this.projectId
+                };
+                this.dispatch('addComment', comment);
+                this.textAreaValue = '';
+            },
+            _getComments: function (id) {
+                return this.comments.filter(function (comment) {
+                    return comment.task == id;
+                });
+            },
+            _hideForMySelf: function (user, comment) {
+                return user && user._id == comment.owner._id;
+            },
+            _computeLikesCount: function (length) {
+                return length ? '+' + length : '';
+            },
+            _like: function (e) {
+                let comment = e.model.comment;
+
+                comment.likes = comment.likes || [];
+                const isThereUser = comment.likes.indexOf(this.user._id) != -1;
+                const userLikesIndex = comment.likes.indexOf(this.user._id);
+                isThereUser ? comment.likes.splice(userLikesIndex, 1) : comment.likes.push(this.user._id);
+                this.dispatch('updateComment', comment._id, comment);
+            },
+            _openDropdown: function (e) {
+                this.commentNode = e.target.parentNode.previousElementSibling;
+                this.lastComment = e.model.comment;
+                this.canUpdateAndRemove = this._canUserManageComment(this.task, e.model.comment);
+
+                this.$.dropdown.target = e.target;
+                this.$.dropdown.open();
+            },
+
+            _canUserManageComment(task, comment){
+                return (comment.owner._id === this.user._id);
+            },
+
+            _removeComment(){
+                this.$.dropdown.close();
+                if (!this.lastComment) return this.showErrorMessage('Something went wrong!');
+                this.dispatch('removeComment', this.lastComment._id);
+            },
+
+            _editComment: function () {
+                let comment = Object.assign({}, this.lastComment);
+                const commentTextBound = this.commentNode.querySelector('.comment-text').getBoundingClientRect();
+                comment.edit = true;
+                this.dispatch('_updateComment', comment._id, comment);
+                this.$.dropdown.close();
+                // Dims of textarea
+                this.async(function () {
+                    const textarea = this.commentNode.querySelector('.comment-edit');
+                    textarea.style.height = commentTextBound.height + 'px';
+                    textarea.focus();
+                }.bind(this), 5);
+            },
+
+            _saveComment: function () {
+                let comment = Object.assign({}, this.lastComment);
+                const textarea = this.commentNode.querySelector('.comment-edit');
+                comment.edit = false;
+                comment.text = textarea.value;
+                this.dispatch('updateComment', comment._id, comment);
+            },
+
+            _getDate: function (date) {
+                moment.locale(this.language);
+                return moment(date).format('MM-DD-YYYY HH:mm:ss');
+            },
+
+            _invocation: function (e) {
+                this.async(this.resolveInvokedUsers);
+                const value = e.target.value;
+                if (!this.INVOCATION_REGEXP.test(value)) {
+                    this.$.invocationDropDown.style.display = 'none';
+                    this.$.invocationDropDown.classList.remove('opened');
+                    return this.$.select.$.dropdown.close();
+                }
+                const matches = value.match(this.INVOCATION_REGEXP);
+                tempSearch = matches[1];
+                this.search = matches[2] || matches[3] || matches[4] || "";
+                const textarea = e.target;
+                this.async(function(){
+                    const cords = window.getCaretCoordinates(textarea, textarea.selectionEnd);
+                    this.$.invocationDropDown.style.display = 'block';
+                    this.$.invocationDropDown.classList.add('opened');
+                    this.$.invocationDropDown.style.left = cords.left + 65 + 'px';
+                    this.$.invocationDropDown.style.top = cords.top - 45 + 'px';
+                    this.$.select.openDropdown();
+                    this.async(function(){
+                        const bound = this.$.select.$.dropdown.getBoundingClientRect();
+                        this.$.select.$.dropdown.style.marginTop = -bound.height + "px";
+                    },5);
+                }.bind(this),10)
+            },
+
+            resolveInvokedUsers: function () {
+                const users = [];
+                this.projectUsers.forEach(function (user) {
+                    const regExpStr = user.profile && user.profile.name ? '@' + user.profile.name : "\\+" + user.local.email;
+                    const regExp = new RegExp(regExpStr, 'i');
+                    if (regExp.test(this.commentText)) users.push(user);
+                }.bind(this));
+                this.set('invokedUsers', users);
+            },
+
+            _getInvokedUsersList: function () {
+                return this.invokedUsers.map(function (user) {
+                    return user.profile && user.profile.name ? user.profile.name : user.local.email;
+                }).join('; ');
+            },
+
+            _closeInvocationDropDown: function () {
+                this.$.invocationDropDown.style.display = 'none';
+            },
+
+            userSelect: function (e) {
+                this.$.select.$.dropdown.close();
+                const user = e.detail;
+                if(!user) return;
+                if (this.user.local.email == user.local.email) return this.showErrorMessage('You cannot notify yourself');
+                const replacement = user.profile&&user.profile.name?'@'+user.profile.name+' ':"+" + user.local.email + " ";
+                let value = this.$.commentTextarea.$.textarea.value;
+                this.$.commentTextarea.$.textarea.value = value.replace(new RegExp(tempSearch.replace(this.SYMBOL_REGEXP, '') + "$", 'i'), replacement);
+                this.$.commentTextarea.$.textarea.focus();
+                this.commentText =  this.$.commentTextarea.$.textarea.value;
+                this.resolveInvokedUsers();
+
+            },
         })
     </script>
 </dom-module>

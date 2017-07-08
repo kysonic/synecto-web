@@ -12,10 +12,11 @@
          * Send notification
          */
         _sendNotification: function (file,sticker,comment) {
-            let emails = comment.text.match(EMAIL_REGEXP) || [];
-            emails = emails.splice(emails.indexOf(this.user.local.email),1);
-            if(emails.length>=5) return this.showErrorMessage("You cannot send notification more that 5 users at one time!");
+            let emails = this.invokedUsers.map(function(user){
+               return user.fake ? user.local.email : user._id;
+            });
             //if(!(!emails.length || this.user._id != file.owner)) return;
+            this.set('invokedUsers',[]);
             document.querySelector('designmap-app').$.notifier.create({
                 sender: this.user,
                 recipient: this.user._id == file.owner ? emails : emails.concat(file.owner),
@@ -32,7 +33,7 @@
         },
 
         _postComment: function (e) {
-            if (!this.textAreaValue) return;
+            if (!this.textAreaValue.trim()) return;
             let sticker = e.model.sticker;
 
             let comment = {
@@ -93,6 +94,7 @@
                 commentIndex: stickersComments.indexOf(e.model.comment)
             };
 
+
             this.canUpdateAndRemove = this._canUserManageComment(this.file, e.model.comment);
 
             this.$.dropdown.target = e.target;
@@ -136,11 +138,20 @@
         _removeComment(){
             this.$.dropdown.close();
             if (this.lastCommentData.commentIndex === 0) return this._openRemoveCommentConfirm();
+            if(!this.lastCommentData || !this.lastCommentData.comment) return this.showErrorMessage('Something went wrong!');
             this.dispatch('removeComment', this.lastCommentData.comment._id);
         },
 
         _openRemoveCommentConfirm: function () {
             this.$.removeCommentConfirm.open();
+        },
+
+        findSrickerById: function(stickerId){
+           var found = null;
+           this.stickers.forEach(function(sticker){
+               if(sticker._id==stickerId) found = sticker;
+           });
+           return found;
         },
 
         _suspendStickerRemoving: function () {
@@ -149,14 +160,15 @@
         },
 
         _removeSticker: function () {
-            this.dispatch('removeSticker', this.lastCommentData.sticker._id);
+            if(!this.lastSticker) return this.showErrorMessage('Something went wrong!');
+            this.dispatch('removeSticker', this.lastSticker._id);
             this.$.removeCommentConfirm.close();
         },
 
         _checkSticker: function (e) {
             if(this.$.select.$.dropdown.opened) return;
             this.async(function () {
-                this.lastCommentData = {sticker: e.model.sticker};
+                this.lastSticker = e.model.sticker;
                 const stickersComments = this.comments.filter(function (comment) {
                     return comment.sticker == e.model.sticker._id
                 });

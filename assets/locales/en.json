@@ -936,7 +936,7 @@
     "message": "File name"
   },
   "There is no any notifications": {
-    "message": "You don't have notifications yet..."
+    "message": "Empty..."
   },
   "You do not have access to change status of this task.": {
     "message": "You do not have access to change status of this task."
@@ -1435,5 +1435,17 @@
   },
   "ElementIsRemovedDoYouWantToResroreIt": {
     "message": "Element is removed. Do you want to restore it?"
+  },
+  "will be notified": {
+    "message": "will be notified."
+  },
+  "persons": {
+    "message": "person(s)"
+  },
+  "Form was not filled correctly": {
+    "message": "Form was not filled correctly"
+  },
+  "Add a comment": {
+    "message": "Add a comment"
   }
 }

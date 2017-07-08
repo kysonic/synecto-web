@@ -17,6 +17,11 @@
                 @apply(--plastic-custom-scroll-content-mixin);
             }
 
+            :host([no-scroll]) .content {
+                height: auto;
+                overflow: inherit;
+            }
+
             .content:after {
                 @apply(--plastic-custom-scroll-content-after-mixin);
             }
@@ -112,6 +117,10 @@
                 noScroll: {
                     type: Boolean,
                     value: false
+                },
+                limit: {
+                    type: Number,
+                    value: 0.99
                 }
             },
             listeners: {
@@ -175,7 +184,7 @@
             scrollDown: function () {
                 var target = this.$.content;
                 var scrollRatio = this.$.content.scrollHeight / this.$.content.clientHeight;
-                if (parseFloat(this.scrollRatio.toFixed(2)) > 0.95) return;
+                if (parseFloat(this.scrollRatio.toFixed(2)) > this.limit) return;
                 var power = scrollRatio * 30;
                 target.scrollTop += this.scrollRatio * power;
             },
@@ -185,7 +194,7 @@
             scrollUp: function () {
                 var target = this.$.content;
                 var scrollRatio = this.$.content.scrollHeight / this.$.content.clientHeight;
-                if (parseFloat(this.scrollRatio.toFixed(2)) > 0.95) return;
+                if (parseFloat(this.scrollRatio.toFixed(2)) > this.limit) return;
                 var power = scrollRatio * 30;
                 target.scrollTop -= this.scrollRatio * power;
             },
@@ -200,7 +209,7 @@
                 var totalHeight = this.$.content.scrollHeight,
                     ownHeight = this.$.content.clientHeight;
                 this.scrollRatio = ownHeight / (totalHeight || 1);
-                if (parseFloat(this.scrollRatio.toFixed(2)) > 0.95) {
+                if (parseFloat(this.scrollRatio.toFixed(2)) > this.limit) {
                     this.$.bar.style.display = 'none';
                 } else {
                     this.$.bar.style.display = 'block';

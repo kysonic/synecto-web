@@ -118,6 +118,12 @@
                     type: 'UPDATE_MQ',
                     mq: mq
                 }
+            },
+            updateHash: function (hash) {
+                return {
+                    type: 'UPDATE_HASH',
+                    hash: hash
+                }
             }
         }
     }
