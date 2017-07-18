@@ -189,11 +189,6 @@
                     </ul>
                 </designmap-context-menu>
             </template>
-            <template is="dom-if" if="[[shouldWeShowLoading(project)]]">
-                <div class="loading-wrapper">
-                    <img src="/assets/images/svg/three-dots-gray.svg" alt="Loading">
-                </div>
-            </template>
             <template is="dom-if" if="[[shouldWeShowEmptyMessage(project)]]">
                 <designmap-stub value="{{projectName}}" on-action="onCreateProject"
                                 image="designmap-workspace-stub:project"
@@ -201,7 +196,6 @@
                                 input-error="ProjectNameError"></designmap-stub>
             </template>
         </div>
-        <div id="projectLoading" hidden$=[[!loading]] class="loading-overlay"><div class="uil-reload-css"><div></div></div></div>
     </template>
     <script>
         const PROJECT_NAME_REGEXP = /[\w\dа-яА-ЯёЁ -]+/;
@@ -249,8 +243,7 @@
                 },
                 projectId: {
                     type: String,
-                    statePath: 'projectId',
-                    observer: '_projectIdChanged'
+                    statePath: 'projectId'
                 },
                 path: {
                     type: String,
@@ -392,48 +385,17 @@
              * projects data for current user.
              */
             _isAuthChanged: function (isAuth) {
-                if (!isAuth) return this.cleanUp();
-                // Start tutorial
-                if(this.user && this.user.system && !this.user.system.firstVisitIsDone && this.MQ!='sm') {
+                if (!isAuth) return;
+                // Start FileSystem tutorial
+                if(this.user && this.user.system && this.user.system.tutorials && !this.user.system.tutorials.fs && this.MQ!='sm') {
                     const user = Object.assign({},this.user);
-                    user.system.firstVisitIsDone = true;
+                    const tutorial = document.querySelector('designmap-app').$.fsTutorial;
+                    user.system.tutorials.fs = true;
                     this.dispatch('userUpdate',user);
-                    const tutorial = document.querySelector('designmap-app').$.tutorial;
                     this.async(function(){tutorial.start();},2000);
                 }
-                // Get user's projects
-                this.dispatch('getProjects').then(function (response) {
-                    if (!response.success) return;
-                    // Find project
-                    // 1. id from url
-                    // 2. first project
-                    // 3. There is no project
-                    if (this.projectId) return false;
-                    const projectId = response.projects[0] && response.projects[0]._id || null;
-                    if (!projectId) return false;
-                    // Redirect to open new project
-                    page.redirect('/'+projectId);
-                }.bind(this)).catch(this.manageErrorResponse.bind(this));
             },
-            /**
-             * When selected project ID is changed
-             * we have to update project data and etc
-             */
-            _projectIdChanged: function (projectId) {
-                this.cleanProjectData();
-                if (!projectId) return ;
-                if(this.project) return this.getProjectData();
-                // Get project data
-                this.loading = true;
-                this.dispatch('getProject', projectId).then(function (response) {
-                    if (!response.success) throw response.errors;
-                    this.updateProject(response.project);
-                }.bind(this)).catch(function (err) {
-                    const errorMessage = err.message || err + (err.stack ? err.stack : '');
-                    this.dispatch('updateProjectState', {error: errorMessage, loading: false});
-                    this.loading = false;
-                }.bind(this));
-            },
+
             /**
              * Observe router changes and
              * react on it
@@ -445,47 +407,7 @@
                 const folder = this.findFolderByPath(path);
                 this.currentFolderId = folder ? folder._id : null;
             },
-            /**
-             * Update project
-             */
-            updateProject: function (project) {
-                if (!project) return;
-                this.setupSocket(project._id,'project');
-                this.getProjectData();
-            },
-            /**
-             * Get all project data
-             */
-            getProjectData: function () {
-                this.dispatch('getFolders', {scope: this.project._id}).then(function (response) {
-                    this.async(function(){this._pathChanged(this.path);});
-                    this.async(function(){this.loading = false;},0);
-                }.bind(this));
-                this.dispatch('getFiles', {project: this.project._id});
-                this.dispatch('getStickers', {project: this.project._id});
-                this.dispatch('getComments', {project: this.project._id});
-            },
-            /**
-             * Remove all data associated
-             * with current user
-             */
-            cleanUp: function () {
-                this.dispatch('cleanProjects');
-                this.dispatch('cleanUser');
-                this.dispatch('cleanUsers');
-                this.dispatch('updateProjectId',null);
-            },
-            /**
-             * Remove all data from redux store
-             * associated with current project
-             */
-            cleanProjectData: function () {
-                this.dispatch('cleanProjectState');
-                this.dispatch('cleanFolders');
-                this.dispatch('cleanFiles');
-                this.dispatch('cleanStickers');
-                this.dispatch('cleanComments');
-            },
+
             /**
              * Screen state depends on a few things:
              * Is project loading?

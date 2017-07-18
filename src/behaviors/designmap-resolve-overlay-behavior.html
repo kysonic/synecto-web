@@ -8,9 +8,9 @@
      */
     Polymer.DesignmapResolveOverlayBehavior = {
         resolveDropDown: function(dropdown){
-            dropdown._onCaptureClick = function(e){}
             window.addEventListener('touchstart',function(e){Polymer.lastTouchPath = e.path;});
             dropdown._onCaptureClick = function(e){
+                if(dropdown.noCancelOnOutsideClick) return;
                 if (this._overlayInPath(Polymer.lastTouchPath,dropdown)) return;
                 dropdown.close();
             }.bind(this)

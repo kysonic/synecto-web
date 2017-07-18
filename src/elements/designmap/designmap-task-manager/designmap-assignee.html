@@ -311,7 +311,7 @@
                 this.resolveDropDown(this.$.dropdown);
             },
             openDialog: function () {
-                if (this.disabled) return this.showErrorMessage('You do not have access to make it');
+                if (this.disabled) return this.showErrorMessage('canUpdateTask');
                 this.$.select.text = this.assignee ? this.assignee.local.email : '';
                 this.$.dropdown.open();
                 this.$.select.$.dropdown.close();

@@ -22,7 +22,7 @@
                 recipient: this.user._id == file.owner ? emails : emails.concat(file.owner),
                 type: 'new-sticker',
                 text: {
-                    message: comment.text.replace(EMAIL_REGEXP,''),
+                    message: comment.text,
                     replacement: {'#NAME#': this.cutFileName(file)},
                     info: {
                         file: this.cutFileName(file),
@@ -54,7 +54,7 @@
                 stickerNode.querySelector('plastic-custom-scroll').setScroll(1000);
             }, 100);
             // Hints
-            const tutorial = document.querySelector('designmap-app').$.tutorial;
+            const tutorial = document.querySelector('designmap-app').$.fsTutorial;
             if(tutorial && tutorial.isRunning=='addComment') {
                 tutorial.close();
                 this.async(function(){

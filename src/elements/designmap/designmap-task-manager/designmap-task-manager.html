@@ -5,6 +5,7 @@
 <link rel="import" href="./designmap-task-list.html?20170615">
 <link rel="import" href="./designmap-task-details.html?20170615">
 <link rel="import" href="../designmap-ui/designmap-stub.html?20170615">
+<link rel="import" href="../designmap-tutorial/designmap-hint.html?20170615">
 <!-- Redux -->
 <link rel="import" href="../../../redux/redux-store.html?20170615">
 <link rel="import" href="../../../redux/actions/combine-actions.html?20170615">
@@ -96,6 +97,10 @@
                 color: red;
             }
 
+            designmap-task-details.no-task{
+                display: none;
+            }
+
             @media (min-width: 320px) and (max-width: 768px) {
                 .hidden-xs {
                     display: none;
@@ -127,11 +132,21 @@
                 <designmap-task-details class$="[[_isThereSelectedTaskClass(selectedTask)]]" hidden$="[[!computeMainState(tasks.length)]]"
                                         id="details" task="[[selectedTask]]"></designmap-task-details>
                 <div class="no-task" hidden$="[[!computeNoTasksState(tasks.length,loading,error)]]">
-                    <designmap-stub value="{{taskName}}" on-action="addTask"
+                    <designmap-stub id="slothStub" value="{{taskName}}" on-action="addTask"
                                     image="designmap-workspace-stub:sloth" message="You do not have tasks yet"
                                     input-text="Add task" input-error="AddTaskError"></designmap-stub>
+                    <!-- Hint -->
+                    <designmap-hint id="addTaskHint" target="[[addTaskStubBlock]]" name="addTask" vertical-offset="20"
+                                    horizontal-offset="-20">
+                        <div class="title">
+                            <i18-n msgid="Add a task">Add a task</i18-n>
+                        </div>
+                        <div class="desc">
+                            <i18-n msgid="addTaskMsg">addTaskMsg</i18-n>
+                        </div>
+                    </designmap-hint>
                 </div>
-                <div id="projectLoading" hidden$="[[!loadingState(loading,error)]]" class="loading-overlay">
+               <div id="projectLoading" hidden$="[[!loadingState(loading,error)]]" class="loading-overlay">
                     <div class="uil-reload-css">
                         <div></div>
                     </div>
@@ -167,6 +182,11 @@
                     type: Object,
                     statePath: 'user'
                 },
+                isAuth: {
+                    type: Boolean,
+                    computed: '_computedAuth(user)',
+                    observer: '_isAuthChanged'
+                },
                 i18Loaded: {
                     type: Boolean,
                     statePath: 'i18Loaded'
@@ -198,8 +218,7 @@
                 },
                 projectId: {
                     type: String,
-                    statePath: 'projectId',
-                    observer: '_projectIdChanged'
+                    statePath: 'projectId'
                 },
                 project: {
                     type: Object,
@@ -221,6 +240,12 @@
                 MQ: {
                     type: String,
                     statePath: 'MQ'
+                },
+                addTaskStubBlock: {
+                    type: Object,
+                    value: function () {
+                        return this.$.slothStub.$.icon
+                    }
                 }
             },
             listeners: {
@@ -234,6 +259,7 @@
              */
             addTask: function () {
                 if (!this.taskName) return;
+                if (!this.validate()) return this.showErrorMessage('Task title is wrong!');
                 this.dispatch('addTask', {
                     _id: this.generateUid(),
                     name: this.taskName,
@@ -246,8 +272,21 @@
                 }).then(function (response) {
                     this.showMessage('Task was added successfully.');
                     this.selectTask({detail: response.task});
+                    //Hints
+                    const tutorial = document.querySelector('designmap-app').$.tmTutorial;
+                    if(tutorial && tutorial.isRunning=='addTask') {
+                        tutorial.close();
+                        this.async(function(){
+                            this.$.list.overviewTaskHintTarget = this.$.list.$$('*[data-task-id="'+response.task._id+'"]');
+                            tutorial.thumbUp();
+                            this.async(function(){tutorial.next();},500);
+                        },100);
+                    }
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));
                 this.taskName = '';
+            },
+            validate: function () {
+                return !/[\#\?\\\%\/\:]/.test(this.taskName);
             },
             changeMode: function () {
                 this.mode = this.mode == 'list' ? 'details' : 'list';
@@ -286,41 +325,11 @@
             _computedAuth: function (user) {
                 return !!user;
             },
-            _projectIdChanged: function (projectId) {
-                this.cleanProjectData();
-                if (!projectId) return;
-                // Get project data
-                this.loading = true;
-                this.error = false;
-                if (this.project) return this.getProjectData();
-                this.dispatch('getProject', projectId).then(function (response) {
-                    if (!response.success) throw response.errors;
-                    this.updateProject(response.project);
-                }.bind(this)).catch(function (err) {
-                    this.error = err.message;
-                    this.loading = false;
-                }.bind(this));
-            },
-            cleanProjectData: function () {
-                this.dispatch('cleanTasks');
-            },
-            /**
-             * Update project
-             */
-            updateProject: function (project) {
-                if (!project) return;
-                this.setupSocket(project._id, 'project');
-                this.getProjectData();
-            },
             /**
              * Get all project data
              */
             getProjectData: function () {
-                this.dispatch('getTasks', {project: this.project._id}).then(function () {
-                    this._pathChanged(this.path);
-                    this.loading = false;
-                }.bind(this));
-                this.dispatch('getComments');
+
             },
             _pathChanged: function (path) {
                 if (path == '/' && !this.selectedTask && this.MQ!=='sm') return this.findDefaultTask();
@@ -364,6 +373,21 @@
             },
             _isThereSelectedTaskClass: function(selectedTask){
                 return !!selectedTask ? 'selected-task' : 'no-task';
+            },
+            _computedAuth: function(user) {
+                return !!user;
+            },
+            _isAuthChanged: function (isAuth) {
+                if (!isAuth) return;
+                // Start FileSystem tutorial
+                if(this.tasks.length) return;
+                if(this.user && this.user.system && this.user.system.tutorials && !this.user.system.tutorials.tm && this.MQ!='sm') {
+                    const user = Object.assign({},this.user);
+                    const tutorial = document.querySelector('designmap-app').$.tmTutorial;
+                    /*user.system.tutorials.tm = true;
+                    this.dispatch('userUpdate',user);*/
+                    this.async(function(){tutorial.start();},1000);
+                }
             }
         })
     </script>

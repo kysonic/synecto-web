@@ -328,7 +328,7 @@
                  * Allowed exts to upload
                  */
                 allowedExtensions: {
-                    type: String,
+                    type: Array,
                     value: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr", ".ppm", ".pbm",".ai",".psd",".eps",".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx"]
                 },
                 /**
@@ -543,7 +543,7 @@
              * @param element
              */
             executeFileAction: function (file) {
-                const tutorial = document.querySelector('designmap-app').$.tutorial;
+                const tutorial = document.querySelector('designmap-app').$.fsTutorial;
                 // Hint
                 if(tutorial && tutorial.isRunning=='openFile') {
                     tutorial.close();

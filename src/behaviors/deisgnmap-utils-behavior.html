@@ -124,6 +124,15 @@
             return owner.profile.name&&owner.profile.lastName?owner.profile.name+ ' '+ owner.profile.lastName:owner.profile.name?owner.profile.name: owner.local&&owner.local.email?owner.local.email: 'xxx';
         },
         /**
+         * Find project's user by its id
+         * projectUsers statePath is required!
+         */
+        getProjectsUserById: function(id) {
+            return this.projectUsers.find(function(user){
+                return user._id == id;
+            });
+        },
+        /**
          * Remove folder name from appearance of file.
          */
         cutFileName: function(file){

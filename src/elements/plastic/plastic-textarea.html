@@ -23,6 +23,7 @@
         <textarea id="textarea"
                   placeholder="[[placeholder]]"
                   on-keyup="_onChange"
+                  on-keydown="_onKeydown"
                   on-track="_track"
                   value="[[value]]"
         ></textarea>
@@ -47,6 +48,9 @@
             },
             _onChange: function(e){
               this.fire('change',e);
+            },
+            _onKeydown: function(e){
+                this.fire('keydown',e);
             },
             _valueChanged: function(){
                 this.async(function(){

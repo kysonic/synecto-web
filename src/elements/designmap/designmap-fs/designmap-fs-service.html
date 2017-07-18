@@ -46,7 +46,7 @@
                 // Message
                 this.showUndoMessage('Folder adding had been successful.');
                 // Hints
-                const tutorial = document.querySelector('designmap-app').$.tutorial;
+                const tutorial = document.querySelector('designmap-app').$.fsTutorial;
                 if(tutorial && tutorial.isRunning=='createFolder') {
                     tutorial.close();
                     this.async(function(){
@@ -71,7 +71,7 @@
                     '#NEWNAME#': e.detail.data.name
                 });
                 // Hints
-                const tutorial = document.querySelector('designmap-app').$.tutorial;
+                const tutorial = document.querySelector('designmap-app').$.fsTutorial;
                 if(tutorial && tutorial.isRunning=='openContextMenu') {
                     tutorial.close();
                     this.async(function(){

@@ -374,6 +374,9 @@
   "completed": {
     "message": "completed"
   },
+  "not_completed": {
+    "message": "not completed"
+  },
   "incomplete": {
     "message": "awaiting"
   },
@@ -708,7 +711,7 @@
     "message": "Create folder"
   },
   "addFileMsg": {
-    "message": "Click \"Add file\" button, select file from your device and click \"Upload\" button. Remember, supported file types are .jpg, .png, .gif, .ttf, .rif, .bmp, .jpg, .hdr, .ppm, .pbm, .psd, .eps, .ai. Max size - 150MB"
+    "message": "Click \"Add file\" button, select an image from your device and click \"Upload\" button."
   },
   "Open DesignMap Gallery": {
     "message": "Open DesignMap Gallery"
@@ -936,7 +939,7 @@
     "message": "File name"
   },
   "There is no any notifications": {
-    "message": "Empty..."
+    "message": "There is no any notifications..."
   },
   "You do not have access to change status of this task.": {
     "message": "You do not have access to change status of this task."
@@ -1447,5 +1450,92 @@
   },
   "Add a comment": {
     "message": "Add a comment"
+  },
+  "up to": {
+    "message": "up to"
+  },
+  "Estimate": {
+    "message": "Estimate difficulty of task"
+  },
+  "Select folder to upload file in": {
+    "message": "Upload file in "
+  },
+  "Select file to attach": {
+    "message": "Attach file(s) to task"
+  },
+  "There is no elements here": {
+    "message": "There is no elements here..."
+  },
+  "Go back": {
+    "message": "go back"
+  },
+  "difficultyOfTask": {
+    "message": "Estimate difficulty of "
+  },
+  "Estimation required": {
+    "message": "Estimation required"
+  },
+  "Task was estimated successful!": {
+    "message": "Task was estimated successful!"
+  },
+  "File was attached successful!": {
+    "message": "File was attached successful!"
+  },
+  "Grades": {
+    "message": "Grades:"
+  },
+  "spent": {
+    "message": "spent"
+  },
+  "min": {
+    "message": "min."
+  },
+  "Tack time": {
+    "message": "Track time spent on this task"
+  },
+  "Start/stop time tracking": {
+    "message": "Start/stop time tracking"
+  },
+  "AreYouSureThatYouWantToClearTime": {
+    "message": "Are you sure that you want to clear spent time?"
+  },
+  "Task title should be unique.": {
+    "message": "Task title should be unique."
+  },
+  "Task title is wrong!": {
+    "message": "Task title cannot contain following symbols: #,?,\\,/,:,. Also it should be unique..."
+  },
+  "Task title was updated successful!": {
+    "message": "Task title was updated successful!"
+  },
+  "Complete task": {
+    "message": "Complete task"
+  },
+  "canUpdateTask": {
+    "message": "Only project owner or task owner or assigned can do it... See documentation for more details"
+  },
+  "canRemoveTask": {
+    "message": "Only project owner or task owner can do it... See documentation for more details"
+  },
+  "isAssignee": {
+    "message": "Only assignee can do it... See documentation for more details"
+  },
+  "Add a task": {
+    "message": "Add a task"
+  },
+  "addTaskMsg": {
+    "message": "Enter title of new task using field above. Task title cannot contain following symbols: ?,#,\\,/,:,. "
+  },
+  "Task list": {
+    "message": "Task list"
+  },
+  "taskListMsg": {
+    "message": "This is task list. You can add new task using a filed located under the list."
+  },
+  "Change task title": {
+    "message": "Change task title"
+  },
+  "changeTaskTitleMsg": {
+    "message": "Click on the title. Type new one. Press enter or just blur it. Task title can be managed by project owner and task owner."
   }
 }

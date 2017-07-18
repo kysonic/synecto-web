@@ -50,14 +50,7 @@
             properties: {
                 hints: {
                     type: Array,
-                    value: [
-                        'fsView.fs.panel.createFolderHint',
-                        'fsView.fs.elements.openContextMenuHint',
-                        'fsView.fs.panel.uploadFileHint',
-                        'fsView.fs.elements.openFileHint',
-                        'galleryView.gallery.stickers.addCommentHint',
-                        'galleryView.gallery.shareHint'
-                    ]
+                    value: []
                 },
                 isRunning: {
                     type: String,
@@ -109,15 +102,14 @@
             _currentChanged: function(){
                 if(!this.hints[this.current]) return;
                 const e = this._findElement(this.hints[this.current]);
+                if(!e) return ;
                 this.isRunning = e.name;
                 e.run();
             },
             next: function(){
-                const e = this._findElement(this.hints[this.current]);
                 this.current++;
             },
             prev: function(){
-                const e = this._findElement(this.hints[this.current]);
                 this.current--;
             }
         })

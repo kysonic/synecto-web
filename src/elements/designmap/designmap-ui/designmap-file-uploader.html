@@ -300,9 +300,6 @@
             observers: [
                 'buttonFilesChanged(buttonFiles.length)'
             ],
-            attached: function () {
-                this.project = document.querySelector('designmap-project');
-            },
             /**
              * Show error.
              */
@@ -389,10 +386,10 @@
                 this.async(function () {
                     this.$.form.refit();
                 }, 10);
-                this.fire('done');
+                this.fire('done',uploadedFiles);
                 this.closeForm();
                 // Hints
-                const tutorial = document.querySelector('designmap-app').$.tutorial;
+                const tutorial = document.querySelector('designmap-app').$.fsTutorial;
                 if(tutorial && tutorial.isRunning=='addFile') {
                     tutorial.close();
                     this.async(function(){

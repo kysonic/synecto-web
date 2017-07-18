@@ -515,7 +515,7 @@
                                                                    icon="icons:favorite-border"></iron-icon>
                                                         <span class="likesCount">[[_computeLikesCount(comment.likes.length)]]</span>
                                                     </div>
-                                                    <iron-icon on-tap="_openDropdown" class="more"
+                                                    <iron-icon on-tap="_openDropdown" hidden$="[[!_hideForMySelf(user,comment)]]" class="more"
                                                                icon="designmap-workspace:more"></iron-icon>
                                                 </div>
                                             </div>
@@ -732,7 +732,7 @@
                     if (!this.user) this.stickerEvent = true;
                     this.app = document.querySelector('designmap-app');
                     this.gallery = this.app.$.galleryView.$.gallery;
-                    this.tutorial = this.app.$.tutorial;
+                    this.tutorial = this.app.$.fsTutorial;
                     this.checkHash(this.app.firstHash);
                 }, 1000);
                 this.INVOCATION_REGEXP = /(^@([\w\S]*)$| @([\w\S]*)$|\n@([\w\S]*)$)/;

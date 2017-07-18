@@ -38,8 +38,14 @@
 <link rel="import" href="redux/actions/combine-actions.html?20170615">
 <link rel="import" href="redux/actions/user-actions.html?20170615">
 <link rel="import" href="redux/actions/project-actions.html?20170615">
+<link rel="import" href="redux/actions/folders-actions.html?20170615">
+<link rel="import" href="redux/actions/files-actions.html?20170615">
+<link rel="import" href="redux/actions/stickers-actions.html?20170615">
+<link rel="import" href="redux/actions/comments-action.html?20170615">
+<link rel="import" href="redux/actions/tasks-actions.html?20170615">
 <!-- Behaviors -->
 <link rel="import" href="behaviors/designmap-messages-behavior.html?20170615">
+<link rel="import" href="behaviors/designmap-socket-behavior.html?20170615">
 <link rel="import" href="deisgnmap-routing.html?20170615">
 
 <dom-module id="designmap-app">
@@ -122,7 +128,8 @@
         <!-- i18-n -->
         <i18-n-domain id="i18nDomain" locale="[[language]]" messages-url="/assets/locales"></i18-n-domain>
         <!-- Titorial -->
-        <designmap-tutorial id="tutorial"></designmap-tutorial>
+        <designmap-tutorial id="fsTutorial" hints="[[fsHints]]"></designmap-tutorial>
+        <designmap-tutorial id="tmTutorial" hints="[[tmHints]]"></designmap-tutorial>
         <!-- Sharing dialog -->
         <paper-dialog id="sharingDialog" cancel-auto-refit entry-animation="scale-up-animation"
                       exit-animation="scale-down-animation">
@@ -185,15 +192,24 @@
             is: 'designmap-app',
             behaviors: [
                 ReduxBehavior,
-                Polymer.CombineActions(Polymer.UserActions, Polymer.ProjectActions),
+                Polymer.CombineActions(
+                    Polymer.UserActions,
+                    Polymer.ProjectActions,
+                    Polymer.FoldersActions,
+                    Polymer.FilesActions,
+                    Polymer.StickersActions,
+                    Polymer.TasksActions,
+                    Polymer.CommentsActions),
                 Polymer.DesignMapUtilsBehavior,
                 Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignmapSocketBehavior,
                 Polymer.DesignmapRouting
             ],
             properties: {
                 loading: {
                     type: Boolean,
-                    value: true
+                    value: true,
+                    observer: '_loadingChanged'
                 },
                 page: {
                     type: String,
@@ -221,6 +237,10 @@
                     value: undefined,
                     observer: '_userChanged'
                 },
+                project: {
+                    type: Object,
+                    statePath: 'project'
+                },
                 isAuth: {
                     type: Boolean,
                     computed: '_computeIsAuth(user)',
@@ -239,6 +259,25 @@
                     value: function(){
                         return document.body
                     }
+                },
+                fsHints: {
+                    type: Array,
+                    value: [
+                        'fsView.fs.panel.createFolderHint',
+                        'fsView.fs.elements.openContextMenuHint',
+                        'fsView.fs.panel.uploadFileHint',
+                        'fsView.fs.elements.openFileHint',
+                        'galleryView.gallery.stickers.addCommentHint',
+                        'galleryView.gallery.shareHint'
+                    ]
+                },
+                tmHints: {
+                    type: Array,
+                    value: [
+                        'taskManagerView.taskManager.addTaskHint',
+                        'taskManagerView.taskManager.list.taskList',
+                        'taskManagerView.taskManager.details.changeTaskTitle',
+                    ]
                 }
             },
 
@@ -258,7 +297,7 @@
                 this.uid = Designmap.uid = this.generateUid();
                 // Get possible current user
                 this.dispatch('getCurrentUser').then(function(){
-                    document.getElementById('appLoading').style.display = 'none';
+                    this.loading = false;
                 }.bind(this));
                 // Update languages
                 this.$.i18nDomain.addEventListener('i18-n-locale-ready', function () {
@@ -266,19 +305,18 @@
                 });
             },
 
+            _loadingChanged: function(loading){
+                document.getElementById('appLoading').style.display = loading?'flex':'none';
+            },
+
             _pageChanged: function (page) {
                 this._setLayoutState(NO_HEADER_PAGES.indexOf(page)!==-1);
                 // Load page import on demand. Show 404 page if fails
                 const resolvedPageUrl = this.resolveUrl('./views/designmap-' + page + '-view.html');
-                document.getElementById('appLoading').style.display = 'flex';
+                this.loading = true;
                 this.importHref(resolvedPageUrl, function(){
-                    document.getElementById('appLoading').style.display = 'none';
+                    this.loading = false;
                 }, this._showPage404, true);
-            },
-
-            _projectIdChanged: function (projectId) {
-                if(!projectId) return;
-                this.dispatch('updateProjectId', projectId);
             },
 
             _pathChanged: function (path) {
@@ -305,13 +343,90 @@
                 page.redirect(this.previousPath);
             },
 
-            _isAuthChanged: function(isAuth){
-                if(isAuth) this.dispatch('getProjects');
-            },
-
             _showPage404: function () {
                 this.page = '404';
             },
+
+            _isAuthChanged: function (isAuth) {
+                if (!isAuth) return this.cleanUp();
+                // Get user's projects
+                this.dispatch('getProjects').then(function (response) {
+                    if (!response.success) return;
+                    // Find project
+                    // 1. id from url
+                    // 2. first project
+                    // 3. There is no project
+                    if (this.projectId) return false;
+                    // If path=='/' that means we are in home - we have to find a prohect
+                    if(this.path!=='/') return;
+                    const projectId = response.projects[0] && response.projects[0]._id || null;
+                    if (!projectId) return false;
+                    // Redirect to open new project
+                    page.redirect('/'+projectId);
+                }.bind(this)).catch(this.manageErrorResponse.bind(this));
+            },
+
+            _projectIdChanged: function (projectId) {
+                // Project manipulation
+                this.cleanProjectData();
+                if (!projectId) return ;
+                this.dispatch('updateProjectId', projectId);
+                if(this.project) return this.getProjectData();
+                // Get project data
+                this.loading = true;
+                this.dispatch('getProject', projectId).then(function (response) {
+                    if (!response.success) throw response.errors;
+                    this.updateProject(response.project);
+                }.bind(this)).catch(function (err) {
+                    this.loading = false;
+                    const errorMessage = err.message || err + (err.stack ? err.stack : '');
+                }.bind(this));
+            },
+
+
+            /**
+             * Update project
+             */
+            updateProject: function (project) {
+                if (!project) return;
+                this.setupSocket(project._id,'project');
+                this.getProjectData();
+            },
+
+            /**
+             * Get all project data
+             */
+            getProjectData: function () {
+                this.dispatch('getFolders', {scope: this.project._id});
+                this.dispatch('getFiles', {project: this.project._id});
+                this.dispatch('getStickers', {project: this.project._id});
+                this.dispatch('getComments', {project: this.project._id});
+                this.dispatch('getTasks', {project: this.project._id});
+            },
+
+            /**
+             * Remove all data associated
+             * with current user
+             */
+            cleanUp: function () {
+                this.dispatch('cleanProjects');
+                this.dispatch('cleanUser');
+                this.dispatch('cleanUsers');
+                this.dispatch('updateProjectId',null);
+            },
+            /**
+             * Remove all data from redux store
+             * associated with current project
+             */
+            cleanProjectData: function () {
+                this.dispatch('cleanProjectState');
+                this.dispatch('cleanFolders');
+                this.dispatch('cleanFiles');
+                this.dispatch('cleanStickers');
+                this.dispatch('cleanTasks');
+                this.dispatch('cleanComments');
+            },
+
             /**
              * Login page should be without drawer
              * and header.

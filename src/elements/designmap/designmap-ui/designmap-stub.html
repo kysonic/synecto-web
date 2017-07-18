@@ -77,7 +77,7 @@
 
         </style>
         <div class="wrapper">
-            <div class="block">
+            <div id="block" class="block">
                 <div class="message">
                     <i18-n msgid="[[message]]">[[message]]</i18-n>
                 </div>
@@ -87,7 +87,7 @@
                            on-blur="action" value="{{value::keyup}}" auto-validate pattern="[[pattern]]"
                            error-message="{{translate(inputError,language,i18Loaded)}}"/>
                 </template>
-                <iron-icon class="icon" icon="[[image]]"></iron-icon>
+                <iron-icon id="icon" class="icon" icon="[[image]]"></iron-icon>
             </div>
         </div>
     </template>

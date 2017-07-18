@@ -383,6 +383,9 @@
   "completed": {
     "message": "готово"
   },
+  "not_completed": {
+    "message": "не завершенные"
+  },
   "incomplete": {
     "message": "в ожидании"
   },
@@ -393,7 +396,7 @@
     "message": "час(ов)"
   },
   "left": {
-    "message": "отсалось"
+    "message": "осталось"
   },
   "Add task": {
     "message": "Введите имя новой задачи"
@@ -714,7 +717,7 @@
     "message": "Создать папку"
   },
   "addFileMsg": {
-    "message": "Выберите файл со своего устройства и нажмите кнопку \"Загрузить\". Поддерживаемые типы файлов:.jpg, .png, .gif, .ttf, .rif, .bmp, .jpg, .hdr, .ppm, .pbm, .psd, .eps, .ai. Максимальный размер: 150MB"
+    "message": "Выберите изображение со своего устройства и нажмите кнопку \"Загрузить\". "
   },
   "Share file": {
     "message": "Поделитесь файлом"
@@ -939,7 +942,7 @@
     "message": "Имя файла"
   },
   "There is no any notifications": {
-    "message": "Пусто..."
+    "message": "У Вас пока нет оповещений..."
   },
   "You do not have access to change status of this task.": {
     "message":"У Вас нет доступа чтобы изменить статус этой задачи."
@@ -1453,5 +1456,92 @@
   },
   "Add a comment": {
     "message": "Добавить комментарий"
+  },
+  "up to": {
+    "message": "до"
+  },
+  "Estimate": {
+    "message": "Оценить сложность задачи"
+  },
+  "Select folder to upload file in": {
+    "message": "Загрузить файл в "
+  },
+  "Select file to attach": {
+    "message": "Прикрепить файл(ы) к задаче"
+  },
+  "There is no elements here": {
+    "message": "Тут нет ни одного файла или папки..."
+  },
+  "Go back": {
+    "message": "назад"
+  },
+  "difficultyOfTask": {
+    "message": "Оцените сложность задачи "
+  },
+  "Estimation required": {
+    "message": "Требуется оценка"
+  },
+  "Task was estimated successful!": {
+    "message": "Вы оценили сложность задачи!"
+  },
+  "File was attached successful!": {
+    "message": "Файл был успешно прикреплен!"
+  },
+  "Grades": {
+    "message": "Оценки:"
+  },
+  "spent": {
+    "message": "потрачено"
+  },
+  "min": {
+    "message": "мин."
+  },
+  "Tack time": {
+    "message": "Отслеживать время потраченное на задачу"
+  },
+  "Start/stop time tracking": {
+    "message": "Начать/остановать отслеживание времени"
+  },
+  "AreYouSureThatYouWantToClearTime": {
+    "message": "Вы увеврены, что хотите очистить затраченное время?"
+  },
+  "Task title should be unique.": {
+    "message": "Имя задачи должно быть уникальным."
+  },
+  "Task title is wrong!": {
+    "message": "Имя задачи не должно содержать символы: #,?,\\,/,:. А еще оно должно быть уникальным..."
+  },
+  "Complete task": {
+    "message": "Завершить задачу"
+  },
+  "Task title was updated successful!": {
+    "message": "Имя задачи было обновлено!"
+  },
+  "canUpdateTask": {
+    "message": "Только владелец проекта или владелец задачи или ответственный могут сделать это... Откройте документацию, чтобы узнать больше"
+  },
+  "canRemoveTask": {
+    "message": "Только владелец проекта или владелец задачи могут сделать это... Откройте документацию, чтобы узнать больше"
+  },
+  "isAssignee": {
+    "message": "Только ответственный может сделать это... Откройте документацию, чтобы узнать больше"
+  },
+  "Add a task": {
+    "message": "Добавить задачу"
+  },
+  "addTaskMsg": {
+    "message": "Введите имя задачи в поле выше. Имя задачи не может содержать символы: ?,#,\\,/,:,. "
+  },
+  "Task list": {
+    "message": "Список задач"
+  },
+  "taskListMsg": {
+    "message": "Это список задач. Вы можете добавть новую задачу используя поле под этим списком."
+  },
+  "Change task title": {
+    "message": "Изменить имя задачи"
+  },
+  "changeTaskTitleMsg": {
+    "message": "Нажмите на имя задачи. Измените его. Нажмите enter или просто кликните рядом. Имя задачи может быть отредактировано только владельцем проекта или владельцем задачи."
   }
 }

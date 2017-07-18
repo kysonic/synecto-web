@@ -74,16 +74,16 @@
         <designmap-dropdown vertical-offset="[[verticalOffset]]"
                             horizontal-offset="[[horizontalOffset]]"
                             id="dropdown"
-                            no-cancel-on-outside-click
+                            no-cancel-on-outside-click="true"
                             tri-border
                             tri-right$="[[triRight]]"
                             target="[[target]]">
             <content></content>
-            <!--<div class="button-set">
-                <button hidden$="[[hideGotIt]]" is="designmap-button" on-click="skip" thin>
+            <div class="button-set">
+                <button hidden$="[[!haveSkip]]" is="designmap-button" on-click="skip" thin>
                     <i18-n msgid="Got it!">Got it!</i18-n>
                 </button>
-            </div>-->
+            </div>
         </designmap-dropdown>
     </template>
     <script>
@@ -122,7 +122,7 @@
                     type: Boolean,
                     value: false
                 },
-                hideGotIt: {
+                haveSkip: {
                     type: Boolean,
                     value: false
                 }
@@ -141,9 +141,8 @@
             tryIt: function () {
                 this.finish();
             },
-            skip: function () {
-                this.finish();
-                this.app.$.tutorial.next();
+            skip: function(){
+                this.fire('skip');
             }
         })
     </script>

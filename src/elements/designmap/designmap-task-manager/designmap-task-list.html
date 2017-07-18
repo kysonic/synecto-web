@@ -1,6 +1,7 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="../../plastic/plastic-custom-scroll.html?20170615">
 <link rel="import" href="./designmap-assignee.html?20170615">
+<link rel="import" href="../../../styles/tooltip-shared-styles.html?20170615">
 
 <link rel="import" href="./deaignmap-task-service.html?20170615">
 <!-- Redux -->
@@ -12,7 +13,7 @@
 
 <dom-module id="designmap-task-list">
     <template>
-        <style>
+        <style include="tooltip-shared-styles">
             :host {
                 flex: 1;
                 position: relative;
@@ -82,6 +83,31 @@
                 margin-left: 18px;
             }
 
+            .desktop-filters {
+                display: flex;
+                position: absolute;
+                width: 100vh;
+            }
+
+            .desktop-filters .row {
+                display: flex;
+                margin-left: 15px;
+                align-items: center;
+            }
+            .desktop-filters .row:first-child {
+                display: flex;
+                margin-left: 24px;
+            }
+
+            .desktop-filters .row  span {
+                margin-left: 10px !important;
+            }
+
+            .desktop-filters .row.selected {
+                text-decoration: underline;
+                font-weight: bold;
+            }
+
             /** DROP DOWN **/
             .filters #filterSelector {
                 --designmap-dropdown-mixin: {
@@ -104,16 +130,16 @@
                 --designmap-dropdown-color: var(--filter-color);
             }
 
-            #filterSelector .row iron-icon {
+            #filterSelector .row iron-icon, .desktop-filters .row iron-icon {
                 width: 20px;
                 height: 20px;
             }
 
-            #filterSelector .row {
+            #filterSelector .row, .desktop-filters .row {
                 cursor: pointer;
             }
 
-            #filterSelector .row span {
+            #filterSelector .row span, .desktop-filters .row span{
                 font-size: 15px;
                 margin-left: 18px;
             }
@@ -223,8 +249,49 @@
                 color: var(--white-color);
             }
 
-            .list li.selected designmap-assignee, .list li.selected .expired_row {
+            .list li.selected designmap-assignee, .list li.selected .expired_row, .list li.selected .subtask {
                 display: none;
+            }
+            .list li .done {
+                display: none;
+                min-width: 20px;
+                min-height: 20px;
+                margin-right: 20px;
+                border-radius: 50%;
+                background: var(--white-color);
+            }
+            .list li.selected .done {
+                display: block;
+            }
+
+            .done .mark {
+                display: none;
+            }
+
+            .completed .done .mark {
+                display: block;
+                width: 20px;
+                height:20px;
+                transform: rotate(45deg);
+            }
+
+
+            .checkmark_stem {
+                position: absolute;
+                width:3px;
+                height:9px;
+                background-color:var(--gray-darkend-color);
+                left: 11px;
+                top: 4px;
+            }
+
+            .checkmark_kick {
+                position: absolute;
+                width: 7px;
+                height: 3px;
+                background-color:var(--gray-darkend-color);
+                left: 7px;
+                top: 11px;
             }
 
             .list li.selected.in_progress {
@@ -386,6 +453,7 @@
                 display: none;
             }
 
+
             @media (min-width: 320px) and (max-width: 768px) {
                 .hidden-xs {
                     display: none;
@@ -402,45 +470,60 @@
 
         </style>
         <div class="filters" hidden$="[[computeFiltersState(filter,selectedFilter,tasks)]]">
-            <div class="filter-wrapper">
-                <div class$="current-filter filter [[selectedFilter.type]]" on-click="openFilterSelector">
-                    <iron-icon class="filter-icon" icon="[[computeIcon(selectedFilter.type)]]"></iron-icon>
+            <div class="filter-wrapper hidden-lg">
+                <div class$="current-filter filter [[selectedFilter.type]]" on-tap="openFilterSelector">
+                    <iron-icon class="filter-icon" icon="[[computeFilterIcon(selectedFilter.type)]]"></iron-icon>
                     <span>[[computeMsg(selectedFilter.type)]]</span>
                 </div>
                 <!-- Dropdown -->
                 <designmap-dropdown id="filterSelector" tri-border vertical-offset="45" horizontal-offset="-20"
                                     previous>
                     <template is="dom-repeat" items="[[filters]]" as="filter">
-                        <div class$="row [[filter.type]]" on-click="selectFilter">
-                            <iron-icon class="filter-icon" icon="[[computeIcon(filter.type)]]"></iron-icon>
+                        <div class$="row [[filter.type]]" on-tap="selectFilter">
+                            <iron-icon class="filter-icon" icon="[[computeFilterIcon(filter.type)]]"></iron-icon>
                             <span><i18-n msgid="[[filter.text]]">[[filter.text]]</i18-n></span>
                         </div>
                     </template>
                 </designmap-dropdown>
             </div>
+            <div class="desktop-filters filters">
+                <template is="dom-repeat" items="[[filters]]" as="filter">
+                    <div class$="row [[filter.type]] [[_computeSelectedFilterClass(filter,selectedFilter)]]" on-click="selectFilter">
+                        <iron-icon class="filter-icon" icon="[[computeFilterIcon(filter.type)]]"></iron-icon>
+                        <span><i18-n msgid="[[filter.text]]">[[filter.text]]</i18-n></span>
+                    </div>
+                </template>
+            </div>
         </div>
         <plastic-custom-scroll no-scroll="[[noScroll]]" id="scroller" fit small-bar max-height="[[computeMaxHeight(maxHeight)]]">
             <ul class="list">
                 <template is="dom-repeat" items="[[tasks]]" as="task" filter="[[taskFilter(selectedFilter)]]">
-                    <li class$="[[computeItemClass(task,selected)]]">
+                    <li class$="[[computeItemClass(task,selected)]]" data-task-id$="[[task._id]]">
                         <!--<div class="line" class$="[[computeSubLineClass(task)]]"></div>-->
-                        <designmap-circle-button class="status-button" on-click="changeStatus" data-cls="blue"
-                                                 x-tooltip$="{{translate('Change status',language)}}">
+                        <designmap-circle-button id$="statusButton[[index]]" class="status-button" on-tap="changeStatus">
                             <iron-icon class="status-icon" icon="[[computeIcon(task.status,task.expired)]]"></iron-icon>
                         </designmap-circle-button>
+                        <paper-tooltip for$="statusButton[[index]]" position="right"><i18-n msgid="Change status">Change status</i18-n></paper-tooltip>
                         <div class="title" on-click="select">[[task.name]]</div>
                         <div class="expired_row hidden-xs">[[computeTimeLeft(task.expired,language)]]</div>
                         <div class="expired_row hidden-lg">[[computeTimeLeftFormMobile(task.expired,language)]]</div>
-                        <designmap-assignee horizontal-offset="-170" vertical-offset="60" class="hidden-xs"
-                                            no-details disabled="[[!canUpdateTask(canUpdateTasktask)]]"
+                        <designmap-assignee id$="assignee[[index]]" horizontal-offset="-170" vertical-offset="60" class="hidden-xs"
+                                            no-details
                                             assignee="[[task.assignee]]" task="[[task]]" on-assign="selectAssignee"
                                             on-remove="removeAssignee"></designmap-assignee>
-                        <div class="subtask hidden-xs" data-cls="blue"
-                             x-tooltip$="{{translate('Subtask count',language)}}"
-                             on-click="selectWithFocus">
+                        <paper-tooltip for$="assignee[[index]]" position="left"><i18-n msgid="Assign responsible">Assign responsible</i18-n></paper-tooltip>
+                        <div id$="subtask[[index]]" class="subtask hidden-xs" on-tap="selectWithFocus">
                             <iron-icon icon="designmap-taskmanager:subtask"></iron-icon>
                             <div class="subtask-count">[[findSubtasksLength(task,tasks)]]</div>
                         </div>
+                        <paper-tooltip for$="subtask[[index]]" position="left"><i18-n msgid="Subtask count">Subtask count</i18-n></paper-tooltip>
+                        <!--<div id$="done[[index]]" class="done hidden-xs" on-click="completeTask">
+                            <div class="mark">
+                                <div class="checkmark_stem"></div>
+                                <div class="checkmark_kick"></div>
+                            </div>
+                        </div>
+                        <paper-tooltip for$="done[[index]]" position="left"><i18-n msgid="Complete task">Complete task</i18-n></paper-tooltip>-->
                     </li>
                 </template>
                 <div class="not-found-msg" hidden$="[[checkTaskFilter(filter,selectedFilter,tasks.*)]]">
@@ -452,7 +535,7 @@
            <i18-n msg-id="Create new task">There are no tasks bound to this project. Create new using a field below.</i18-n>
          </div>-->
         <template is="dom-if" if="[[!cannotAdd]]">
-            <div class="add-task" hidden$="[[!onlyAll(selectedFilter)]]">
+            <div class="add-task">
                 <div class="add-task-wrapper">
                     <iron-a11y-keys id="a11yEditor" keys="enter" on-keys-pressed="addTask"></iron-a11y-keys>
                     <iron-a11y-keys id="a11yEditor" keys="backspace" on-keys-pressed="removeLastTask"></iron-a11y-keys>
@@ -463,6 +546,16 @@
             </div>
         </template>
         <div hidden$="[[!filter]]" class$="[[computeLineClass(selected)]]"></div>
+        <!-- Hint -->
+        <designmap-hint id="taskList" have-skip target="[[overviewTaskHintTarget]]" on-skip="skipTutorialStep" name="taskList" vertical-offset="60"
+                        horizontal-offset="0">
+            <div class="title">
+                <i18-n msgid="Task list">Task list</i18-n>
+            </div>
+            <div class="desc">
+                <i18-n msgid="taskListMsg">taskListMsg</i18-n>
+            </div>
+        </designmap-hint>
     </template>
     <script>
         var STATUSES = ['incomplete', 'in_progress', 'completed'];
@@ -534,9 +627,10 @@
                     type: Array,
                     value: [
                         {type: 'all', text: 'all'},
+                        {type: 'not_completed', text: 'not_completed'},
                         {type: 'incomplete', text: 'incomplete'},
-                        {type: 'completed', text: 'completed'},
                         {type: 'in_progress', text: 'in progress'},
+                        {type: 'completed', text: 'completed'},
                         {type: 'expired', text: 'expired'}
                     ]
                 },
@@ -635,6 +729,8 @@
                 if (/Firefox/.test(window.navigator.userAgent)) this.classList.add('firefox');
                 this.changeTime = null;
                 this.timer = null;
+                const filter = JSON.parse(localStorage.getItem('designmap:filter'));
+                if(filter) this.selectedFilter = filter;
             },
             attached: function () {
                 this.updateStyles();
@@ -650,6 +746,9 @@
                 if (diff._milliseconds < 0 && type != 'completed') return 'designmap-task-manager:expired';
                 return 'designmap-task-manager:' + type;
             },
+            computeFilterIcon: function(type){
+                return 'designmap-task-manager:' + type;
+            },
             computeMsg: function (msg) {
                 return this.translate(msg);
             },
@@ -659,12 +758,14 @@
              */
             validate: function () {
                 var found = null;
+                if(/[\#\?\\\%\/\:]/.test(this.taskName)) return false;
                 this.tasks.forEach(function (task) {
                     if (task.name == this.taskName) found = task;
                 }.bind(this));
                 return !found;
             },
             openFilterSelector: function () {
+                if(this.MQ!='sm') return;
                 this.$.filterSelector.open();
             },
             /**
@@ -713,18 +814,33 @@
              * @param e
              */
             changeStatus: function (e) {
-                if (!this.canUpdateStatus(e.model.task)) return this.showErrorMessage('You do not have access to change status of this task.');
+                if (!this.isAssignee(e.model.task)) return this.showErrorMessage('isAssignee');
                 // Tricky timer manipulation
                 clearInterval(this.timer);
                 var status = STATUSES[STATUSES.indexOf(e.model.task.status) + 1] || STATUSES[0];
                 this.dispatch('_updateTask', e.model.task._id, {status: status});
                 // Wait
                 this.timer = setTimeout(function () {
-                    this.dispatch('$updateTask', e.model.task._id, {status: status});
+                    this.dispatch('updateTask', e.model.task._id, {status: status});
                     // Notify
                     this.sendTaskStatusNotification(e.model.task);
                 }.bind(this), 1000);
             },
+
+            completeTask: function(e){
+                if (!this.canChangeStatus(e.model.task)) return this.showErrorMessage('Only assignee can do it.');
+                // Tricky timer manipulation
+                clearInterval(this.timer);
+                var status = 'completed';
+                this.dispatch('_updateTask', e.model.task._id, {status: status});
+                // Wait
+                this.timer = setTimeout(function () {
+                    this.dispatch('updateTask', e.model.task._id, {status: status});
+                    // Notify
+                    this.sendTaskStatusNotification(e.model.task);
+                }.bind(this), 1000);
+            },
+
             /**
              * Compute class of the line which placed
              * at right. It will depends on task status.
@@ -834,7 +950,7 @@
                 // Validate
                 this.$$('#addTask').validate();
                 if (!this.taskName) return;
-                if (!this.validate()) return this.showErrorMessage('Task title should be unique.');
+                if (!this.validate()) return this.showErrorMessage('Task title is wrong!');
                 // Check roles
                 var task = {
                     _id: this.generateUid(),
@@ -849,7 +965,7 @@
                 // Notify
                 this.sendNewTaskNotification(task);
                 // Create task
-                this.dispatch('$addTask', task).then(function (response) {
+                this.dispatch('addTask', task).then(function (response) {
                     this.showUndoMessage('Task was added successfully.');
                     this.$.scroller.calculate();
                     this.$$('#addTask').focus();
@@ -862,7 +978,9 @@
              */
             selectFilter: function (e) {
                 this.selectedFilter = e.model.filter;
+                localStorage.setItem('designmap:filter',JSON.stringify(this.selectedFilter));
                 this.$.filterSelector.close();
+                this.async(this.updateStyles);
             },
             /**
              * Task filter
@@ -870,6 +988,7 @@
             taskFilter: function (selectedFilter) {
                 return function (task) {
                     if (selectedFilter.type == 'all') return true;
+                    if (selectedFilter.type == 'not_completed') return task.status!='completed';
                     if (selectedFilter.type == 'expired') return this.isExpired(task.expired, task.status);
                     return selectedFilter.type == task.status;
                 }.bind(this)
@@ -881,6 +1000,7 @@
                 if (!this.filter) return true;
                 return this.tasks ? !!this.tasks.filter(function (task) {
                         if (selectedFilter.type == 'all') return true;
+                        if (selectedFilter.type == 'not_completed') return task.status!='completed';
                         if (selectedFilter.type == 'expired') return this.isExpired(task.expired, task.status);
                         return selectedFilter.type == task.status;
                     }.bind(this)).length : true;
@@ -900,7 +1020,7 @@
             selectAssignee: function (e) {
                 if (!e.detail || !e.detail._id) return;
                 this.task = e.detail.task;
-                this.dispatch('$updateTask', e.detail.task._id, {assignee: e.detail._id});
+                this.dispatch('updateTask', e.detail.task._id, {assignee: e.detail._id});
                 // Notify but do not do this if for itseld
                 if (e.detail._id == this.user._id) return;
                 this.sendTaskAssigneeNotification(e.detail.task, e.detail._id);
@@ -973,7 +1093,7 @@
              */
             removeAssignee: function (e) {
                 if (!e.detail || !e.detail.task) return;
-                this.dispatch('$updateTask', e.detail.task._id, {assignee: null});
+                this.dispatch('updateTask', e.detail.task._id, {assignee: null});
             },
             /**
              * Change max height
@@ -987,9 +1107,9 @@
             removeLastTask: function () {
                 var tasks = this.tasks.filter(this.taskFilter(this.selectedFilter));
                 var task = tasks[tasks.length - 1];
-                if (!this.canUpdateTask(task)) return this.showErrorMessage('You do not have access to make it');
                 if (!task || this.taskName.length) return;
-                this.dispatch('$removeTask', task._id).then(function () {
+                if (!this.canRemoveTask(task)) return this.showErrorMessage('Only task owner can delete task.');
+                this.dispatch('removeTask', task._id).then(function () {
                     if (this.MQ == 'sm') return;
                     if (task.parent) return this.fire('select-task', this.findTaskById(task.parent));
                     if(this.MQ!='sm') {this.fire('reset');}
@@ -1021,6 +1141,19 @@
             updateScrollHeight: function () {
                 var offest = this.MQ == 'sm' ? 230 : this.maxHeightOffset;
                 this.$.scroller.$.content.style.maxHeight = window.innerHeight - offest + 'px';
+            },
+            _computeSelectedFilterClass: function(filter,selectedFilter){
+                return filter.type==selectedFilter.type?'selected':'';
+            },
+            skipTutorialStep: function(){
+                const tutorial = document.querySelector('designmap-app').$.tmTutorial;
+                // Bum
+                tutorial.close();
+                this.async(function(){
+                    tutorial.thumbUp();
+                    this.async(function(){tutorial.next();},500);
+                },100);
+
             }
         })
     </script>

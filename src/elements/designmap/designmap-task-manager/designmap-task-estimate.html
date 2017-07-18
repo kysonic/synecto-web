@@ -1,0 +1,119 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html?20170615">
+
+<dom-module id="designmap-task-estimate">
+    <template>
+        <style>
+            :host {
+                background: var(--blue-color);
+                padding: 0px !important;
+            }
+            paper-button {
+                color: var(--white-color);
+            }
+            /** HEADER **/
+            .header {
+                background: var(--blue-darkest-color);
+                padding: 20px;
+                color: var(--white-color);
+                font-size: 14px;
+            }
+            .header .name {
+                font-size: 24px;
+                font-weight: bold;
+            }
+            /** DIGITS **/
+            .content {
+                padding: 20px;
+                background: var(--blue-darky-color);
+            }
+            .digits {
+                padding: 30px;
+                margin: 0;
+                list-style: none;
+            }
+            .digits li {
+                display: inline-block;
+                color: var(--white-color);
+                padding: 5px 9px;
+                border-radius: 50%;
+                margin-left: 5px;
+                font-size: 20px;
+                cursor: pointer;
+                transition: .2s background ease-in;
+            }
+            .digits li:first-child {
+                margin-left: 0;
+            }
+            .digits li.double {
+                padding: 5px 4px;
+            }
+            .digits li.selected {
+                background: var(--white-color);
+                color: var(--blue-darkest-color);
+            }
+            .digits li:hover {
+                background: var(--blue-color);
+                transition: .2s background ease-in;
+            }
+            /** Buttons **/
+            .buttons {
+                background: var(--blue-darky-color);
+                text-align: right;
+            }
+        </style>
+        <div class="header">
+            <div class="top"><i18-n msgid="difficultyOfTask">difficulty of task</i18-n></div>
+            <div class="name">[[taskName]]</div>
+        </div>
+        <div class="content">
+            <ul class="digits">
+                <template id="digitsRepeater" is="dom-repeat" items="[[_computeDigits(digits)]]" as="grade">
+                    <li on-click="select" class$="[[_computeItemClass(grade,selected)]]">[[grade]]</li>
+                </template>
+            </ul>
+        </div>
+        <div class="buttons">
+            <paper-button dialog-dismiss>
+                <i18-n msgid="Cancel">Cancel</i18-n>
+            </paper-button>
+            <paper-button dialog-confirm>
+                <i18-n msgid="Select" on-tap="estimate">Select</i18-n>
+            </paper-button>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-task-estimate',
+            behaviors: [],
+            properties: {
+                taskName: {
+                    type: String,
+                    value: 'XXX'
+                },
+                digits: {
+                    type:Number,
+                    value: 10
+                },
+                selected: {
+                    type: Number,
+                    value: undefined
+                }
+            },
+            _computeDigits: function(digits){
+                return new Array(digits)
+                    .join().split(',')
+                    .map(function(item, index){ return ++index;})
+            },
+            _computeItemClass: function(grade,selected) {
+                return (grade>9?'double ':'')+(selected==grade?'selected':'');
+            },
+            select: function(e){
+                this.selected = e.model.grade;
+            },
+            estimate: function(){
+                this.fire('estimate',this.selected);
+            }
+        })
+    </script>
+</dom-module>
