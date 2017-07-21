@@ -8,6 +8,9 @@
                 display: block;
                 position: relative;
             }
+            :host(.grabbed) > * {
+                user-select: none;
+            }
 
             .content {
                 display: block;
@@ -121,6 +124,10 @@
                 limit: {
                     type: Number,
                     value: 0.99
+                },
+                disappear: {
+                    type: Boolean,
+                    value: false
                 }
             },
             listeners: {
@@ -138,6 +145,7 @@
                 this.$.bar.addEventListener('mousedown', function (e) {
                     document.body.classList.add('non-select');
                     this.lastPageY = e.pageY;
+                    this.classList.add('grabbed');
                     this.$.bar.classList.add('grabbed');
 
                     document.addEventListener('mousemove', _drag);
@@ -155,6 +163,7 @@
                     }
 
                     function _stop(e) {
+                        _this.classList.remove('grabbed');
                         _this.$.bar.classList.remove('grabbed');
                         document.body.classList.remove('non-select');
                         document.removeEventListener('mousemove', _drag);
@@ -243,6 +252,7 @@
             },
             track: function (e) {
                 //e.preventDefault();
+                if(this.noScroll) return;
                 e.stopPropagation();
                 this.$.content.scrollTop -= e.detail.ddy;
                 this.calculate();

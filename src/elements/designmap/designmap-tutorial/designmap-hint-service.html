@@ -1,0 +1,28 @@
+<script>
+    /**
+     * Hint service will help you to
+     * establish tutorial actions
+     * @type {{}}
+     */
+    Polymer.DesignMapHintService = {
+        doneHint: function (hintName,tutorial,cb) {
+            var tutorial = document.querySelector('designmap-app').$[tutorial+'Tutorial'];
+            if(tutorial && tutorial.isRunning==hintName) {
+                tutorial.close();
+                this.async(function(){
+                    if(cb) cb();
+                    tutorial.thumbUp();
+                    this.async(function(){tutorial.next();},500);
+                },100);
+            }
+        },
+        finishTutorial: function (tutorial,cb) {
+            var tutorial = document.querySelector('designmap-app').$[tutorial+'Tutorial'];
+            tutorial.close();
+            this.async(function(){
+                if(cb) cb();
+                tutorial.thumbUp();
+            },100);
+        }
+    }
+</script>

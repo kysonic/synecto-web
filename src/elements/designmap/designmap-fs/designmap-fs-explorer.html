@@ -143,6 +143,11 @@
                 border-color: var(--gray-super-dark);
                 color: var(--gray-super-dark);
             }
+            @media (min-width: 320px) and (max-width: 768px) {
+                .content {
+                    min-width: 280px;
+                }
+            }
         </style>
         <div class="header">
             <div class="arrow-back" hidden$="[[!_drawArrow(currentFolderId)]]" on-tap="_goBack">
@@ -162,7 +167,7 @@
         <div class="content">
             <ul class="elements">
                 <template id="elementRepeater" is="dom-repeat" items="[[elements]]" as="element">
-                    <li class$="element [[element.type]] [[_computeSelected(element,selected.*)]]" on-dblclick="_goDown" on-click="selectElement">
+                    <li class$="element [[element.type]] [[_computeSelected(element,selected.*)]]" on-dblclick="_goDown" on-tap="selectElement">
                         <iron-icon class="icon" icon="[[_computeIcon(element.type)]]"></iron-icon>
                         <div class="name">[[_getName(element)]]</div>
                         <iron-icon on-tap="_goDown" hidden$="[[!_computeShowArrow(element.type)]]" class="arrow-right" icon="icons:chevron-right"></iron-icon>
@@ -180,7 +185,6 @@
                 </div>
             </div>
             <button disabled$="[[!selected.length]]" class="button" is="designmap-button" blue fit on-tap="applyAction">
-
                 <i18-n msgid="Select file to attach">Select file to attach</i18-n>
             </button>
         </div>

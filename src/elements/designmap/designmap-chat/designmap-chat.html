@@ -1,0 +1,360 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<!-- Components -->
+<link rel="import" href="../../plastic/plastic-custom-scroll.html?20170615">
+<link rel="import" href="../../plastic/plastic-textarea.html?20170615">
+<link rel="import" href="../designmap-avatar/designmap-avatar-projector.html?20170615">
+<link rel="import" href="../designmap-ui/designmap-context-menu.html?20170615">
+<!-- Services -->
+<link rel="import" href="./designmap-message-service.html?20170615">
+<!-- Redux -->
+<link rel="import" href="../../../redux/redux-store.html?20170615">
+<link rel="import" href="../../../redux/actions/combine-actions.html?20170615">
+<link rel="import" href="../../../redux/actions/messages-action.html?20170615">
+<!-- Styles -->
+<link rel="import" href="../../../styles/context-menu-shared-styles.html?20170615">
+
+<dom-module id="designmap-chat">
+    <template>
+        <style include="context-menu-shared-styles">
+            :host {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                flex-wrap: wrap;
+                flex-grow:1;
+                background: url('/assets/images/bkg/collage.jpg');
+                background-size: 320%;
+
+                --plastic-textarea-mixin: {
+                    font-family: var(--font-family);
+                    color: var(--gray-darky-color);
+                    font-weight: 100;
+                    font-size: 16px;
+                    padding: 5px 0 0 9px;
+                    border: 1px solid var(--gray-color);
+                    width: calc(100% - 11px);
+                };
+
+                --plastic-custom-scroll-bar-mixin: {
+                    margin-left: -7px;
+                };
+                --plastic-custom-scroll-bar-hover-mixin: {
+                    margin-left: -9px;
+                };
+                --plastic-custom-scroll-bar-grabbed-mixin: {
+                    margin-left: -9px;
+                };
+
+                --designmap-context-menu-deep-content-mixin: {
+                    overflow: hidden;
+                    height: 124px;
+                }
+            }
+            *[hidden] {
+                display: none !important;
+            }
+            .scroll {
+                margin-top: 50px;
+                flex: 2;
+                overflow: auto;
+            }
+            .comment {
+                padding: 0 5px;
+            }
+            .comment button {
+                margin: 0;
+                border: none;
+                height: 45px;
+            }
+            .empty {
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--gray-darky-color);
+                padding: 0 10px;
+            }
+            .empty .msg {
+                text-align: center;
+            }
+            /** Messages **/
+            .messages {
+                margin-top: 25px;
+                height: calc(100% - 25px);
+            }
+            .message {
+                display: inline-block;
+                width: 100%;
+                position: relative;
+            }
+            .message .text{
+                width: 50%;
+                padding: 5px 10px 8px 10px;
+                margin-top: 10px;
+                position: relative;
+            }
+            .own .text{
+                background: var(--white-color);
+                color: var(--gray-darkend-color);
+                float: right;
+                margin-right: 10px;
+            }
+            .anothers .text {
+                background: var(--blue-color);
+                color: var(--white-color);
+                float: left;
+                margin-left: 5px;
+                text-align: left;
+            }
+            .projector {
+                display: none;
+            }
+            .balloon-tick, .balloon-tick-border {
+                display: none;
+                width: 0;
+                height: 0;
+                border-style: solid;
+                border-width: 10px 10px 10px 0;
+                border-color: transparent #007bff transparent transparent;
+                position: absolute;
+            }
+            .anothers.first .text,.own.first .text {
+                margin-bottom: 5px;
+            }
+            .anothers.first .balloon-tick {
+                display: block;
+                border-width: 10px 10px 0 0;
+                border-color: var(--blue-color) transparent transparent transparent;
+                top: 100%;
+                left: 0;
+                margin-top: 0;
+            }
+            .own.first .balloon-tick {
+                display: block;
+                border-width: 0 10px 10px 0;
+                border-color: transparent var(--white-color) transparent transparent;
+                top: 100%;
+                left: 100%;
+                margin-top: 0;
+                margin-left: -10px;
+            }
+            .anothers .text {
+                margin-left: 45px;
+            }
+            .anothers.first .projector {
+                display: inline-block;
+                float: left;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                margin-left: 5px;
+                margin-top: -25px;
+                cursor: default;
+            }
+            .text .footer {
+                display: block;
+                height: 17px;
+                width: 100%;
+                margin-top: 5px;
+            }
+            .text .footer .date {
+                display: inline-block;
+                font-size: 10px;
+            }
+            .menu {
+                display: inline-block;
+                border-radius: 50%;
+                cursor: pointer;
+                height: 10px;
+            }
+            .menu  iron-icon {
+                height: 15px;
+                width: 15px;
+            }
+            .own .menu {
+                float: left;
+            }
+            .anothers .menu {
+                float: right;
+            }
+            .text span {
+                white-space: pre-line;
+            ;
+            }
+        </style>
+        <plastic-custom-scroll id="scroll" class="scroll" small-bar fit disappear>
+            <div id="messages" class="messages" hidden$="[[!_isThereMessages(messages.length)]]">
+                <template is="dom-repeat" items="[[messages]]" as="message">
+                    <div data-id$="[[message._id]]" class$="message [[_computeMessageClass(message,user)]]">
+                        <designmap-avatar-projector title="[[computeUserName(user)]]" user="[[message.owner]]" class="projector"></designmap-avatar-projector>
+                        <div class="text">
+                            <span>[[message.text]]</span>
+                            <div class="balloon-tick"></div>
+                            <div class="footer">
+                                <div title="[[_computeDate(message.created,'YYYY-MM-DD HH:mm:ss')]]" class="date">[[_computeDate(message.created,'HH:mm:ss')]]</div>
+                                <div class="menu" on-click="openContextMenu">
+                                    <iron-icon icon="[[_computeMenuIcon(message,user)]]"></iron-icon>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <!-- Menu -->
+                <designmap-context-menu id="contextMenu" width="200" height="134">
+                    <ul class="menu">
+                        <li on-tap="editMessage"><i18-n msgid="Edit" >Edit</i18-n></li>
+                        <li on-tap="quote"><i18-n msgid="Quote">Quote</i18-n></li>
+                        <li on-tap="removeMessage"><i18-n msgid="Remove">Remove</i18-n></li>
+                    </ul>
+                </designmap-context-menu>
+            </div>
+            <div class="empty" hidden$="[[_isThereMessages(messages.length)]]">
+                <div class="msg">
+                    <i18-n msgid="Chat of">Chat of</i18-n>
+                    &laquo;[[project.name]]&raquo;
+                    <i18-n msgid="project does not contain any messages">project does not contain any messages</i18-n>
+                </div>
+            </div>
+        </plastic-custom-scroll>
+        <div class="comment" id="comment">
+            <iron-a11y-keys keys="ctrl+enter meta+enter" on-keys-pressed="postMessage"></iron-a11y-keys>
+            <plastic-textarea id="textarea" on-blur="editOff" initial-height="66" value="{{message}}" placeholder="[[translate('Enter a message',language,i18Loaded)]]"></plastic-textarea>
+            <button hidden$="[[!message]]" on-tap="postMessage" is="designmap-button" blue fit>
+                <i18-n hidden$="[[editMode]]" msgid="Post">Post</i18-n>
+                <i18-n hidden$="[[!editMode]]" msgid="Save">Save</i18-n>
+            </button>
+        </div>
+
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-chat',
+            behaviors: [
+                Polymer.DesignmapMessageService,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapMessagesBehavior,
+                ReduxBehavior,
+                Polymer.CombineActions(Polymer.MessagesActions)
+            ],
+            properties: {
+                message: {
+                    type: String,
+                    value: '',
+                    observer: '_messageChanged'
+                },
+                messages: {
+                    type: Array,
+                    value:[],
+                    statePath: 'messages'
+                },
+                project: {
+                    type: Object,
+                    statePath: 'project'
+                },
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
+                },
+                i18Loaded: {
+                    type:Boolean,
+                    statePath: 'i18Loaded'
+                },
+                projectId: {
+                    type: String,
+                    statePath: 'projectId'
+                },
+                editMode: {
+                    type: Boolean,
+                    value: false
+                }
+            },
+            /**
+             * Compute container for message textarea
+             * @private
+             */
+            _messageChanged: function(){
+                const textAreaBound = this.$.textarea.$.textarea.getBoundingClientRect();
+                this.async(function(){
+                    this.$.comment.style.minHeight = (textAreaBound.height + (this.message?57:0)) + 'px';
+                    this.async(this.scrollUp);
+                });
+            },
+            _isThereMessages: function(length){
+                return !!length;
+            },
+            _computeMessageClass: function(message,user){
+                this.async(function(){
+                    const currentMsg = this.$.messages.querySelector('[data-id="'+message._id+'"]');
+                    if(!currentMsg) return;
+                    const prev = currentMsg.previousElementSibling;
+                    if(!prev) return currentMsg.classList.add('first');
+                    const notOwn = currentMsg.classList.contains('own') && !prev.classList.contains('own');
+                    const notAnother = currentMsg.classList.contains('anothers') && !prev.classList.contains('anothers');
+                    if(notOwn || notAnother) return currentMsg.classList.add('first');
+                });
+                return this._isAnothers(message,user) ? 'own' : 'anothers';
+            },
+            _isAnothers: function(message,user){
+                return message.owner._id==user._id;
+            },
+            /**
+             * Post new message
+             */
+            postMessage: function(){
+                if(this.editMode) return this.updateMessage();
+                const data = {
+                    text: this.message,
+                    owner: this.user,
+                    project: this.projectId
+                };
+                this.dispatch('addMessage',data);
+                this.message = '';
+                this.async(this.scrollUp);
+            },
+            updateMessage: function(){
+                this.dispatch('updateMessage',this.msg._id,{text:this.message});
+                this.message = '';
+                this.async(this.scrollUp);
+            },
+            scrollUp: function(){
+                this.$.scroll.setScroll(this.messages.length * 60);
+            },
+            _computeDate: function(date,frmt){
+                return moment(date).format(frmt);
+            },
+            _computeMenuIcon: function(message,user){
+                return !this._isAnothers(message,user) ? 'icons:reply' : 'designmap-workspace:big_more';
+            },
+            openContextMenu: function(e){
+                if(this.user._id!=e.model.message.owner._id) return this.quote(e.model.message);
+                this.msg = e.model.message;
+                this.$.contextMenu.target = e.target;
+                this.$.contextMenu.toggle(e);
+            },
+            quote: function(message){
+                const msg = message.detail ? this.msg : message;
+                this.$.contextMenu.close();
+                this.$.textarea.$.textarea.focus();
+                this.message = '['+this.computeOwnerName(msg.owner)+']> '+msg.text+'\n';
+            },
+            editMessage: function(){
+                this.editMode = true;
+                this.$.textarea.$.textarea.focus();
+                this.$.contextMenu.close();
+                this.message = this.msg.text;
+            },
+            editOff: function(){
+                this.editMode = false;
+            },
+            removeMessage: function(){
+                this.dispatch('removeMessage',this.msg._id);
+                this.$.contextMenu.close();
+                this.async(this.scrollUp);
+            }
+        });
+    </script>
+</dom-module>

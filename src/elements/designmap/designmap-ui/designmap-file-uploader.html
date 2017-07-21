@@ -194,11 +194,11 @@
                         <template is="dom-if" if="[[computeButtons(buttonFiles.length)]]">
                             <div class="button-set">
                                 <button thin gray hidden$="[[fileUploadLoading]]" is="designmap-button"
-                                        on-click="uploadFiles">
+                                        on-tap="uploadFiles">
                                     <i18-n msgid="Upload">Upload</i18-n>
                                 </button>
                                 <button thin gray hidden$="[[fileUploadLoading]]" is="designmap-button"
-                                        on-click="cancelUpload">
+                                        on-tap="cancelUpload">
                                     <i18-n msgid="Cancel">Cancel</i18-n>
                                 </button>
                             </div>

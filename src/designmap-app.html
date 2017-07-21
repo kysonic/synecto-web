@@ -14,6 +14,7 @@
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/iron-iconset-svg/iron-iconset-svg.html">
+<link rel="import" href="../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 
 <!-- Components -->
 <link rel="import" href="../bower_components/i18-n/i18-n-domain.html">
@@ -24,6 +25,7 @@
 <link rel="import" href="elements/designmap/designmap-workspace/designmap-advanced-menu.html?20170615">
 <link rel="import" href="elements/designmap/designmap-workspace/designmap-header.html?20170615">
 <link rel="import" href="elements/designmap/designmap-workspace/designmap-info.html?20170615">
+<link rel="import" href="elements/designmap/designmap-chat/designmap-chat.html?20170615">
 <link rel="import" href="elements/designmap/designmap-buttons/designmap-circle-button.html?20170615">
 <link rel="import" href="elements/designmap/designmap-notifications/designmap-notifier.html?20170615">
 <link rel="import" href="elements/designmap/designmap-tutorial/designmap-tutorial.html?20170615">
@@ -42,6 +44,7 @@
 <link rel="import" href="redux/actions/files-actions.html?20170615">
 <link rel="import" href="redux/actions/stickers-actions.html?20170615">
 <link rel="import" href="redux/actions/comments-action.html?20170615">
+<link rel="import" href="redux/actions/messages-action.html?20170615">
 <link rel="import" href="redux/actions/tasks-actions.html?20170615">
 <!-- Behaviors -->
 <link rel="import" href="behaviors/designmap-messages-behavior.html?20170615">
@@ -72,6 +75,7 @@
             app-drawer {
                 border-right: 1px solid var(--gray-color);
                 --app-drawer-width: var(--sidebar-width);
+                z-index: 900;
             }
 
             app-drawer#right {
@@ -115,7 +119,9 @@
                 margin-left: -46px;
             }
 
-
+            app-drawer.chat {
+                --app-drawer-width: var(--chat-width);
+            }
 
         </style>
         <!-- Keys -->
@@ -127,7 +133,7 @@
         <designmap-notifier id="notifier"></designmap-notifier>
         <!-- i18-n -->
         <i18-n-domain id="i18nDomain" locale="[[language]]" messages-url="/assets/locales"></i18-n-domain>
-        <!-- Titorial -->
+        <!-- Tutorials -->
         <designmap-tutorial id="fsTutorial" hints="[[fsHints]]"></designmap-tutorial>
         <designmap-tutorial id="tmTutorial" hints="[[tmHints]]"></designmap-tutorial>
         <!-- Sharing dialog -->
@@ -162,6 +168,7 @@
                 </app-header>
 
                 <iron-pages
+                        id="pages"
                         selected="[[page]]"
                         attr-for-selected="name"
                         fallback-selection="designmap-404"
@@ -180,7 +187,8 @@
                 </iron-pages>
                 <!-- Info -->
                 <app-drawer id="right" align="end">
-                    <designmap-info id="info"></designmap-info>
+                    <designmap-chat hidden$="[[!chatMode]]" id="chat"></designmap-chat>
+                    <designmap-info hidden$="[[chatMode]]" id="info"></designmap-info>
                 </app-drawer>
             </app-header-layout>
         </app-drawer-layout>
@@ -199,11 +207,13 @@
                     Polymer.FilesActions,
                     Polymer.StickersActions,
                     Polymer.TasksActions,
-                    Polymer.CommentsActions),
+                    Polymer.CommentsActions,
+                    Polymer.MessagesActions),
                 Polymer.DesignMapUtilsBehavior,
                 Polymer.DesignMapMessagesBehavior,
                 Polymer.DesignmapSocketBehavior,
-                Polymer.DesignmapRouting
+                Polymer.DesignmapRouting,
+                Polymer.IronResizableBehavior
             ],
             properties: {
                 loading: {
@@ -260,6 +270,10 @@
                         return document.body
                     }
                 },
+                chatMode: {
+                    type: Boolean,
+                    value: false
+                },
                 fsHints: {
                     type: Array,
                     value: [
@@ -275,21 +289,27 @@
                     type: Array,
                     value: [
                         'taskManagerView.taskManager.addTaskHint',
-                        'taskManagerView.taskManager.list.taskList',
-                        'taskManagerView.taskManager.details.changeTaskTitle',
+                        'taskManagerView.taskManager.list.taskListHint',
+                        'taskManagerView.taskManager.details.changeTaskTitleHint',
+                        'taskManagerView.taskManager.details.changeTaskDescHint',
+                        'taskManagerView.taskManager.details.assigneeHint',
+                        'taskManagerView.taskManager.details.statusHint',
+                        'taskManagerView.taskManager.details.endingHint',
                     ]
                 }
             },
 
             listeners: {
                 'open-info': 'openInfo',
+                'open-chat': 'openChat',
                 'close-share-dialog': 'closeShareDialog',
                 'open-menu': 'openMenu',
                 'open-create-project-dialog': 'openCreateProjectDialog',
                 'open-select-project-dialog': 'openSelectProjectDialog',
                 'close-menu': 'closeMenu',
                 'open-sharing':'_openSharing',
-                'open-project-remove':'_openProjectRemoveConfirm'
+                'open-project-remove':'_openProjectRemoveConfirm',
+                'iron-resize': '_onResize'
             },
 
 
@@ -401,6 +421,7 @@
                 this.dispatch('getFiles', {project: this.project._id});
                 this.dispatch('getStickers', {project: this.project._id});
                 this.dispatch('getComments', {project: this.project._id});
+                this.dispatch('getMessages', {project: this.project._id});
                 this.dispatch('getTasks', {project: this.project._id});
             },
 
@@ -425,6 +446,7 @@
                 this.dispatch('cleanStickers');
                 this.dispatch('cleanTasks');
                 this.dispatch('cleanComments');
+                this.dispatch('cleanMessages');
             },
 
             /**
@@ -443,7 +465,58 @@
             },
 
             openInfo: function () {
+                this.chatMode = false;
+                this.$.dmHeader.$.userMenu.chatIsOpen = false;
+                this.$.right.classList.remove('chat');
                 this.$.right.open();
+                this.$.right.persistent = false;
+                this._twoColumns();
+                this.updateStyles();
+            },
+
+            openChat: function () {
+                this.chatMode = true;
+                this.$.right.classList.add('chat');
+                !this.$.right.persistent ? this.$.right.open() : this.$.right.toggle();
+                this.$.right.persistent = true;
+                this._threeColumns();
+                this.$.chat.scrollUp();
+                this.updateStyles();
+            },
+
+            _twoColumns: function(){
+                this.$.pages.animate([
+                    {maxWidth:'calc(100% - 300px)'},
+                    {maxWidth: '100%'}
+                ],{duration:0,fill:'forwards'});
+            },
+
+            _threeColumns: function () {
+                // Do not build three columns for small screens
+                if(window.innerWidth < 1360) return;
+                const pagesBound = this.$.pages.getBoundingClientRect();
+                const delta = this.$.right.opened ? [
+                        {maxWidth: '100%'},
+                        {maxWidth:'calc(100% - 300px)'}
+                    ] : [
+                        {maxWidth:'calc(100% - 300px)'},
+                        {maxWidth: '100%'}
+                    ];
+                this.$.pages.animate(delta,{duration:150,fill:'forwards'});
+            },
+
+            _onResize: function(){
+                if(this.$.right.opened && this.chatMode) {
+                    if(window.innerWidth < 768) return this.$.right.close();
+                    const delta = window.innerWidth > 1360 ? [
+                            {maxWidth: '100%'},
+                            {maxWidth:'calc(100% - 300px)'}
+                        ] : [
+                            {maxWidth:'calc(100% - 300px)'},
+                            {maxWidth: '100%'}
+                        ];
+                    this.$.pages.animate(delta,{duration:0,fill:'forwards'})
+                }
             },
 
             openMenu: function () {

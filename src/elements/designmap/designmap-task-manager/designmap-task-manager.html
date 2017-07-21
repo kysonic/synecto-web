@@ -16,6 +16,7 @@
 <link rel="import" href="../../../redux/actions/comments-action.html?20170615">
 <!-- Services -->
 <link rel="import" href="./deaignmap-task-service.html?20170615">
+<link rel="import" href="../designmap-tutorial/designmap-hint-service.html?20170615">
 <link rel="import" href="../../../behaviors/designmap-socket-behavior.html?20170615">
 <!-- Styles -->
 <link rel="import" href="../../../styles/loading-shared-styles.html?20170615">
@@ -32,6 +33,7 @@
             *[hidden] {
                 display: none !important;
             }
+
 
             :host > .wrapper > .content {
                 display: flex;
@@ -102,11 +104,20 @@
             }
 
             @media (min-width: 320px) and (max-width: 768px) {
+
+                :host > .wrapper > .content {
+                    display: flex;
+                    height: calc(100vh - 180px);
+                }
+
                 .hidden-xs {
                     display: none;
                 }
-                designmap-task-list.no-task, designmap-task-details.selected-task {
+                designmap-task-list.no-task {
                     display: block;
+                }
+                designmap-task-details.selected-task {
+                    display: flex;
                 }
                 designmap-task-list.selected-task, designmap-task-details.no-task{
                     display: none;
@@ -165,10 +176,11 @@
                 ReduxBehavior,
                 Polymer.IronResizableBehavior,
                 Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapHintService,
                 Polymer.DesignMapUtilsBehavior,
                 Polymer.DesignMapTaskService,
                 Polymer.DesignmapSocketBehavior,
-                Polymer.CombineActions(Polymer.ProjectActions, Polymer.TasksActions, Polymer.FilesActions, Polymer.CommentsActions)
+                Polymer.CombineActions(Polymer.ProjectActions, Polymer.UserActions, Polymer.TasksActions, Polymer.FilesActions, Polymer.CommentsActions)
             ],
             properties: {
                 /**
@@ -273,15 +285,9 @@
                     this.showMessage('Task was added successfully.');
                     this.selectTask({detail: response.task});
                     //Hints
-                    const tutorial = document.querySelector('designmap-app').$.tmTutorial;
-                    if(tutorial && tutorial.isRunning=='addTask') {
-                        tutorial.close();
-                        this.async(function(){
-                            this.$.list.overviewTaskHintTarget = this.$.list.$$('*[data-task-id="'+response.task._id+'"]');
-                            tutorial.thumbUp();
-                            this.async(function(){tutorial.next();},500);
-                        },100);
-                    }
+                    this.doneHint('addTask','tm',function(){
+                        this.$.list.overviewTaskHintTarget = this.$.list.$$('*[data-task-id="'+response.task._id+'"]');
+                    }.bind(this));
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));
                 this.taskName = '';
             },
@@ -380,12 +386,13 @@
             _isAuthChanged: function (isAuth) {
                 if (!isAuth) return;
                 // Start FileSystem tutorial
-                if(this.tasks.length) return;
-                if(this.user && this.user.system && this.user.system.tutorials && !this.user.system.tutorials.tm && this.MQ!='sm') {
+                if(this.tasks && this.tasks.length) return;
+                const MQ = ReduxStore.getState().MQ;
+                if(this.user && this.user.system && this.user.system.tutorials && !this.user.system.tutorials.tm && MQ!='sm') {
                     const user = Object.assign({},this.user);
                     const tutorial = document.querySelector('designmap-app').$.tmTutorial;
-                    /*user.system.tutorials.tm = true;
-                    this.dispatch('userUpdate',user);*/
+                    user.system.tutorials.tm = true;
+                    this.dispatch('userUpdate',user);
                     this.async(function(){tutorial.start();},1000);
                 }
             }

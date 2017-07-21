@@ -79,7 +79,7 @@
             }
 
         </style>
-        <input id="files" type="file" on-change="changeFiles" multiple="[[multiple]]" name="[[name]]" >
+        <input id="files" on-tap="tap" type="file" on-change="changeFiles" multiple="[[multiple]]" name="[[name]]" >
         <content></content>
     </template>
     <script>
@@ -129,6 +129,9 @@
              */
             processLabel: function(label){
               return label;
+            },
+            tap: function(){
+                this.$.files.click();
             }
         })
     </script>

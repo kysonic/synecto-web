@@ -1508,6 +1508,9 @@
   "Task title was updated successful!": {
     "message": "Task title was updated successful!"
   },
+  "Description has been saved!": {
+    "message": "Description has been saved!"
+  },
   "Complete task": {
     "message": "Complete task"
   },
@@ -1530,12 +1533,48 @@
     "message": "Task list"
   },
   "taskListMsg": {
-    "message": "This is task list. You can add new task using a filed located under the list."
+    "message": "On top of the list you can see filters. Under the list located field allowing to add new task."
   },
   "Change task title": {
     "message": "Change task title"
   },
   "changeTaskTitleMsg": {
-    "message": "Click on the title. Type new one. Press enter or just blur it. Task title can be managed by project owner and task owner."
+    "message": "Click on the title. Type new one. Press CTRL(CMD)+ENTER or just blur it. Task title can be managed by project owner and task owner."
+  },
+  "Change task desc": {
+    "message": "Change task description"
+  },
+  "changeTaskDescMsg": {
+    "message": "Click on the description. Enter whatever you want. Press CTRL(CMD)+ENTER or just blur it. Task description can be managed by project owner and task owner."
+  },
+  "assigneeMsg": {
+    "message": "Click on assignee button. Select user who will be responsible for this task. Task assignee can be managed by project owner and task owner."
+  },
+  "changeStatusMsg": {
+    "message": "Click on the status button to change status of task. There are 3 statuses: awaiting, in progress and complete. Those statuses switches one by one. Only assignee can chnage task status."
+  },
+  "Other functions": {
+    "message": "Other functions"
+  },
+  "endingMsg": {
+    "message": "Also you can manage due date, estimate difficulty of this task, track time and more other."
+  },
+  "Status: ": {
+    "message": "Status: "
+  },
+  "Chat of": {
+    "message": "Chat of"
+  },
+  "project does not contain any messages": {
+    "message": "project does not contain any messages..."
+  },
+  "Enter a message": {
+    "message": "Enter a message"
+  },
+  "Post": {
+    "message": "Post"
+  },
+  "Quote": {
+    "message": "Quote"
   }
 }

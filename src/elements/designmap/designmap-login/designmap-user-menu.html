@@ -193,6 +193,30 @@
                 cursor: pointer;
             }
 
+            .block.chat {
+                margin-right: 14px;
+                cursor: pointer;
+
+            }
+            .block.chat .chat {
+                padding: 4px 5px 4px 8px;
+                border-radius: 50%;
+                transition: .2s background ease-in;
+            }
+            .block.chat .chat:hover {
+                background: var(--gray-lightenest-color);
+                transition: .2s background ease-in;
+            }
+            .block.chat .chat.opened {
+                background: var(--blue-darky-color);
+                transition: .2s background ease-in;
+            }
+            .block.chat .chat.opened iron-icon {
+                --iron-icon-components-mixin: {
+                    stroke: var(--white-color) !important;
+                };
+            }
+
             @media screen and (min-width: 320px) and (max-width: 768px) {
                 :host {
                     --designmap-dropdown-triangle-mixin: {
@@ -210,7 +234,7 @@
                     };
                 }
 
-                .question, .email, .block.notification {
+                .question, .email, .block.notification, .chat {
                     display: none;
                 }
 
@@ -258,10 +282,18 @@
                     </div>
                     <div class="ntfy-indicator" hidden$="[[_areThereNotReadNotifications(notifications.*)]]"></div>
                 </div>
+                <!-- Notifications Dropdown -->
                 <designmap-dropdown horizontal-offset="-320" vertical-offset="60" id="notifyDropdown" tri-border previous>
                     <designmap-notifications on-link="closeNotifyDropdown" cut on-removed="refitDropdown"></designmap-notifications>
                 </designmap-dropdown>
                 <paper-tooltip for="notify"><i18-n msgid="Notifications">Notifications</i18-n></paper-tooltip>
+                <!-- Chat -->
+                <div class="block chat" id="chat" on-tap="openChatDrawer">
+                    <div class$="chat [[_computeChatIsOpenClass(chatIsOpen)]]">
+                        <iron-icon icon="designmap-user-menu:chat"></iron-icon>
+                    </div>
+                </div>
+                <!-- Chat -->
                 <div id="menu" class="block" on-tap="openUserMenu" data-hint="login">
                     <div class="email" title="[[user.local.email]]">
                         [[user.local.email]]
@@ -355,6 +387,10 @@
                 notifications: {
                     type: Array,
                     statePath: 'notifications'
+                },
+                chatIsOpen: {
+                    type: Boolean,
+                    value: false
                 }
             },
             openLoginDialog: function (e) {
@@ -422,6 +458,14 @@
                     if (notification._id == id) found = index;
                 }, this);
                 return found;
+            },
+            openChatDrawer: function(){
+                this.chatIsOpen = !this.chatIsOpen;
+                this.fire('open-chat');
+            },
+            _computeChatIsOpenClass: function(isOpen) {
+                this.async(this.updateStyles,10);
+                return isOpen?'opened':'';
             }
         })
     </script>

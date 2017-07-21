@@ -2,8 +2,9 @@
 <link rel="import" href="../../plastic/plastic-custom-scroll.html?20170615">
 <link rel="import" href="./designmap-assignee.html?20170615">
 <link rel="import" href="../../../styles/tooltip-shared-styles.html?20170615">
-
+<!-- Services -->
 <link rel="import" href="./deaignmap-task-service.html?20170615">
+<link rel="import" href="../designmap-tutorial/designmap-hint-service.html?20170615">
 <!-- Redux -->
 <link rel="import" href="../../../redux/redux-store.html?20170615">
 <link rel="import" href="../../../redux/actions/combine-actions.html?20170615">
@@ -464,7 +465,10 @@
                 }
 
                 .add-task-wrapper {
-                    padding: 0 25px;
+                    padding: 5px 0 0 20px;
+                }
+                .add-task-wrapper input {
+                    font-size: 18px;
                 }
             }
 
@@ -486,7 +490,7 @@
                     </template>
                 </designmap-dropdown>
             </div>
-            <div class="desktop-filters filters">
+            <div class="desktop-filters filters hidden-xs">
                 <template is="dom-repeat" items="[[filters]]" as="filter">
                     <div class$="row [[filter.type]] [[_computeSelectedFilterClass(filter,selectedFilter)]]" on-click="selectFilter">
                         <iron-icon class="filter-icon" icon="[[computeFilterIcon(filter.type)]]"></iron-icon>
@@ -539,7 +543,7 @@
                 <div class="add-task-wrapper">
                     <iron-a11y-keys id="a11yEditor" keys="enter" on-keys-pressed="addTask"></iron-a11y-keys>
                     <iron-a11y-keys id="a11yEditor" keys="backspace" on-keys-pressed="removeLastTask"></iron-a11y-keys>
-                    <input is="iron-input" placeholder="[[translate(placeholder,language,i18Loaded)]]" on-blur="addTask"
+                    <input is="iron-input" placeholder="[[translate(placeholder,language,i18Loaded)]]" on-focus="addTaskFocus" on-blur="addTask"
                            value="{{taskName::keyup}}" auto-validate pattern="[\w\dа-яА-ЯёЁ ]+"
                            error-message="{{translate('TaskNameError',language,i18nLoaded)}}" id="addTask"/>
                 </div>
@@ -547,7 +551,7 @@
         </template>
         <div hidden$="[[!filter]]" class$="[[computeLineClass(selected)]]"></div>
         <!-- Hint -->
-        <designmap-hint id="taskList" have-skip target="[[overviewTaskHintTarget]]" on-skip="skipTutorialStep" name="taskList" vertical-offset="60"
+        <designmap-hint id="taskListHint" have-skip target="[[overviewTaskHintTarget]]" on-skip="skipTutorialStep" name="taskList" vertical-offset="120"
                         horizontal-offset="0">
             <div class="title">
                 <i18-n msgid="Task list">Task list</i18-n>
@@ -566,6 +570,7 @@
                 Polymer.IronResizableBehavior,
                 Polymer.DesignMapMessagesBehavior,
                 Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapHintService,
                 Polymer.DesignMapTaskService,
                 Polymer.CombineActions(Polymer.TasksActions)
             ],
@@ -947,6 +952,7 @@
              * @returns {*}
              */
             addTask: function () {
+                this.fire('add-task-blur');
                 // Validate
                 this.$$('#addTask').validate();
                 if (!this.taskName) return;
@@ -968,10 +974,13 @@
                 this.dispatch('addTask', task).then(function (response) {
                     this.showUndoMessage('Task was added successfully.');
                     this.$.scroller.calculate();
-                    this.$$('#addTask').focus();
+                    if(this.MQ!='sm') this.$$('#addTask').focus();
                     //this.fire('select-task',response.task);
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));
                 this.taskName = '';
+            },
+            addTaskFocus: function(){
+              this.fire('add-task-focus');
             },
             /**
              * Select filter
@@ -1146,14 +1155,7 @@
                 return filter.type==selectedFilter.type?'selected':'';
             },
             skipTutorialStep: function(){
-                const tutorial = document.querySelector('designmap-app').$.tmTutorial;
-                // Bum
-                tutorial.close();
-                this.async(function(){
-                    tutorial.thumbUp();
-                    this.async(function(){tutorial.next();},500);
-                },100);
-
+                this.doneHint('taskList','tm');
             }
         })
     </script>

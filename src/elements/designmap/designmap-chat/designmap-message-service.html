@@ -1,0 +1,19 @@
+<script>
+    const EMAIL_REGEXP = /(\+\w*.\w*@\w*.\w.\S*)/g;
+    Polymer.DesignmapMessageService = {
+        findMessageById: function (id) {
+            var found = null;
+            ReduxStore.getState().messages.forEach(function (message, index) {
+                if (message._id == id) found = message;
+            }, this);
+            return found;
+        },
+        findMessageIndexById: function (id) {
+            var found = null;
+            ReduxStore.getState().messages.forEach(function (message, index) {
+                if (message._id == id) found = index;
+            }, this);
+            return found;
+        },
+    }
+</script>

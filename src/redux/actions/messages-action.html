@@ -1,0 +1,116 @@
+<script>
+    Polymer.MessagesActions = {
+        actions: {
+            /**
+             * Get all Messages for certain project from the server
+             * @returns {function(this:Polymer.FoldersActions)}
+             */
+            getMessages: function (query) {
+                return function (dispatch) {
+                    var state = ReduxStore.getState();
+                    var promise = xhr.get(Designmap.config.apiURL + 'message/' + this.objectToQueryString(query));
+                    promise.then(function (response) {
+                        if (!response.success) return;
+                        dispatch({type: 'SET_MESSAGES', messages: response.messages});
+                    });
+                    return promise;
+                }.bind(this)
+            },
+            /**
+             * Update Messages bunch
+             * @param strickers
+             * @returns {{type: string, folders: *}}
+             */
+            setMessages: function (strickers) {
+                return {
+                    type: 'SET_MESSAGES',
+                    Messages: strickers
+                }
+            },
+            /**
+             * Clean folders bunch
+             */
+            cleanMessages: function () {
+                return {
+                    type: 'CLEAN_MESSAGES'
+                }
+            },
+            addMessage: function (data) {
+                return function (dispatch) {
+                    dispatch({type: 'ADD_MESSAGE', data: data});
+                    var promise = xhr.post(Designmap.config.apiURL + 'message/', {data: data});
+                    var owner = data.owner;
+                    promise.then(function (response) {
+                        if (!response.success) throw new Error(response.errors.message);
+                        // Save Message owner data to avoid population
+                        response.message.owner = owner;
+                        dispatch({
+                            type: 'UPDATE_MESSAGE',
+                            data: response.message,
+                            index: this.findMessageIndexById(data._id)
+                        });
+                        //real time
+                        Designmap.projectSocket.emit('action', {type: 'ADD_MESSAGE', data: response.message, uid: Designmap.uid});
+                    }.bind(this)).catch(function (err) {
+                        var index = this.findMessageIndexById(data._id);
+                        dispatch({type: 'REMOVE_MESSAGE', index: index});
+                    }.bind(this));
+                    return promise;
+                }.bind(this)
+            },
+            /**
+             * Update Message
+             * @param id - Message id
+             * @param data - data to extend current Message
+             */
+            updateMessage: function (id, data) {
+                var historyData = this.findMessageById(id);
+                return function (dispatch) {
+                    var state = ReduxStore.getState();
+                    dispatch({type:'UPDATE_MESSAGE',data:data,index:this.findMessageIndexById(id)});
+                    var promise = xhr.put(Designmap.config.apiURL + 'message/' + id, {
+                        data: data,
+                        project: historyData.project
+                    });
+                    promise.then(function (response) {
+                        if (!response.success) throw new Error(response.errors.message);
+                        response.message.owner = historyData.owner;
+                        dispatch({type:'UPDATE_MESSAGE',data:response.message,index:this.findMessageIndexById(id)});
+                        // Real time
+                        Designmap.projectSocket.emit('action', {type: 'UPDATE_MESSAGE', data: response.message, index: this.findMessageIndexById(id), uid: Designmap.uid});
+                    }.bind(this)).catch(function () {
+                        dispatch({type:'UPDATE_MESSAGE',data:historyData,index:this.findMessageIndexById(id)});
+                    }.bind(this));
+                    return promise;
+                }.bind(this);
+            },
+            /**
+             * Update Message without saving
+             */
+            _updateMessage: function (id, data) {
+                return {type: 'UPDATE_MESSAGE', data: data, index: this.findMessageIndexById(id)};
+            },
+            /**
+             * Remove Message
+             * @returns {function(this:Polymer.FoldersActions)}
+             */
+            removeMessage: function (id) {
+                return function (dispatch) {
+                    var state = ReduxStore.getState();
+                    var index = this.findMessageIndexById(id);
+                    var historyData = this.findMessageById(id);
+                    dispatch({type: 'REMOVE_MESSAGE', index: index});
+                    var promise = xhr.delete(Designmap.config.apiURL + 'message/' + id, {project: historyData.project});
+                    promise.then(function (response) {
+                        if (!response.success) throw new Error();
+                        // Real time
+                        Designmap.projectSocket.emit('action', {type: 'REMOVE_MESSAGE', index: index, uid: Designmap.uid});
+                    }.bind(this)).catch(function () {
+                        dispatch({type: 'ADD_MESSAGE', data: historyData});
+                    }.bind(this));
+                    return promise;
+                }.bind(this);
+            }
+        }
+    }
+</script>

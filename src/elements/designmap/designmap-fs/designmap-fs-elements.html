@@ -175,7 +175,7 @@
                             <!-- Rename Folder -->
                             <designmap-context-menu bound darker id="renameFolderContext" previous>
                                 <div class="context-content">
-                                    <iron-a11y-keys id="a11yAddFolder" keys="enter"
+                                    <iron-a11y-keys id="a11yAddFolder" keys="ctrl+enter meta+enter"
                                                     on-keys-pressed="renameFolder"></iron-a11y-keys>
                                     <paper-input label="[[translate('Folder Name',language,i18Loaded)]]" auto-validate
                                                  pattern="[\w\dа-яА-ЯёЁ -]+"
@@ -203,7 +203,7 @@
                             <!-- Rename Folder -->
                             <designmap-context-menu bound darker id="renameFileContext" previous>
                                 <div class="context-content">
-                                    <iron-a11y-keys id="a11yAddFolder" keys="enter"
+                                    <iron-a11y-keys id="a11yAddFolder" keys="ctrl+enter meta+enter"
                                                     on-keys-pressed="renameFile"></iron-a11y-keys>
                                     <paper-input label="[[translate('File name',language,i18Loaded)]]"
                                                  id="renameFile"></paper-input>

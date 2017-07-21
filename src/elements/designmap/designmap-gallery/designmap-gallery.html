@@ -537,7 +537,7 @@
                     height: auto;
                 }
                 .content {
-                    max-height: calc(100vh - 60px);
+                    max-height: 100%;
                 }
             }
             @media (min-width: 768px) and (max-width: 850px) {
@@ -546,6 +546,12 @@
                 }
             }
             @media (min-device-width: 320px) and (max-device-width: 1366px) {
+
+                :host {
+                    /** Chrome dashboard **/
+                    height: calc(100vh - 60px);
+                }
+
                 .swipe-image, .swipe-ext {
                     display: block;
                     position: absolute;

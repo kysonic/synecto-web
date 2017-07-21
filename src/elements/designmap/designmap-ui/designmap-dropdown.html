@@ -115,6 +115,21 @@
                 border-width: 11px 0 11px 16px;
                 border-color: transparent transparent transparent var(--gray-color) !important;
             }
+            :host([tri-left]) .triangle, :host([tri-left]) .triangle-border  {
+                left: 0;
+                margin-left: -10px;
+                top: 7px;
+                margin-top: 0;
+                border-width: 5px 10px 5px 0;
+                border-color: transparent var(--white-color) transparent transparent;
+            }
+            :host([tri-left]) .triangle-border {
+                left: 0;
+                margin-left: -11px;
+                top: 7px;
+                border-width: 5px 10px 5px 0;
+                border-color: transparent var(--gray-color) transparent transparent;
+            }
         </style>
         <iron-dropdown id="dropdown"
                        opened="{{opened}}"

@@ -19,6 +19,10 @@
             observers: [
               '_mediaQueryChanged(sm,md,lg)'
             ],
+            attached: function(){
+                const qury = this.sm?'sm':this.md?'md':this.lg?'lg':'xx';
+                this.fire('query-changed',qury)
+            },
             _mediaQueryChanged: function(sm,md,lg){
                 const qury = sm?'sm':md?'md':lg?'lg':'xx';
                 this.fire('query-changed',qury)

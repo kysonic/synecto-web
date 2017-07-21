@@ -20,6 +20,7 @@
 <link rel="import" href="reducers/files-reducer.html?20170615">
 <link rel="import" href="reducers/stickers-reducer.html?20170615">
 <link rel="import" href="reducers/comments-reducer.html?20170615">
+<link rel="import" href="reducers/messages-reducer.html?20170615">
 <link rel="import" href="reducers/mq-reducer.html?20170615">
 <link rel="import" href="reducers/hash-reducer.html?20170615">
 
@@ -67,7 +68,8 @@
        tasks: filterActions(Reducers.TasksReducer,['ADD_TASK','REMOVE_TASK','UPDATE_TASK','SET_TASKS','CLEAN_TASKS']),
        files: filterActions(Reducers.FilesReducer,['ADD_FILE','REMOVE_FILE','UPDATE_FILE','SET_FILES','CLEAN_FILES']),
        stickers: filterActions(Reducers.StickersReducer,['ADD_STICKER','REMOVE_STICKER','UPDATE_STICKER','SET_STICKERS','CLEAN_STICKERS']),
-       comments: filterActions(Reducers.CommentsReducer,['ADD_COMMENT','REMOVE_COMMENT','UPDATE_COMMENT','SET_COMMENTS','CLEAN_COMMENTS'])
+       comments: filterActions(Reducers.CommentsReducer,['ADD_MESSAGE','REMOVE_MESSAGE','UPDATE_MESSAGE','SET_MESSAGES','CLEAN_MESSAGES']),
+       messages: filterActions(Reducers.MessagesReducer,['ADD_MESSAGE','REMOVE_MESSAGE','UPDATE_MESSAGE','SET_MESSAGES','CLEAN_MESSAGES'])
     });
     // Debug
     const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;

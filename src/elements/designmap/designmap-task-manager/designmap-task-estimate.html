@@ -61,6 +61,11 @@
                 background: var(--blue-darky-color);
                 text-align: right;
             }
+            @media (min-width: 320px) and (max-width: 768px) {
+                .digits li:nth-child(6n) {
+                    margin-left: 0;
+                }
+            }
         </style>
         <div class="header">
             <div class="top"><i18-n msgid="difficultyOfTask">difficulty of task</i18-n></div>

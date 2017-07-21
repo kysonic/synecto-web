@@ -20,6 +20,9 @@
                 background: var(--dropdown-color);
                 @apply(--designmap-context-menu-content-mixin);
             }
+            .dropdown-content .content {
+                @apply(--designmap-context-menu-deep-content-mixin);
+            }
             /** LINE **/
             .line {
                 height: 10px;
@@ -90,6 +93,7 @@
                     value: false
                 },
                 width: Number,
+                height: Number,
                 absolute: {
                     type: Boolean,
                     value: false
@@ -150,9 +154,10 @@
             targetStick: function (e) {
                 var menuRect = this.$.dd.getBoundingClientRect();
                 var menuWidth = this.width || menuRect.width || 200;
+                var menuHeight = this.height || menuRect.height;
                 var cords = this.getCords(e);
-                this.$.dd.horizontalOffset = menuWidth + e.pageX < window.innerWidth + 50 ? cords.x : cords.x - menuWidth;
-                this.$.dd.verticalOffset = menuRect.height + e.pageY < window.innerHeight + 50 ? cords.y : cords.y - menuRect.height;
+                this.$.dd.horizontalOffset = menuWidth + e.pageX < window.innerWidth - 50 ? cords.x : cords.x - menuWidth;
+                this.$.dd.verticalOffset = menuRect.height + e.pageY < window.innerHeight - 50 ? cords.y : cords.y - menuHeight;
                 this.$.dd.refit();
             },
             /**

@@ -49,7 +49,7 @@
 
         </style>
         <template is="dom-if" if="[[user.profile.avatar]]">
-            <img src="[[computeAvatarPath(user.profile.avatar)]]" title="[[user.local.email]]">
+            <img src="[[computeAvatarPath(user.profile.avatar)]]" title="[[computeOwnerName(user)]]">
         </template>
         <template is="dom-if" if="[[!user.profile.avatar]]">
             <div class="text"> [[computeName(user)]]</div>
