@@ -25,9 +25,16 @@
         setupSocketSubscribers: function (type) {
             Designmap[type+'Socket'].on('connect', function () {
                 console.log('DesignMap '+type+' socket is connected. Room ='+this.roomId);
+                this.fire('socket-connected',{type:type});
+            }.bind(this));
+
+            Designmap[type+'Socket'].on('disconnect', function (e) {
+                console.log('DesignMap '+type+' socket is disconnected.');
+                console.log(e);
+                this.fire('socket-disconnected',{type:type});
             }.bind(this));
             /**
-             * Create file
+             * Action!
              */
             Designmap[type+'Socket'].on('action', function (o) {
                 if (o.uid == Designmap.uid) return;

@@ -25,7 +25,7 @@
                   on-keyup="_onChange"
                   on-keydown="_onKeydown"
                   on-track="_track"
-                  value="{{value::keyup}}"
+                  value="{{value::input}}"
         ></textarea>
     </template>
     <script>
@@ -52,13 +52,20 @@
                 //if(this.initialHeight) return this.$.textarea.style.height = this.initialHeight + 'px';
                 autosize(this.$.textarea);
             },
+            blur: function(){
+                this.$.textarea.blur();
+            },
             _onChange: function(e){
               this.fire('change',e);
             },
             _onKeydown: function(e){
                 this.fire('keydown',e);
             },
+            _change: function(){
+                console.log(123);
+            },
             _valueChanged: function(){
+
                 this.async(function(){autosize.update(this.$.textarea)},0);
             },
             _track: function(e){

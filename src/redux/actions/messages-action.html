@@ -7,13 +7,20 @@
              */
             getMessages: function (query) {
                 return function (dispatch) {
-                    var state = ReduxStore.getState();
                     var promise = xhr.get(Designmap.config.apiURL + 'message/' + this.objectToQueryString(query));
                     promise.then(function (response) {
                         if (!response.success) return;
                         dispatch({type: 'SET_MESSAGES', messages: response.messages});
                     });
                     return promise;
+                }.bind(this)
+            },
+            /**
+             * Get cont of messages to establish lezy loading
+             */
+            getMessagesCount: function (query) {
+                return function (dispatch) {
+                    return xhr.get(Designmap.config.apiURL + 'message/count' + this.objectToQueryString(query));
                 }.bind(this)
             },
             /**

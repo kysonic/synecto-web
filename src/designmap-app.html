@@ -19,37 +19,37 @@
 <!-- Components -->
 <link rel="import" href="../bower_components/i18-n/i18-n-domain.html">
 <link rel="import" href="../bower_components/i18-n/i18-n.html">
-<link rel="import" href="elements/designmap/designmap-login/designmap-user-menu.html?20170615">
-<link rel="import" href="elements/designmap/designmap-icons/designmap-logo-icons.html?20170615">
-<link rel="import" href="elements/designmap/designmap-icons/designmap-workspace-icons.html?20170615">
-<link rel="import" href="elements/designmap/designmap-workspace/designmap-advanced-menu.html?20170615">
-<link rel="import" href="elements/designmap/designmap-workspace/designmap-header.html?20170615">
-<link rel="import" href="elements/designmap/designmap-workspace/designmap-info.html?20170615">
-<link rel="import" href="elements/designmap/designmap-chat/designmap-chat.html?20170615">
-<link rel="import" href="elements/designmap/designmap-buttons/designmap-circle-button.html?20170615">
-<link rel="import" href="elements/designmap/designmap-notifications/designmap-notifier.html?20170615">
-<link rel="import" href="elements/designmap/designmap-tutorial/designmap-tutorial.html?20170615">
-<link rel="import" href="elements/plastic/plastic-media-query.html?20170615">
+<link rel="import" href="elements/designmap/designmap-login/designmap-user-menu.html">
+<link rel="import" href="elements/designmap/designmap-icons/designmap-logo-icons.html">
+<link rel="import" href="elements/designmap/designmap-icons/designmap-workspace-icons.html">
+<link rel="import" href="elements/designmap/designmap-workspace/designmap-advanced-menu.html">
+<link rel="import" href="elements/designmap/designmap-workspace/designmap-header.html">
+<link rel="import" href="elements/designmap/designmap-workspace/designmap-info.html">
+<link rel="import" href="elements/designmap/designmap-chat/designmap-chat.html">
+<link rel="import" href="elements/designmap/designmap-buttons/designmap-circle-button.html">
+<link rel="import" href="elements/designmap/designmap-notifications/designmap-notifier.html">
+<link rel="import" href="elements/designmap/designmap-tutorial/designmap-tutorial.html">
+<link rel="import" href="elements/plastic/plastic-media-query.html">
 <!-- Configs -->
-<link rel="import" href="config/designmap-app-config.html?20170615">
+<link rel="import" href="config/designmap-app-config.html">
 <!-- Styles -->
-<link rel="import" href="styles/app-theme.html?20170615">
-<link rel="import" href="styles/shared-styles.html?20170615">
+<link rel="import" href="styles/app-theme.html">
+<link rel="import" href="styles/shared-styles.html">
 <!-- Redux -->
-<link rel="import" href="redux/redux-store.html?20170615">
-<link rel="import" href="redux/actions/combine-actions.html?20170615">
-<link rel="import" href="redux/actions/user-actions.html?20170615">
-<link rel="import" href="redux/actions/project-actions.html?20170615">
-<link rel="import" href="redux/actions/folders-actions.html?20170615">
-<link rel="import" href="redux/actions/files-actions.html?20170615">
-<link rel="import" href="redux/actions/stickers-actions.html?20170615">
-<link rel="import" href="redux/actions/comments-action.html?20170615">
-<link rel="import" href="redux/actions/messages-action.html?20170615">
-<link rel="import" href="redux/actions/tasks-actions.html?20170615">
+<link rel="import" href="redux/redux-store.html">
+<link rel="import" href="redux/actions/combine-actions.html">
+<link rel="import" href="redux/actions/user-actions.html">
+<link rel="import" href="redux/actions/project-actions.html">
+<link rel="import" href="redux/actions/folders-actions.html">
+<link rel="import" href="redux/actions/files-actions.html">
+<link rel="import" href="redux/actions/stickers-actions.html">
+<link rel="import" href="redux/actions/comments-action.html">
+<link rel="import" href="redux/actions/messages-action.html">
+<link rel="import" href="redux/actions/tasks-actions.html">
 <!-- Behaviors -->
-<link rel="import" href="behaviors/designmap-messages-behavior.html?20170615">
-<link rel="import" href="behaviors/designmap-socket-behavior.html?20170615">
-<link rel="import" href="deisgnmap-routing.html?20170615">
+<link rel="import" href="behaviors/designmap-messages-behavior.html">
+<link rel="import" href="behaviors/designmap-socket-behavior.html">
+<link rel="import" href="deisgnmap-routing.html">
 
 <dom-module id="designmap-app">
     <template>
@@ -175,6 +175,7 @@
                         role="main">
                     <designmap-fs-view id="fsView" name="fs"></designmap-fs-view>
                     <designmap-accesses-view id="accessesView" name="accesses"></designmap-accesses-view>
+                    <designmap-chat-view id="chatView" name="chat"></designmap-chat-view>
                     <designmap-task-manager-view id="taskManagerView" name="task-manager"></designmap-task-manager-view>
                     <designmap-settings-view name="settings"></designmap-settings-view>
                     <designmap-gallery-view id="galleryView" name="gallery"></designmap-gallery-view>
@@ -186,8 +187,8 @@
                     <designmap-404 name="404"></designmap-404>
                 </iron-pages>
                 <!-- Info -->
-                <app-drawer id="right" align="end">
-                    <designmap-chat hidden$="[[!chatMode]]" id="chat"></designmap-chat>
+                <app-drawer id="right" align="end" opened="{{rightOpened}}">
+                    <designmap-chat hidden$="[[!chatMode]]" opened="[[_computeOpened(chatMode,rightOpened)]]" id="chat"></designmap-chat>
                     <designmap-info hidden$="[[chatMode]]" id="info"></designmap-info>
                 </app-drawer>
             </app-header-layout>
@@ -302,6 +303,7 @@
             listeners: {
                 'open-info': 'openInfo',
                 'open-chat': 'openChat',
+                'set-unread-mark': '_setUnreadMark',
                 'close-share-dialog': 'closeShareDialog',
                 'open-menu': 'openMenu',
                 'open-create-project-dialog': 'openCreateProjectDialog',
@@ -309,7 +311,8 @@
                 'close-menu': 'closeMenu',
                 'open-sharing':'_openSharing',
                 'open-project-remove':'_openProjectRemoveConfirm',
-                'iron-resize': '_onResize'
+                'iron-resize': '_onResize',
+                'socket-connected': 'socketConnected'
             },
 
 
@@ -418,10 +421,10 @@
              */
             getProjectData: function () {
                 this.dispatch('getFolders', {scope: this.project._id});
-                this.dispatch('getFiles', {project: this.project._id});
+                this.dispatch('getFiles', {project: this.project._id}).then(function(res){this.loading = false;}.bind(this));
                 this.dispatch('getStickers', {project: this.project._id});
                 this.dispatch('getComments', {project: this.project._id});
-                this.dispatch('getMessages', {project: this.project._id});
+                this.dispatch('getMessages', {project: this.project._id, mpr: this.$.chat.mpr});
                 this.dispatch('getTasks', {project: this.project._id});
             },
 
@@ -476,12 +479,18 @@
 
             openChat: function () {
                 this.chatMode = true;
+                this.$.dmHeader.$.userMenu.chatIsOpen = !this.$.dmHeader.$.userMenu.chatIsOpen;
                 this.$.right.classList.add('chat');
                 !this.$.right.persistent ? this.$.right.open() : this.$.right.toggle();
                 this.$.right.persistent = true;
                 this._threeColumns();
                 this.$.chat.scrollUp();
                 this.updateStyles();
+                // Save user last chat opened
+                localStorage.setItem('designmap:lco',new Date());
+                this.async(function(){
+                    this._setUnreadMark({detail:false});
+                },300);
             },
 
             _twoColumns: function(){
@@ -567,6 +576,21 @@
 
             openSelectProjectDialog: function(){
                 if(this.$.dmHeader) this.$.dmHeader.openProjectList();
+            },
+
+            _setUnreadMark: function(e){
+                const chatButton = this.$.dmHeader.$.userMenu.$$('#chat');
+                const chatMarker = this.$.advancedMenu.$.chatMarker;
+                if(chatButton) chatButton.classList[e.detail?'add':'remove']('unread');
+                if(chatMarker) chatMarker.classList[e.detail?'add':'remove']('unread');
+            },
+
+            _computeOpened: function(chatMode,opened){
+                return chatMode && opened;
+            },
+
+            socketConnected: function(e){
+                if(e.detail.type=='project') this.$.chat.setupSocketAction();
             }
         });
     </script>

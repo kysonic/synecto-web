@@ -152,8 +152,8 @@
   "ToStartWork": {
     "message": "&nbsp;to start work"
   },
-  "Manage project's accesses": {
-    "message": "Manage accesses"
+  "Manage accesses": {
+    "message": "Manage team members of"
   },
   "ShareLinkDesc": {
     "message": "Any person who will receive this link will be able to see your project and manage stickers for it."
@@ -1576,5 +1576,11 @@
   },
   "Quote": {
     "message": "Quote"
+  },
+  "Project chat": {
+    "message": "Project chat"
+  },
+  "Team": {
+    "message": "Team"
   }
 }

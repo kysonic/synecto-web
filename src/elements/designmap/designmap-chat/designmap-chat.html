@@ -1,17 +1,17 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <!-- Components -->
-<link rel="import" href="../../plastic/plastic-custom-scroll.html?20170615">
-<link rel="import" href="../../plastic/plastic-textarea.html?20170615">
-<link rel="import" href="../designmap-avatar/designmap-avatar-projector.html?20170615">
-<link rel="import" href="../designmap-ui/designmap-context-menu.html?20170615">
+<link rel="import" href="../../plastic/plastic-custom-scroll.html">
+<link rel="import" href="../../plastic/plastic-textarea.html">
+<link rel="import" href="../designmap-avatar/designmap-avatar-projector.html">
+<link rel="import" href="../designmap-ui/designmap-context-menu.html">
 <!-- Services -->
-<link rel="import" href="./designmap-message-service.html?20170615">
+<link rel="import" href="./designmap-message-service.html">
 <!-- Redux -->
-<link rel="import" href="../../../redux/redux-store.html?20170615">
-<link rel="import" href="../../../redux/actions/combine-actions.html?20170615">
-<link rel="import" href="../../../redux/actions/messages-action.html?20170615">
+<link rel="import" href="../../../redux/redux-store.html">
+<link rel="import" href="../../../redux/actions/combine-actions.html">
+<link rel="import" href="../../../redux/actions/messages-action.html">
 <!-- Styles -->
-<link rel="import" href="../../../styles/context-menu-shared-styles.html?20170615">
+<link rel="import" href="../../../styles/context-menu-shared-styles.html">
 
 <dom-module id="designmap-chat">
     <template>
@@ -21,7 +21,7 @@
                 flex-direction: column;
                 height: 100%;
                 flex-wrap: wrap;
-                flex-grow:1;
+                flex-grow: 1;
                 background: url('/assets/images/bkg/collage.jpg');
                 background-size: 320%;
 
@@ -50,22 +50,27 @@
                     height: 124px;
                 }
             }
+
             *[hidden] {
                 display: none !important;
             }
+
             .scroll {
                 margin-top: 50px;
                 flex: 2;
                 overflow: auto;
             }
+
             .comment {
                 padding: 0 5px;
             }
+
             .comment button {
                 margin: 0;
                 border: none;
                 height: 45px;
             }
+
             .empty {
                 height: 100%;
                 display: flex;
@@ -74,31 +79,67 @@
                 color: var(--gray-darky-color);
                 padding: 0 10px;
             }
+
             .empty .msg {
                 text-align: center;
             }
+
             /** Messages **/
             .messages {
                 margin-top: 25px;
                 height: calc(100% - 25px);
             }
+
+            .messages.loading {
+                margin-top: 5px;
+            }
+
             .message {
                 display: inline-block;
                 width: 100%;
                 position: relative;
             }
-            .message .text{
-                width: 50%;
-                padding: 5px 10px 8px 10px;
+
+            .date-delimiter {
+                display: block;
+                width: 100%;
+                margin: 5px 0;
+                text-align: center;
+            }
+
+            .date-delimiter span {
+                display: inline-block;
+                padding: 5px;
+                border-radius: 5px;
+                color: var(--white-color);
+                background: rgba(0, 0, 0, 0.3);
+            }
+
+            .message .text {
+                min-width: 50%;
+                max-width: 65%;
+                padding: 5px 10px 2px 10px;
                 margin-top: 10px;
                 position: relative;
             }
-            .own .text{
+
+            .own .text {
                 background: var(--white-color);
                 color: var(--gray-darkend-color);
                 float: right;
                 margin-right: 10px;
             }
+
+            .own .footer .date {
+                float: right;
+                vertical-align: bottom;
+            }
+
+            .anothers .footer .date {
+                float: left;
+                vertical-align: bottom;
+            }
+
             .anothers .text {
                 background: var(--blue-color);
                 color: var(--white-color);
@@ -106,9 +147,11 @@
                 margin-left: 5px;
                 text-align: left;
             }
+
             .projector {
                 display: none;
             }
+
             .balloon-tick, .balloon-tick-border {
                 display: none;
                 width: 0;
@@ -118,9 +161,11 @@
                 border-color: transparent #007bff transparent transparent;
                 position: absolute;
             }
-            .anothers.first .text,.own.first .text {
+
+            .anothers.first .text, .own.first .text {
                 margin-bottom: 5px;
             }
+
             .anothers.first .balloon-tick {
                 display: block;
                 border-width: 10px 10px 0 0;
@@ -129,6 +174,7 @@
                 left: 0;
                 margin-top: 0;
             }
+
             .own.first .balloon-tick {
                 display: block;
                 border-width: 0 10px 10px 0;
@@ -138,9 +184,11 @@
                 margin-top: 0;
                 margin-left: -10px;
             }
+
             .anothers .text {
                 margin-left: 45px;
             }
+
             .anothers.first .projector {
                 display: inline-block;
                 float: left;
@@ -151,47 +199,91 @@
                 margin-top: -25px;
                 cursor: default;
             }
+
             .text .footer {
                 display: block;
                 height: 17px;
                 width: 100%;
-                margin-top: 5px;
             }
+
             .text .footer .date {
                 display: inline-block;
                 font-size: 10px;
             }
+
             .menu {
                 display: inline-block;
                 border-radius: 50%;
                 cursor: pointer;
-                height: 10px;
+                height: 15px;
             }
-            .menu  iron-icon {
+
+            .menu iron-icon {
                 height: 15px;
                 width: 15px;
+                top: -5px;
+                position: relative;
             }
+
             .own .menu {
                 float: left;
             }
+
             .anothers .menu {
                 float: right;
             }
+
             .text span {
                 white-space: pre-line;
-            ;
+            }
+
+            .loading {
+                width: 100%;
+                height: 40px;
+                background: url('/assets/images/svg/three-dots-gray.svg') no-repeat center;
+                background-size: 50px;
+                margin-top: 20px;
+            }
+            @media (min-width: 320px) and (max-width: 768px) {
+                .scroll {
+                    margin-top: 0;
+                }
+                designmap-dashboard {
+                    background: transparent;
+                }
+                .messages {
+                    margin-top: 10px;
+                }
+                .scroll {
+                    height: calc(100vh - 170px);
+                }
             }
         </style>
-        <plastic-custom-scroll id="scroll" class="scroll" small-bar fit disappear>
-            <div id="messages" class="messages" hidden$="[[!_isThereMessages(messages.length)]]">
-                <template is="dom-repeat" items="[[messages]]" as="message">
+        <plastic-custom-scroll id="scroll" on-scroll="scroll" class="scroll" small-bar fit>
+            <!--<template is="dom-if" if="[[dashboard]]">
+                <designmap-dashboard back>
+                    <div class="title">
+                        <i18-n msgid="Project chat">Project chat</i18-n>
+                    </div>
+                </designmap-dashboard>
+            </template>-->
+            <div class="loading" hidden$="[[!inProgress]]"></div>
+            <div id="messages" class$="messages [[_isLoadingClass(inProgress)]]"
+                 hidden$="[[!_isThereMessages(messages.length)]]">
+                <div class="date-delimiter first" hidden$="[[inProgress]]">
+                    <span>[[_firstMessageDate(messages.*)]]</span>
+                </div>
+                <template is="dom-repeat" items="[[messages]]" as="message" sort="[[_sortMessages(sortWay)]]">
                     <div data-id$="[[message._id]]" class$="message [[_computeMessageClass(message,user)]]">
-                        <designmap-avatar-projector title="[[computeUserName(user)]]" user="[[message.owner]]" class="projector"></designmap-avatar-projector>
+                        <designmap-avatar-projector title="[[computeUserName(user)]]" user="[[message.owner]]"
+                                                    class="projector"></designmap-avatar-projector>
                         <div class="text">
                             <span>[[message.text]]</span>
                             <div class="balloon-tick"></div>
                             <div class="footer">
-                                <div title="[[_computeDate(message.created,'YYYY-MM-DD HH:mm:ss')]]" class="date">[[_computeDate(message.created,'HH:mm:ss')]]</div>
+                                <div title="[[_computeDate(message.created,'YYYY-MM-DD HH:mm:ss')]]" class="date">
+                                    [[_computeDate(message.created,'HH:mm:ss')]]
+                                </div>
                                 <div class="menu" on-click="openContextMenu">
                                     <iron-icon icon="[[_computeMenuIcon(message,user)]]"></iron-icon>
                                 </div>
@@ -202,9 +294,15 @@
                 <!-- Menu -->
                 <designmap-context-menu id="contextMenu" width="200" height="134">
                     <ul class="menu">
-                        <li on-tap="editMessage"><i18-n msgid="Edit" >Edit</i18-n></li>
-                        <li on-tap="quote"><i18-n msgid="Quote">Quote</i18-n></li>
-                        <li on-tap="removeMessage"><i18-n msgid="Remove">Remove</i18-n></li>
+                        <li on-tap="editMessage">
+                            <i18-n msgid="Edit">Edit</i18-n>
+                        </li>
+                        <li on-tap="quote">
+                            <i18-n msgid="Quote">Quote</i18-n>
+                        </li>
+                        <li on-tap="removeMessage">
+                            <i18-n msgid="Remove">Remove</i18-n>
+                        </li>
                     </ul>
                 </designmap-context-menu>
             </div>
@@ -218,7 +316,8 @@
         </plastic-custom-scroll>
         <div class="comment" id="comment">
             <iron-a11y-keys keys="ctrl+enter meta+enter" on-keys-pressed="postMessage"></iron-a11y-keys>
-            <plastic-textarea id="textarea" on-blur="editOff" initial-height="66" value="{{message}}" placeholder="[[translate('Enter a message',language,i18Loaded)]]"></plastic-textarea>
+            <plastic-textarea id="textarea" initial-height="66" value="{{message}}"
+                              placeholder="[[translate('Enter a message',language,i18Loaded)]]"></plastic-textarea>
             <button hidden$="[[!message]]" on-tap="postMessage" is="designmap-button" blue fit>
                 <i18-n hidden$="[[editMode]]" msgid="Post">Post</i18-n>
                 <i18-n hidden$="[[!editMode]]" msgid="Save">Save</i18-n>
@@ -244,7 +343,7 @@
                 },
                 messages: {
                     type: Array,
-                    value:[],
+                    value: [],
                     statePath: 'messages'
                 },
                 project: {
@@ -260,100 +359,255 @@
                     computed: '_computeLanguage(user.system.language)'
                 },
                 i18Loaded: {
-                    type:Boolean,
+                    type: Boolean,
                     statePath: 'i18Loaded'
                 },
                 projectId: {
                     type: String,
-                    statePath: 'projectId'
+                    statePath: 'projectId',
+                    observer: '_projectIdChanged'
                 },
                 editMode: {
                     type: Boolean,
                     value: false
+                },
+                mpr: {
+                    type: Number,
+                    value: 30
+                },
+                skip: {
+                    type: Number,
+                    value: 0
+                },
+                messagesCount: {
+                    type: Number,
+                    value: 0
+                },
+                inProgress: {
+                    type: Boolean,
+                    value: false
+                },
+                sortWay: {
+                    type: String,
+                    value: 'abs'
+                },
+                opened: {
+                    type:Boolean,
+                    value: false
+                },
+                dashboard: {
+                    type: Boolean,
+                    value: false
+                },
+                MQ: {
+                    type: String,
+                    statePath:'MQ'
                 }
+            },
+            observers: [
+                '_messagesChanged(messages.length)'
+            ],
+            ready: function () {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                // Load sound
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '/assets/sounds/pingpang.ogg', true);
+                xhr.responseType = 'arraybuffer';
+                xhr.onload = function(){
+                    var audioData = xhr.response;
+                    this.audioContext.decodeAudioData(audioData, function(buffer){
+                        this.soundBuffer = buffer;
+                    }.bind(this));
+                }.bind(this);
+                xhr.send();
+            },
+            playSound: function () {
+                var source = this.audioContext.createBufferSource();
+                source.buffer =  this.soundBuffer;
+                source.connect(this.audioContext.destination);
+                source.start(0);
+            },
+            setupSocketAction: function(){
+                if(this.socketActionIsDone) return;
+                this.socketActionIsDone = true;
+                // Setup sound
+                Designmap.projectSocket.on('action', function (o) {
+                    if (o.uid == Designmap.uid) return;
+                    if(o.type==="ADD_MESSAGE") {
+                        if(!this.opened || this.MQ=='sm') this.playSound();
+                        //if(this.opened) this.async(this.scrollUp,10);
+                        if(new Date(o.data.created)>new Date(localStorage.getItem('designmap:lco')) && !this.opened) {
+                            this.fire('set-unread-mark',true);
+                        }
+                    }
+                }.bind(this));
+                this.scrollUp();
+            },
+            _projectIdChanged: function (prjId) {
+                if (!prjId) return;
+                this.dispatch('getMessagesCount', {project: prjId}).then(function (response) {
+                    if (!response.success) return;
+                    this.messagesCount = response.count;
+                }.bind(this));
             },
             /**
              * Compute container for message textarea
              * @private
              */
-            _messageChanged: function(){
+            _messageChanged: function () {
                 const textAreaBound = this.$.textarea.$.textarea.getBoundingClientRect();
-                this.async(function(){
-                    this.$.comment.style.minHeight = (textAreaBound.height + (this.message?57:0)) + 'px';
+                this.async(function () {
+                    const height = (textAreaBound.height + (this.message ? 55 : 0));
+                    this.$.comment.style.minHeight = height + 'px';
+                    if(this.MQ=='sm') this.$.scroll.style.height = "calc(100vh - "+(height+135)+"px)";
                     this.async(this.scrollUp);
                 });
             },
-            _isThereMessages: function(length){
+            _isThereMessages: function (length) {
                 return !!length;
             },
-            _computeMessageClass: function(message,user){
-                this.async(function(){
-                    const currentMsg = this.$.messages.querySelector('[data-id="'+message._id+'"]');
-                    if(!currentMsg) return;
+            _sortMessages: function (sortWay) {
+                return function (a, b) {
+                    return new Date(a.created) - new Date(b.created);
+                }
+            },
+            _computeMessageClass: function (message, user) {
+                this.async(function () {
+                    const currentMsg = this.$.messages.querySelector('[data-id="' + message._id + '"]');
+                    if (!currentMsg) return;
                     const prev = currentMsg.previousElementSibling;
-                    if(!prev) return currentMsg.classList.add('first');
+                    if (!prev) return currentMsg.classList.add('first');
+                    // Classes
                     const notOwn = currentMsg.classList.contains('own') && !prev.classList.contains('own');
                     const notAnother = currentMsg.classList.contains('anothers') && !prev.classList.contains('anothers');
-                    if(notOwn || notAnother) return currentMsg.classList.add('first');
+                    if (notOwn || notAnother) return currentMsg.classList.add('first');
                 });
-                return this._isAnothers(message,user) ? 'own' : 'anothers';
+                return this._isAnothers(message, user) ? 'own' : 'anothers';
             },
-            _isAnothers: function(message,user){
-                return message.owner._id==user._id;
+            _firstMessageDate: function () {
+                const messages = this.messages.sort(function (a, b) {
+                    return new Date(a.created) - new Date(b.created);
+                });
+                const message = messages[0];
+                if (!message) return 'xxx';
+                const lastMessage = messages[messages.length-1];
+                if(this.user && this.user._id!=lastMessage.owner._id && new Date(lastMessage.created)>new Date(localStorage.getItem('designmap:lco'))) this.fire('set-unread-mark',true);
+                return moment(message.created).format('YYYY-MM-DD');
+            },
+            _createDateNode: function (msgNode, message) {
+                const div = document.createElement('div');
+                div.classList.add('date-delimiter');
+                const span = document.createElement('span');
+                span.innerText = moment(message.created).format('YYYY-MM-DD');
+                div.appendChild(span);
+                msgNode.parentNode.insertBefore(div, msgNode);
+            },
+            _isAnothers: function (message, user) {
+                return message.owner._id == user._id;
             },
             /**
              * Post new message
              */
-            postMessage: function(){
-                if(this.editMode) return this.updateMessage();
+            postMessage: function () {
+                if (this.editMode) return this.updateMessage();
                 const data = {
                     text: this.message,
                     owner: this.user,
                     project: this.projectId
                 };
-                this.dispatch('addMessage',data);
+                this.dispatch('addMessage', data);
                 this.message = '';
                 this.async(this.scrollUp);
+                this.async(this.$.textarea.blur);
             },
-            updateMessage: function(){
-                this.dispatch('updateMessage',this.msg._id,{text:this.message});
+            updateMessage: function () {
+                this.dispatch('updateMessage', this.msg._id, {text: this.message});
                 this.message = '';
+                this.editMode = false;
                 this.async(this.scrollUp);
+                this.async(this.$.textarea.blur);
             },
-            scrollUp: function(){
-                this.$.scroll.setScroll(this.messages.length * 60);
+            scrollUp: function () {
+                this.$.scroll.setScroll(this.messages.length * 250);
             },
-            _computeDate: function(date,frmt){
+            _computeDate: function (date, frmt) {
                 return moment(date).format(frmt);
             },
-            _computeMenuIcon: function(message,user){
-                return !this._isAnothers(message,user) ? 'icons:reply' : 'designmap-workspace:big_more';
+            _computeMenuIcon: function (message, user) {
+                return !this._isAnothers(message, user) ? 'icons:reply' : 'designmap-workspace:big_more';
             },
-            openContextMenu: function(e){
-                if(this.user._id!=e.model.message.owner._id) return this.quote(e.model.message);
+            openContextMenu: function (e) {
+                if (this.user._id != e.model.message.owner._id) return this.quote(e.model.message);
                 this.msg = e.model.message;
                 this.$.contextMenu.target = e.target;
                 this.$.contextMenu.toggle(e);
             },
-            quote: function(message){
+            quote: function (message) {
                 const msg = message.detail ? this.msg : message;
                 this.$.contextMenu.close();
                 this.$.textarea.$.textarea.focus();
-                this.message = '['+this.computeOwnerName(msg.owner)+']> '+msg.text+'\n';
+                const words = msg.text.split(' ');
+                this.message = '[' + this.computeOwnerName(msg.owner) + ']> "' + (words.length > 5 ? words.slice(0, 5).join(' ') + '...' : words.join(' ')) + '"\n';
             },
-            editMessage: function(){
+            editMessage: function () {
                 this.editMode = true;
                 this.$.textarea.$.textarea.focus();
                 this.$.contextMenu.close();
                 this.message = this.msg.text;
             },
-            editOff: function(){
+            editOff: function () {
                 this.editMode = false;
             },
-            removeMessage: function(){
-                this.dispatch('removeMessage',this.msg._id);
+            removeMessage: function () {
+                this.dispatch('removeMessage', this.msg._id);
                 this.$.contextMenu.close();
                 this.async(this.scrollUp);
+            },
+            scroll: function (e) {
+                if (e.detail.scrollTop !== 0 || this.inProgress) return;
+                this.skip += this.mpr;
+                if (this.skip > this.messagesCount) return;
+                this.inProgress = true;
+                this.dispatch('getMessages', {
+                    project: this.project._id,
+                    mpr: this.mpr,
+                    skip: this.skip
+                }).then(function (res) {
+                    this.inProgress = false;
+                    this.$.scroll.setScroll(this.mpr * 100);
+                    this.async(function () {
+                        const message = res.messages[0];
+                        const currentMsg = this.$.messages.querySelector('[data-id="' + message._id + '"]');
+                        const top = currentMsg.getBoundingClientRect().top > 0 ? currentMsg.getBoundingClientRect().top : 0;
+                        this.$.scroll.setScroll(top + 100);
+                    }, 10);
+                }.bind(this));
+            },
+            _isLoadingClass: function (inProgress) {
+                return inProgress ? 'loading' : '';
+            },
+            _messagesChanged: function () {
+                // Remove all delims
+                const delimeters = this.$.messages.querySelectorAll('.date-delimiter:not(.first)');
+                [].forEach.call(delimeters, function (node) {
+                    if (node && node.parentNode) node.parentNode.removeChild(node);
+                });
+                const sortedMessages = this.messages.sort(function (a, b) {
+                    return new Date(a.created) - new Date(b.created);
+                });
+                // Create new one
+                for (let i = 1; i < sortedMessages.length; i++) {
+                    let next = sortedMessages[i];
+                    let prev = sortedMessages[i - 1];
+
+                    if (new Date(next.created).getDate() > new Date(prev.created).getDate()) {
+                        this.async(function () {
+                            const msgNode = this.$.messages.querySelector('[data-id="' + next._id + '"]');
+                            if (msgNode.previousElementSibling && msgNode.previousElementSibling.classList.contains('date-delimiter')) return;
+                            this._createDateNode(msgNode, next);
+                        }, 100)
+                    }
+                }
             }
         });
     </script>

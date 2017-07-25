@@ -1,28 +1,28 @@
 <link rel="import" href="../../bower_components/polymer-redux/polymer-redux.html">
-<link rel="import" href="redux-ignore.html?20170615">
+<link rel="import" href="redux-ignore.html">
 <script>const Reducers = {};</script>
 <!-- Reducers -->
-<link rel="import" href="reducers/user-reducer.html?20170615">
-<link rel="import" href="reducers/users-reducer.html?20170615">
-<link rel="import" href="reducers/i18n-reducer.html?20170615">
-<link rel="import" href="reducers/notifications-reducer.html?20170615">
-<link rel="import" href="reducers/project-reducer.html?20170615">
-<link rel="import" href="reducers/project-id-reducer.html?20170615">
-<link rel="import" href="reducers/project-users-reducer.html?20170615">
-<link rel="import" href="reducers/file-id-reducer.html?20170615">
-<link rel="import" href="reducers/folder-id-reducer.html?20170615">
-<link rel="import" href="reducers/path-reducer.html?20170615">
-<link rel="import" href="reducers/trash-mode-reducer.html?20170615">
-<link rel="import" href="reducers/projects-reducer.html?20170615">
-<link rel="import" href="reducers/shared-projects-reducer.html?20170615">
-<link rel="import" href="reducers/folders-reducer.html?20170615">
-<link rel="import" href="reducers/tasks-reducer.html?20170615">
-<link rel="import" href="reducers/files-reducer.html?20170615">
-<link rel="import" href="reducers/stickers-reducer.html?20170615">
-<link rel="import" href="reducers/comments-reducer.html?20170615">
-<link rel="import" href="reducers/messages-reducer.html?20170615">
-<link rel="import" href="reducers/mq-reducer.html?20170615">
-<link rel="import" href="reducers/hash-reducer.html?20170615">
+<link rel="import" href="reducers/user-reducer.html">
+<link rel="import" href="reducers/users-reducer.html">
+<link rel="import" href="reducers/i18n-reducer.html">
+<link rel="import" href="reducers/notifications-reducer.html">
+<link rel="import" href="reducers/project-reducer.html">
+<link rel="import" href="reducers/project-id-reducer.html">
+<link rel="import" href="reducers/project-users-reducer.html">
+<link rel="import" href="reducers/file-id-reducer.html">
+<link rel="import" href="reducers/folder-id-reducer.html">
+<link rel="import" href="reducers/path-reducer.html">
+<link rel="import" href="reducers/trash-mode-reducer.html">
+<link rel="import" href="reducers/projects-reducer.html">
+<link rel="import" href="reducers/shared-projects-reducer.html">
+<link rel="import" href="reducers/folders-reducer.html">
+<link rel="import" href="reducers/tasks-reducer.html">
+<link rel="import" href="reducers/files-reducer.html">
+<link rel="import" href="reducers/stickers-reducer.html">
+<link rel="import" href="reducers/comments-reducer.html">
+<link rel="import" href="reducers/messages-reducer.html">
+<link rel="import" href="reducers/mq-reducer.html">
+<link rel="import" href="reducers/hash-reducer.html">
 
 <script>
     const initialState = {
@@ -68,7 +68,7 @@
        tasks: filterActions(Reducers.TasksReducer,['ADD_TASK','REMOVE_TASK','UPDATE_TASK','SET_TASKS','CLEAN_TASKS']),
        files: filterActions(Reducers.FilesReducer,['ADD_FILE','REMOVE_FILE','UPDATE_FILE','SET_FILES','CLEAN_FILES']),
        stickers: filterActions(Reducers.StickersReducer,['ADD_STICKER','REMOVE_STICKER','UPDATE_STICKER','SET_STICKERS','CLEAN_STICKERS']),
-       comments: filterActions(Reducers.CommentsReducer,['ADD_MESSAGE','REMOVE_MESSAGE','UPDATE_MESSAGE','SET_MESSAGES','CLEAN_MESSAGES']),
+       comments: filterActions(Reducers.CommentsReducer,['ADD_COMMENT','REMOVE_COMMENT','UPDATE_COMMENT','SET_COMMENTS','CLEAN_COMMENTS']),
        messages: filterActions(Reducers.MessagesReducer,['ADD_MESSAGE','REMOVE_MESSAGE','UPDATE_MESSAGE','SET_MESSAGES','CLEAN_MESSAGES'])
     });
     // Debug

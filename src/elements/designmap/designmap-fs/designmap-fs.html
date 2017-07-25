@@ -1,25 +1,25 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <!-- Styles -->
-<link rel="import" href="../../../styles/context-menu-shared-styles.html?20170615">
-<link rel="import" href="../../../styles/loading-shared-styles.html?20170615">
+<link rel="import" href="../../../styles/context-menu-shared-styles.html">
+<link rel="import" href="../../../styles/loading-shared-styles.html">
 <!-- Icons -->
-<link rel="import" href="../designmap-icons/designmap-workspace-icons.html?20170615">
+<link rel="import" href="../designmap-icons/designmap-workspace-icons.html">
 <!-- Components -->
-<link rel="import" href="../designmap-ui/designmap-stub.html?20170615">
-<link rel="import" href="../designmap-ui/designmap-context-menu.html?20170615">
-<link rel="import" href="./designmap-fs-breadcrumbs.html?20170615">
-<link rel="import" href="./designmap-fs-panel.html?20170615">
-<link rel="import" href="./designmap-fs-elements.html?20170615">
+<link rel="import" href="../designmap-ui/designmap-stub.html">
+<link rel="import" href="../designmap-ui/designmap-context-menu.html">
+<link rel="import" href="./designmap-fs-breadcrumbs.html">
+<link rel="import" href="./designmap-fs-panel.html">
+<link rel="import" href="./designmap-fs-elements.html">
 <!-- Services -->
-<link rel="import" href="./designmap-fs-service.html?20170615">
-<link rel="import" href="../../../behaviors/designmap-socket-behavior.html?20170615">
+<link rel="import" href="./designmap-fs-service.html">
+<link rel="import" href="../../../behaviors/designmap-socket-behavior.html">
 <!-- Redux -->
-<link rel="import" href="../../../redux/actions/project-actions.html?20170615">
-<link rel="import" href="../../../redux/actions/folders-actions.html?20170615">
-<link rel="import" href="../../../redux/actions/tasks-actions.html?20170615">
-<link rel="import" href="../../../redux/actions/files-actions.html?20170615">
-<link rel="import" href="../../../redux/actions/stickers-actions.html?20170615">
-<link rel="import" href="../../../redux/actions/comments-action.html?20170615">
+<link rel="import" href="../../../redux/actions/project-actions.html">
+<link rel="import" href="../../../redux/actions/folders-actions.html">
+<link rel="import" href="../../../redux/actions/tasks-actions.html">
+<link rel="import" href="../../../redux/actions/files-actions.html">
+<link rel="import" href="../../../redux/actions/stickers-actions.html">
+<link rel="import" href="../../../redux/actions/comments-action.html">
 
 <dom-module id="designmap-fs">
     <template>
@@ -422,18 +422,6 @@
              */
             shouldWeShowElements: function (project) {
                 return project && project._id && !project.error && !project.loading;
-            },
-            shouldWeShowEmptyMessage: function (project) {
-                return !project || (!project._id && !project.error && !project.loading);
-            },
-            shouldWeShowLoading: function (project) {
-                return project && project.loading;
-            },
-            shouldWeShowError: function (project) {
-                return project && project.error && !project.loading;
-            },
-            _computePanelState: function(id,error){
-                return !id || error;
             },
             setCuttedElement: function(e){
                 if(this.cutted) {

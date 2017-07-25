@@ -1,19 +1,19 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/paper-tooltip/paper-tooltip.html">
 <!-- Components -->
-<link rel="import" href="../designmap-ui/designmap-dropdown.html?20170615">
-<link rel="import" href="./designmap-language-switcher.html?20170615">
-<link rel="import" href="../designmap-notifications/designmap-notifications.html?20170615">
+<link rel="import" href="../designmap-ui/designmap-dropdown.html">
+<link rel="import" href="./designmap-language-switcher.html">
+<link rel="import" href="../designmap-notifications/designmap-notifications.html">
 <!-- Mixins -->
-<link rel="import" href="../../../behaviors/designmap-messages-behavior.html?20170615">
-<link rel="import" href="../../../behaviors/deisgnmap-utils-behavior.html?20170615">
+<link rel="import" href="../../../behaviors/designmap-messages-behavior.html">
+<link rel="import" href="../../../behaviors/deisgnmap-utils-behavior.html">
 <!-- Redux -->
-<link rel="import" href="../../../redux/redux-store.html?20170615">
-<link rel="import" href="../../../redux/actions/combine-actions.html?20170615">
-<link rel="import" href="../../../redux/actions/user-actions.html?20170615">
-<link rel="import" href="../../../redux/actions/notifications-actions.html?20170615">
+<link rel="import" href="../../../redux/redux-store.html">
+<link rel="import" href="../../../redux/actions/combine-actions.html">
+<link rel="import" href="../../../redux/actions/user-actions.html">
+<link rel="import" href="../../../redux/actions/notifications-actions.html">
 <!-- Icons -->
-<link rel="import" href="../designmap-icons/designmap-user-menu-icons.html?20170615">
+<link rel="import" href="../designmap-icons/designmap-user-menu-icons.html">
 
 <dom-module id="designmap-user-menu">
     <template>
@@ -160,7 +160,7 @@
             }
 
             /** MESSAGE INDICATOR **/
-            .ntfy-indicator, .indicator {
+            .ntfy-indicator, .indicator, .chat .mark {
                 position: absolute;
                 top: 2px;
                 left: 100%;
@@ -172,11 +172,17 @@
                 background: var(--designmap-user-menu-indicator-color);
             }
 
-            .ntfy-indicator {
+            .ntfy-indicator{
                 width: 8px;
                 height: 8px;
                 border: 1px solid var(--white-color);
                 margin-left: -7px;
+            }
+            .chat .mark {
+                display: none;
+            }
+            .chat.unread .mark {
+                display: block;
             }
 
             .row.notify {
@@ -292,7 +298,9 @@
                     <div class$="chat [[_computeChatIsOpenClass(chatIsOpen)]]">
                         <iron-icon icon="designmap-user-menu:chat"></iron-icon>
                     </div>
+                    <div class="mark"></div>
                 </div>
+                <paper-tooltip for="chat"><i18-n msgid="Project chat">Project chat</i18-n></paper-tooltip>
                 <!-- Chat -->
                 <div id="menu" class="block" on-tap="openUserMenu" data-hint="login">
                     <div class="email" title="[[user.local.email]]">
@@ -410,7 +418,7 @@
                 this.dispatch('updateUser', this.user);
             },
             openUserMenu: function () {
-                this.$$("#dropdown").open();
+                this.$$("#dropdown").toggle();
             },
             goToProfile: function () {
                 page.redirect('/settings/');

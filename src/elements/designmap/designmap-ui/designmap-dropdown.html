@@ -1,8 +1,8 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-dropdown/iron-dropdown.html">
 <!-- Mixins -->
-<link rel="import" href="../../../behaviors/deisgnmap-animation-behavior.html?20170615">
-<link rel="import" href="../../../behaviors/designmap-resolve-overlay-behavior.html?20170615">
+<link rel="import" href="../../../behaviors/deisgnmap-animation-behavior.html">
+<link rel="import" href="../../../behaviors/designmap-resolve-overlay-behavior.html">
 
 <dom-module is="designmap-dropdown">
     <template>
@@ -203,7 +203,7 @@
                 this.$.dropdown.close();
             },
             toggle: function () {
-                this.$.dropdown.toggle();
+                this.$.dropdown.opened?this.$.dropdown.close(): this.$.dropdown.open();
             },
             computeOpenAnimation: function (left) {
                 return left ? this.slideLeftOpenAnimation : this.slideTopOpenAnimation;

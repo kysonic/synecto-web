@@ -91,6 +91,13 @@
                 this.path = '/';
             }.bind(this));
 
+            page('/:id/chat', this._isAuth.bind(this), function(ctx,next){
+                if(!this.isObjectID(ctx.params.id)) return next();
+                this.projectId = ctx.params.id;
+                this.page = 'chat';
+                this.path = '/';
+            }.bind(this));
+
             page(/^\/(.*?)\/task-manager\/(.*)/, this._isAuth.bind(this), function(ctx,next){
                 const id = ctx.params[0];
                 if(!this.isObjectID(id)) return next();

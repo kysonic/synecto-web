@@ -29,9 +29,9 @@ Deploy
 
 p 1. npm run build
 ssh 2. ssh -i ~/.ssh/designmap-spa.pem ec2-user@ec2-52-57-8-122.eu-central-1.compute.amazonaws.com
-ssh 3. cd /var/www/html
+ssh 3. sudo su & cd /var/www/html
 ssh 4. rm -rf *
-ssh 5. cd ../ && chmod 777 -R ./html
+ssh 5. cd ../ & chmod 777 -R ./html
 sftp 6. sftp -i ~/.ssh/designmap-spa.pem ec2-user@ec2-52-57-8-122.eu-central-1.compute.amazonaws.com
 sftp 7. lcd /Users/kysonic/WebDevelopments/CDC/designmap-spa-v3/build/unbundled
 sftp 8. cd /var/www/html
