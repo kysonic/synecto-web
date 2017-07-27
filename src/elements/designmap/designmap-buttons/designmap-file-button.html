@@ -130,7 +130,8 @@
             processLabel: function(label){
               return label;
             },
-            tap: function(){
+            tap: function(e){
+                if(!/Mobi/.test(navigator.userAgent)) return;
                 this.$.files.click();
             }
         })

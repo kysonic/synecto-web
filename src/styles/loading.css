@@ -6,11 +6,6 @@
     height: 100vh;
 }
 
-.title, .message {
-    text-transform: none !important;
-    font-weight: 100 !important;
-}
-
 @-webkit-keyframes uil-reload-css {
     0% {
         -ms-transform: rotate(0deg);

@@ -57,10 +57,6 @@
                 text-decoration: underline;
             }
 
-            .dropdown-content ::content * {
-                overflow: auto;
-            }
-
             iron-dropdown {
                 @apply(--designmap-dropdown-iron-dropdown-mixin);
             }
@@ -129,6 +125,12 @@
                 top: 7px;
                 border-width: 5px 10px 5px 0;
                 border-color: transparent var(--gray-color) transparent transparent;
+            }
+
+            @media (min-device-width: 320px) and (max-device-width: 1366px) {
+                .dropdown-content ::content * {
+                    overflow: auto;
+                }
             }
         </style>
         <iron-dropdown id="dropdown"

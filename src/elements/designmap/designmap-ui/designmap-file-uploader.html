@@ -5,6 +5,8 @@
 <link rel="import" href="../../../redux/actions/files-actions.html">
 <link rel="import" href="../designmap-buttons/designmap-file-button.html">
 
+<link rel="import" href="../designmap-tutorial/designmap-hint-service.html">
+
 <dom-module id="designmap-file-uploader">
     <template>
         <style>
@@ -226,6 +228,7 @@
                 Polymer.DesignMapMessagesBehavior,
                 Polymer.DesignMapFsService,
                 Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapHintService,
                 Polymer.FilesActions
             ],
             storageNames: {
@@ -389,16 +392,10 @@
                 this.fire('done',uploadedFiles);
                 this.closeForm();
                 // Hints
-                const tutorial = document.querySelector('designmap-app').$.fsTutorial;
-                if(tutorial && tutorial.isRunning=='addFile') {
-                    tutorial.close();
-                    this.async(function(){
-                        const elements = this._findElement('fsView.fs.elements');
-                        elements.hintFileTarget = elements.$$('*[data-element-id="'+uploadedFiles[0]._id+'"]');
-                        tutorial.thumbUp();
-                        this.async(function(){tutorial.next();},500);
-                    },100);
-                }
+                this.doneHint('addFile','fs',function(){
+                    const elements = this._findElement('fsView.fs.elements');
+                    elements.hintFileTarget = elements.$$('*[data-element-id="'+uploadedFiles[0]._id+'"]');
+                }.bind(this));
             },
             /**
              * Checkout all files in current folder regarding names matches.

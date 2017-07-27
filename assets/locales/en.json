@@ -195,7 +195,7 @@
     "message": "There is no any opened project here."
   },
   "Folder #NAME# was removed.": {
-    "message": "Folder \"#NAME#\" was removed."
+    "message": "Folder \"#NAME#\" was removed in trash."
   },
   "selected": {
     "message": "selected"
@@ -204,7 +204,7 @@
     "message": "File \"#FILE#\" was uploaded."
   },
   "File was removed successfuly.": {
-    "message": "File \"#FILE#\" was removed."
+    "message": "File \"#FILE#\" was removed in trash."
   },
   "File was renamed successfuly.": {
     "message": "File \"#OLDNAME#\" was renamed to #NEWNAME#."
@@ -1167,7 +1167,7 @@
     "message": "You do not have tasks yet..."
   },
   "There is no selected project yet...": {
-    "message": "You do not have a project yet..."
+    "message": "Select a project in left menu or create new one..."
   },
   "Trash bin is empty...": {
     "message": "Trash bin is empty..."
@@ -1335,13 +1335,13 @@
     "message": "Call colleagues, observe their actions in real time."
   },
   "protocolShowCaseOneMsg": {
-    "message": "Comments and notes will not be lost: just add it in protocol."
+    "message": "When discussing over tasks or files is finished you can create new <b>protocol of discussion</b> which will contain all important tasks, comments and theses regarding your discussion. All entities added to protocol cannot be removed!"
   },
   "Subscribe on premium": {
     "message": "Subscribe on premium"
   },
   "Faster": {
-    "message": "I want this feature quicker!"
+    "message": "Make this quicker!"
   },
   "call": {
     "message": "\"Calls\""
@@ -1393,6 +1393,9 @@
   },
   "onHome": {
     "message": "main page"
+  },
+  "Thank you! We will try to do it quicker!": {
+    "message": "Thank you! Your opinion is matters for us and probably your voice can be decisive to apply new functionality on this service."
   },
   "Speed up": {
     "message": "Speed up"
@@ -1454,8 +1457,8 @@
   "up to": {
     "message": "up to"
   },
-  "Estimate": {
-    "message": "Estimate difficulty of task"
+  "title": {
+    "message": "Estimate difficulty of task in story points"
   },
   "Select folder to upload file in": {
     "message": "Upload file in "
@@ -1582,5 +1585,8 @@
   },
   "Team": {
     "message": "Team"
+  },
+  "There is no description": {
+    "message": "There is no description. Project owner or task owner can fill it..."
   }
 }

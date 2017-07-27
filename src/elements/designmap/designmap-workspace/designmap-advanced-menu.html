@@ -161,12 +161,12 @@
             display: none;
         }
         .chat-ico {
-            width: 30px !important;
-            height: 30px !important;
-            padding: 10px !important;
+            width: 28px !important;
+            height: 28px !important;
+            padding: 12px !important;
         }
         .text.chat-text {
-            margin-left: 1px;
+            margin-left: 5px;
         }
         .project-name {
             height: 50px;
@@ -180,11 +180,12 @@
             overflow: hidden;
             text-overflow: ellipsis;
             color: var(--gray-darkend-color);
-            font-weight: 500;
+            font-size: 19px;
         }
         .project-name .icon-wrapper {
             position: absolute;
             left: 100%;
+            top: 0;
             margin-left: -30px;
             cursor: pointer;
         }
@@ -333,13 +334,6 @@
             &lt;!&ndash;<iron-icon dialog-dismiss class="dialog-close" icon="icons:close"></iron-icon>&ndash;&gt;
         </paper-dialog>-->
 
-        <!-- Showcase dialog -->
-        <!--<paper-dialog no-cancel-on-outside-click id="protocolShowCaseDialog" class="showcase-dialog" entry-animation="scale-up-animation"
-                      exit-animation="scale-down-animation">
-            <designmap-showcase name="protocol" items="[[protocolShowCaseItems]]"></designmap-showcase>
-           &lt;!&ndash; <iron-icon dialog-dismiss class="dialog-close" icon="icons:close"></iron-icon>&ndash;&gt;
-        </paper-dialog>-->
-
     </template>
     <script>
         Polymer({
@@ -397,19 +391,6 @@
                         return folders.concat(files).length;
                     }
                 },
-                taskManagerShowCaseItems: {
-                    type: Array,
-                    value: [
-                        {icon: 'designmap-showcase:task-manager-one',message:'taskManagerPremiumOneMsg'},
-                        {icon: 'designmap-showcase:task-manager-two',message:'taskManagerPremiumTwoMsg'}
-                    ]
-                },
-                protocolShowCaseItems: {
-                    type: Array,
-                    value: [
-                        {icon:'designmap-showcase:protocol',message:'protocolShowCaseOneMsg'}
-                    ]
-                },
                 MQ: {
                     type: String,
                     statePath: 'MQ'
@@ -417,7 +398,6 @@
             },
             listeners: {
                 'close-share-dialog':'closeShareDialog',
-                'close-showcase-dialog':'closeShowCaseDialog',
                 'on-resize':'_recalculateSharingPopup'
             },
             openProjectList: function (e) {
@@ -431,7 +411,7 @@
                 page.redirect('/'+(this.projectId||'')+'/task-manager/');
             },
             goToProtocol: function(){
-                if(!this.user.isPremium) return this.$.protocolShowCaseDialog.open();
+               this.fire('open-protocol-showcase')
             },
             goToTrashBox: function (e) {
                 if (e.currentTarget.getAttribute('disabled') != undefined) return this.showErrorMessage('You do not have access to make it');
@@ -519,11 +499,6 @@
             _mouseLeave: function(e){
                 const target = e.currentTarget;
                 target.querySelector('designmap-circle-button').classList.remove('hovered');
-            },
-            closeShowCaseDialog: function(){
-                this.$.taskManagerShowCaseDialog.close();
-                this.$.protocolShowCaseDialog.close();
-                this.$.sharingDialog.close();
             },
             _closeMenu: function(){
                 if(!this.isMobile() || this.MQ!='sm') return;

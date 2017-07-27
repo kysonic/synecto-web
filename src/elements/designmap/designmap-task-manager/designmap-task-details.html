@@ -461,7 +461,7 @@
 
             /** INPUTS **/
 
-            .pure-input {
+            .pure-input, .task-title {
                 font-family: var(--font-family);
                 font-weight: 100;
                 font-size: 34px;
@@ -471,6 +471,7 @@
                 margin-top: 10px;
                 width: 100%;
             }
+
 
             .pure-input.bread {
                 font-size: 26px;
@@ -490,6 +491,17 @@
                     padding-bottom: 5px;
                     height: 40px;
                 }
+            }
+
+            .task-desc {
+                margin-left: 20px;
+                font-family: var(--font-family);
+                color: var(--gray-darky-color);
+                max-width: calc(100% - 30px);
+                font-weight: 100;
+                font-size: 18px;
+                padding-bottom: 5px;
+                white-space: pre-line;
             }
 
             /** Sub tasks **/
@@ -983,6 +995,7 @@
                                on-focus="hideCommentsOnMobile"
                                class$="pure-input [[calculateBCStyle(breadcrumbs.length)]]"
                                placeholder="[[translate('Enter title',language,i18Loaded)]]"
+                               hidden$="[[!canRemoveTask(task)]]"
                                value="[[task.name]]"/>
                         <!-- Hint -->
                         <designmap-hint id="changeTaskTitleHint" previous name="changeTaskTitle" vertical-offset="60"
@@ -994,18 +1007,11 @@
                                 <i18-n msgid="changeTaskTitleMsg">changeTaskTitleMsg</i18-n>
                             </div>
                         </designmap-hint>
+                        <div hidden$="[[canRemoveTask(task)]]" class="task-title">[[task.name]]</div>
                         <!-- Hint-->
                         <iron-a11y-keys keys="ctrl+enter meta+enter" on-keys-pressed="saveTitle"></iron-a11y-keys>
                     </div>
                     <div class="panel">
-                        <!--<designmap-circle-button id="date-button" class="hidden-xs" hidden$="[[!canUpdateTask(task)]]"
-                                                 on-click="openDatePicker">
-                            <iron-icon class="panel-icon" icon="designmap-task-manager:date"></iron-icon>
-                            <div class="date-popup">
-                                [[formatDate(date)]]
-                                <div class="triangle"></div>
-                            </div>
-                        </designmap-circle-button>-->
                         <designmap-circle-button id="statusButton" class="status-button hidden-xs"
                                                  on-click="changeStatus">
                             <iron-icon class="status-icon" icon="[[computeIcon(task.status,task.expired)]]"></iron-icon>
@@ -1091,15 +1097,15 @@
                             <div class="triangle-border"></div>
                         </div>
                     </div>
-                    <div id="trackTime" hidden$="[[!isAssignee(task)]]" class="track-time">
+                    <div id="trackTime" hidden$="[[!canRemoveTask(task)]]" class="track-time">
                         <div id="timeValue" class="time">
                             [[_computeTime(task.time,spentTime)]]
                             <i18-n msgid="spent">spent</i18-n>
                         </div>
-                        <div class="button" on-tap="trackTime">
+                        <div class="button" on-tap="trackTime" hidden$="[[!isAssignee(task)]]">
                             <iron-icon id="trackButton" icon="[[_computeTimeIcon(task.time)]]"></iron-icon>
                         </div>
-                        <div class="button" hidden$="[[!task.time.spent]]" on-tap="openClearTimeDialog">
+                        <div class="button" hidden$="[[!_spentAndAssignee(task.time.spent,task)]]" on-tap="openClearTimeDialog">
                             <iron-icon id="clearTimeButton" icon="icons:clear"></iron-icon>
                         </div>
                     </div>
@@ -1131,6 +1137,7 @@
                                       on-change="_descChange"
                                       on-focus="hideCommentsOnMobile"
                                       on-blur="saveDesc" value="[[task.description]]"
+                                      hidden$="[[!canRemoveTask(task)]]"
                                       placeholder="[[translate('Enter description',language,i18Loaded)]]"></plastic-textarea>
                     <!-- Hint -->
                     <designmap-hint id="changeTaskDescHint" previous name="changeTaskDesc" vertical-offset="60"
@@ -1143,6 +1150,8 @@
                         </div>
                     </designmap-hint>
                     <!-- Hint-->
+                    <div hidden$="[[canRemoveTask(task)]]" class="task-desc">[[_generateDesc(task.description)]]</div>
+
                 </div>
                 <!-- Files -->
                 <div class="third-line">
@@ -2199,6 +2208,9 @@
             },
             _getTaskStatus: function(status){
                 return this.translate('Status: ')+'"'+this.translate(status)+'"';
+            },
+            _generateDesc: function(desc){
+                return desc || this.translate('There is no description')
             }
         })
     </script>

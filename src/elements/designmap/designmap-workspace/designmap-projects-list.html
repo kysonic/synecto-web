@@ -5,6 +5,8 @@
 <link rel="import" href="../../../styles/context-menu-shared-styles.html">
 <link rel="import" href="../designmap-ui/designmap-confirm.html">
 <link rel="import" href="../designmap-fs/designmap-fs-service.html">
+<!-- Styles -->
+<link rel="import" href="../../../styles/context-menu-shared-styles.html">
 
 <link rel="import" href="../../../redux/actions/combine-actions.html">
 <link rel="import" href="../../../redux/actions/project-actions.html">
@@ -25,6 +27,10 @@
                 --designmap-project-list-hover-icon: var(--gray-lightenest-color);
                 --designmap-tab-background: var(--primary-color);
                 --designmap-tab-color: var(--white-color);
+
+                --paper-input-container-color: var(--white-color);
+                --paper-input-container-focus-color: var(--white-color);
+                --paper-input-container-input: {  color: var(--white-color);  };
             }
 
             *[hidden] {
@@ -44,6 +50,7 @@
                 padding: 15px;
                 cursor: pointer;
                 pointer-events: auto;
+                text-transform: none;
             }
 
             .tabs .title[disabled] {
@@ -69,6 +76,7 @@
                 padding: 10px 15px;
                 cursor: pointer;
                 transition: background .2s ease-in;
+                text-transform: none;
             }
 
             .list li:hover {
@@ -78,7 +86,7 @@
             }
 
             .list li.selected {
-                font-weight: bold;
+                font-weight: 900 !important;
                 transition: background .2s ease-in;
             }
 

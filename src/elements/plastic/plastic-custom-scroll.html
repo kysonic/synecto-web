@@ -14,7 +14,8 @@
 
             .content {
                 display: block;
-                height: 100%;
+                min-height: 100%;
+                flex: 1 0 0;
                 overflow: hidden;
                 position: relative;
                 @apply(--plastic-custom-scroll-content-mixin);
@@ -159,7 +160,7 @@
 
                         _this.async(function () {
                             _this.$.content.scrollTop += delta / _this.scrollRatio;
-                            this.fire('scroll',{target:_this.$.content,scrollTop:_this.$.content.scrollTop});
+                            this.fire('plastic-scroll',{target:_this.$.content,scrollTop:_this.$.content.scrollTop});
                         });
                         _this.calculate();
                     }
@@ -198,7 +199,7 @@
                 if (parseFloat(this.scrollRatio.toFixed(2)) > this.limit) return;
                 var power = scrollRatio * 30;
                 target.scrollTop += this.scrollRatio * power;
-                this.fire('scroll',{target:target,scrollTop:target.scrollTop});
+                this.fire('plastic-scroll',{target:target,scrollTop:target.scrollTop});
             },
             /**
              * Scroll basic area up
@@ -209,7 +210,7 @@
                 if (parseFloat(this.scrollRatio.toFixed(2)) > this.limit) return;
                 var power = scrollRatio * 30;
                 target.scrollTop -= this.scrollRatio * power;
-                this.fire('scroll',{target:target,scrollTop:target.scrollTop});
+                this.fire('plastic-scroll',{target:target,scrollTop:target.scrollTop});
             },
             _onIronResize: function () {
                 this.calculate();
@@ -263,7 +264,7 @@
             },
             scrollThat: function(e){
                 if(!this.isMobileDevice()) return;
-                this.fire('scroll',{target:this.$.content,scrollTop:this.$.content.scrollTop});
+                this.fire('plastic-scroll',{target:this.$.content,scrollTop:this.$.content.scrollTop});
             },
             isMobileDevice: function(){
                 return /Mobi/.test(navigator.userAgent);

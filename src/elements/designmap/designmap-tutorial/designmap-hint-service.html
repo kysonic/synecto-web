@@ -5,14 +5,14 @@
      * @type {{}}
      */
     Polymer.DesignMapHintService = {
-        doneHint: function (hintName,tutorial,cb) {
+        doneHint: function (hintName,tutorial,cb,doNotNext) {
             var tutorial = document.querySelector('designmap-app').$[tutorial+'Tutorial'];
             if(tutorial && tutorial.isRunning==hintName) {
                 tutorial.close();
                 this.async(function(){
                     if(cb) cb();
                     tutorial.thumbUp();
-                    this.async(function(){tutorial.next();},500);
+                    if(!doNotNext) this.async(function(){tutorial.next();},500);
                 },100);
             }
         },

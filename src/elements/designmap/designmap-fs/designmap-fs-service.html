@@ -46,16 +46,10 @@
                 // Message
                 this.showUndoMessage('Folder adding had been successful.');
                 // Hints
-                const tutorial = document.querySelector('designmap-app').$.fsTutorial;
-                if(tutorial && tutorial.isRunning=='createFolder') {
-                    tutorial.close();
-                    this.async(function(){
-                        const elements = this._findElement('fsView.fs.elements');
-                        elements.hintFolderTarget = elements.$$('*[data-element-id="'+response.folder._id+'"]');
-                        tutorial.thumbUp();
-                        this.async(function(){tutorial.next();},500);
-                    },100);
-                }
+                this.doneHint('createFolder','fs',function(){
+                    const elements = this._findElement('fsView.fs.elements');
+                    elements.hintFolderTarget = elements.$$('*[data-element-id="'+response.folder._id+'"]');
+                }.bind(this));
             }.bind(this)).catch(this.manageErrorResponse.bind(this));
         },
         /**
@@ -71,17 +65,7 @@
                     '#NEWNAME#': e.detail.data.name
                 });
                 // Hints
-                const tutorial = document.querySelector('designmap-app').$.fsTutorial;
-                if(tutorial && tutorial.isRunning=='openContextMenu') {
-                    tutorial.close();
-                    this.async(function(){
-                        tutorial.thumbUp();
-                        this.async(function(){
-                            tutorial.next();
-                            this.$$('#contextMenu').close();
-                        },500);
-                    },100);
-                }
+                this.doneHint('openContextMenu','fs')
             }.bind(this)).catch(this.manageErrorResponse.bind(this));
         },
         /**

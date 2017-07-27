@@ -382,7 +382,7 @@
                 // Start FileSystem tutorial
                 if(this.tasks && this.tasks.length) return;
                 const MQ = ReduxStore.getState().MQ;
-                if(this.user && this.user.system && this.user.system.tutorials && !this.user.system.tutorials.tm && MQ!='sm') {
+                if(this.user && this.user.system && this.user.system.tutorials && this.user.system.tutorials.tm && MQ!='sm') {
                     const user = Object.assign({},this.user);
                     const tutorial = document.querySelector('designmap-app').$.tmTutorial;
                     user.system.tutorials.tm = true;

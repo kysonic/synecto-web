@@ -13,6 +13,7 @@
 <!-- Services -->
 <link rel="import" href="./designmap-fs-service.html">
 <link rel="import" href="../../../behaviors/designmap-socket-behavior.html">
+<link rel="import" href="../designmap-tutorial/designmap-hint-service.html">
 <!-- Redux -->
 <link rel="import" href="../../../redux/actions/project-actions.html">
 <link rel="import" href="../../../redux/actions/folders-actions.html">
@@ -133,7 +134,7 @@
             }
 
         </style>
-        <div class="dashboard" hidden$="[[_computePanelState(projectId, project.error)]]">
+        <div class="dashboard" >
             <div class="arrow-back" hidden$="[[!trashMode]]" on-click="goBack">
                 <iron-icon icon="designmap-workspace:open"></iron-icon>
             </div>
@@ -214,6 +215,7 @@
                 // Services
                 Polymer.DesignMapFsService,
                 Polymer.DesignmapSocketBehavior,
+                Polymer.DesignMapHintService,
                 // Redux
                 ReduxBehavior,
                 Polymer.CombineActions(
@@ -422,6 +424,9 @@
              */
             shouldWeShowElements: function (project) {
                 return project && project._id && !project.error && !project.loading;
+            },
+            shouldWeShowEmptyMessage: function (project) {
+                return !project || !project._id;
             },
             setCuttedElement: function(e){
                 if(this.cutted) {

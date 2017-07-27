@@ -10,6 +10,7 @@
 <link rel="import" href="../../../redux/actions/files-actions.html">
 <!-- Services -->
 <link rel="import" href="./designmap-fs-service.html">
+<link rel="import" href="../designmap-tutorial/designmap-hint-service.html">
 
 <dom-module id="designmap-fs-elements">
     <template>
@@ -26,7 +27,7 @@
                 --designmap-hidden-panel: {
                     height: var(--header-height);
                     background: var(--blue-color);
-                    z-index: 99;
+                    z-index: 999;
                 };
                 --plastic-custom-scroll-content-mixin: {
                     display: flex;
@@ -221,7 +222,7 @@
                             <i18-n msgid="Restore">Restore</i18-n>
                         </li>
                     </template>
-                    <li on-click="cutElement">
+                    <li on-click="cutElement" hidden$="[[trashMode]]">
                         <i18-n msgid="Cut">Cut</i18-n>
                     </li>
                     <li on-click="openInformation">
@@ -308,6 +309,7 @@
             behaviors: [
                 Polymer.DesignMapMessagesBehavior,
                 Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapHintService,
                 Polymer.DesignMapFsService,
                 ReduxBehavior,
                 Polymer.CombineActions(Polymer.FoldersActions,Polymer.FilesActions)
@@ -329,7 +331,7 @@
                  */
                 allowedExtensions: {
                     type: Array,
-                    value: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr", ".ppm", ".pbm",".ai",".psd",".eps",".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx"]
+                    value: []
                 },
                 /**
                  * Selected elements
@@ -545,13 +547,12 @@
             executeFileAction: function (file) {
                 const tutorial = document.querySelector('designmap-app').$.fsTutorial;
                 // Hint
-                if(tutorial && tutorial.isRunning=='openFile') {
-                    tutorial.close();
+                this.doneHint('openFile','fs',function(){
                     this.async(function(){
-                        document.querySelector('designmap-app').$.galleryView.$.gallery.showHint = true;
-                        tutorial.thumbUp();
+                        const gallery = this._findElement('galleryView.gallery');
+                        gallery.showHint = true;
                     },500);
-                }
+                }.bind(this), true);
                 // Git
                 page.redirect('/gallery/'+file._id);
             },

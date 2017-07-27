@@ -24,7 +24,6 @@
                   placeholder="[[placeholder]]"
                   on-keyup="_onChange"
                   on-keydown="_onKeydown"
-                  on-track="_track"
                   value="{{value::input}}"
         ></textarea>
     </template>
@@ -69,8 +68,9 @@
                 this.async(function(){autosize.update(this.$.textarea)},0);
             },
             _track: function(e){
-                if(/Mobi/.test(navigator.userAgent)) return;
-                e.stopPropagation();
+                //alert(navigator.userAgent);
+                //if(/Mobi/.test(navigator.userAgent)) return;
+                //e.stopPropagation();
             }
         });
     </script>

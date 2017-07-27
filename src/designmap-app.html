@@ -30,6 +30,7 @@
 <link rel="import" href="elements/designmap/designmap-notifications/designmap-notifier.html">
 <link rel="import" href="elements/designmap/designmap-tutorial/designmap-tutorial.html">
 <link rel="import" href="elements/plastic/plastic-media-query.html">
+<link rel="import" href="elements/designmap/designmap-ui/designmap-stub.html">
 <!-- Configs -->
 <link rel="import" href="config/designmap-app-config.html">
 <!-- Styles -->
@@ -123,6 +124,21 @@
                 --app-drawer-width: var(--chat-width);
             }
 
+            .error {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: var(--white-color);
+            }
+
+            @media (min-width: 320px) and (max-width: 768px) {
+                .showcase-dialog {
+                    min-width: 320px;
+                }
+            }
+
         </style>
         <!-- Keys -->
         <iron-a11y-keys id="a11yUndo" keys="(ctrl||cmd)+z" target="[[keysTarget]]" on-keys-pressed="undo"></iron-a11y-keys>
@@ -145,6 +161,13 @@
         <!-- Confirms -->
         <designmap-confirm id="removeProjectConfirm" message="AreYouSureThatYouWannaRemoveProject"
                            on-continue="removeIt" on-suspend="suspendRemoving"></designmap-confirm>
+
+        <!-- Protocol showcase dialog -->
+        <paper-dialog no-cancel-on-outside-click id="protocolShowcaseDialog" class="showcase-dialog" entry-animation="scale-up-animation"
+                      exit-animation="scale-down-animation">
+            <designmap-showcase name="protocol" faster items="[[protocolShowCaseItems]]"></designmap-showcase>
+        </paper-dialog>
+
 
         <app-drawer-layout fullbleed responsive-width="770px">
             <!-- Drawer content -->
@@ -186,6 +209,12 @@
                     <designmap-login-view name="login"></designmap-login-view>
                     <designmap-404 name="404"></designmap-404>
                 </iron-pages>
+                <!-- Error -->
+                <div class="error" hidden$="[[!error]]">
+                    <designmap-stub image="designmap-workspace-stub:error" message="[[translate(error,language,i18Loaded)]]"
+                                    error></designmap-stub>
+                </div>
+                <!-- Error -->
                 <!-- Info -->
                 <app-drawer id="right" align="end" opened="{{rightOpened}}">
                     <designmap-chat hidden$="[[!chatMode]]" opened="[[_computeOpened(chatMode,rightOpened)]]" id="chat"></designmap-chat>
@@ -252,6 +281,10 @@
                     type: Object,
                     statePath: 'project'
                 },
+                error: {
+                    type: String,
+                    value: ''
+                },
                 isAuth: {
                     type: Boolean,
                     computed: '_computeIsAuth(user)',
@@ -264,6 +297,10 @@
                 language: {
                     type: String,
                     computed: '_computeLanguage(user.system.language)'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    value: false
                 },
                 keysTarget: {
                     type: Object,
@@ -295,7 +332,13 @@
                         'taskManagerView.taskManager.details.changeTaskDescHint',
                         'taskManagerView.taskManager.details.assigneeHint',
                         'taskManagerView.taskManager.details.statusHint',
-                        'taskManagerView.taskManager.details.endingHint',
+                        'taskManagerView.taskManager.details.endingHint'
+                    ]
+                },
+                protocolShowCaseItems: {
+                    type: Array,
+                    value: [
+                        {icon:'designmap-showcase:protocol',message:'protocolShowCaseOneMsg'}
                     ]
                 }
             },
@@ -312,7 +355,9 @@
                 'open-sharing':'_openSharing',
                 'open-project-remove':'_openProjectRemoveConfirm',
                 'iron-resize': '_onResize',
-                'socket-connected': 'socketConnected'
+                'socket-connected': 'socketConnected',
+                'open-protocol-showcase': 'openProtocolShowcase',
+                'close-showcase-dialog':'closeShowCaseDialog'
             },
 
 
@@ -324,6 +369,7 @@
                 }.bind(this));
                 // Update languages
                 this.$.i18nDomain.addEventListener('i18-n-locale-ready', function () {
+                    this.i18Loaded = true;
                     ReduxStore.dispatch({type: "UPDATE_I18_LOADED", i18Loaded: true});
                 });
             },
@@ -399,10 +445,12 @@
                 this.loading = true;
                 this.dispatch('getProject', projectId).then(function (response) {
                     if (!response.success) throw response.errors;
+                    this.error = '';
                     this.updateProject(response.project);
                 }.bind(this)).catch(function (err) {
                     this.loading = false;
                     const errorMessage = err.message || err + (err.stack ? err.stack : '');
+                    this.error = errorMessage;
                 }.bind(this));
             },
 
@@ -591,6 +639,14 @@
 
             socketConnected: function(e){
                 if(e.detail.type=='project') this.$.chat.setupSocketAction();
+            },
+
+            openProtocolShowcase: function(){
+                this.$.protocolShowcaseDialog.open();
+            },
+
+            closeShowCaseDialog: function(){
+                this.$.protocolShowcaseDialog.close();
             }
         });
     </script>

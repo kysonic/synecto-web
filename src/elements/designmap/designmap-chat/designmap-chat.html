@@ -56,6 +56,7 @@
             }
 
             .scroll {
+                display: flex;
                 margin-top: 50px;
                 flex: 2;
                 overflow: auto;
@@ -244,6 +245,11 @@
                 background-size: 50px;
                 margin-top: 20px;
             }
+            :host(.safari) {
+                --plastic-custom-scroll-content-mixin:{
+                    height: calc(100vh - 115px);
+                }
+            }
             @media (min-width: 320px) and (max-width: 768px) {
                 .scroll {
                     margin-top: 0;
@@ -259,7 +265,7 @@
                 }
             }
         </style>
-        <plastic-custom-scroll id="scroll" on-scroll="scroll" class="scroll" small-bar fit>
+        <plastic-custom-scroll id="scroll" on-plastic-scroll="scroll" class="scroll" small-bar fit>
             <!--<template is="dom-if" if="[[dashboard]]">
                 <designmap-dashboard back>
                     <div class="title">
@@ -275,8 +281,10 @@
                 </div>
                 <template is="dom-repeat" items="[[messages]]" as="message" sort="[[_sortMessages(sortWay)]]">
                     <div data-id$="[[message._id]]" class$="message [[_computeMessageClass(message,user)]]">
-                        <designmap-avatar-projector title="[[computeUserName(user)]]" user="[[message.owner]]"
-                                                    class="projector"></designmap-avatar-projector>
+                        <template is="dom-if" if="[[_isFirst(message)]]">
+                            <designmap-avatar-projector title="[[computeUserName(user)]]" user="[[message.owner]]"
+                                                        class="projector"></designmap-avatar-projector>
+                        </template>
                         <div class="text">
                             <span>[[message.text]]</span>
                             <div class="balloon-tick"></div>
@@ -408,6 +416,7 @@
                 '_messagesChanged(messages.length)'
             ],
             ready: function () {
+                //if(/Safari/.test(navigator.userAgent)) this.classList.add('safari');
                 this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 // Load sound
                 var xhr = new XMLHttpRequest();
@@ -484,6 +493,14 @@
                 });
                 return this._isAnothers(message, user) ? 'own' : 'anothers';
             },
+            _isFirst: function(message){
+                const messages = this.messages.sort(function (a, b) {
+                    return new Date(a.created) - new Date(b.created);
+                });
+                const prevMessage = messages[messages.indexOf(message) - 1];
+                if(!prevMessage) return true;
+                return prevMessage.owner._id!=message.owner._id;
+            },
             _firstMessageDate: function () {
                 const messages = this.messages.sort(function (a, b) {
                     return new Date(a.created) - new Date(b.created);
@@ -497,6 +514,8 @@
             _createDateNode: function (msgNode, message) {
                 const div = document.createElement('div');
                 div.classList.add('date-delimiter');
+                div.classList.add('style-scope');
+                div.classList.add('designmap-chat');
                 const span = document.createElement('span');
                 span.innerText = moment(message.created).format('YYYY-MM-DD');
                 div.appendChild(span);
@@ -605,7 +624,7 @@
                             const msgNode = this.$.messages.querySelector('[data-id="' + next._id + '"]');
                             if (msgNode.previousElementSibling && msgNode.previousElementSibling.classList.contains('date-delimiter')) return;
                             this._createDateNode(msgNode, next);
-                        }, 100)
+                        })
                     }
                 }
             }

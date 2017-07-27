@@ -142,6 +142,9 @@
         isAssignee: function(task){
             if(!this.user) return false;
             return this.user._id==task.assignee || (task.assignee && this.user._id==task.assignee._id);
+        },
+        _spentAndAssignee: function(spent, task){
+            return spent && this.isAssignee(task);
         }
     }
 </script>
