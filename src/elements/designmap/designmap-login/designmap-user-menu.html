@@ -14,6 +14,7 @@
 <link rel="import" href="../../../redux/actions/notifications-actions.html">
 <!-- Icons -->
 <link rel="import" href="../designmap-icons/designmap-user-menu-icons.html">
+<link rel="import" href="/bower_components/iron-icons/social-icons.html">
 
 <dom-module id="designmap-user-menu">
     <template>
@@ -189,6 +190,10 @@
                 display: none !important;
             }
 
+            .row {
+                text-decoration: none;
+            }
+
             .indicator {
                 display: none;
             }
@@ -223,6 +228,21 @@
                 };
             }
 
+            .upgrade {
+                color: var(--white-color);
+                font-size: 14px;
+                padding: 5px 10px;
+                background: var(--expired);
+                border-radius: 4px;
+                margin-right: 20px;
+                text-decoration: none;
+                transition: .2s background;
+            }
+            .upgrade:hover {
+                background: var(--expired-dark);
+                transition: .2s background;
+            }
+
             @media screen and (min-width: 320px) and (max-width: 768px) {
                 :host {
                     --designmap-dropdown-triangle-mixin: {
@@ -240,7 +260,7 @@
                     };
                 }
 
-                .question, .email, .block.notification, .chat {
+                .question, .email, .block.notification, .chat, .upgrade {
                     display: none;
                 }
 
@@ -282,6 +302,9 @@
                     </div>
                 </div>
                 <paper-tooltip for="support"><i18-n msgid="Support">Support</i18-n></paper-tooltip>-->
+                <a href="/activate" class="block upgrade" id="upgrade" >
+                   <i18-n msgid="Upgrade">Upgrade</i18-n>
+                </a>
                 <div class="block notification" id="notify" on-tap="openNotifyDropdown">
                     <div class="notify">
                         <iron-icon icon="designmap-user-menu:notify"></iron-icon>
@@ -316,46 +339,57 @@
                     </div>
                     <div class="indicator" hidden$="[[_areThereNotReadNotifications(notifications.*)]]"></div>
                 </div>
+                <!-- Account menu -->
+                <designmap-dropdown id="dropdown" previous use-capture="true" tri-border horizontal-offset="[[horizontalOffset]]"
+                                    vertical-offset="[[verticalOffset]]">
+                    <div class="row" on-tap="goToProfile">
+                        <!-- designmap-user-menu:settings -->
+                        <iron-icon icon="icons:settings"></iron-icon>
+                        <div class="text">
+                            <i18-n msgid="Account Settings">Account Settings</i18-n>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <!-- designmap-user-menu:language -->
+                        <iron-icon icon="icons:translate"></iron-icon>
+                        <designmap-language-switcher></designmap-language-switcher>
+                    </div>
+                    <div class="row notify" on-tap="goToNotification">
+                        <!-- designmap-user-menu:notify -->
+                        <iron-icon icon="social:notifications"></iron-icon>
+                        <div class="text">
+                            <i18-n msgid="Notifications">Notifications</i18-n>
+                            &nbsp;<span hidden$="[[_areThereNotReadNotifications(notifications.*)]]">([[_getNotReadNotifications(notifications.*)]])</span></div>
+                    </div>
+                    <div class="row support" on-tap="goToDocs">
+                        <iron-icon icon="icons:question-answer"></iron-icon>
+                        <div class="text">
+                            <i18-n msgid="Support">Support</i18-n>
+                        </div>
+                    </div>
+                    <div class="row" on-tap="goToPlans">
+                        <iron-icon icon="icons:assignment"></iron-icon>
+                        <div class="text">
+                            <i18-n msgid="Plans">Plans</i18-n>
+                        </div>
+                    </div>
+                    <div class="row" on-tap="goToTypeForm">
+                        <!-- designmap-user-menu:feedback -->
+                        <iron-icon icon="icons:feedback"></iron-icon>
+                        <div class="text">
+                            <i18-n msgid="Leave a feedback">Leave a feedback</i18-n>
+                        </div>
+                    </div>
+                    <div class="row" on-tap="logout" id="logout">
+                        <!-- designmap-user-menu:sign_out exit-to-app-->
+                        <iron-icon icon="icons:exit-to-app"></iron-icon>
+                        <div class="text">
+                            <i18-n msgid="SignOut">Sign out</i18-n>
+                        </div>
+                    </div>
+                </designmap-dropdown>
+                <!-- Account menu -->
             </div>
-            <!-- Account menu -->
-            <designmap-dropdown id="dropdown" use-capture="true" tri-border horizontal-offset="[[horizontalOffset]]"
-                                vertical-offset="[[verticalOffset]]">
-                <div class="row" on-tap="goToProfile">
-                    <iron-icon icon="designmap-user-menu:settings"></iron-icon>
-                    <div class="text">
-                        <i18-n msgid="Account Settings">Account Settings</i18-n>
-                    </div>
-                </div>
-                <div class="row">
-                    <iron-icon icon="designmap-user-menu:language"></iron-icon>
-                    <designmap-language-switcher></designmap-language-switcher>
-                </div>
-                <div class="row notify" on-tap="goToNotification">
-                    <iron-icon icon="designmap-user-menu:notify"></iron-icon>
-                    <div class="text">
-                        <i18-n msgid="Notifications">Notifications</i18-n>
-                        &nbsp;<span hidden$="[[_areThereNotReadNotifications(notifications.*)]]">([[_getNotReadNotifications(notifications.*)]])</span></div>
-                </div>
-                <div class="row support" on-tap="goToDocs">
-                    <iron-icon icon="icons:question-answer"></iron-icon>
-                    <div class="text">
-                        <i18-n msgid="Support">Support</i18-n>
-                    </div>
-                </div>
-                <div class="row" on-tap="goToTypeForm">
-                    <iron-icon icon="designmap-user-menu:feedback"></iron-icon>
-                    <div class="text">
-                        <i18-n msgid="Leave a feedback">Leave a feedback</i18-n>
-                    </div>
-                </div>
-                <div class="row" on-tap="logout" id="logout">
-                    <iron-icon icon="designmap-user-menu:sign_out"></iron-icon>
-                    <div class="text">
-                        <i18-n msgid="SignOut">Sign out</i18-n>
-                    </div>
-                </div>
-            </designmap-dropdown>
-            <!-- Account menu -->
         </template>
     </template>
     <script>
@@ -386,11 +420,11 @@
                 },
                 verticalOffset: {
                     type: Number,
-                    value: 20
+                    value: 70
                 },
                 horizontalOffset: {
                     type: Number,
-                    value: -42
+                    value: -223
                 },
                 notifications: {
                     type: Array,
@@ -399,6 +433,11 @@
                 chatIsOpen: {
                     type: Boolean,
                     value: false
+                },
+                MQ: {
+                    type: String,
+                    statePath: 'MQ',
+                    observer: 'mqChanged'
                 }
             },
             openLoginDialog: function (e) {
@@ -430,6 +469,10 @@
             },
             goToDocs: function () {
                 page.redirect('/support');
+                this.$$("#dropdown").close();
+            },
+            goToPlans: function () {
+                page.redirect('/activate');
                 this.$$("#dropdown").close();
             },
             goToTypeForm: function () {
@@ -473,6 +516,9 @@
             _computeChatIsOpenClass: function(isOpen) {
                 this.async(this.updateStyles,10);
                 return isOpen?'opened':'';
+            },
+            mqChanged: function(MQ){
+                this.horizontalOffset = MQ=='sm'?-223:-80;
             }
         })
     </script>

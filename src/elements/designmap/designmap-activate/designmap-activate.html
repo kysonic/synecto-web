@@ -1,6 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-icon/iron-icon.html">
-<link rel="import" href="../designmap-icons/designmap-showcase-icons.html">
+<link rel="import" href="../designmap-buttons/designmap-button.html">
 <link rel="import" href="../../../behaviors/designmap-messages-behavior.html">
 <link rel="import" href="../designmap-ui/designmap-dashboard.html">
 <!-- Redux -->
@@ -15,16 +15,11 @@
             *[hidden] {
                 display: none !important;
             }
-            .content {
-                width: 500px;
-                text-align: center;
+            .wrapper > .content {
+                width: 85%;
+                padding: 0px 40px 40px 40px;
                 position: relative;
-                bottom: 50px;
-            }
-            .content iron-icon {
-                display: inline-block;
-                width: 250px;
-                height: 250px;
+                bottom: 30px;
             }
             .message {
                 position: relative;
@@ -38,6 +33,69 @@
                 align-items: center;
                 height: calc(100vh - 140px);
             }
+            /** PLANS **/
+
+            .plans {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .plan {
+                flex: 1;
+                height: auto;
+                box-shadow: 0px 5px 4px 0px rgba(0, 0, 0, 0.2);
+                color: var(--blue-darkest-color);
+                margin-left: 20px;
+                max-width: 380px;
+            }
+            .plan:first-child {
+                margin-left: 0;
+            }
+            .plan .header {
+                height: 80px;
+                background: var(--gray-lightern-color);
+                padding: 35px;
+                font-weight: 500;
+            }
+            .plan .header > * {
+                display: inline-block;
+            }
+
+            .plan .header .price {
+                font-size: 65px;
+            }
+            .plan .header .dollar {
+                font-size: 32px;
+                position: relative;
+                right: 3px;
+            }
+
+            .plan .header .name {
+                font-size: 34px;
+                margin-left: 10px;
+            }
+
+            .plan .content {
+                height: auto;
+                padding: 20px 40px;
+                background: var(--white-color);
+            }
+            .content .feature {
+                font-size: 18px;
+                margin-top: 10px;
+            }
+            .content .feature:first-child {
+                margin-top: 0;
+            }
+
+            .feature span {
+                font-weight: 500;
+            }
+
+            .button-set {
+                margin-top: 20px;
+                text-align: center;
+            }
 
         </style>
         <designmap-dashboard back back-url="[[_computeBackUrl(projectId)]]">
@@ -47,13 +105,46 @@
         </designmap-dashboard>
         <div class="wrapper">
             <div class="content">
-                <iron-icon icon="designmap-showcase:premium"></iron-icon>
+                <!--<iron-icon icon="designmap-showcase:premium"></iron-icon>
                 <div class="message">
                     <i18-n msgid="We are working">We are working</i18-n>
                 </div>
                 <button hidden$="[[quicker]]" style="margin-top: 0" on-click="speedUp" is="designmap-button" blue thin>
                     <i18-n msgid="Speed up">Speed up</i18-n>
-                </button>
+                </button>-->
+                <div class="plans">
+                    <template is="dom-repeat" items="[[plans]]" as="plan">
+                        <div class="plan">
+                            <div class="header">
+                                <div class="price">[[plan.price]]</div><span class="dollar">$</span>
+                                <div class="name">[[plan.name]]</div>
+                            </div>
+                            <div class="content">
+                                <div class="features">
+                                    <div class="feature">
+                                        <i18-n msgid="up to">up to</i18-n>
+                                        <span>[[plan.teamMembers]]</span>
+                                        <i18-n msgid="team members">team members</i18-n>
+                                    </div>
+                                    <div class="feature">
+                                        <span>[[_countDataSpace(plan.storage)]]</span>
+                                        <i18-n msgid="storage">storage</i18-n>
+                                    </div>
+                                    <template is="dom-repeat" items="[[plan.features]]" as="feature">
+                                        <div class="feature">
+                                            <i18-n msgid="[[feature]]">[[feature]]</i18-n>
+                                        </div>
+                                    </template>
+                                </div>
+                                <div class="button-set">
+                                    <button is="designmap-button" blue fit class="button">
+                                        <i18-n msgid="Upgrade now">Upgrade now</i18-n>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
             </div>
         </div>
     </template>
@@ -72,6 +163,41 @@
                 projectId: {
                     type: String,
                     statePath: 'projectId'
+                },
+                plans: {
+                    type: Array,
+                    value: [
+                        {
+                            name:'startup',
+                            teamMembers: 2,
+                            storage: 500,
+                            price: 0,
+                            features: [
+                                '3 projects',
+                                'self support'
+                            ]
+                        },
+                        {
+                            name:'agency',
+                            teamMembers: 5,
+                            storage: 5000,
+                            price: 15,
+                            features: [
+                                'unlimited projects',
+                                'premium support'
+                            ]
+                        },
+                        {
+                            name:'enterprise',
+                            teamMembers: 10,
+                            storage: 10000,
+                            price: 30,
+                            features: [
+                                'unlimited projects',
+                                'premium support'
+                            ]
+                        }
+                    ]
                 }
             },
             ready: function(){
@@ -85,6 +211,9 @@
             },
             _computeBackUrl: function(projectId){
                 return '/'+(projectId||'');
+            },
+            _countDataSpace: function(storage){
+                return storage<1000 ? storage +' MB' : storage/1000+ ' GB';
             }
         })
     </script>

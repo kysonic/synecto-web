@@ -1,9 +1,10 @@
 <script>
     const ENV = location.href.indexOf('localhost')!=-1 || location.href.indexOf('192.168')!=-1 ? 'local' : 'remote';
     const LOCAL_NETWORK_ADDRESS = location.hostname;
+
     var Designmap = {
         config:{
-            apiURL: ENV=='local'?'http://'+LOCAL_NETWORK_ADDRESS+':4000/':'https://server.designmap.ru/',
+            apiURL: ENV=='local'?'http://'+LOCAL_NETWORK_ADDRESS+':4000/':'https://server.synecto.io/',
             appURL: location.protocol+'//'+location.host+'/',
             trueIP: 'http://52.59.115.60:3000/',
             separator: '/'

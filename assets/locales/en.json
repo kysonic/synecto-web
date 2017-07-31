@@ -186,7 +186,7 @@
     "message": "Select"
   },
   "Upload": {
-    "message": "Загрузить"
+    "message": "Upload"
   },
   "Files loading in progress": {
     "message": "Files loading in progress"
@@ -1389,7 +1389,7 @@
     "message": "Close"
   },
   "Activate premium": {
-    "message": "Activate premium account"
+    "message": "Plans management"
   },
   "onHome": {
     "message": "main page"
@@ -1588,5 +1588,32 @@
   },
   "There is no description": {
     "message": "There is no description. Project owner or task owner can fill it..."
+  },
+  "Upgrade": {
+    "message": "Upgrade"
+  },
+  "Plans": {
+    "message": "Manage plans"
+  },
+  "team members": {
+    "message": "team members"
+  },
+  "storage": {
+    "message": "storage"
+  },
+  "unlimited projects": {
+    "message": "unlimited projects"
+  },
+  "3 projects": {
+    "message": "3 projects"
+  },
+  "self support": {
+    "message": "self support"
+  },
+  "premium support": {
+    "message": "premium support"
+  },
+  "Upgrade now": {
+    "message": "Upgrade now"
   }
 }

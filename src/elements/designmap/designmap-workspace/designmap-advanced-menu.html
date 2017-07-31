@@ -200,6 +200,24 @@
             left: 100%;
             margin-left: -38px;
         }
+        .upgrade-set {
+            display: block;
+            margin-top: 10px;
+        }
+        .upgrade {
+            display: inline-block;
+            color: var(--white-color);
+            background: var(--blue-darkest-color);
+            text-align: center;
+            text-decoration: none;
+            padding: 10px 15px;
+            transition: .2s background;
+            margin-left: 10px;
+        }
+        .upgrade:hover {
+            background: var(--blue-color);
+            transition: .2s background;
+        }
         @media (min-width: 320px) and (max-width: 768px) {
             .mobile-project-menu {
                 display: block;
@@ -304,7 +322,7 @@
                 <designmap-circle-button>
                     <iron-icon icon="designmap-workspace:protocol"></iron-icon>
                 </designmap-circle-button>
-                <iron-icon hidden$="[[user.isPremium]]" class="locked-icon" icon="icons:update"></iron-icon>
+                <iron-icon class="locked-icon" icon="icons:update"></iron-icon>
                 <div class="text">
                     <i18-n msgid="Protocol">Protocol</i18-n>
                 </div>
@@ -326,6 +344,12 @@
             <li on-click="openCreateProjectDialog"><i18-n msgid="Create Project">Create Project</i18-n></li>
             <li on-click="openSelectProjectDialog"><i18-n msgid="Open Project">Open Project</i18-n></li>
         </ul>
+
+        <!--<div class="upgrade-set">
+            <a href="/activate" class="upgrade">
+                <i18-n msgid="Upgrade">Upgrade</i18-n>
+            </a>
+        </div>-->
 
         <!-- Showcase dialog -->
         <!--<paper-dialog no-cancel-on-outside-click id="taskManagerShowCaseDialog" entry-animation="scale-up-animation"

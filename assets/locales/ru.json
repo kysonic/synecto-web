@@ -1404,7 +1404,7 @@
     "message": "Ускорить"
   },
   "Activate premium": {
-    "message": "Активация премиум аккаунта"
+    "message": "Управление планами"
   },
   "onHome": {
     "message": "на главную"
@@ -1591,5 +1591,41 @@
   },
   "There is no description": {
     "message": "Описание задачи не задано. Владелец проекта или задачи может изменить его..."
+  },
+  "Upgrade": {
+    "message": "Улучшить"
+  },
+  "Plans": {
+    "message": "Управление планами"
+  },
+  "team members": {
+    "message": "членов команды"
+  },
+  "storage": {
+    "message": "хранилища"
+  },
+  "unlimited projects": {
+    "message": "бесконечное кол-во проектов"
+  },
+  "3 projects": {
+    "message": "3 проекта"
+  },
+  "precise comments": {
+    "message": "точечные комментарии"
+  },
+  "task manager": {
+    "message": "менеджер задач"
+  },
+  "project chat": {
+    "message": "чат проекта"
+  },
+  "self support": {
+    "message": "самостоятельная поддержка"
+  },
+  "premium support": {
+    "message": "премиум поддержка"
+  },
+  "Upgrade now": {
+    "message": "Обновить план"
   }
 }
