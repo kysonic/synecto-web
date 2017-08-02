@@ -117,7 +117,8 @@
                 color: var(--white-color);
                 font-size: 10px;
                 left: 100%;
-                margin-left: -46px;
+                margin-left: -54px;
+                top: 2px;
             }
 
             app-drawer.chat {
@@ -131,6 +132,13 @@
                 width: 100%;
                 height: 100%;
                 background: var(--white-color);
+            }
+
+            .designmap-logo {
+                width: 210px;
+                height: 45px;
+                position: relative;
+                top: 1px;
             }
 
             @media (min-width: 320px) and (max-width: 768px) {
@@ -175,7 +183,6 @@
                 <app-toolbar>
                     <a style="text-decoration: none" tabindex="-1" on-click="goToHome">
                         <iron-icon class="designmap-logo" tabindex="-1" icon="designmap-logo:logo"></iron-icon>
-                        <span class="beta">beta v3.0</span>
                     </a>
                 </app-toolbar>
                 <designmap-advanced-menu id="advancedMenu" path="[[path]]" page="[[page]]"></designmap-advanced-menu>

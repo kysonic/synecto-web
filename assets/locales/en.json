@@ -135,7 +135,7 @@
     "message": "Use your favorite file storage."
   },
   "preview_3": {
-    "message": "Create DesignMap projects."
+    "message": "Create Synecto projects."
   },
   "preview_4": {
     "message": "Use comfortable menu."
@@ -545,23 +545,23 @@
   "Email settings": {
     "message": "Email settings"
   },
-  "Receive designmap news": {
-    "message": "Receive designmap news"
+  "Receive synecto news": {
+    "message": "Receive synecto news"
   },
   "Receive notifications": {
-    "message": "Receive designmap news"
+    "message": "Receive synecto news"
   },
   "Receive system alerts": {
-    "message": "Receive designmap news"
+    "message": "Receive synecto news"
   },
   "Passwords are not matched": {
     "message": "Passwords are not matched"
   },
   "entryMessageTitle": {
-    "message": "We glad to welcome you in Designmap application!"
+    "message": "We glad to welcome you in Synecto application!"
   },
   "entryMessageBody": {
-    "message": "Designmap aims to make work easier, configure interaction between designers and their clients and provide convenient tools."
+    "message": "Synecto aims to make work easier, configure interaction between designers and their clients and provide convenient tools."
   },
   "entryMessageQ": {
     "message": "This will take only 5-7 minutes. Allowed ONLY FOR NOW."
@@ -638,11 +638,11 @@
   "areYouSureThatYouWannaCloseTutorial": {
     "message": "Are you sure you want to finish tutorial right now?. There is not possibility to pass it again..."
   },
-  "DesignMap UI Guide": {
-    "message": "DesignMap UI Guide"
+  "Synecto UI Guide": {
+    "message": "Synecto UI Guide"
   },
   "projectUIMessage": {
-    "message": "We want to draw your attention on basic UI elements of DesignMap application."
+    "message": "We want to draw your attention on basic UI elements of Synecto application."
   },
   "Got it!": {
     "message": "Got it!"
@@ -687,7 +687,7 @@
     "message": "Link was copied to your clipboard"
   },
   "accountSettingsMsg": {
-    "message": "Connect your cloud drive to keep your files in one place. \n\n Open \"User's menu\", select \"Account settings\". Attention! Designmap data space is in beta now!"
+    "message": "Connect your cloud drive to keep your files in one place. \n\n Open \"User's menu\", select \"Account settings\". Attention! Synecto data space is in beta now!"
   },
   "Connect cloud drives": {
     "message": "Cloud drives integration"
@@ -713,8 +713,8 @@
   "addFileMsg": {
     "message": "Click \"Add file\" button, select an image from your device and click \"Upload\" button."
   },
-  "Open DesignMap Gallery": {
-    "message": "Open DesignMap Gallery"
+  "Open Synecto Gallery": {
+    "message": "Open Synecto Gallery"
   },
   "openGalleryMsg": {
     "message": "Make double click on file cover or click \"Open\" in context menu."
@@ -723,7 +723,7 @@
     "message": "Gallery UI Guide"
   },
   "galleryUIMsg": {
-    "message": "We want to draw your attention on basic UI elements of DesignMap gallery."
+    "message": "We want to draw your attention on basic UI elements of Synecto gallery."
   },
   "addCommentMsg": {
     "message": "Enter text of your comment and press \"Add a comment\" button or press CTRL(CMD)(CMD)+ENTER"
@@ -776,8 +776,8 @@
   "Close gallery": {
     "message": "Closing of gallery"
   },
-  "Close DesignMap gallery.": {
-    "message": "Close DesignMap gallery."
+  "Close Synecto gallery.": {
+    "message": "Close Synecto gallery."
   },
   "End of tutorial": {
     "message": "Ending of the tutorial"
@@ -786,7 +786,7 @@
     "message": "Documentation"
   },
   "tutorialEndingMsg": {
-    "message": "Congrats! You have passed the basics of DesignMap! We wish you good work and excellent mood! Stay on DesignMap! To learn more go to "
+    "message": "Congrats! You have passed the basics of Synecto! We wish you good work and excellent mood! Stay on Synecto! To learn more go to "
   },
   "Finish tutorial": {
     "message": "Finish tutorial"
@@ -900,7 +900,7 @@
     "message": "Password"
   },
   "Not supported": {
-    "message": "Sorry, but DesignMap doesn't support your current browser. DesignMap was build using web components technology which couldn't be supported by your browser. To use DesignMap install please one of following browsers: Chrome, FireFox, Edge, Opera, Yandex."
+    "message": "Sorry, but Synecto doesn't support your current browser. Synecto was build using web components technology which couldn't be supported by your browser. To use Synecto install please one of following browsers: Chrome, FireFox, Edge, Opera, Yandex."
   },
   "OK": {
     "message": "OK"
@@ -968,7 +968,7 @@
   "Projects": {
     "message": "Projects"
   },
-  "Welcome to the DesignMap!": {
+  "Welcome to the Synecto!": {
     "message": "You have been registered successfully! Please visit your e-mail and execute actions required for e-mail verification."
   },
   "Not allowed in beta": {
@@ -1029,19 +1029,19 @@
     "message": "Locked file will be available only for you"
   },
   "Documentation description": {
-    "message": "Here you can find all required information about Designmap!"
+    "message": "Here you can find all required information about Synecto!"
   },
   "Shortcuts": {
     "message": "Shortcuts"
   },
   "Shortcuts description": {
-    "message": "Make your work in Designmap more comfortable using hot keys!"
+    "message": "Make your work in Synecto more comfortable using hot keys!"
   },
   "Video tutorials": {
     "message": "Video tutorials"
   },
   "Video tutorials description": {
-    "message": "Explore basics of Designmap watching quick tutorials!"
+    "message": "Explore basics of Synecto watching quick tutorials!"
   },
   "Redo": {
     "message": "Redo"
@@ -1217,14 +1217,14 @@
   "Storage to upload in": {
     "message": "Storage to upload in:"
   },
-  "Designmap storage in demo mode": {
-    "message": "Attention! Currently Designmap storage is in beta. DO NOT store important files here. It can be removed automatically."
+  "Synecto storage in demo mode": {
+    "message": "Attention! Currently Synecto storage is in beta. DO NOT store important files here. It can be removed automatically."
   },
-  "Currently Designmap storage works in test mode. You cannot upload files more that 5MB.": {
-    "message": "Currently Designmap storage works in test mode. You cannot upload files more that 5MB"
+  "Currently Synecto storage works in test mode. You cannot upload files more that 5MB.": {
+    "message": "Currently Synecto storage works in test mode. You cannot upload files more that 5MB"
   },
-  "Currently Designmap storage works in test mode. You cannot upload more that 10 files here.": {
-    "message": "Currently Designmap storage works in test mode. You cannot upload more that 10 files here"
+  "Currently Synecto storage works in test mode. You cannot upload more that 10 files here.": {
+    "message": "Currently Synecto storage works in test mode. You cannot upload more that 10 files here"
   },
   "Project": {
     "message": "Project"
@@ -1263,7 +1263,7 @@
     "message": "You cannot upload files more that 10MB. This function is allowed only for premium users."
   },
   "You cannot upload more that 100 MB files here. This function is allowed only for premium users.": {
-    "message": "You cannot upload more that 100 MB in designmap. This function is allowed only for premium users."
+    "message": "You cannot upload more that 100 MB in synecto. This function is allowed only for premium users."
   },
   "Data space": {
     "message": "Data space:"
@@ -1404,7 +1404,7 @@
     "message": "Cannot find a file... Probably it can be removed"
   },
   "We are working": {
-    "message": "Unfortunately, our payment system is not ready yet. We are working hard to provide you possibility get access to all of Designmap features. Press \"Speed up\" button to make our developers working faster!"
+    "message": "Unfortunately, our payment system is not ready yet. We are working hard to provide you possibility get access to all of Synecto features. Press \"Speed up\" button to make our developers working faster!"
   },
   "Cannot upload file with #EXT# extension": {
     "message": "System does not support files with \"#EXT#\" extension"
