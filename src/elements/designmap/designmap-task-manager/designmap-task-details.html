@@ -443,6 +443,7 @@
                 margin-top: 0px;
                 --designmap-task-list-add-task-wrapper-mixin: {
                     padding: 0 20px;
+                    margin-top: 5px;
                 };
                 --designmap-task-list-status-button-mixin: {
                     margin-left: 0px;
@@ -1183,7 +1184,8 @@
                                          on-add-task-blur="showCommentsOnMobile"
                                          placeholder="Add subtask"
                                          parent="[[task._id]]"
-                                         no-scroll></designmap-task-list>
+                                         small-add-task
+                                         no-scroll="true"></designmap-task-list>
                 </div>
                 <!-- Comments list -->
                 <ul class="comments-list" hidden$="[[!taskComments.length]]">

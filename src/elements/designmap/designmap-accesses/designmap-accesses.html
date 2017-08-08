@@ -393,7 +393,7 @@
                         <div class="line"></div>
                         <div class="content">
                             <div class="message">
-                                <i18-n msgid="accessPremiumMsg">accessPremiumMsg</i18-n>
+                                [[_getPlanMessage('accessPremiumMsg',user,language,i18Loaded)]]
                             </div>
                             <!--<div class="more" on-click="_showMoreInfo">
                                 <i18-n msgid="More info">More info</i18-n>
@@ -520,7 +520,7 @@
                 // Prevent repeats
                 if (this.checkUsers(e.detail.local.email)) return this.showErrorMessage('This user already added');
                 if (e.detail.local.email == this.user.local.email) return this.showErrorMessage('You cannot add yourself. You are already there!');
-                if (this.project.users && (this.project.users.length+1)>2 && !this.user.isPremium) {
+                if (this.project.users && (this.project.users.length+1)>this.user.plan.teamMembers) {
                     this.$.userCombo.blur();
                     return this.showPremiumMessage = true;
                 }
@@ -559,7 +559,8 @@
              */
             saveAccesses: function () {
                 this.fire('close-share-dialog');
-                this.dispatch('updateProject', this.project._id, this.project).then(function () {
+                this.dispatch('updateProject', this.project._id, this.project).then(function (response) {
+                    if(!response.success) return this.manageErrorResponse(response);
                     // Notify
                     this.sendNotifications();
                     this.showMessage('Share was updated successful');
@@ -619,11 +620,15 @@
             },
             activatePremium: function(){
                 page.redirect('/activate');
-                this.fire('close-showcase-dialog');
+                this.fire('close-accesses');
                 this.reachGoal('show_case_event','team');
             },
             _isThereUsers: function(length){
                 return !!length;
+            },
+            _getPlanMessage: function(msg){
+                if(!this.user) return 'xxx';
+                return this.replaceExpressions(this.translate(msg),{'#COUNT#':this.user.plan.teamMembers});
             }
         })
     </script>

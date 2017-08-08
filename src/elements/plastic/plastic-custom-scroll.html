@@ -121,6 +121,7 @@
                 },
                 noScroll: {
                     type: Boolean,
+                    reflectToAttribute: true,
                     value: false
                 },
                 limit: {
@@ -136,9 +137,9 @@
                 'iron-resize': '_onIronResize'
             },
             ready: function () {
-                if (this.maxHeight) this.$.content.style.maxHeight = this.maxHeight + 'px';
                 // Skip preocessing for mobile devices. Because they have normal scroll
-                if(this.isMobileDevice() || this.noScroll) return;
+                if(this.isMobileDevice() || this.noScroll) return this.limit = 0;
+                if (this.maxHeight) this.$.content.style.maxHeight = this.maxHeight + 'px';
                 // Mouse wheel
                 var wheelTarget = this.wheelTarget || this;
                 wheelTarget.addEventListener('wheel', this.mouseWheel.bind(this));
@@ -250,6 +251,7 @@
              * @param maxHeight
              */
             maxHeightChanged: function (maxHeight) {
+                //if(!this.noScroll) return this.$.content.style.maxHeight = 'none';
                 if (this.maxHeight) {
                     this.$.content.style.maxHeight = this.maxHeight + 'px';
                     this.calculate();

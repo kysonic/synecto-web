@@ -876,8 +876,8 @@
             horizontalRestriction: 100,
             verticalRestriction: 100,
             // Files with same extension can be displayed
-            canBeDisplayedExt: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr", ".ppm", ".pbm",".ai",".psd",".eps",".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx",".pdf"],
-            imageFilesExt: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr", ".ppm", ".pbm",".ai",".psd",".eps"],
+            canBeDisplayedExt: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr", ".ppm", ".pbm",".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx",".pdf"],
+            imageFilesExt: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr", ".ppm", ".pbm"],
             officeFileExt: [".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx"],
             objectIDRegexp: /^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/i,
             properties: {
@@ -1378,8 +1378,7 @@
              * @returns {*}
              */
             computeFileSrc: function (file) {
-                if(file.data.preview && file.data.preview.indexOf('#SERVER#')!==-1) return file.data.preview.replace('#SERVER#', Designmap.config.apiURL);
-                return file.preview ? file.preview.url : file.data.url.replace('#SERVER#', Designmap.config.apiURL);
+                return file.data.url && file.data.url.replace('#SERVER#', Designmap.config.apiURL);
             },
             /**
              * Compute id of image

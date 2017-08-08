@@ -97,6 +97,36 @@
                 }.bind(this);
             },
             /**
+             * Upload files
+             * @param folder - folder data
+             * @returns {function(this:Polymer.FoldersActions)}
+             */
+            addFiles: function(browsersFiles,parent){
+                return function(dispatch){
+                    var state = ReduxStore.getState();
+                    // formData mode=on
+                    xhr.opts.formData = true;
+                    // Use form data to provide file uploading
+                    var formData = new FormData();
+                    // append files
+                    browsersFiles.forEach(function(file){
+                        formData.append("files", file);
+                    });
+
+                    formData.append("id", parent.id);
+                    // Create request
+                    var promise = xhr.post(Designmap.config.apiURL+'file/?project='+state.project._id+'&'+parent.field+'='+parent.id,formData);
+                    promise.then(function(response){
+                        if(!response.success) return;
+                        dispatch({type:'SET_FILES',files:response.files});
+                        Designmap.projectSocket.emit('action',{type:'SET_FILES',files: response.files,uid:Designmap.uid});
+                    }.bind(this));
+                    // formData mode=off
+                    xhr.opts.formData = false;
+                    return promise;
+                }.bind(this);
+            },
+            /**
              * Update file with undo\redo
              */
             $updateFile: function(id,data){
@@ -143,18 +173,16 @@
              * Remove File
              * @returns {function(this:Polymer.FoldersActions)}
              */
-            removeFile: function(id){
+            removeFiles: function(files){
                 return function(dispatch){
+                    dispatch({type:'REMOVE_FILES',files:files});
                     var state = ReduxStore.getState();
-                    var index = this.findFileIndexById(id);
-                    var historyData = this.findFileById(id);
-                    dispatch({type:'REMOVE_FILE',index:index});
-                    var promise = xhr.delete(Designmap.config.apiURL+'file/'+id, {project:state.project._id});
+                    var promise = xhr.delete(Designmap.config.apiURL+'file/', {files:files,project:state.project._id});
                     promise.then(function(response){
-                        if(!response.success) throw new Error();
-                        Designmap.projectSocket.emit('action',{type:'REMOVE_FILE',index:index,uid:Designmap.uid});
+                        if(!response.success) throw new Error('Cannot remove file');
+                        Designmap.projectSocket.emit('action',{type:'REMOVE_FILES',files:files,uid:Designmap.uid});
                     }.bind(this)).catch(function(err){
-                        dispatch({type:'ADD_FILE',data:historyData});
+                        dispatch({type:'SET_FILES',files:files});
                     }.bind(this));
                     return promise;
                 }.bind(this);

@@ -133,6 +133,10 @@
                 display: none !important;
             }
 
+            designmap-file-button {
+                margin-top: 0;
+            }
+
         </style>
         <!-- Add File Dialog -->
         <paper-dialog id="form"
@@ -163,7 +167,7 @@
                             <i18-n msgid="Files loading in progress">Files loading in progress</i18-n>
                         </div>
                         <!-- Files here -->
-                        <div class="title-mini" style="margin-top: 8px" hidden$="[[!buttonFiles.length]]">
+                        <div class="title-mini" style="margin-top: 8px" hidden$="[[_toUploadState(fileUploadLoading,buttonFiles.length)]]">
                             <i18-n msgid="Files to upload">Files to upload:</i18-n>
                         </div>
                         <template is="dom-repeat" items="[[buttonFiles]]" as="file">
@@ -341,7 +345,7 @@
             /**
              * Upload selected files.
              */
-            uploadFiles: function () {
+            __uploadFiles: function () {
                 this.fileUploadLoading = true;
                 this.async(function () {this.$.form.refit();});
                 var counter = 0;
@@ -380,6 +384,20 @@
                         if (counter == length) this.fileUploadingIsEnded(uploadedFiles);
                     }.bind(this));
                 }, this);
+            },
+            uploadFiles: function(){
+                this.fileUploadLoading = true;
+                this.async(function () {this.$.form.refit();});
+                // Add files (one,two,three....)
+                this.dispatch('addFiles', this.buttonFiles, {
+                    field: this.parent,
+                    id: this._id
+                }).then(function (response) {
+                    if (!response.success) return this.manageErrorResponse(response);
+                    this.fileUploadingIsEnded(response.files);
+                }.bind(this)).catch(function (err) {
+                    this.manageErrorResponse(err);
+                }.bind(this));
             },
             /**
              * When file uploading is ended we have to change state of loading
@@ -480,6 +498,9 @@
             },
             _showAllowedExtension: function(){
                 return this.allowedExtension.join(', ');
+            },
+            _toUploadState: function(loading,length){
+                return !loading && length;
             }
         })
     </script>

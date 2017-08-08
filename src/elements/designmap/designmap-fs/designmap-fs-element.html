@@ -315,7 +315,7 @@
                 Polymer.DesignMapFsService,
                 ReduxBehavior
             ],
-            canBeDisplayedExt: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr",".ppm", ".pbm",".psd",".eps",".ai"],
+            canBeDisplayedExt: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr",".ppm", ".pbm"],
             properties: {
                 /**
                  * Element's data
@@ -387,7 +387,7 @@
              */
             shouldViewImage: function (element) {
                 if(element.type=='folder') return false;
-                return element.type == 'file' && (this.canBeDisplayedExt.indexOf('.' + this.getExtensionWithoutDot(element.data.name).toLowerCase()) != -1 || element.data.preview);
+                return element.type == 'file' && (this.canBeDisplayedExt.indexOf('.' + this.getExtensionWithoutDot(element.data.name).toLowerCase()) != -1);
             },
             /**
              * Defines url for file
@@ -396,8 +396,7 @@
              */
             computeImageSource: function (element) {
                 if (element.type != 'file') return '';
-                if(element.data.preview && element.data.preview.indexOf('#SERVER#')!==-1) return element.data.preview.replace('#SERVER#', Designmap.config.apiURL);
-                return element.preview ? element.preview.url.replace('#SERVER#', Designmap.config.apiURL) : element.data.url.replace('#SERVER#', Designmap.config.apiURL);
+                return element.data.url && element.data.url.replace('#SERVER#', Designmap.config.apiURL);
             },
             /**
              * Get extension of the file without dot

@@ -1265,8 +1265,8 @@
   "You cannot create more than 3 projects without premium.": {
     "message": "Сейчас Вы не можете создать более 3-х проектов. Эта функция доступна только для премиум пользователей."
   },
-  "You cannot upload files more that 10MB. This function is allowed only for premium users.": {
-    "message": "Сейчас Вы не можете загрузить файлы более 10 Mb. Эта функция доступна только для премиум пользователей."
+  "You cannot upload files more that 50MB. This function is allowed only for premium users.": {
+    "message": "Сейчас Вы не можете загрузить файлы более 50 Mb. Эта функция доступна только для премиум пользователей."
   },
   "You cannot upload more that 100 MB files here. This function is allowed only for premium users.": {
     "message": "Сейчас Вы не можете загрузить в Synecto более 100 mb. Эта функция доступна только для премиум пользователей."
@@ -1311,10 +1311,10 @@
     "message": "Попробовать"
   },
   "accessPremiumMsg": {
-    "message": "Добавить к участию в Проекте более 2-х человек можно при поключении премиум аккаунта."
+    "message": "В соответствии с Вашим текущим планом Вы можете добавить не более #COUNT# пользователей. Обновите план, чтобы добавить больше участников."
   },
   "Activate": {
-    "message": "Подключить"
+    "message": "Обновить"
   },
   "No thank you": {
     "message": "Нет, спасибо"
@@ -1593,7 +1593,7 @@
     "message": "Описание задачи не задано. Владелец проекта или задачи может изменить его..."
   },
   "Upgrade": {
-    "message": "Улучшить"
+    "message": "Обновить"
   },
   "Plans": {
     "message": "Управление планами"
@@ -1627,5 +1627,14 @@
   },
   "Upgrade now": {
     "message": "Обновить план"
+  },
+  "You can create only #COUNT# projects, according your plan.": {
+    "message":"В соотвествии с Вашим планом, Вы можете добавить только #COUNT# проектов."
+  },
+  "You cannot upload this file because your data space is empty. Upgrade your plan to get more.": {
+    "message":"Вы не можете загрузить этот файл потому что Ваше дисковое пространство закончилось. Обновите план, чтобы получить больше."
+  },
+  "Your plan is expired. Upgrade it to proceed.": {
+    "message":"Подписка на план просрочена. Обновите ее чтобы продолжить."
   }
 }

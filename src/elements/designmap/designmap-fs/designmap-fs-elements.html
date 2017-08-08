@@ -293,7 +293,7 @@
             <div class="desc"><i18-n msgid="renameFolderMsg">renameFolderMsg</i18-n></div>
         </designmap-hint>
         <designmap-hint id="openFileHint" hide-got-it target="[[hintFileTarget]]" name="openFile" vertical-offset="200" horizontal-offset="0">
-            <div class="title"><i18-n msgid="Open DesignMap Gallery">Open DesignMap Gallery</i18-n></div>
+            <div class="title"><i18-n msgid="Open Synecto Gallery">Open Synecto Gallery</i18-n></div>
             <div class="desc"><i18-n msgid="openGalleryMsg">openGalleryMsg</i18-n></div>
         </designmap-hint>
         <div class="cloud">
@@ -586,11 +586,8 @@
              * Remove selected elements irretrievably
              */
             removeSelectedElementsIrretrievably: function () {
+                this.removeSelected(this.selected);
                 this.$.removingSelectedConfirm.close();
-                this.selected.forEach(function (element) {
-                    this.fire('remove-' + element.type + '-irretrievably', {element: element, skip: true});
-                }, this);
-                this.showMessage('Selected entities was removed from trash');
                 this.cleanSelected();
             },
             /**

@@ -95,7 +95,9 @@
                 --paper-checkbox-checked-color: var(--blue-color);
             }
 
-
+            *[hidden] {
+                display: none !important;
+            }
 
             .content {
                 max-width: 830px;
@@ -474,7 +476,7 @@
                             </div>
                             <!-- APPROVED -->
                             <template is="dom-if" if="[[!user.system.approved]]">
-                                <div class="row">
+                                <div class="row" hidden$="[[sentApprove]]">
                                     <div class="col col-md-12 col-xs-12 msg">
                                         <span><i18-n
                                                 msgid="Your e-mail wasn't approved">Your e-mail wasn't approved!</i18-n></span>
@@ -542,9 +544,7 @@
                                     </div>
                                 </div>
                                 <div class="xcol col-md-11 col-xs-10 centred">
-                                    <i18-n class="checkbox-label" msgid="Receive synecto news">Receive synecto
-                                        news
-                                    </i18-n>
+                                    <i18-n class="checkbox-label" msgid="Receive synecto news">Receive synecto news</i18-n>
                                 </div>
                                 <div class=" col-md-1 col-xs-2 centred right">
                                     <paper-checkbox checked="{{user.config.designmapNews::change}}"></paper-checkbox>
@@ -655,6 +655,10 @@
                 MQ: {
                     type: String,
                     statePath: 'MQ'
+                },
+                sentApprove: {
+                    type: Boolean,
+                    value: false
                 }
             },
             listeners: {
@@ -772,6 +776,7 @@
                 this.$.pages.duration = on ? 400 : 0;
             },
             sendApproveMile: function () {
+                this.sentApprove = true;
                 this.dispatch('reapprove', this.user.local.email, this.language).then(function (response) {
                     if (!response.success) return this.showErrorMessage(response.errors.message);
                     this.showMessage('A mail has been sent', {'#EMAIL#': this.user.local.email});

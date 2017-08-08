@@ -622,6 +622,7 @@
                     if (new Date(next.created).getDate() > new Date(prev.created).getDate()) {
                         this.async(function () {
                             const msgNode = this.$.messages.querySelector('[data-id="' + next._id + '"]');
+                            if(!msgNode) return;
                             if (msgNode.previousElementSibling && msgNode.previousElementSibling.classList.contains('date-delimiter')) return;
                             this._createDateNode(msgNode, next);
                         })

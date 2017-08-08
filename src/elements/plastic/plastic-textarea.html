@@ -61,10 +61,9 @@
                 this.fire('keydown',e);
             },
             _change: function(){
-                console.log(123);
+
             },
             _valueChanged: function(){
-
                 this.async(function(){autosize.update(this.$.textarea)},0);
             },
             _track: function(e){

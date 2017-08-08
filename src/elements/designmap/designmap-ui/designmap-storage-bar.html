@@ -25,8 +25,8 @@
                 margin-left: -45px;
             }
         </style>
-        <paper-progress value="[[_computeProgress(user.system.s3Uploads)]]"></paper-progress>
-        <div class="numbers">[[_computeNumbers(user.system.s3Uploads,max)]]</div>
+        <paper-progress value="[[_computeProgress(user.plan.upload,user.plan.storage)]]"></paper-progress>
+        <div class="numbers">[[_computeNumbers(user.plan.upload,user.plan.storage)]]</div>
     </template>
     <script>
         Polymer({
@@ -38,20 +38,13 @@
                 user: {
                     type: Object,
                     statePath: 'user'
-                },
-                max: {
-                    type: Number,
-                    computed: '_computeMax(user.isPremium)'
                 }
             },
-            _computeProgress: function(s3Uploads){
-                return 100 - ((s3Uploads*100)/this.max);
+            _computeProgress: function(upload,storage){
+                return ((upload*100)/storage);
             },
-            _computeMax: function(isPremium){
-                return !isPremium ? '100' : '3000';
-            },
-            _computeNumbers: function(s3Uploads,max){
-                return s3Uploads?s3Uploads.toFixed(2)+'/'+max+ ' MB':'---';
+            _computeNumbers: function(upload,storage){
+                return upload!=undefined?upload.toFixed(2)+'/'+storage+ ' MB':'---';
             }
         })
     </script>

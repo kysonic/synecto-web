@@ -137,7 +137,7 @@
                                     </template>
                                 </div>
                                 <div class="button-set">
-                                    <button is="designmap-button" blue fit class="button">
+                                    <button disabled="[[_disableButton(user.plan,plan.name)]]" is="designmap-button" blue fit class="button">
                                         <i18-n msgid="Upgrade now">Upgrade now</i18-n>
                                     </button>
                                 </div>
@@ -163,6 +163,10 @@
                 projectId: {
                     type: String,
                     statePath: 'projectId'
+                },
+                user: {
+                    type: Object,
+                    statePath: 'user'
                 },
                 plans: {
                     type: Array,
@@ -214,6 +218,9 @@
             },
             _countDataSpace: function(storage){
                 return storage<1000 ? storage +' MB' : storage/1000+ ' GB';
+            },
+            _disableButton: function(plan,name){
+                return plan.name==name && name=='startup';
             }
         })
     </script>

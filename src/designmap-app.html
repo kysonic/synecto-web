@@ -217,7 +217,7 @@
                     <designmap-404 name="404"></designmap-404>
                 </iron-pages>
                 <!-- Error -->
-                <div class="error" hidden$="[[!error]]">
+                <div class="error" hidden$="[[_hideError(error,page)]]">
                     <designmap-stub image="designmap-workspace-stub:error" message="[[translate(error,language,i18Loaded)]]"
                                     error></designmap-stub>
                 </div>
@@ -347,6 +347,10 @@
                     value: [
                         {icon:'designmap-showcase:protocol',message:'protocolShowCaseOneMsg'}
                     ]
+                },
+                showErrorPage: {
+                    type: Array,
+                    value: ['fs','task-manager','trash']
                 }
             },
 
@@ -364,7 +368,8 @@
                 'iron-resize': '_onResize',
                 'socket-connected': 'socketConnected',
                 'open-protocol-showcase': 'openProtocolShowcase',
-                'close-showcase-dialog':'closeShowCaseDialog'
+                'close-showcase-dialog':'closeShowCaseDialog',
+                'close-accesses':'closeShareDialog'
             },
 
 
@@ -451,6 +456,11 @@
                 // Get project data
                 this.loading = true;
                 this.dispatch('getProject', projectId).then(function (response) {
+                    if(!response.success && response.errors.code=='planExpired') {
+                        this.error = response.errors.message;
+                        this.manageErrorResponse(response);
+                        return page.redirect('/activate');
+                    }
                     if (!response.success) throw response.errors;
                     this.error = '';
                     this.updateProject(response.project);
@@ -654,7 +664,12 @@
 
             closeShowCaseDialog: function(){
                 this.$.protocolShowcaseDialog.close();
+            },
+
+            _hideError: function(error, page){
+                return this.showErrorPage.indexOf(page)==-1 || !error;
             }
+
         });
     </script>
 </dom-module>

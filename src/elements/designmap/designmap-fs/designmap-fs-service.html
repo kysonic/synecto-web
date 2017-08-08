@@ -81,7 +81,7 @@
          * Remove folder irretrievably
          */
         removeFolderIrretrievably: function (e) {
-            this.dispatch('removeFolder', this.getFullPath(e.detail.element)).then(function (response) {
+            this.dispatch('removeFolders', [e.detail.element]).then(function (response) {
                 if (!response.success) throw new Error(response.errors.message);
                 if (!e.detail.skip) this.showMessage('Folder has been removed from trash.', {"#NAME#": e.detail.element.name});
             }.bind(this)).catch(this.manageErrorResponse.bind(this));
@@ -99,9 +99,25 @@
          * Remove file irretrievably
          */
         removeFileIrretrievably: function (e) {
-            this.dispatch('removeFile', e.detail.element._id).then(function (response) {
+            this.dispatch('removeFiles', [e.detail.element]).then(function (response) {
                 if (!response.success) throw new Error(response.errors.message);
                 if (!e.detail.skip) this.showMessage('File has been removed from trash.', {"#NAME#": this.cutFileName(e.detail.element)});
+            }.bind(this)).catch(this.manageErrorResponse.bind(this));
+        },
+        /**
+         * Remove file irretrievably
+         */
+        removeFilesIrretrievably: function (files) {
+            this.dispatch('removeFiles', files).then(function (response) {
+                if (!response.success) throw new Error(response.errors.message);
+            }.bind(this)).catch(this.manageErrorResponse.bind(this));
+        },
+        /**
+         * Remove folders irretrievably
+         */
+        removeFoldersIrretrievably: function (folders) {
+            this.dispatch('removeFolders', folders).then(function (response) {
+                if (!response.success) throw new Error(response.errors.message);
             }.bind(this)).catch(this.manageErrorResponse.bind(this));
         },
         /**
@@ -138,10 +154,29 @@
          */
         removeAll: function (e) {
             if (!this.$$('#elements').elements.length) return;
-            this.$$('#elements').elements.forEach(function (element) {
-                this['remove' + element.type.capitalize() + 'Irretrievably']({detail: {element: element, skip: true}});
+            // Split files and folders
+            var files=[],folders=[];
+            this.$$('#elements').elements.forEach(function (element,i) {
+                element.type=='folder' ? folders.push(element) : files.push(element);
             }, this);
-            this.showMessage('Objects were removed irretrievably.');
+            // Remove
+            this.removeFilesIrretrievably(files);
+            this.removeFoldersIrretrievably(folders);
+            this.async(function(){this.showMessage('Objects were removed irretrievably.');},100);
+        },
+        /**
+         * Remove selected elements
+         */
+        removeSelected: function(selected) {
+            if (!selected.length) return;
+            // Split files and folders
+            var files=[],folders=[];
+            selected.forEach(function (element,i) {
+                element.type=='folder' ? folders.push(element) : files.push(element);
+            }, this);
+            // Remove
+            this.removeFilesIrretrievably(files);
+            this.removeFoldersIrretrievably(folders);
         },
         /**
          * Find file by ID

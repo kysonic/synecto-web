@@ -393,6 +393,7 @@
                 height: 35px;
             }
 
+
             .add-task-wrapper {
                 position: relative;
                 padding: 0 57px;
@@ -410,6 +411,10 @@
                 margin-top: 10px;
                 width: 100%;
                 @apply(--designmap-task-list-add-input-mixin);
+            }
+
+            :host([small-add-task]) .add-task-wrapper > input {
+                font-size: 18px;
             }
 
             /** LINE **/
@@ -511,10 +516,10 @@
                         <div class="title" on-click="select">[[task.name]]</div>
                         <div class="expired_row hidden-xs">[[computeTimeLeft(task.expired,language)]]</div>
                         <div class="expired_row hidden-lg">[[computeTimeLeftFormMobile(task.expired,language)]]</div>
-                        <designmap-assignee id$="assignee[[index]]" horizontal-offset="-170" vertical-offset="60" class="hidden-xs"
+                        <!--<designmap-assignee id$="assignee[[index]]" horizontal-offset="-170" vertical-offset="60" class="hidden-xs"
                                             no-details
                                             assignee="[[task.assignee]]" task="[[task]]" on-assign="selectAssignee"
-                                            on-remove="removeAssignee"></designmap-assignee>
+                                            on-remove="removeAssignee"></designmap-assignee>-->
                         <paper-tooltip for$="assignee[[index]]" position="left"><i18-n msgid="Assign responsible">Assign responsible</i18-n></paper-tooltip>
                         <div id$="subtask[[index]]" class="subtask hidden-xs" on-tap="selectWithFocus">
                             <iron-icon icon="designmap-taskmanager:subtask"></iron-icon>
@@ -1108,6 +1113,7 @@
              * Change max height
              */
             onIronResize: function () {
+                if(this.noScroll) return;
                 this.maxHeight = window.innerHeight;
             },
             /**
@@ -1148,6 +1154,7 @@
                 this.updateScrollHeight();
             },
             updateScrollHeight: function () {
+                if(this.noScroll) return;
                 var offest = this.MQ == 'sm' ? 230 : this.maxHeightOffset;
                 this.$.scroller.$.content.style.maxHeight = window.innerHeight - offest + 'px';
             },

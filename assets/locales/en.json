@@ -1259,8 +1259,8 @@
   "You cannot create more than 3 projects without premium.": {
     "message": "You cannot create more than 3 projects. This function is allowed only for premium users."
   },
-  "You cannot upload files more that 10MB. This function is allowed only for premium users.": {
-    "message": "You cannot upload files more that 10MB. This function is allowed only for premium users."
+  "You cannot upload files more that 50MB. This function is allowed only for premium users.": {
+    "message": "You cannot upload files more that 50MB. This function is allowed only for premium users."
   },
   "You cannot upload more that 100 MB files here. This function is allowed only for premium users.": {
     "message": "You cannot upload more that 100 MB in synecto. This function is allowed only for premium users."
@@ -1305,10 +1305,10 @@
     "message": "Try it out"
   },
   "accessPremiumMsg": {
-    "message": "You can add more than 2 users only if you will activate premium account."
+  "message": "According your current plan you can add only #COUNT# users. Upgrade your plan to add more."
   },
   "Activate": {
-    "message": "Activate"
+    "message": "Upgrade"
   },
   "No thank you": {
     "message": "No thank you"
@@ -1615,5 +1615,14 @@
   },
   "Upgrade now": {
     "message": "Upgrade now"
+  },
+  "You can create only #COUNT# projects, according your plan.": {
+    "message":"You can create only #COUNT# projects, according your plan."
+  },
+  "You cannot upload this file because your data space is empty. Upgrade your plan to get more.": {
+    "message":"You cannot upload this file because your data space is empty. Upgrade your plan to get more."
+  },
+  "Your plan is expired. Upgrade it to proceed.": {
+    "message":"Your plan is expired. Upgrade it to proceed."
   }
 }

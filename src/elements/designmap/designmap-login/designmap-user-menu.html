@@ -302,7 +302,7 @@
                     </div>
                 </div>
                 <paper-tooltip for="support"><i18-n msgid="Support">Support</i18-n></paper-tooltip>-->
-                <a href="/activate" class="block upgrade" id="upgrade" >
+                <a hidden$="[[_isPremium(user)]]" href="/activate" class="block upgrade" id="upgrade" >
                    <i18-n msgid="Upgrade">Upgrade</i18-n>
                 </a>
                 <div class="block notification" id="notify" on-tap="openNotifyDropdown">
@@ -519,6 +519,10 @@
             },
             mqChanged: function(MQ){
                 this.horizontalOffset = MQ=='sm'?-223:-80;
+            },
+            _isPremium: function(user) {
+                if(!user) return false;
+                return user.plan.name!=='startup';
             }
         })
     </script>

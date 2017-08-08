@@ -64,9 +64,9 @@
        trashMode: filterActions(Reducers.TrashModeReducer,['UPDATE_TRASH_MODE']),
        projects: filterActions(Reducers.ProjectsReducer,['ADD_PROJECT','REMOVE_PROJECT','UPDATE_PROJECT','SET_PROJECTS','CLEAN_PROJECTS']),
        sharedProjects: filterActions(Reducers.SharedProjectsReducer,['ADD_SHARED_PROJECT','UPDATE_SHARED_PROJECT','SET_SHARED_PROJECTS','CLEAN_SHARED_PROJECTS']),
-       folders: filterActions(Reducers.FoldersReducer,['ADD_FOLDER','REMOVE_FOLDER','UPDATE_FOLDER','SET_FOLDERS','CLEAN_FOLDERS']),
+       folders: filterActions(Reducers.FoldersReducer,['ADD_FOLDER','REMOVE_FOLDER','UPDATE_FOLDER','SET_FOLDERS','CLEAN_FOLDERS','REMOVE_FOLDERS']),
        tasks: filterActions(Reducers.TasksReducer,['ADD_TASK','REMOVE_TASK','UPDATE_TASK','SET_TASKS','CLEAN_TASKS']),
-       files: filterActions(Reducers.FilesReducer,['ADD_FILE','REMOVE_FILE','UPDATE_FILE','SET_FILES','CLEAN_FILES']),
+       files: filterActions(Reducers.FilesReducer,['ADD_FILE','REMOVE_FILE','UPDATE_FILE','SET_FILES','CLEAN_FILES','REMOVE_FILES']),
        stickers: filterActions(Reducers.StickersReducer,['ADD_STICKER','REMOVE_STICKER','UPDATE_STICKER','SET_STICKERS','CLEAN_STICKERS']),
        comments: filterActions(Reducers.CommentsReducer,['ADD_COMMENT','REMOVE_COMMENT','UPDATE_COMMENT','SET_COMMENTS','CLEAN_COMMENTS']),
        messages: filterActions(Reducers.MessagesReducer,['ADD_MESSAGE','REMOVE_MESSAGE','UPDATE_MESSAGE','SET_MESSAGES','CLEAN_MESSAGES'])

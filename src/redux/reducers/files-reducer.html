@@ -9,6 +9,14 @@
                 return state.slice(0,action.index)
                     .concat(state.slice(action.index+1));
                 break;
+            case "REMOVE_FILES":
+                let tmp = state.slice(0);
+                action.files.forEach(function (file) {
+                    tmp = tmp.slice(0,tmp.indexOf(file))
+                        .concat(tmp.slice(tmp.indexOf(file)+1));
+                });
+                return tmp;
+                break;
             case "UPDATE_FILE":
                 return state.slice(0,action.index)
                     .concat([Object.assign({},state[action.index],action.data)])

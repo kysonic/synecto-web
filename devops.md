@@ -11,7 +11,7 @@ we will start to develop big environment for app.synecto.io.
 
     - sudo apt-get install nginx
 
-2. Install certbot
+2. Install certbot4
 
     - https://certbot.eff.org/#ubuntuxenial-nginx
     - run sudo certbot --nginx
@@ -19,6 +19,6 @@ we will start to develop big environment for app.synecto.io.
 
 Deploy
 
-
+npm run build
 export CLOUDSDK_CORE_PROJECT=tenacious-works-175319
 gcloud compute scp ~/WebDevelopments/CDC/designmap-spa-v3/build/unbundled/* app-synecto:~/synecto --zone us-east1-c --recurse
