@@ -1,10 +1,16 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+<link rel="import" href="/bower_components/paper-slider/paper-slider.html">
 <link rel="import" href="../designmap-buttons/designmap-button.html">
 <link rel="import" href="../../../behaviors/designmap-messages-behavior.html">
+<link rel="import" href="../../../behaviors/deisgnmap-utils-behavior.html">
 <link rel="import" href="../designmap-ui/designmap-dashboard.html">
-<!-- Redux -->
-<link rel="import" href="../../../redux/redux-store.html">
+<link rel="import" href="../designmap-buttons/designmap-button.html">
+
+<link rel="import" href="./designmap-pay.html">
+
+
 
 <dom-module id="designmap-activate">
     <template>
@@ -62,16 +68,16 @@
             }
 
             .plan .header .price {
-                font-size: 65px;
+                font-size: 55px;
             }
             .plan .header .dollar {
-                font-size: 32px;
+                font-size: 28px;
                 position: relative;
                 right: 3px;
             }
 
             .plan .header .name {
-                font-size: 34px;
+                font-size: 28px;
                 margin-left: 10px;
             }
 
@@ -96,6 +102,20 @@
                 margin-top: 20px;
                 text-align: center;
             }
+            /** Card **/
+            .card {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .card designmap-pay {
+                max-width: 680px;
+            }
+
+
 
         </style>
         <designmap-dashboard back back-url="[[_computeBackUrl(projectId)]]">
@@ -103,6 +123,9 @@
                 <i18-n msgid="Activate premium"></i18-n>
             </div>
         </designmap-dashboard>
+        <designmap-confirm id="downgradeConfirm" message="Are you sure that you want to downgrade to startup plan. It is free but you won't be able to manage projects exceed your plan possibilities.">
+
+        </designmap-confirm>
         <div class="wrapper">
             <div class="content">
                 <!--<iron-icon icon="designmap-showcase:premium"></iron-icon>
@@ -112,11 +135,12 @@
                 <button hidden$="[[quicker]]" style="margin-top: 0" on-click="speedUp" is="designmap-button" blue thin>
                     <i18-n msgid="Speed up">Speed up</i18-n>
                 </button>-->
-                <div class="plans">
+                <!-- Plans -->
+                <div class="plans" hidden$="[[cardMode]]">
                     <template is="dom-repeat" items="[[plans]]" as="plan">
                         <div class="plan">
                             <div class="header">
-                                <div class="price">[[plan.price]]</div><span class="dollar">$</span>
+                                <div class="price">[[plan.price]]</div><span class="dollar">$/mo.</span>
                                 <div class="name">[[plan.name]]</div>
                             </div>
                             <div class="content">
@@ -137,13 +161,18 @@
                                     </template>
                                 </div>
                                 <div class="button-set">
-                                    <button disabled="[[_disableButton(user.plan,plan.name)]]" is="designmap-button" blue fit class="button">
-                                        <i18-n msgid="Upgrade now">Upgrade now</i18-n>
+                                    <button on-click="selectPlan" disabled="[[_disableButton(user.plan,plan.name)]]" is="designmap-button" blue fit class="button">
+                                        [[_buttonTitle(user.plan,plan.name,language,i18Loaded)]]
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </template>
+                </div>
+                <!-- Card -->
+                <div class="card" hidden$="[[!cardMode]]">
+                    <designmap-pay plan="[[chosenPlan]]"></designmap-pay>
+
                 </div>
             </div>
         </div>
@@ -153,7 +182,8 @@
             is: 'designmap-activate',
             behaviors: [
                 ReduxBehavior,
-                Polymer.DesignMapMessagesBehavior
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior
             ],
             properties: {
                 quicker: {
@@ -168,6 +198,21 @@
                     type: Object,
                     statePath: 'user'
                 },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    statePath: 'i18Loaded'
+                },
+                cardMode: {
+                    type: Boolean,
+                    value:false
+                },
+                chosenPlan: {
+                    type: Object
+                },
                 plans: {
                     type: Array,
                     value: [
@@ -176,6 +221,7 @@
                             teamMembers: 2,
                             storage: 500,
                             price: 0,
+                            months: 3,
                             features: [
                                 '3 projects',
                                 'self support'
@@ -184,6 +230,7 @@
                         {
                             name:'agency',
                             teamMembers: 5,
+                            months: 3,
                             storage: 5000,
                             price: 15,
                             features: [
@@ -196,6 +243,7 @@
                             teamMembers: 10,
                             storage: 10000,
                             price: 30,
+                            months: 3,
                             features: [
                                 'unlimited projects',
                                 'premium support'
@@ -204,8 +252,12 @@
                     ]
                 }
             },
+            listeners: {
+                'back':'back'
+            },
             ready: function(){
                //this.quicker = localStorage.getItem('designmap:quicker');
+                TCO.loadPubKey('sandbox');
             },
             speedUp: function(){
                 this.showMessage('Thank you! We will try to do it quicker!');
@@ -220,7 +272,30 @@
                 return storage<1000 ? storage +' MB' : storage/1000+ ' GB';
             },
             _disableButton: function(plan,name){
-                return plan.name==name && name=='startup';
+                return plan.name==name && new Date(plan.expired)>new Date();
+            },
+            _getCodeName: function(plan,name){
+                if(name=='startup' && plan.name!='startup') return 'Downgrade';
+                if(plan.name==name) return 'Current';
+                const currentDate = new Date();
+                if(new Date(plan.expired)<currentDate.setDate(currentDate.getDate()+7)) return 'Update';
+                return 'Upgrade now';
+            },
+            _buttonTitle: function(plan,name,lng,loaded){
+               return this.translate(this._getCodeName(plan,name));
+            },
+            selectPlan: function(e){
+                const currentDate = new Date();
+                if(this.user.plan.name==e.model.plan.name && new Date(this.user.plan.expired)>currentDate.setDate(currentDate.getDate()+7)) return this.showMessage('You can update your plan not early than 7 days of its expiration.');
+                if(e.model.plan=='startup') return this.openDowngradeConfirm();
+                this.chosenPlan = e.model.plan;
+                this.cardMode = true;
+            },
+            openDowngradeConfirm: function(){
+                this.$.downgradeConfirm.open();
+            },
+            back: function(){
+                this.cardMode = false;
             }
         })
     </script>

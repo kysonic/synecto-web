@@ -4,6 +4,11 @@
     justify-content: center;
     width: 100vw;
     height: 100vh;
+    position: absolute;
+    background: #fff;
+    left:0;
+    top:0;
+    z-index: 9999;
 }
 
 @-webkit-keyframes uil-reload-css {

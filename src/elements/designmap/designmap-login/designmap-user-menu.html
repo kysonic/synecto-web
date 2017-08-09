@@ -54,6 +54,10 @@
                 };
             }
 
+            *[hidden] {
+                display: none !important;
+            }
+
             #logout[disabled] {
                 opacity: 0.3;
             }
@@ -444,12 +448,12 @@
                 this.$.dialog.open();
             },
             logout: function () {
-                document.getElementById('appLoading').style.display = 'flex';
+                this.fire('app-loading',true);
                 if (this.$$('#logout').disabled) return;
                 page.redirect('/');
                 this.dispatch('userLogout').then(function () {
                     this.$$("#dropdown").close();
-                    document.getElementById('appLoading').style.display = 'none';
+                    this.fire('app-loading',false);
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));
             },
             selectLanguage: function (e) {
@@ -522,7 +526,7 @@
             },
             _isPremium: function(user) {
                 if(!user) return false;
-                return user.plan.name!=='startup';
+                return user.plan.name!='startup';
             }
         })
     </script>

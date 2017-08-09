@@ -1616,6 +1616,12 @@
   "Upgrade now": {
     "message": "Upgrade now"
   },
+  "Downgrade": {
+    "message": "Downgrade"
+  },
+  "Current": {
+    "message": "Current"
+  },
   "You can create only #COUNT# projects, according your plan.": {
     "message":"You can create only #COUNT# projects, according your plan."
   },
@@ -1624,5 +1630,113 @@
   },
   "Your plan is expired. Upgrade it to proceed.": {
     "message":"Your plan is expired. Upgrade it to proceed."
+  },
+  "Payment Authorization Failed: Please verify your information and try again, or try another payment method.": {
+    "message":"Payment Authorization Failed: Please verify your information and try again, or try another payment method."
+  },
+  "You can update your plan not early than 7 days of its expiration.": {
+    "message":"You can update your plan not early than 7 days of its expiration. If you want to do it right now, ask support how."
+  },
+  "Are you sure that you want to downgrade to startup plan. It is free but you won't be able to manage projects exceed your plan possibilities.": {
+    "message":"Are you sure that you want to downgrade to startup plan? It is free but you won't be able to manage projects which exceed possibilities of free plan."
+  },
+  "Address": {
+    "message": "Address"
+  },
+  "City": {
+    "message": "City"
+  },
+  "State": {
+    "message": "State"
+  },
+  "Zip code": {
+    "message": "Zip code"
+  },
+  "Country": {
+    "message": "Country"
+  },
+  "Phone": {
+    "message": "Phone"
+  },
+  "Plan": {
+    "message": "Plan"
+  },
+  "Price": {
+    "message": "Price"
+  },
+  "How much": {
+    "message": "How much"
+  },
+  "months": {
+    "message": "months"
+  },
+  "per month": {
+    "message": "per month"
+  },
+  "Overall to pay": {
+    "message": "Overall to pay"
+  },
+  "Duration": {
+    "message": "Duration"
+  },
+  "Billing info": {
+    "message": "Billing info"
+  },
+  "Card info": {
+    "message": "Card info"
+  },
+  "Back": {
+    "message": "Back"
+  },
+  "Proceed": {
+    "message": "Proceed"
+  },
+  "Full name": {
+    "message": "Full name"
+  },
+  "Enter valid name. Required.": {
+    "message": "Enter valid name. Required."
+  },
+  "Enter valid country": {
+    "message": "Enter valid country."
+  },
+  "Enter valid state": {
+    "message": "Enter valid state."
+  },
+  "Enter valid city": {
+    "message": "Enter valid city."
+  },
+  "Enter valid address": {
+    "message": "Enter valid address."
+  },
+  "Enter valid zip code": {
+    "message": "Enter valid zip code."
+  },
+  "Enter valid phone number": {
+    "message": "Enter valid phone number."
+  },
+  "Something went wrong. Try again after 1 minute.": {
+    "message": "Something went wrong. Try again after 1 minute."
+  },
+  "Name on card": {
+    "message": "Name on card"
+  },
+  "Expiration": {
+    "message": "Expiration"
+  },
+  "Submit Payment": {
+    "message": "Submit Payment"
+  },
+  "Card number": {
+    "message": "Card number"
+  },
+  "Missing Form Fields": {
+    "message": "Missing Form Fields"
+  },
+  "Missing Card Data": {
+    "message": "Missing Card Data"
+  },
+  "Bad request - missing data": {
+    "message": "Bad request - missing data"
   }
 }

@@ -318,6 +318,7 @@
                         <paper-input id="restorePasswordEmail" required
                                      pattern="[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*"
                                      label="E-mail" error-message="[[translate('EmailError',language,i18Loaded)]]"
+                                     autocomplete="email"
                                      type="email"></paper-input>
                         <iron-a11y-keys id="a11ForgotPassword" keys="enter" target="[[this.$.restorePasswordEmail]]"
                                         on-keys-pressed="creteToken"></iron-a11y-keys>
@@ -348,6 +349,7 @@
                         <paper-input id="approvingEmail" required pattern="[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*"
                                      label="E-mail"
                                      error-message="[[translate('EmailError',language,i18Loaded)]]"
+                                     autocomplete="email"
                                      type="email"></paper-input>
                         <iron-a11y-keys id="a11ApprovingEmail" keys="enter" target="[[this.$.approvingEmail]]"
                                         on-keys-pressed="sendApprovingEmail"></iron-a11y-keys>
@@ -371,6 +373,7 @@
                         <paper-input is="iron-input" id="emailSignin" required pattern="[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*"
                                      on-cahange="authEmailChanged"
                                      label="E-mail" error-message="[[translate('EmailError',language,i18Loaded)]]"
+                                     autocomplete="email"
                                      type="email"></paper-input>
                         <iron-a11y-keys id="a11One" keys="enter" target="[[this.$.emailSignin]]"
                                         on-keys-pressed="login"></iron-a11y-keys>
@@ -402,6 +405,7 @@
                         <paper-input id="emailSignup" required pattern="[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*"
                                      value="{{registerEmail::keyup}}"
                                      label="E-mail" error-message="[[translate('EmailError',language,i18Loaded)]]"
+                                     autocomplete="email"
                                      type="email"></paper-input>
                         <iron-a11y-keys id="a11Two" keys="enter" target="[[this.$.emailSignup]]"
                                         on-keys-pressed="register"></iron-a11y-keys>
@@ -434,6 +438,7 @@
                         <paper-input id="emailFakeSignup" required
                                      value="{{fakeEmail::keyup}}"
                                      label="E-mail"
+                                     autocomplete="email"
                                      pattern="[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*"
                                      type="text"></paper-input>
                         <div class="button-set">
@@ -618,6 +623,7 @@
                     return this.showErrorMessage('AuthorizationFormWasFilledNotCorrectly');
                 }
                 const email = this.$.emailSignin.value;
+                this.fire('app-loading',true);
                 this.dispatch('userLogin', this.$.emailSignin.value, this.$.passwordSignin.value).then(function (response) {
                     this.$.signInLoadingButton.loading = false;
                     if (!response.success) return this.manageErrorResponse(response);
@@ -625,9 +631,11 @@
                     this.$.passwordSignin.value = null;
                     // Analytics
                     this.reachGoal('auth','login',email);
+                    this.fire('app-loading',false);
                 }.bind(this)).catch(function (err) {
                     this.$.signInLoadingButton.loading = false;
                     this.manageErrorResponse(err);
+                    this.fire('app-loading',false);
                 }.bind(this));
             },
             /**

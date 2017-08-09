@@ -1,0 +1,403 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<!-- Polymer g0ld -->
+<link rel="import" href="/bower_components/iron-form/iron-form.html">
+<link rel="import" href="/bower_components/gold-cc-input/gold-cc-input.html">
+<link rel="import" href="/bower_components/gold-cc-cvc-input/gold-cc-cvc-input.html">
+<link rel="import" href="/bower_components/gold-cc-expiration-input/gold-cc-expiration-input.html">
+
+<link rel="import" href="../../../styles/flex-grid-shared-styles.html">
+
+<!-- Redux -->
+<link rel="import" href="../../../redux/redux-store.html">
+
+<script type="text/javascript" src="https://www.2checkout.com/checkout/api/2co.min.js"></script>
+
+<dom-module id="designmap-pay">
+    <template>
+        <style include="flex-grid-shared-styles">
+            :host {
+                width: 100%;
+
+                --paper-input-container-color: var(--gray-darkend-color);
+                --paper-input-container-focus-color: var(--gray-darkend-color);
+                --paper-input-container-input: {
+                    color: var(--gray-darkend-color);
+                    font-family: var(--gray-darkend-color);
+                    font-size: 16px;
+                    font-weight: 300 !important;
+                };
+                --paper-input-container-label: {
+                    font-size: 16px;
+                    font-weight: 300 !important;
+                };
+                --paper-input-container-label-floating: {
+                    font-weight: 300 !important;
+                };
+                --paper-input-container-invalid-color: var(--error-color);
+                /** Slider **/
+                --paper-slider-active-color: var(--blue-darkest-color);
+                --paper-slider-knob-color: var(--blue-darkest-color);
+                --paper-slider-markers-color: var(--blue-darkest-color);
+                --paper-slider-pin-color: var(--blue-darkest-color);
+            }
+
+            gold-cc-expiration-input, gold-cc-cvc-input {
+                display: inline-block;
+                vertical-align: top;
+                width: calc(50% - 10px);
+            }
+            gold-cc-expiration-input {
+                margin-right: 15px;
+            }
+
+            .submit-button {
+                margin-top: 20px;
+            }
+
+
+            .pay-info {
+                color: var(--gray-darkend-color);
+            }
+
+            .pay-info .marked {
+                color: var(--blue-darkest-color);
+                font-weight: 500;
+                text-transform: capitalize;
+            }
+            /** Steps **/
+            .steps {
+                display: flex;
+                margin-bottom: 20px;
+            }
+            .steps .step {
+                flex: 1;
+                padding: 10px 0;
+                text-align: center;
+                color: var(--gray-darkend-color);
+                border: 1px solid var(--gray-color);
+                border-left: none;
+            }
+            .steps .step.selected {
+                color: var(--white-color);
+                border-color:  var(--blue-darkest-color);
+                background: var(--blue-darkest-color);
+                cursor: pointer;
+            }
+
+            /** Slider **/
+            paper-slider {
+                width: calc(100% + 33px);
+                margin: 5px auto;
+                position: relative;
+                right: 16px;
+            }
+
+            .slider-label {
+                color: var(--gray-darkend-color);
+                position: relative;
+                top: 7px;
+                width: 100%;
+                text-align: center;
+                display: block;
+            }
+            .slider {
+                position: relative;
+            }
+            .slider .from, .slider .to {
+                position: absolute;
+                top: 15px;
+            }
+            .slider .from {
+                left: 0;
+                margin-left: -2px;
+            }
+            .slider .to {
+                left: 100%;
+                margin-left: -15px;
+            }
+            /** Items **/
+            .pay-info .block {
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+            }
+            .pay-info .block > * {
+                padding: 5px 0;
+            }
+            /** Over all **/
+            .overall {
+                display: block;
+                width: 100%;
+                text-align: center;
+                margin-top: 20px;
+            }
+
+            .to-pay {
+                width: 100%;
+                text-align: center;
+                font-size: 20px;
+            }
+
+            .total-pay {
+                font-size: 32px;
+            }
+            /** Button set **/
+            .button-set {
+                margin-top: 10px;
+                display: flex;
+                justify-content: space-between;
+            }
+            .button-set button{
+                min-width: 200px;
+            }
+
+        </style>
+        <div class="steps">
+            <div class$="step [[_isSelected(step,0)]]" on-tap="selectStep" data-step="0">1. <i18-n msgid="Duration">Duration</i18-n></div>
+            <div class$="step [[_isSelected(step,1)]]" on-tap="selectStep" data-step="1">2. <i18-n msgid="Billing info">Billing info</i18-n></div>
+            <div class$="step [[_isSelected(step,2)]]" >3. <i18-n msgid="Card info">Card info</i18-n></div>
+        </div>
+        <iron-pages selected="[[step]]">
+            <!-- Duration -->
+            <iron-page>
+                <div class="pay-info">
+                    <div class="slider">
+                        <label class="slider-label"><i18-n msgid="months">months</i18-n></label>
+                        <div class="from">1</div>
+                        <div class="to">12</div>
+                        <paper-slider pin min="1" max="12" value="{{plan.months::change}}"></paper-slider>
+                    </div>
+                    <div class="block">
+                        <div class="plan-name">
+                            <i18-n msgid="Plan">Plan</i18-n>:
+                            <span class="marked">&laquo;[[plan.name]]&raquo;</span>
+                        </div>
+                        <div class="plan-price">
+                            <i18-n msgid="Price">Price</i18-n>:
+                            <span class="marked">[[plan.price]]$ <i18-n msgid="per month">per month</i18-n> </span>
+                        </div>
+                        <div class="plan-months">
+                            <i18-n msgid="How much">How much</i18-n>:
+                            <span class="marked">[[plan.months]] <i18-n msgid="months">months</i18-n></span>
+                        </div>
+                    </div>
+                    <label class="overall" on-tap="back">
+                        <i18-n msgid="Overall to pay">Overall to pay</i18-n>:
+                    </label>
+                    <div class="to-pay">
+                        <span class="marked total-pay">[[_countToPay(plan,plan.months)]]$</span>
+                    </div>
+                    <div class="button-set">
+                        <button is="designmap-button" on-tap="back" gray  thin>
+                            <i18-n msgid="Back">Back</i18-n>
+                        </button>
+                        <button is="designmap-button" on-tap="next" blue  thin>
+                            <i18-n msgid="Proceed">Proceed</i18-n>
+                        </button>
+                    </div>
+                </div>
+            </iron-page>
+            <!-- Billing info -->
+            <iron-page id="billingIngo">
+                <form is="iron-form" id="form1">
+                    <div class="row">
+                        <div class="col col-md-12 col-xs-12">
+                            <paper-input value="{{fullName::change}}" required
+                                         error-message="[[translate('Cannot contain special symbols or tags',language,i18Loaded)]]"
+                                         pattern="[\w\dа-яА-ЯёЁ ]+"
+                                         auto-validate
+                                         required
+                                         label="[[translate('Full name',language,i18Loaded)]]"></paper-input>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col col-md-6 col-xs-12">
+                            <paper-input value="{{user.profile.country::change}}"
+                                         pattern="[\w\dа-яА-ЯёЁ -\+\,\.\#]+"
+                                         auto-validate
+                                         required
+                                         error-message="[[translate('Enter valid country',language,i18Loaded)]]"
+                                         label="[[translate('Country',language,i18Loaded)]]"></paper-input>
+                        </div>
+                        <div class="col col-md-6 col-xs-12">
+                            <paper-input value="{{user.profile.state::change}}"
+                                         auto-validate
+                                         required
+                                         error-message="[[translate('Enter valid state',language,i18Loaded)]]"
+                                         pattern="[\w\dа-яА-ЯёЁ ]+"
+                                         label="[[translate('State',language,i18Loaded)]]"></paper-input>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col col-md-6 col-xs-12">
+                            <paper-input value="{{user.profile.city::change}}"
+                                         pattern="[\w\dа-яА-ЯёЁ \-_0-9]+"
+                                         auto-validate
+                                         required
+                                         error-message="[[translate('Enter valid city',language,i18Loaded)]]"
+                                         label="[[translate('City',language,i18Loaded)]]"></paper-input>
+                        </div>
+                        <div class="col col-md-6 col-xs-12">
+                            <paper-input value="{{user.profile.address::change}}"
+                                         pattern="[\w\dа-яА-ЯёЁ \\\.\,\-\+\:_№]+"
+                                         auto-validate
+                                         required
+                                         error-message="[[translate('Enter valid address',language,i18Loaded)]]"
+                                         label="[[translate('Address',language,i18Loaded)]]"></paper-input>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col col-md-6 col-xs-12">
+                            <paper-input value="{{user.profile.zipCode::change}}"
+                                         pattern="[0-9]{1,6}"
+                                         auto-validate
+                                         required
+                                         error-message="[[translate('Enter valid zip code',language,i18Loaded)]]"
+                                         label="[[translate('Zip code',language,i18Loaded)]]"></paper-input>
+                        </div>
+                        <div class="col col-md-6 col-xs-12">
+                            <paper-input value="{{user.profile.phoneNumber::change}}"
+                                         pattern="[0-9\+\(\)#\- ]{1,16}"
+                                         auto-validate
+                                         required
+                                         error-message="[[translate('Enter valid phone number',language,i18Loaded)]]"
+                                         label="[[translate('Phone',language,i18Loaded)]]"></paper-input>
+                        </div>
+                    </div>
+                    <div class="button-set">
+                        <button is="designmap-button" on-tap="back" gray  thin>
+                            <i18-n msgid="Back">Back</i18-n>
+                        </button>
+                        <button is="designmap-button" on-tap="next" blue  thin>
+                            <i18-n msgid="Proceed">Proceed</i18-n>
+                        </button>
+                    </div>
+                </form>
+            </iron-page>
+            <!-- Card -->
+            <iron-page id="card">
+                <form is="iron-form" id="form2" on-submit="submitCardForm" >
+                    <paper-input name="name" label="[[translate('Name on card',language,i18Loaded)]]" required autocomplete="cc-name"></paper-input>
+                    <gold-cc-input id="ccNo" name="cc-number" label="[[translate('Card number',language,i18Loaded)]]" required auto-validate card-type="{{typeOfCard}}"></gold-cc-input>
+                    <div class="horizontal layout">
+                        <gold-cc-expiration-input id="exp" name="cc-expiration" required auto-validate label="[[translate('Expiration',language,i18Loaded)]]"></gold-cc-expiration-input>
+                        <gold-cc-cvc-input id="cvv" name="cc-cvc" required auto-validate card-type="[[typeOfCard]]"></gold-cc-cvc-input>
+                    </div>
+                    <div class="button-set">
+                        <button is="designmap-button" on-tap="back" gray  thin>
+                            <i18-n msgid="Back">Back</i18-n>
+                        </button>
+                        <button is="designmap-button" on-tap="submitCardForm" blue thin>
+                            <i18-n msgid="Submit Payment"> Submit Payment</i18-n>
+                        </button>
+                    </div>
+                </form>
+            </iron-page>
+        </iron-pages>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-pay',
+            behaviors: [
+                ReduxBehavior,
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior
+            ],
+            properties: {
+                plan: {
+                    type: Object
+                },
+                user: {
+                  type: Object,
+                    statePath:'user'
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    statePath: 'i18Loaded'
+                },
+                step: {
+                    type: Number,
+                    value: 0
+                },
+                fullName: {
+                    type: String,
+                    computed: '_buildFullName(user.profile.name,user.profile.lastName,user.profile)'
+                }
+            },
+            _countToPay: function(plan,months) {
+                return plan.price * months;
+            },
+            _isSelected: function(step,n) {
+                return step>=n?'selected':'';
+            },
+            _buildFullName: function(firstName,lastName,profile){
+                return firstName+' '+lastName;
+            },
+            back: function(e){
+                e.preventDefault();
+                if(this.step==0) return this.fire('back');
+                this.step--;
+            },
+            next: function(e){
+                e.preventDefault();
+                const form = this.$['form'+this.step];
+                if(!form) return this.step++;
+                if(!form.validate()) return this.showErrorMessage('Some of form fields is not valid');
+                this.step++;
+            },
+            selectStep: function(e){
+                if(this.step>parseInt(e.currentTarget.dataset.step)) this.step = parseInt(e.currentTarget.dataset.step);
+            },
+            submitCardForm: function(e){
+                e.preventDefault();
+                if(!this.$.form2.validate()) return this.showErrorMessage('Some of form fields is not valid');
+                this.requestToken();
+            },
+            requestToken: function(){
+                const exp = this.$.exp.value.split('/');
+                var args = {
+                    sellerId: "901355019",
+                    publishableKey: "E1E9DBE0-E6F6-4267-9380-AA3D16313001",
+                    ccNo: this.$.ccNo.value,
+                    cvv:  this.$.cvv.value,
+                    expMonth: exp[0],
+                    expYear: exp[1]
+                };
+                // Make the token request
+                TCO.requestToken(this.successCallback.bind(this), this.errorCallback.bind(this), args);
+            },
+            successCallback: function(data){
+                //this.chosenPlan.months = 3; // Set months
+                // Set the token as the value for the token input
+                const body = {
+                    userId: this.user._id,
+                    plan: this.plan,
+                    userInfo: this.user.profile,
+                    token: data.response.token.token
+                };
+                this.fire('app-loading',true);
+                xhr.post(Designmap.config.apiURL + 'pay',body).then(function(response){
+                    this.fire('app-loading',false);
+                    if(!response.success) return this.manageErrorResponse(response);
+                    console.log(response);
+                }.bind(this)).catch(function(err){
+                    this.fire('app-loading',false);
+                    this.manageErrorResponse(err);
+                });
+            },
+            errorCallback: function(data){
+                if (data.errorCode === 200) {
+                    // This error code indicates that the ajax call failed. We recommend that you retry the token request.
+                    this.showErrorMessage('Something went wrong. Try again after 1 minute.')
+                } else {
+                    this.showErrorMessage(data.errorMsg)
+                }
+            }
+        })
+    </script>
+</dom-module>

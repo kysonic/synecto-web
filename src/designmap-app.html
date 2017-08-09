@@ -369,7 +369,8 @@
                 'socket-connected': 'socketConnected',
                 'open-protocol-showcase': 'openProtocolShowcase',
                 'close-showcase-dialog':'closeShowCaseDialog',
-                'close-accesses':'closeShareDialog'
+                'close-accesses':'closeShareDialog',
+                'app-loading':'changeAppLoading'
             },
 
 
@@ -668,6 +669,10 @@
 
             _hideError: function(error, page){
                 return this.showErrorPage.indexOf(page)==-1 || !error;
+            },
+
+            changeAppLoading: function(e){
+                this.loading = e.detail;
             }
 
         });

@@ -6,6 +6,8 @@
 <link rel="import" href="/bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="/bower_components/paper-input/paper-textarea.html">
 
+<link rel="import" href="/bower_components/iron-pages/iron-pages.html">
+
 <link rel="import" href="../designmap-buttons/designmap-circle-button.html">
 <link rel="import" href="../designmap-buttons/designmap-loading-button.html">
 <link rel="import" href="../designmap-buttons/designmap-file-button.html">
@@ -380,9 +382,9 @@
                 </div>
             </div>
             <plastic-custom-scroll max-height="[[maxHeight]]" wheel-target="[[bodyNode]]">
-                <neon-animated-pages id="pages" cancel-bubble selected="[[selectedRoute]]"
+                <iron-pages id="pages" cancel-bubble selected="[[selectedRoute]]"
                                      entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
-                    <neon-animatable id="profile">
+                    <iron-page id="profile">
                         <form id="profile-form" is="iron-form">
                             <div class="row">
                                 <designmap-avatar id="avatar"></designmap-avatar>
@@ -390,13 +392,13 @@
                             <div class="row">
                                 <div class="col col-md-6 col-xs-12">
                                     <paper-input value="{{user.profile.name::change}}" required
-                                                 error-message="[[translate('Cannot contain special symbols or tags',language,i18Loaded)]]"
+                                                 error-message="[[translate('Enter valid name. Required.',language,i18Loaded)]]"
                                                  pattern="[\w\dа-яА-ЯёЁ ]+"
                                                  label="[[translate('First name',language,i18Loaded)]]"></paper-input>
                                 </div>
                                 <div class="col col-md-6 col-xs-12">
                                     <paper-input value="{{user.profile.lastName::change}}" required
-                                                 error-message="[[translate('Cannot contain special symbols or tags',language,i18Loaded)]]"
+                                                 error-message="[[translate('Enter valid name. Required.',language,i18Loaded)]]"
                                                  pattern="[\w\dа-яА-ЯёЁ ]+"
                                                  label="[[translate('Last name',language,i18Loaded)]]"></paper-input>
                                 </div>
@@ -409,13 +411,50 @@
                                 </div>
                                 <div class="col col-md-6 col-xs-12">
                                     <paper-input value="{{user.profile.company::change}}"
+                                                 pattern="[\w\dа-яА-ЯёЁ ]+"
                                                  label="[[translate('Company',language,i18Loaded)]]"></paper-input>
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col col-md-12 col-xs-12">
-                                    <paper-input id="editor" value="{{user.profile.aboutMe::change}}" max-rows="4"
-                                                 label="[[translate('About me',language,i18Loaded)]]"></paper-input>
+                                <div class="col col-md-6 col-xs-12">
+                                    <paper-input value="{{user.profile.country::change}}"
+                                                 pattern="[\w\dа-яА-ЯёЁ -\+\,\.\#]+"
+                                                 error-message="[[translate('Enter valid country',language,i18Loaded)]]"
+                                                 label="[[translate('Country',language,i18Loaded)]]"></paper-input>
+                                </div>
+                                <div class="col col-md-6 col-xs-12">
+                                    <paper-input value="{{user.profile.state::change}}"
+                                                 error-message="[[translate('Enter valid state',language,i18Loaded)]]"
+                                                 pattern="[\w\dа-яА-ЯёЁ ]+"
+                                                 label="[[translate('State',language,i18Loaded)]]"></paper-input>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col col-md-6 col-xs-12">
+                                    <paper-input value="{{user.profile.city::change}}"
+                                                 pattern="[\w\dа-яА-ЯёЁ \-_0-9]+"
+                                                 error-message="[[translate('Enter valid city',language,i18Loaded)]]"
+                                                 label="[[translate('City',language,i18Loaded)]]"></paper-input>
+                                </div>
+                                <div class="col col-md-6 col-xs-12">
+                                    <paper-input value="{{user.profile.address::change}}"
+                                                 pattern="[\w\dа-яА-ЯёЁ \\\.\,\-\+\:_№]+"
+                                                 error-message="[[translate('Enter valid address',language,i18Loaded)]]"
+                                                 label="[[translate('Address',language,i18Loaded)]]"></paper-input>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col col-md-6 col-xs-12">
+                                    <paper-input value="{{user.profile.zipCode::change}}"
+                                                 pattern="[0-9]{1,6}"
+                                                 error-message="[[translate('Enter valid zip code',language,i18Loaded)]]"
+                                                 label="[[translate('Zip code',language,i18Loaded)]]"></paper-input>
+                                </div>
+                                <div class="col col-md-6 col-xs-12">
+                                    <paper-input value="{{user.profile.phoneNumber::change}}"
+                                                 pattern="[0-9\+\(\)#\- ]{1,16}"
+                                                 error-message="[[translate('Enter valid phone number',language,i18Loaded)]]"
+                                                 label="[[translate('Phone',language,i18Loaded)]]"></paper-input>
                                 </div>
                             </div>
                             <button class="save-button" data-form="profile-form" id="saveProfileButton"
@@ -423,8 +462,8 @@
                                 <i18-n msgid="Save Settings">Save Settings</i18-n>
                             </button>
                         </form>
-                    </neon-animatable>
-                    <neon-animatable id="account">
+                    </iron-page>
+                    <iron-page id="account">
                         <form id="account-form" is="iron-form">
                             <div class="row">
                                 <!--<div class="col-md-12">
@@ -493,8 +532,8 @@
                                 <i18-n msgid="Save Settings">Save Settings</i18-n>
                             </button>
                         </form>
-                    </neon-animatable>
-                    <neon-animatable id="config">
+                    </iron-page>
+                    <iron-page id="config">
                         <form id="config-form" is="iron-form">
                             <div class="row">
                                 <div class="col-md-12 col-xs-12">
@@ -571,8 +610,8 @@
                                 <i18-n msgid="Save Settings">Save Settings</i18-n>
                             </button>
                         </form>
-                    </neon-animatable>
-                </neon-animated-pages>
+                    </iron-page>
+                </iron-pages>
             </plastic-custom-scroll>
         </div>
         </form>

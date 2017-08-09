@@ -1628,6 +1628,12 @@
   "Upgrade now": {
     "message": "Обновить план"
   },
+  "Downgrade": {
+    "message": "Понизить"
+  },
+  "Current": {
+    "message": "Текущий"
+  },
   "You can create only #COUNT# projects, according your plan.": {
     "message":"В соотвествии с Вашим планом, Вы можете добавить только #COUNT# проектов."
   },
@@ -1636,5 +1642,113 @@
   },
   "Your plan is expired. Upgrade it to proceed.": {
     "message":"Подписка на план просрочена. Обновите ее чтобы продолжить."
+  },
+  "Payment Authorization Failed: Please verify your information and try again, or try another payment method.": {
+    "message":"Ошибка авторизации: Пожалуйста проверьте Вашу информацию и попробуйте снова или выберите другой способ оплаты."
+  },
+  "You can update your plan not early than 7 days of its expiration.": {
+    "message":"Вы можете обновить свой план не ранее чем за 7 дней до его завершения. Если вы хотите сделать это раньше, обратитесь в техподдержку."
+  },
+  "Are you sure that you want to downgrade to startup plan. It is free but you won't be able to manage projects exceed your plan possibilities.": {
+    "message":"Вы уверены, что хотите понизить план?. Это бесплатно но Вы не сможете управлять проектами в которых привышены возможности этого плана."
+  },
+  "Address": {
+    "message": "Адрес"
+  },
+  "City": {
+    "message": "Город"
+  },
+  "State": {
+    "message": "Область"
+  },
+  "Zip code": {
+    "message": "Почтовый индекс"
+  },
+  "Country": {
+    "message": "Страна"
+  },
+  "Phone": {
+    "message": "Телефон"
+  },
+  "Plan": {
+    "message": "План"
+  },
+  "Price": {
+    "message": "Цена"
+  },
+  "How much": {
+    "message": "Сколько"
+  },
+  "months": {
+    "message": "месяцев"
+  },
+  "per month": {
+    "message": "в месяц"
+  },
+  "Overall to pay": {
+    "message": "Всего к оплате"
+  },
+  "Duration": {
+    "message": "Время действия"
+  },
+  "Billing info": {
+    "message": "Платежная информация"
+  },
+  "Card info": {
+    "message": "Карта"
+  },
+  "Back": {
+    "message": "Назад"
+  },
+  "Proceed": {
+    "message": "Продолжить"
+  },
+  "Full name": {
+    "message": "ФИО"
+  },
+  "Enter valid name. Required.": {
+    "message": "Введите имя правильно. Оно не может быть пустым."
+  },
+  "Enter valid country": {
+    "message": "Введите страну правильно."
+  },
+  "Enter valid state": {
+    "message": "Введите область правильно."
+  },
+  "Enter valid city": {
+    "message": "Введите город правильно."
+  },
+  "Enter valid address": {
+    "message": "Введите адрес правильно."
+  },
+  "Enter valid zip code": {
+    "message": "Введите индекс правильно. Не более 6 цифр"
+  },
+  "Enter valid phone number": {
+    "message": "Введите телефон правильно."
+  },
+  "Something went wrong. Try again after 1 minute.": {
+    "message": "Что-то пошло не так. Повторите запрос через 1 минуту."
+  },
+  "Name on card": {
+    "message": "Имя на карте"
+  },
+  "Expiration": {
+    "message": "Окончание"
+  },
+  "Submit Payment": {
+    "message": "Совершить платеж"
+  },
+  "Card number": {
+    "message": "Номер карты"
+  },
+  "Missing Form Fields": {
+    "message": "Заполните поля формы"
+  },
+  "Missing Card Data": {
+    "message": "Заполните данные карты"
+  },
+  "Bad request - missing data": {
+    "message": "Не верные данные"
   }
 }

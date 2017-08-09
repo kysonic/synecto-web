@@ -41,7 +41,10 @@
     "cbn-copy-clipboard": "CBN-IT/cbn-copy-clipboard#^1.0.1",
     "paper-tooltip": "kysonic/paper-tooltip#designmap",
     "textarea-caret-position": "component/textarea-caret-position#^3.0.2",
-    "iron-dropdown": "PolymerElements/iron-dropdown#1.5.6"
+    "iron-dropdown": "PolymerElements/iron-dropdown#1.5.6",
+    "gold-cc-input": "PolymerElements/gold-cc-input#^1.0.7",
+    "gold-cc-cvc-input": "PolymerElements/gold-cc-cvc-input#^1.0.10",
+    "gold-cc-expiration-input": "PolymerElements/gold-cc-expiration-input#^1.1.3"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"
