@@ -440,10 +440,12 @@
                 },
                 MQ: {
                     type: String,
-                    statePath: 'MQ',
-                    observer: 'mqChanged'
+                    statePath: 'MQ'
                 }
             },
+            observers: [
+                'changeOffset(MQ,user.plan)'
+            ],
             openLoginDialog: function (e) {
                 this.$.dialog.open();
             },
@@ -453,7 +455,9 @@
                 page.redirect('/');
                 this.dispatch('userLogout').then(function () {
                     this.$$("#dropdown").close();
-                    this.fire('app-loading',false);
+                    this.async(function(){
+                        this.fire('app-loading',false);
+                    },300);
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));
             },
             selectLanguage: function (e) {
@@ -521,8 +525,8 @@
                 this.async(this.updateStyles,10);
                 return isOpen?'opened':'';
             },
-            mqChanged: function(MQ){
-                this.horizontalOffset = MQ=='sm'?-223:-80;
+            changeOffset: function(MQ,plan){
+                this.horizontalOffset = MQ=='sm'?-223:plan&&plan.name=='startup'?-80:-105;
             },
             _isPremium: function(user) {
                 if(!user) return false;

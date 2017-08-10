@@ -180,7 +180,7 @@
     "message": "Открыть доступ"
   },
   "Update": {
-    "message": "Обновить"
+    "message": "Возобновить"
   },
   "User email": {
     "message": "Ввидите e-mail"
@@ -1593,7 +1593,7 @@
     "message": "Описание задачи не задано. Владелец проекта или задачи может изменить его..."
   },
   "Upgrade": {
-    "message": "Обновить"
+    "message": "Улучшить"
   },
   "Plans": {
     "message": "Управление планами"
@@ -1620,7 +1620,7 @@
     "message": "чат проекта"
   },
   "self support": {
-    "message": "самостоятельная поддержка"
+    "message": "без поддержки"
   },
   "premium support": {
     "message": "премиум поддержка"
@@ -1644,13 +1644,19 @@
     "message":"Подписка на план просрочена. Обновите ее чтобы продолжить."
   },
   "Payment Authorization Failed: Please verify your information and try again, or try another payment method.": {
-    "message":"Ошибка авторизации: Пожалуйста проверьте Вашу информацию и попробуйте снова или выберите другой способ оплаты."
+    "message":"Ошибка авторизации: Пожалуйста проверьте Вашу информацию и попробуйте снова."
+  },
+  "Authorization Failed": {
+    "message":"Ошибка авторизации: Пожалуйста проверьте Вашу информацию и попробуйте снова."
   },
   "You can update your plan not early than 7 days of its expiration.": {
     "message":"Вы можете обновить свой план не ранее чем за 7 дней до его завершения. Если вы хотите сделать это раньше, обратитесь в техподдержку."
   },
   "Are you sure that you want to downgrade to startup plan. It is free but you won't be able to manage projects exceed your plan possibilities.": {
-    "message":"Вы уверены, что хотите понизить план?. Это бесплатно но Вы не сможете управлять проектами в которых привышены возможности этого плана."
+    "message":"Вы уверены, что хотите понизить план? Это бесплатно но Вы не сможете управлять проектами в которых привышены возможности этого плана."
+  },
+  "Are you sure that you want to downgrade plan? You won't be able to manage projects exceed your plan possibilities.": {
+    "message":"Вы уверены, что хотите понизить план? Вы не сможете управлять проектами в которых привышены возможности этого плана."
   },
   "Address": {
     "message": "Адрес"
@@ -1750,5 +1756,26 @@
   },
   "Bad request - missing data": {
     "message": "Не верные данные"
+  },
+  "Plan tooltip": {
+    "message": "Вы сможете добавить до #TM# членов команды на каждый проект. В любой проект могут быть добавленны разные пользователи. Формируй команду как хочешь. И да... Получается что это всего лишь #PER#$ за пользователя"
+  },
+  "Plan exp": {
+    "message": "Ваш план доступен до "
+  },
+  "Your plan is upgraded successfully.": {
+    "message": "Ваш план успено обновлен. На Вашу почту было выслано письмо с деталями заказа."
+  },
+  "Months management": {
+    "message": "Ваш текущий план еще не истек. (Дата истечения: #DATE#) ЕСЛИ ВЫ ПРОДОЛЖИТЕ ПРЕДИДУЩИЙ ПЛАН БУДЕТ ПОТЕРЯН!"
+  },
+  "I agree with": {
+    "message": "Я согласен с"
+  },
+  "terms and policies": {
+    "message": "политикой платежей"
+  },
+  "Your plan has been downgraded.": {
+    "message": "Ваш план был понижен. Проекты в которых превышены возможности данного плана более не доступны."
   }
 }

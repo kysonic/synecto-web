@@ -41,10 +41,10 @@
                 }
             },
             _computeProgress: function(upload,storage){
-                return ((upload*100)/storage);
+                return (((upload/1024/1204)*100)/storage);
             },
             _computeNumbers: function(upload,storage){
-                return upload!=undefined?upload.toFixed(2)+'/'+storage+ ' MB':'---';
+                return upload!=undefined?(upload/1024/1204).toFixed(2)+'/'+storage+ ' MB':'---';
             }
         })
     </script>

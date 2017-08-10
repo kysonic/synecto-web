@@ -1608,7 +1608,7 @@
     "message": "3 projects"
   },
   "self support": {
-    "message": "self support"
+    "message": "without support"
   },
   "premium support": {
     "message": "premium support"
@@ -1632,13 +1632,19 @@
     "message":"Your plan is expired. Upgrade it to proceed."
   },
   "Payment Authorization Failed: Please verify your information and try again, or try another payment method.": {
-    "message":"Payment Authorization Failed: Please verify your information and try again, or try another payment method."
+    "message":"Payment Authorization Failed: Please verify your information and try again."
+  },
+  "Authorization Failed": {
+    "message":"Payment Authorization Failed: Please verify your information and try again."
   },
   "You can update your plan not early than 7 days of its expiration.": {
     "message":"You can update your plan not early than 7 days of its expiration. If you want to do it right now, ask support how."
   },
   "Are you sure that you want to downgrade to startup plan. It is free but you won't be able to manage projects exceed your plan possibilities.": {
-    "message":"Are you sure that you want to downgrade to startup plan? It is free but you won't be able to manage projects which exceed possibilities of free plan."
+    "message":"Are you sure that you want to downgrade a plan? It is free but you won't be able to manage projects which exceed possibilities of free plan."
+  },
+  "Are you sure that you want to downgrade plan? You won't be able to manage projects exceed your plan possibilities.": {
+    "message":"Are you sure that you want to downgrade plan? You won't be able to manage projects exceed your plan possibilities."
   },
   "Address": {
     "message": "Address"
@@ -1738,5 +1744,26 @@
   },
   "Bad request - missing data": {
     "message": "Bad request - missing data"
+  },
+  "Plan tooltip": {
+    "message": "You will be able to add up to #TM# team members on each project. Each project can contain different users. Form your team like you want. And... It turns out that this is just #PER#$ per user"
+  },
+  "Plan exp": {
+    "message": "Your current plan is available up to "
+  },
+  "Your plan is upgraded successfully.": {
+    "message": "Your plan is upgraded successfully. Email with order details has been sent on your email address."
+  },
+  "Months management": {
+    "message": "Your current plan is active right now. (Expiration date: #DATE#) IF YOU WILL PROCEED OLD PLAN WILL BE DROPPED!"
+  },
+  "I agree with": {
+    "message": "I agree with"
+  },
+  "terms and policies": {
+    "message": "terms and policies"
+  },
+  "Your plan has been downgraded.": {
+    "message": "Your plan has been downgraded."
   }
 }

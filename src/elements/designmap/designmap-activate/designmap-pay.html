@@ -7,10 +7,13 @@
 <link rel="import" href="/bower_components/gold-cc-expiration-input/gold-cc-expiration-input.html">
 
 <link rel="import" href="../../../styles/flex-grid-shared-styles.html">
+<link rel="import" href="../designmap-buttons/designmap-loading-button.html">
+<link rel="import" href="/bower_components/paper-checkbox/paper-checkbox.html">
 
 <!-- Redux -->
 <link rel="import" href="../../../redux/redux-store.html">
-
+<link rel="import" href="../../../redux/actions/user-actions.html">
+<!-- 2C0 -->
 <script type="text/javascript" src="https://www.2checkout.com/checkout/api/2co.min.js"></script>
 
 <dom-module id="designmap-pay">
@@ -40,6 +43,10 @@
                 --paper-slider-knob-color: var(--blue-darkest-color);
                 --paper-slider-markers-color: var(--blue-darkest-color);
                 --paper-slider-pin-color: var(--blue-darkest-color);
+
+                /** CHECKBOX **/
+                --paper-checkbox-unchecked-color: var(--gray-darkend-color);
+                --paper-checkbox-checked-color: var(--blue-color);
             }
 
             gold-cc-expiration-input, gold-cc-cvc-input {
@@ -129,18 +136,24 @@
             .overall {
                 display: block;
                 width: 100%;
-                text-align: center;
+                text-align: left;
                 margin-top: 20px;
             }
 
             .to-pay {
                 width: 100%;
-                text-align: center;
+                text-align: right;
                 font-size: 20px;
             }
 
             .total-pay {
                 font-size: 32px;
+            }
+            .message {
+                color: var(--expired);
+                text-align: center;
+                text-transform: uppercase;
+                font-size: 14px;
             }
             /** Button set **/
             .button-set {
@@ -152,16 +165,51 @@
                 min-width: 200px;
             }
 
+            /** Terms **/
+
+            .terms {
+                margin-top: 10px;
+                color: var(--gray-darkend-color);
+            }
+            .terms > * {
+                display: inline-block;
+                vertical-align: middle;
+            }
+            .terms a {
+                color: var(--blue-darkest-color);
+            }
+
+            @media (min-width: 320px) and (max-width: 768px) {
+                .button-set {
+                    flex-direction: column;
+                }
+                .plan-name, .plan-price, .plan-months {
+                    text-align: center;
+                }
+                .steps .step {
+                    font-size: 14px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .num {
+                    display: none;
+                }
+            }
+
         </style>
         <div class="steps">
-            <div class$="step [[_isSelected(step,0)]]" on-tap="selectStep" data-step="0">1. <i18-n msgid="Duration">Duration</i18-n></div>
-            <div class$="step [[_isSelected(step,1)]]" on-tap="selectStep" data-step="1">2. <i18-n msgid="Billing info">Billing info</i18-n></div>
-            <div class$="step [[_isSelected(step,2)]]" >3. <i18-n msgid="Card info">Card info</i18-n></div>
+            <div class$="step [[_isSelected(step,0)]]" on-tap="selectStep" data-step="0"><span class="num">1.</span><i18-n msgid="Duration">Duration</i18-n></div>
+            <div class$="step [[_isSelected(step,1)]]" on-tap="selectStep" data-step="1"><span class="num">2.</span> <i18-n msgid="Billing info">Billing info</i18-n></div>
+                <div class$="step [[_isSelected(step,2)]]" ><span class="num">3.</span> <i18-n msgid="Card info">Card info</i18-n></div>
         </div>
         <iron-pages selected="[[step]]">
             <!-- Duration -->
             <iron-page>
                 <div class="pay-info">
+                    <div class="message" hidden$="[[!_showMonthsMsg(user.plan)]]">
+                        [[_getMonthsManagementMsg(user.plan,language,i18Loaded)]]
+                    </div>
                     <div class="slider">
                         <label class="slider-label"><i18-n msgid="months">months</i18-n></label>
                         <div class="from">1</div>
@@ -182,11 +230,13 @@
                             <span class="marked">[[plan.months]] <i18-n msgid="months">months</i18-n></span>
                         </div>
                     </div>
-                    <label class="overall" on-tap="back">
-                        <i18-n msgid="Overall to pay">Overall to pay</i18-n>:
-                    </label>
-                    <div class="to-pay">
-                        <span class="marked total-pay">[[_countToPay(plan,plan.months)]]$</span>
+                    <div class="block">
+                        <label class="overall" on-tap="back">
+                            <i18-n msgid="Overall to pay">Overall to pay</i18-n>:
+                        </label>
+                        <div class="to-pay">
+                            <span class="marked total-pay">[[_countToPay(plan,plan.months)]]$</span>
+                        </div>
                     </div>
                     <div class="button-set">
                         <button is="designmap-button" on-tap="back" gray  thin>
@@ -203,7 +253,7 @@
                 <form is="iron-form" id="form1">
                     <div class="row">
                         <div class="col col-md-12 col-xs-12">
-                            <paper-input value="{{fullName::change}}" required
+                            <paper-input id="name" value="{{fullName::change}}" required
                                          error-message="[[translate('Cannot contain special symbols or tags',language,i18Loaded)]]"
                                          pattern="[\w\dа-яА-ЯёЁ ]+"
                                          auto-validate
@@ -284,11 +334,20 @@
                         <gold-cc-expiration-input id="exp" name="cc-expiration" required auto-validate label="[[translate('Expiration',language,i18Loaded)]]"></gold-cc-expiration-input>
                         <gold-cc-cvc-input id="cvv" name="cc-cvc" required auto-validate card-type="[[typeOfCard]]"></gold-cc-cvc-input>
                     </div>
+                    <div class="terms">
+                        <paper-checkbox checked="{{terms::change}}"></paper-checkbox>
+                        <div class="lbl" on-tap="termsOn">
+                            <i18-n msgid="I agree with">I agree with</i18-n>
+                            <a href="https://www.2checkout.com/policies/terms-of-use/" target="_blank">
+                                <i18-n msgid="terms and policies">terms and policies</i18-n>
+                            </a>
+                        </div>
+                    </div>
                     <div class="button-set">
                         <button is="designmap-button" on-tap="back" gray  thin>
                             <i18-n msgid="Back">Back</i18-n>
                         </button>
-                        <button is="designmap-button" on-tap="submitCardForm" blue thin>
+                        <button disabled="[[!terms]]" is="designmap-loading-button" blue thin id="loadingButton" on-tap="submitCardForm" blue thin>
                             <i18-n msgid="Submit Payment"> Submit Payment</i18-n>
                         </button>
                     </div>
@@ -301,6 +360,7 @@
             is: 'designmap-pay',
             behaviors: [
                 ReduxBehavior,
+                Polymer.CombineActions(Polymer.UserActions),
                 Polymer.DesignMapMessagesBehavior,
                 Polymer.DesignMapUtilsBehavior
             ],
@@ -327,6 +387,10 @@
                 fullName: {
                     type: String,
                     computed: '_buildFullName(user.profile.name,user.profile.lastName,user.profile)'
+                },
+                terms: {
+                    type: Boolean,
+                    value: false
                 }
             },
             _countToPay: function(plan,months) {
@@ -355,6 +419,8 @@
             },
             submitCardForm: function(e){
                 e.preventDefault();
+                if(this.$.loadingButton.loading) return;
+                if(!this.terms) return;
                 if(!this.$.form2.validate()) return this.showErrorMessage('Some of form fields is not valid');
                 this.requestToken();
             },
@@ -368,27 +434,40 @@
                     expMonth: exp[0],
                     expYear: exp[1]
                 };
+                this.$.loadingButton.loading = true;
                 // Make the token request
                 TCO.requestToken(this.successCallback.bind(this), this.errorCallback.bind(this), args);
             },
             successCallback: function(data){
-                //this.chosenPlan.months = 3; // Set months
                 // Set the token as the value for the token input
                 const body = {
                     userId: this.user._id,
                     plan: this.plan,
-                    userInfo: this.user.profile,
+                    billingAddr: {
+                        "name": this.$.name.value,
+                        "addrLine1": this.user.profile.address,
+                        "city":  this.user.profile.city,
+                        "state":  this.user.profile.state,
+                        "zipCode":  this.user.profile.zipCode,
+                        "country":  this.user.profile.country,
+                        "email":  this.user.local.email,
+                        "phoneNumber":  this.user.profile.phoneNumber
+                    },
                     token: data.response.token.token
                 };
-                this.fire('app-loading',true);
                 xhr.post(Designmap.config.apiURL + 'pay',body).then(function(response){
-                    this.fire('app-loading',false);
+                    this.$.loadingButton.loading = false;
                     if(!response.success) return this.manageErrorResponse(response);
-                    console.log(response);
+                    this.dispatch('_userUpdate',{plan:response.plan});
+                    this.showMessage('Your plan is upgraded successfully.');
+                    this.fire('back');
+                    this.fire('project-error','');
+                    this.step = 0;
+                    page.redirect('/');
                 }.bind(this)).catch(function(err){
-                    this.fire('app-loading',false);
+                    this.$.loadingButton.loading = false;
                     this.manageErrorResponse(err);
-                });
+                }.bind(this));
             },
             errorCallback: function(data){
                 if (data.errorCode === 200) {
@@ -397,6 +476,17 @@
                 } else {
                     this.showErrorMessage(data.errorMsg)
                 }
+            },
+            _showMonthsMsg: function(plan) {
+                if(!plan) return  0;
+                const currentDate = new Date();
+                return plan.name!='startup' && new Date(plan.expired)>currentDate.setDate(currentDate.getDate()+7);
+            },
+            _getMonthsManagementMsg: function(plan){
+                return this.replaceExpressions(this.translate('Months management'),{'#DATE#':moment(plan.expired).format('DD-MM-YYYY')})
+            },
+            termsOn: function(){
+                this.terms = true;
             }
         })
     </script>

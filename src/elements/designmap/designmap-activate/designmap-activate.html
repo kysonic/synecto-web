@@ -2,19 +2,22 @@
 <link rel="import" href="/bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="/bower_components/paper-input/paper-input.html">
 <link rel="import" href="/bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="/bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../designmap-buttons/designmap-button.html">
 <link rel="import" href="../../../behaviors/designmap-messages-behavior.html">
 <link rel="import" href="../../../behaviors/deisgnmap-utils-behavior.html">
 <link rel="import" href="../designmap-ui/designmap-dashboard.html">
 <link rel="import" href="../designmap-buttons/designmap-button.html">
+<link rel="import" href="../../../styles/tooltip-shared-styles.html">
 
 <link rel="import" href="./designmap-pay.html">
 
-
+<link rel="import" href="../../../redux/redux-store.html">
+<link rel="import" href="../../../redux/actions/user-actions.html">
 
 <dom-module id="designmap-activate">
     <template>
-        <style>
+        <style  include="tooltip-shared-styles">
             :host {
                 width: 100%;
             }
@@ -53,32 +56,39 @@
                 color: var(--blue-darkest-color);
                 margin-left: 20px;
                 max-width: 380px;
+                position: relative;
             }
             .plan:first-child {
                 margin-left: 0;
             }
             .plan .header {
-                height: 80px;
+                height: 90px;
                 background: var(--gray-lightern-color);
-                padding: 35px;
+                padding: 10px 35px;
                 font-weight: 500;
             }
-            .plan .header > * {
+            .plan .header .prc {
+                text-align: center;
+            }
+            .plan .header .prc > * {
                 display: inline-block;
             }
 
             .plan .header .price {
-                font-size: 55px;
+                font-size: 35px;
+                margin-left: 5px;
+                color: var(--blue-darkester-color);
             }
             .plan .header .dollar {
                 font-size: 28px;
                 position: relative;
-                right: 3px;
+                margin-left: 5px;
             }
 
             .plan .header .name {
                 font-size: 28px;
-                margin-left: 10px;
+                text-transform: capitalize;
+                text-align: center;
             }
 
             .plan .content {
@@ -89,6 +99,7 @@
             .content .feature {
                 font-size: 18px;
                 margin-top: 10px;
+                text-align: center;
             }
             .content .feature:first-child {
                 margin-top: 0;
@@ -101,6 +112,51 @@
             .button-set {
                 margin-top: 20px;
                 text-align: center;
+            }
+            .current {
+                position: absolute;
+                background: var(--gray-saturate-color);
+                border-radius: 50%;
+                left: 100%;
+                width: 30px;
+                height: 30px;
+                top: 5px;
+                margin-left: -35px;
+                transform: rotate(135deg);
+            }
+            .current:hover {
+                cursor: help;
+                background: var(--gray-saturated-color);
+                transition: .2s background ease-in;
+            }
+            .checkmark_stem {
+                position: absolute;
+                width: 3px;
+                height: 9px;
+                background-color: var(--white-color);
+                top: 11px;
+                left: 19px;
+            }
+
+            .checkmark_kick {
+                position: absolute;
+                width: 14px;
+                height: 3px;
+                background-color: var(--white-color);
+                left: 6px;
+                top: 11px;
+            }
+            .dashed {
+                border-bottom: 1px dashed var(--blue-darkest-color);
+                cursor: help;
+            }
+            .Downgrade {
+                background: var(--gray-color);
+                border-color: var(--gray-color);
+            }
+            .Downgrade:hover {
+                background: var(--gray-saturate-color);
+                border-color: var(--gray-saturate-color);
             }
             /** Card **/
             .card {
@@ -115,7 +171,40 @@
                 max-width: 680px;
             }
 
+            @media (min-width: 1024px) and (max-width: 1280px) {
+                .plans .plan {
+                   min-width: 290px;
+                }
+            }
 
+            @media (min-width: 320px) and (max-width: 768px) {
+                .wrapper {
+                    height: 100%;
+                }
+                .wrapper > .content {
+                    width: 100%;
+                    padding: 0;
+                    bottom: 0;
+                    top: 10px;
+                }
+                .plans {
+                    flex-direction: column;
+                    margin-top: 40px;
+                }
+                .plans .plan {
+                    margin-left: 0;
+                    min-width: 300px;
+                    max-width: 300px;
+                    margin-top: 10px;
+                }
+                .plans .plan:first-child {
+                    margin-top: 0;
+                }
+                .card designmap-pay {
+                    max-width: 90%;
+                }
+
+            }
 
         </style>
         <designmap-dashboard back back-url="[[_computeBackUrl(projectId)]]">
@@ -123,8 +212,15 @@
                 <i18-n msgid="Activate premium"></i18-n>
             </div>
         </designmap-dashboard>
-        <designmap-confirm id="downgradeConfirm" message="Are you sure that you want to downgrade to startup plan. It is free but you won't be able to manage projects exceed your plan possibilities.">
-
+        <designmap-confirm id="startupConfirm"
+                           on-continue="downgradeToStratup"
+                           on-suspend="closeDowngradeConfirm"
+                           message="Are you sure that you want to downgrade to startup plan. It is free but you won't be able to manage projects exceed your plan possibilities.">
+        </designmap-confirm>
+        <designmap-confirm id="downgradeConfirm"
+                           on-continue="next"
+                           on-suspend="closeDowngradeConfirm"
+                           message="Are you sure that you want to downgrade plan? You won't be able to manage projects exceed your plan possibilities.">
         </designmap-confirm>
         <div class="wrapper">
             <div class="content">
@@ -139,17 +235,29 @@
                 <div class="plans" hidden$="[[cardMode]]">
                     <template is="dom-repeat" items="[[plans]]" as="plan">
                         <div class="plan">
+                            <div id$="current[[index]]" class="current" hidden$="[[_isCurrent(user.plan,plan)]]">
+                                <div class="checkmark_stem"></div>
+                                <div class="checkmark_kick"></div>
+                            </div>
+                            <paper-tooltip position="left" for$="current[[index]]">
+                                <span>[[_getPlanExpMsg(user.plan,language,i18Loaded)]]</span>
+                            </paper-tooltip>
                             <div class="header">
-                                <div class="price">[[plan.price]]</div><span class="dollar">$/mo.</span>
-                                <div class="name">[[plan.name]]</div>
+                                <div class="name">&laquo;[[plan.name]]&raquo;</div>
+                                <div class="prc">
+                                    <div class="price">[[plan.price]]</div><span class="dollar">$/mo.</span>
+                                </div>
                             </div>
                             <div class="content">
                                 <div class="features">
-                                    <div class="feature">
-                                        <i18-n msgid="up to">up to</i18-n>
-                                        <span>[[plan.teamMembers]]</span>
-                                        <i18-n msgid="team members">team members</i18-n>
+                                    <div id$="teamMember[[index]]" class="feature">
+                                        <i18-n msgid="up to" class$="[[_isDashed(plan)]]">up to</i18-n>
+                                        <span class$="[[_isDashed(plan)]]">[[plan.teamMembers]]</span>
+                                        <i18-n msgid="team members" class$="[[_isDashed(plan)]]">team members</i18-n>
                                     </div>
+                                    <paper-tooltip for$="teamMember[[index]]">
+                                        <span>[[_getTeamMemberTooltipMsg(plan,language,i18Loaded)]]</span>
+                                    </paper-tooltip>
                                     <div class="feature">
                                         <span>[[_countDataSpace(plan.storage)]]</span>
                                         <i18-n msgid="storage">storage</i18-n>
@@ -161,8 +269,8 @@
                                     </template>
                                 </div>
                                 <div class="button-set">
-                                    <button on-click="selectPlan" disabled="[[_disableButton(user.plan,plan.name)]]" is="designmap-button" blue fit class="button">
-                                        [[_buttonTitle(user.plan,plan.name,language,i18Loaded)]]
+                                    <button class$="[[_getCodeName(user.plan,plan)]]" on-click="selectPlan" disabled="[[_disableButton(user.plan,plan.name)]]" is="designmap-button" blue fit class="button">
+                                        [[_buttonTitle(user.plan,plan,language,i18Loaded)]]
                                     </button>
                                 </div>
                             </div>
@@ -182,6 +290,7 @@
             is: 'designmap-activate',
             behaviors: [
                 ReduxBehavior,
+                Polymer.CombineActions(Polymer.UserActions),
                 Polymer.DesignMapMessagesBehavior,
                 Polymer.DesignMapUtilsBehavior
             ],
@@ -222,6 +331,7 @@
                             storage: 500,
                             price: 0,
                             months: 3,
+                            power:0,
                             features: [
                                 '3 projects',
                                 'self support'
@@ -233,6 +343,7 @@
                             months: 3,
                             storage: 5000,
                             price: 15,
+                            power:1,
                             features: [
                                 'unlimited projects',
                                 'premium support'
@@ -244,6 +355,7 @@
                             storage: 10000,
                             price: 30,
                             months: 3,
+                            power:2,
                             features: [
                                 'unlimited projects',
                                 'premium support'
@@ -271,31 +383,73 @@
             _countDataSpace: function(storage){
                 return storage<1000 ? storage +' MB' : storage/1000+ ' GB';
             },
+            _isCurrent: function(userPlan,plan){
+                return userPlan.name!=plan.name;
+            },
             _disableButton: function(plan,name){
-                return plan.name==name && new Date(plan.expired)>new Date();
+                return plan.name==name && name=='startup';
             },
-            _getCodeName: function(plan,name){
-                if(name=='startup' && plan.name!='startup') return 'Downgrade';
-                if(plan.name==name) return 'Current';
-                const currentDate = new Date();
-                if(new Date(plan.expired)<currentDate.setDate(currentDate.getDate()+7)) return 'Update';
-                return 'Upgrade now';
+            _getCodeName: function(userPlan,plan){
+                if(this._getUserPlanPower(userPlan)>plan.power) return 'Downgrade';
+                if(userPlan.name==plan.name) return 'Update';
+                return 'Upgrade';
             },
-            _buttonTitle: function(plan,name,lng,loaded){
-               return this.translate(this._getCodeName(plan,name));
+            _getUserPlanPower: function(userPlan){
+                let found = {power:0};
+                this.plans.forEach(function(plan){
+                    if(userPlan.name==plan.name) found = plan;
+                });
+                return found.power;
+            },
+            _buttonTitle: function(userPlan,plan,lng,loaded){
+               return this.translate(this._getCodeName(userPlan,plan));
             },
             selectPlan: function(e){
-                const currentDate = new Date();
-                if(this.user.plan.name==e.model.plan.name && new Date(this.user.plan.expired)>currentDate.setDate(currentDate.getDate()+7)) return this.showMessage('You can update your plan not early than 7 days of its expiration.');
-                if(e.model.plan=='startup') return this.openDowngradeConfirm();
                 this.chosenPlan = e.model.plan;
-                this.cardMode = true;
+                if(e.model.plan.name=='startup') return this.openStartupConfirm();
+                if(this._getUserPlanPower(this.user.plan)>e.model.plan.power) return this.openDowngradeConfirm();
+                this.next();
+            },
+            openStartupConfirm: function(){
+                this.$.startupConfirm.open();
             },
             openDowngradeConfirm: function(){
                 this.$.downgradeConfirm.open();
             },
+            closeDowngradeConfirm: function(){
+                this.$.startupConfirm.close();
+                this.$.downgradeConfirm.close();
+            },
+            downgradeToStratup: function(){
+                this.closeDowngradeConfirm();
+                xhr.post(Designmap.config.apiURL + 'pay/downgrade').then(function(response){
+                    if(!response.success) return this.manageErrorResponse(response);
+                    this.dispatch('_userUpdate',{plan:response.plan});
+                    this.showMessage('Your plan has been downgraded.');
+                    this.back();
+                    this.fire('project-error','');
+                    page.redirect('/');
+                }.bind(this)).catch(function(err){
+                    this.manageErrorResponse(err);
+                }.bind(this));
+            },
+            next: function(){
+                this.closeDowngradeConfirm();
+                this.cardMode = true;
+            },
             back: function(){
                 this.cardMode = false;
+            },
+            _getTeamMemberTooltipMsg: function(plan){
+                if(plan.name=='startup') return '';
+                return this.replaceExpressions(this.translate('Plan tooltip'),{'#TM#':plan.teamMembers,'#PER#':plan.price/plan.teamMembers})
+            },
+            _isDashed: function(plan){
+                return  plan.name=='startup'?'':'dashed';
+            },
+            _getPlanExpMsg: function(plan){
+                if(plan.name=='startup') return '';
+                return this.translate('Plan exp')+ moment(plan.expired).format('DD-MM-YYYY');
             }
         })
     </script>
