@@ -614,6 +614,8 @@
         this._incrMonth(1);
       },
       _dateChanged: function(date, oldValue) {
+        if(!date) return;
+        if(typeof date=='string') date=new Date(date);
         if (!this._isValidDate(date)) {
           console.warn('Invalid date: ' + date);
           this.date = date = oldValue;

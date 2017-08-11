@@ -450,15 +450,18 @@
                 this.$.dialog.open();
             },
             logout: function () {
-                this.fire('app-loading',true);
+                document.querySelector('#globalLoading').style.display = 'flex';
                 if (this.$$('#logout').disabled) return;
                 page.redirect('/');
                 this.dispatch('userLogout').then(function () {
                     this.$$("#dropdown").close();
                     this.async(function(){
-                        this.fire('app-loading',false);
+                        document.querySelector('#globalLoading').style.display = 'none';
                     },300);
-                }.bind(this)).catch(this.manageErrorResponse.bind(this));
+                }.bind(this)).catch(function(err){
+                    document.querySelector('#globalLoading').style.display = 'none';
+                    this.manageErrorResponse(err);
+                });
             },
             selectLanguage: function (e) {
                 this.user.system.language = e.detail.value;

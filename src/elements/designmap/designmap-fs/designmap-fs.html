@@ -258,6 +258,11 @@
                     statePath: 'path',
                     observer: '_pathChanged'
                 },
+                readyState: {
+                    type: String,
+                    statePath: 'ready',
+                    observer: '_readyChanged'
+                },
                 project: {
                     type: Object,
                     statePath: 'project'
@@ -414,6 +419,10 @@
                 if (!path) return this.currentFolderId = null;
                 const folder = this.findFolderByPath(path);
                 this.currentFolderId = folder ? folder._id : null;
+            },
+
+            _readyChanged: function(ready){
+                this._pathChanged(this.path);
             },
 
             /**

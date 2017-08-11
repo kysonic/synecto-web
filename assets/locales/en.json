@@ -1167,7 +1167,7 @@
     "message": "You do not have tasks yet..."
   },
   "There is no selected project yet...": {
-    "message": "Select a project in left menu or create new one..."
+    "message": "Create new project"
   },
   "Trash bin is empty...": {
     "message": "Trash bin is empty..."
@@ -1765,5 +1765,8 @@
   },
   "Your plan has been downgraded.": {
     "message": "Your plan has been downgraded."
+  },
+  "There are no projects": {
+    "message": "There are no projects..."
   }
 }

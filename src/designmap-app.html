@@ -49,6 +49,7 @@
 <link rel="import" href="redux/actions/tasks-actions.html">
 <!-- Behaviors -->
 <link rel="import" href="behaviors/designmap-messages-behavior.html">
+<link rel="import" href="elements/designmap/designmap-fs/designmap-fs-service.html">
 <link rel="import" href="behaviors/designmap-socket-behavior.html">
 <link rel="import" href="deisgnmap-routing.html">
 
@@ -67,7 +68,7 @@
                 color: #fff;
                 background-color: var(--gray-lightern-color);
                 height: var(--header-height);
-                z-index: 900;
+                z-index: 1000;
             }
 
             app-header[hidden] {
@@ -77,7 +78,7 @@
             app-drawer {
                 border-right: 1px solid var(--gray-color);
                 --app-drawer-width: var(--sidebar-width);
-                z-index: 900;
+                z-index: 1000;
             }
 
             app-drawer#right {
@@ -104,13 +105,6 @@
             designmap-info {
                 height: calc(100vh - var(--header-height));
                 margin-top: var(--header-height);
-            }
-
-            .loading-overlay {
-                position: absolute;
-                background: var(--white-color);
-                width: 100%;
-                height: 100%;
             }
 
             .beta {
@@ -190,13 +184,15 @@
             </app-drawer>
 
             <!-- Main content -->
-            <app-header-layout has-scrolling-region>
+            <app-header-layout id="headerLayout" has-scrolling-region>
 
                 <app-header id="header" condenses reveals effects="waterfall">
                     <app-toolbar>
                         <designmap-header id="dmHeader"></designmap-header>
                     </app-toolbar>
                 </app-header>
+
+                <div id="appLoading" hidden$="[[!loading]]" class="loading-overlay"><div class="uil-reload-css"><div></div></div></div>
 
                 <iron-pages
                         id="pages"
@@ -251,13 +247,13 @@
                 Polymer.DesignMapMessagesBehavior,
                 Polymer.DesignmapSocketBehavior,
                 Polymer.DesignmapRouting,
+                Polymer.DesignMapFsService,
                 Polymer.IronResizableBehavior
             ],
             properties: {
                 loading: {
                     type: Boolean,
-                    value: true,
-                    observer: '_loadingChanged'
+                    value: true
                 },
                 page: {
                     type: String,
@@ -275,6 +271,11 @@
                     type: String,
                     observer: '_pathChanged'
                 },
+                readyState: {
+                    type: Boolean,
+                    value: true,
+                    observer: '_readyStateChanged'
+                },
                 hash: {
                     type: String,
                     observer: '_hashChanged'
@@ -288,6 +289,10 @@
                 project: {
                     type: Object,
                     statePath: 'project'
+                },
+                projects: {
+                    type: Object,
+                    statePath: 'projects'
                 },
                 error: {
                     type: String,
@@ -352,6 +357,10 @@
                 showErrorPage: {
                     type: Array,
                     value: ['fs','task-manager','trash']
+                },
+                loaded: {
+                    type: Number,
+                    value: 0
                 }
             },
 
@@ -380,7 +389,8 @@
                 this.uid = Designmap.uid = this.generateUid();
                 // Get possible current user
                 this.dispatch('getCurrentUser').then(function(){
-                    this.async(function(){this.loading = false;},100);
+                    if(!this.user) this.loading = false;
+                    document.getElementById('globalLoading').style.display = 'none';
                 }.bind(this));
                 // Update languages
                 this.$.i18nDomain.addEventListener('i18-n-locale-ready', function () {
@@ -389,22 +399,23 @@
                 });
             },
 
-            _loadingChanged: function(loading){
-                document.getElementById('appLoading').style.display = loading?'flex':'none';
-            },
-
             _pageChanged: function (page) {
                 this._setLayoutState(NO_HEADER_PAGES.indexOf(page)!==-1);
                 // Load page import on demand. Show 404 page if fails
                 const resolvedPageUrl = this.resolveUrl('./views/designmap-' + page + '-view.html');
                 this.loading = true;
                 this.importHref(resolvedPageUrl, function(){
-                    this.loading = false;
+                    if(this.page=='login') this.loading = false;
+                    if(this.user && this.readyState) this.loading = false;
                 }, this._showPage404, true);
             },
 
             _pathChanged: function (path) {
                 this.dispatch('updatePath', path);
+            },
+
+            _readyStateChanged: function (ready) {
+                this.dispatch('updateReady', ready);
             },
 
             _hashChanged: function (hash) {
@@ -458,6 +469,7 @@
                 if(this.project) return this.getProjectData();
                 // Get project data
                 this.loading = true;
+                this.readyState = false;
                 this.dispatch('getProject', projectId).then(function (response) {
                     if(!response.success && response.errors.code=='planExpired') {
                         this.error = response.errors.message;
@@ -488,12 +500,12 @@
              * Get all project data
              */
             getProjectData: function () {
-                this.dispatch('getFolders', {scope: this.project._id});
-                this.dispatch('getFiles', {project: this.project._id}).then(function(res){this.loading = false;}.bind(this));
+                this.dispatch('getFolders', {scope: this.project._id}).then(this._done.bind(this));
+                this.dispatch('getFiles', {project: this.project._id}).then(this._done.bind(this));
                 this.dispatch('getStickers', {project: this.project._id});
                 this.dispatch('getComments', {project: this.project._id});
                 this.dispatch('getMessages', {project: this.project._id, mpr: this.$.chat.mpr});
-                this.dispatch('getTasks', {project: this.project._id});
+                this.dispatch('getTasks', {project: this.project._id}).then(this._done.bind(this));
             },
 
             /**
@@ -518,6 +530,22 @@
                 this.dispatch('cleanTasks');
                 this.dispatch('cleanComments');
                 this.dispatch('cleanMessages');
+            },
+
+            _done: function(){
+                this.loaded++;
+                if(this.loaded==3) this._loaded();
+            },
+
+            _loaded: function(){
+                this.loading = false;
+                this.readyState = true;
+                this.loaded = 0;
+            },
+
+            _unloaded: function(){
+                this.loaded = 0;
+                this.readyState = false;
             },
 
             /**
@@ -618,6 +646,19 @@
 
             _openProjectRemoveConfirm: function(){
                 this.$.removeProjectConfirm.open();
+            },
+
+            /**
+             * Remove current project
+             */
+            removeIt: function () {
+                this.$.removeProjectConfirm.close();
+                this.async(function(){ this.$.advancedMenu.$.projectContextMenu.close();},100);
+                this.dispatch('removeProject',this.project._id).then(function () {
+                    this.fire('close-project-list');
+                    if(this.projects && this.projects[0]) return page.redirect('/'+this.projects[0]._id);
+                    page.redirect('/');
+                }.bind(this));
             },
 
             /**

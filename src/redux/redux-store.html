@@ -12,6 +12,7 @@
 <link rel="import" href="reducers/file-id-reducer.html">
 <link rel="import" href="reducers/folder-id-reducer.html">
 <link rel="import" href="reducers/path-reducer.html">
+<link rel="import" href="reducers/ready-reducer.html">
 <link rel="import" href="reducers/trash-mode-reducer.html">
 <link rel="import" href="reducers/projects-reducer.html">
 <link rel="import" href="reducers/shared-projects-reducer.html">
@@ -61,6 +62,7 @@
        MQ: filterActions(Reducers.MQReducer,['UPDATE_MQ']),
        hash: filterActions(Reducers.HashReducer,['UPDATE_HASH']),
        path: filterActions(Reducers.PathReducer,['UPDATE_PATH']),
+       ready: filterActions(Reducers.ReadyReducer,['UPDATE_READY']),
        trashMode: filterActions(Reducers.TrashModeReducer,['UPDATE_TRASH_MODE']),
        projects: filterActions(Reducers.ProjectsReducer,['ADD_PROJECT','REMOVE_PROJECT','UPDATE_PROJECT','SET_PROJECTS','CLEAN_PROJECTS']),
        sharedProjects: filterActions(Reducers.SharedProjectsReducer,['ADD_SHARED_PROJECT','UPDATE_SHARED_PROJECT','SET_SHARED_PROJECTS','CLEAN_SHARED_PROJECTS']),

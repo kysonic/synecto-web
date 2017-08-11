@@ -627,7 +627,7 @@
                 return !!length;
             },
             _getPlanMessage: function(msg){
-                if(!this.user) return 'xxx';
+                if(!this.user || !this.user.plan) return 'xxx';
                 return this.replaceExpressions(this.translate(msg),{'#COUNT#':this.user.plan.teamMembers});
             }
         })

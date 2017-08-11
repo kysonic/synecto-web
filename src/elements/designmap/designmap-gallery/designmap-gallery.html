@@ -1028,22 +1028,25 @@
              */
             _fileIdChanged: function (fileId) {
                 this.error = false;
-                this.loading = true;
+                this.fire('app-loading',true);
                 // Work with file
                 const file = this.findFileById(fileId);
                 if (file) {
-                    this.loading = false;
+                    this.fire('app-loading',false);
                     return this.file = file;
                 }
                 // Get data if there is no any file.
                 this.dispatch('getStickers', {file: fileId});
                 this.dispatch('getComments', {file: fileId});
                 this.dispatch('getFile', fileId).then(function (response) {
-                    if (!response.success) return this.error = response.errors.message;
-                    this.loading = false;
+                    if (!response.success) {
+                        this.fire('app-loading',false);
+                        return this.error = response.errors.message;
+                    }
                     this.file = response.file;
+                    this.async(function(){this.fire('app-loading',false);});
                 }.bind(this)).catch(function(err){
-                    this.loading = false;
+                    this.fire('app-loading',false);
                     this.manageErrorResponse(err);
                 }.bind(this));
             },

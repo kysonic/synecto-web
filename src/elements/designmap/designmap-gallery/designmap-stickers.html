@@ -624,7 +624,7 @@
                     type: Array,
                     value: [],
                     statePath: function (state) {
-                        if (!this.file._id) return [];
+                        if (!this.file || !this.file._id) return [];
                         let stickers = state.stickers.filter(function (sticker) {
                             return sticker.file == this.file._id;
                         }.bind(this));
@@ -992,6 +992,7 @@
             },
 
             _fileChanged: function (file) {
+                if(!file) return;
                 this.async(this.checkHash);
                 this.setupSocket(file.project, 'project');
             },

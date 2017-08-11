@@ -241,6 +241,11 @@
                     statePath: "path",
                     observer: "_pathChanged"
                 },
+                readyState: {
+                    type: Boolean,
+                    statePath: "ready",
+                    observer: "_readyStateChaged"
+                },
                 loading: {
                     type: Boolean,
                     value: false
@@ -337,6 +342,9 @@
                 if (!task) return;
                 this.selectedTask = task;
                 //this.$.list.resetFilter();
+            },
+            _readyStateChaged: function(){
+                this._pathChanged(this.path);
             },
             findDefaultTask: function () {
                 // Last on first level

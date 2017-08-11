@@ -101,6 +101,12 @@
                     path: path
                 }
             },
+            updateReady: function (ready) {
+                return {
+                    type: 'UPDATE_READY',
+                    ready: ready
+                }
+            },
             updateTrashMode: function (trashMode) {
                 return {
                     type: 'UPDATE_TRASH_MODE',

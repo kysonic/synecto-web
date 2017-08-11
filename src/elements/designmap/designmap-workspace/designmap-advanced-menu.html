@@ -478,18 +478,7 @@
                 if (e.currentTarget.getAttribute('disabled') != undefined) return this.showErrorMessage('You do not have access to make it');
                 this.$.removeProjectConfirm.open();
             },
-            /**
-             * Remove current project
-             */
-            removeIt: function () {
-                this.$.removeProjectConfirm.close();
-                this.async(function(){this.$.projectContextMenu.close();},100);
-                this.dispatch('removeProject',this.project._id).then(function () {
-                    this.fire('close-project-list');
-                    if(this.projects && this.projects[0]) return page.redirect('/'+this.projects[0]._id);
-                    page.redirect('/');
-                }.bind(this));
-            },
+
 
             _computeProjectName: function(name){
                 return name || '';

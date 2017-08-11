@@ -479,7 +479,7 @@
 
         </style>
         <div class="filters" hidden$="[[computeFiltersState(filter,selectedFilter,tasks)]]">
-            <div class="filter-wrapper hidden-lg">
+            <div class="filter-wrapper">
                 <div class$="current-filter filter [[selectedFilter.type]]" on-tap="openFilterSelector">
                     <iron-icon class="filter-icon" icon="[[computeFilterIcon(selectedFilter.type)]]"></iron-icon>
                     <span>[[computeMsg(selectedFilter.type)]]</span>
@@ -495,14 +495,14 @@
                     </template>
                 </designmap-dropdown>
             </div>
-            <div class="desktop-filters filters hidden-xs">
+            <!--<div class="desktop-filters filters hidden-xs">
                 <template is="dom-repeat" items="[[filters]]" as="filter">
                     <div class$="row [[filter.type]] [[_computeSelectedFilterClass(filter,selectedFilter)]]" on-click="selectFilter">
                         <iron-icon class="filter-icon" icon="[[computeFilterIcon(filter.type)]]"></iron-icon>
                         <span><i18-n msgid="[[filter.text]]">[[filter.text]]</i18-n></span>
                     </div>
                 </template>
-            </div>
+            </div>-->
         </div>
         <plastic-custom-scroll no-scroll="[[noScroll]]" id="scroller" fit small-bar max-height="[[computeMaxHeight(maxHeight)]]">
             <ul class="list">
@@ -753,7 +753,7 @@
              */
             computeIcon: function (type, expired) {
                 var diff = moment.duration(moment(expired || moment()).diff(moment()));
-                if (diff._milliseconds < 0 && type != 'completed') return 'designmap-task-manager:expired';
+                //if (diff._milliseconds < 0 && type != 'completed') return 'designmap-task-manager:expired';
                 return 'designmap-task-manager:' + type;
             },
             computeFilterIcon: function(type){
@@ -775,7 +775,7 @@
                 return !found;
             },
             openFilterSelector: function () {
-                if(this.MQ!='sm') return;
+                //if(this.MQ!='sm') return;
                 this.$.filterSelector.open();
             },
             /**
@@ -824,7 +824,7 @@
              * @param e
              */
             changeStatus: function (e) {
-                if (!this.isAssignee(e.model.task)) return this.showErrorMessage('isAssignee');
+                if (!this.canUpdateTask(e.model.task)) return;
                 // Tricky timer manipulation
                 clearInterval(this.timer);
                 var status = STATUSES[STATUSES.indexOf(e.model.task.status) + 1] || STATUSES[0];
