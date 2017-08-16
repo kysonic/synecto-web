@@ -35,13 +35,14 @@
             .content {
                 margin: 0 auto;
                 width: 100%;
-                max-width: 750px;
+                max-width: 90%;
+                padding: 20px 55px;
             }
 
             .doc .title {
                 font-size: 30px;
                 margin: 10px 0;
-                text-align: center;
+                text-align: left;
                 font-weight: 300;
             }
 
@@ -127,10 +128,26 @@
             .marked {
                 background: #ffadea;
             }
+            /*.doc .text p img{
+                display: block;
+                margin: 5px auto;
+            }*/
+
+            p img {
+                max-width: calc(100% - 40px);
+                max-height: 100%;
+                margin: 10px 0;
+            }
 
             @media (min-width: 320px) and (max-width: 768px) {
                 .doc {
                     padding: 0 20px;
+                }
+                .content {
+                    margin: 0 auto;
+                    width: 100%;
+                    max-width: 100%;
+                    padding: 20px 10px;
                 }
             }
 
@@ -269,11 +286,6 @@
                 'iron-resize': 'onResize'
             },
             founded: [],
-            ready: function () {
-                /*this.async(function(){
-                 this.load();
-                 },1000);*/
-            },
             load: function () {
                 if (this.language === 'null' || this.language === null) return;
                 if (this.store[this.language]) return;
@@ -284,6 +296,9 @@
                     this.async(function () {
                         this.loading = false;
                         this.$.scroller.calculate();
+                        // Hash note
+                        const app = document.querySelector('designmap-app');
+                        if(app.firstHash) {this.goToChapter({model:{item:{code:app.firstHash}}});}
                     }, 1000);
                 }.bind(this));
             },
@@ -316,7 +331,7 @@
             },
             computeItems: function (language) {
                 return this.store && this.store[language] ? this.store[language].filter(function (item, key) {
-                        return /^\d{1}\. /.test(item.title);
+                        return /^\d{1,2}\. /.test(item.title);
                     }) : [];
             },
             goToChapter: function (e) {

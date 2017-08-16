@@ -1,107 +1,117 @@
 [
   {
     "code": "intro",
-    "title":"Synecto",
-    "text": "it is a web app for designers that will allow you: \n\n1. Create projects for mutual work **in realtime**. \n\n2. Discuss your work precisely and take feedbacks from your customers using **Stickers**. \n\n3. Systemize your work with Synecto **Task Manager**.\n\n4. Preview PSD, EPS, AI in browser.\n\n5. **Integrate** a few cloud drives.* \n\n *<span style=\"font-size:14px\">Using integration you will be able to get more data space. If some yours cloud drive is empty, just add new one, there is no diffrence in using of them. Currently supported: Google Drive, DropBox, Yandex Disk.</span>"
+    "title": "Synecto",
+    "text": "it is a web app for IT-teams allowing you: \n\n1. Create projects for mutual work **in realtime**. \n\n2. Discuss your work and take feedbacks from your customers using **Precise comments**. \n\n3. Systemize your work with Synecto **Task Manager**.\n\n4. Discuss project in real-time using **chat**.\n\n5. Create screenshots, gifs and videos with synecto **app** for Mac OS and Windows."
   },
   {
-    "code":"project",
+    "code": "project",
     "title": "1. Project",
-    "text": "**A Project** ― basic unit of Synecto application. Contains: work folders and files, Task Manager and Trash bin. There is possibility to manage accesses to any project. \n\n\n\n ![Design project](/assets/images/docs/synecto_1_eng.svg)"
+    "text": "**A Project** ― basic unit of Synecto application. Contains: work folders and files, Task Manager, Trash bin and Project chat. You can add team memebrs on each project, according your plan. \n\n\n\n ![Проект](/assets/images/docs/synecto_1_1.png) "
+  },
+  {
+    "code": "project-creating",
+    "title": "1.2.  Work with project",
+    "text": "\n\n ### Create a project: \n\n 1. Click on a *“Create Project”* button. \n\n <img  src=\"/assets/images/docs/synecto_2_1.jpg\"/> \n\n 2. *Enter project's name* and click *“Create”*. \n\n <img src=\"/assets/images/docs/synecto_2_2.jpg\"/> \n\n\n\n ### Open projects: \n\n If you want to open your own or available projects click on *«Open projects»*.\n\n <img  src=\"/assets/images/docs/synecto_2_3.jpg\"/> \n\n\n\n ### Rename project: \n\n Select a *«Rename»* item in a menu. \n\n\n\n ### Remove project: \n\n Select a *«Remove»* item in a menu. \n\n\n\n ### Available projects: \n\n It are projects in which you were added like a team member. For example your Project Manager can add you in his project and you will see the project in the list."
+  },
+  {
+    "code": "folder-creating",
+    "title": "1.3. Folder/file adding",
+    "text": "### To create new folder do following things: \n\n\n\n 1. Click on *«Add folder»*. \n 2. Enter name, click *«Next»* button (An arrow). \n\n\n\n  <img src=\"/assets/images/docs/synecto_2_4.jpg\"/> \n\n\n\n  ### To upload file: \n\n\n\n1. Select *«Add file»* item in a context menu.\n\n2. Click *«Select file»* in opened window. \n\n<img src=\"/assets/images/docs/synecto_2_5.jpg\"/> \n\n3. Select files that you want to upload. After that you will see a list of selected files. Click \"Upload\" number one. \n\n\n\n Some files can be previewed. For example images [jpg, png, gif, bmp, etc.] can be previewed and commented via precise comments. Office files [docx,xlsx,pptx] also allowed for previewing."
+  },
+  {
+    "code": "folder-renaming",
+    "title": "1.4. Elements renaming",
+    "text": "\n\n 1. Click on a *“Rename”* item in context menu, \n\n 2. Enter new name, \n\n 3. Click on *“Next”* button or use a *CTRL(CMD)+Enter* shortcut."
+  },
+  {
+    "code": "folder-removing",
+    "title": "1.5. Elements removing",
+    "text": "The Folder including all of its content (folders, files) will be removed into ***Trash bin***. You have possibility to cancel removing (*CTRL(CMD)+Z* or *“Undo”* button placed into floating notification). \n\n\n\n ### One folder removing: \n\n Select *«Remove»* item in context menu. \n\n\n\n ### Removing a few folders: \n\n 1. Use *CTRL(CMD)+LMB* combination to mark folders. **A panel of group operation** will be appeared at top of the screen, \n\n 2. Click *“Remove”* button placed on the panel. \n\n\n\n  <img src=\"/assets/images/docs/synecto_2_6.jpg\"/> \n\n\n\n ### The Project removing: \n\n Select *“Remove”* item in a context menu of the Project."
   },
   {
     "code": "files",
-    "title":"1.1 Connecting of cloud drives",
-    "text":"Currently Synecto cannot store user's files in own data space. All of files will be stored into cloud drives should be connected to your Synecto account. \n\n Today is available: Google Drive, Dropbox and Yandex Disk. But it is not a limit! Our team works to help you connect as many cloud drives as possible."
+    "title": "2. Uploaded files",
+    "text": "All of files in Synecto can be managed via the Gallery. To open it just make double click on an image. Or open context menu via right click and select \"Open\" item."
   },
   {
-    "code":"project-creating",
-    "title": "1.2.  Work with project",
-    "text": "\n\n ### Create a project: \n\n 1. Click on a *“Create Project”* button. \n\n <img style=\"max-width:360px\" src=\"/assets/images/docs/synecto_21_eng.svg\"/> \n\n 2. *Enter project's name* and click *“Create”*. \n\n <img style=\"max-width: 250px\" src=\"/assets/images/docs/synecto_21_2_eng.svg\"/> \n\n If you want to open your own or available projects click on *«Open project»*.\n\n <img style=\"max-width: 420px\" src=\"/assets/images/docs/synecto_22_eng.svg\"/> \n\n\n\n ### Rename project: \n\n Select a *«Rename»* item in a menu. \n\n\n\n ### Remove project: \n\n Select a *«Remove»* item in a menu."
-  },
-  {
-    "code":"folder-creating",
-    "title": "1.3. Folder/file adding",
-    "text": "### To create new folder do following things: \n\n\n\n 1. Click on *«Add folder»*. \n 2. Enter name, click *«Next»* button (An arrow). \n\n\n\n  <img style=\"max-width: 470px\" src=\"/assets/images/docs/synecto_23_eng.svg\"/> \n\n\n\n  ### To upload file: \n\n\n\n 1. Select *«Add file»* item in a context menu.\n\n2. Click *«Select file»* in opened window. <img style=\"max-width:250px\" src=\"/assets/images/docs/synecto_32_eng.svg\"/>\n\n3. Select files that you want to upload. After that you will see a list of selected files and list of available cloud drives. Select cloud drive you would like to use for uploading. \n\n\n\n It should be noted that .psd, .eps, .ai files can be previewed. \n\n Files with following extensions .fla,.swf cannot be viewed in the Gallery."
-  },
-  {
-    "code":"folder-renaming",
-    "title":"1.4. Elements renaming",
-    "text":"\n\n 1. Click on a *“Rename”* item in context menu, \n\n 2. Enter new name, \n\n 3. Click on *“Next”* button or use a *Ctrl+Enter* shortcut."
-  },
-  {
-    "code":"folder-removing",
-    "title": "1.5. Elements removing",
-    "text": "The Folder including all of its content (folders, files) will be removed into ***Trash bin***. You have possibility to cancel removing (*Ctrl+Z* or *“Cancel”* button placed into floating notification). \n\n\n\n ### One folder removing: \n\n Select *«Remove»* item in context menu. \n\n\n\n ### Removing a few folders: \n\n 1. Use *Ctrl+LMB* combination to mark folders. **A panel of group operation** will be appeared at top of the screen, \n\n 2. Click *“Delete”* button placed on the panel. \n\n\n\n  <img src=\"/assets/images/docs/synecto_25_eng.svg\"/> \n\n\n\n ### The Project removing: \n\n Select *“Remove”* item in a context menu of the Project."
-  },
-  {
-    "code":"files",
-    "title":"2. Uploaded files",
-    "text": "All of files in Synecto can be managed via the Gallery. To open it just make double click on an image."
-  },
-  {
-    "code":"gallery-functions",
+    "code": "gallery-functions",
     "title": "2.1. Gallery UI",
-    "text": "Basic gallery functions (dashboard buttons from left to right):\n\n1. Description of a file, \n\n2. A File removing (it will be removed to trash bin. You have possibility to restore this file if you want).\n\n3. Download file.\n\n4. Lock file (the locked file can be displayed only for project's owner).\n\n5. On/Off stickers mode (more precisely p.4.). \n\n\n\n <img src=\"/assets/images/docs/synecto_34_eng.svg\"/>"
+    "text": "At left top corner you can see logo and file's name. At the right: \n\n1. Call button\n\n2. \"Share\" button \n\n3. Menu button. You can download or remove file here. \n\n4. Close button. At the bottom panel you can find zoom management buttons. \n\n\n\n <img src=\"/assets/images/docs/synecto_3_1.jpg\"/> \n\n\n\n Notice precise comment mode is not allowed during zooming. Precise comments will be closed automatically "
   },
   {
-    "code":"stickers",
-    "title": "3. Stickers",
-    "text": "**Stickers** ― it is a convinient tool to discuss your work with clients and colleagues. The sticker can be “glued” to any area of uploaded image. \n\n You will be able to  control a max amount of stickers per image. To do this go to the account settings (p. 9). \n\n Stickers can be added by Synecto users only. \n\n\n\n <img style=\"max-width: 420px\" src=\"/assets/images/docs/synecto_4_eng.svg\"/>"
+    "code": "stickers",
+    "title": "3. Precise comments",
+    "text": "**Precise comments** ― it is a convinient tool to discuss your work with clients and colleagues. The comment can be “glued” to any area of uploaded image. \n\n You will be able to  control a max amount of precise comments per image. To do this go to the account settings (p. 9)."
   },
   {
-    "code":"work-with-stickers",
-    "title": "3.1. Work with stickers",
-    "text": "To add the sticker on an image you have to: \n\n 1. Switch on stickers mode,\n\n2. Move mouse cursor to certain place of your image and click left mouse button,\n\n3. Open the sticker via clicing on it,\n\n4. Write your comment,\n\n5. Click on a *“Next”* button (or *CTRL+Enter*). \n\n\n\n <img style=\"max-width:360px\" src=\"/assets/images/docs/synecto_41_eng.svg\"/>"
+    "code": "work-with-stickers",
+    "title": "3.1. Work with precise comments",
+    "text": "To add the precise comment on an image you have to: \n\n1. Click on image \n\n2. Enter text of your comment \n\n3. Press \"Add comment\" button. \n\n\n\n <img  src=\"/assets/images/docs/synecto_4_1.jpg\"/>"
   },
   {
     "code": "stickers-limits",
-    "title":" 3.2. Stickers restrictions",
-    "text": "To prevent “cluttering” of your image you can set up the maximum amount of stickers and a maximum amount of сstickers for certain user. To configure those parameters: \n\n 1. Open **User's menu** clicking on *e-mail * (top-right area). \n\n 2. Click on *“Account settings»* item. \n\n 3. Go to a *«Settings»* tab. \n\n 2. Configure all values using sliders. \n\n\n\n ![Stickers restiction](/assets/images/docs/synecto_42_eng.svg) \n\n\n\n "
+    "title": " 3.2. Precise comments lemitations",
+    "text": "To prevent “cluttering” of your image you can set up the maximum amount of comments and a maximum amount of comments for certain user. To configure those parameters: \n\n 1. Open **User's menu** clicking on *e-mail * (top-right area). \n\n 2. Click on *“Account settings»* item. \n\n 3. Go to a *«Settings»* tab. \n\n 2. Configure all values using sliders. \n\n\n\n ![Stickers restiction](/assets/images/docs/synecto_4_2.jpg)"
   },
   {
     "code": "accesses",
-    "title": "4. Project's accesses",
-    "text": "You have an ability to allow using of your project to another Synecto user. To do this: \n\n 1. Click on *«Access»* button placed at left part of project's panel *(1)*, Window of accesses configuration should be opened. \n\n 2. Search users by its e-mail, *(2)*.\n\n 3. Setup an access level using buttons near by e-mail *(3)*. \n\n 4. Click on  *«Open access»* button. \n\n\n\n <img style=\"max-width:390px\" src=\"/assets/images/docs/synecto_5_1.svg\"/> \n\n\n\n <img style=\"max-width: 740px\" src=\"/assets/images/docs/synecto_5_eng.svg\"/> \n\n\n\n After you open the access to another user he will receive notification about this and this project will be added to his projects list. \n\n\n\n <table class=\"doc-table\"><thead><tr><th>User's accesses</th><th>«Read»</th><th>«Edit»</th></tr></thead><tbody><tr><td>1. See folders and unlocked files of your project.</td><td>✓</td><td>✓</td></tr><tr><td>2. Edit files description .</td><td>✓</td><td>✓</td></tr><tr><td>3. Read stickers.</td><td>✓</td><td>✓</td></tr><tr><td>4. Write and delete stickers on his own behalf.</td><td>✓</td><td>✓</td></tr><tr><td>5. Add folders and files to project (using YOURS cloud drives).</td><td>―</td><td>✓</td></tr><tr><td>6. Remove any elements to trash bin.</td><td>―</td><td>✓</td></tr><tr><td>7. Create tasks into the Synecto task manager.</td><td>―</td><td>✓</td></tr><tr><td>8. Edit and remove tasks on his name behalf.</td><td>―</td><td>✓</td></tr></tbody></table>"
+    "title": "4. Project's team",
+    "text": "You can add another users like a project team memebrs to establish collaboration process. Amout of users is limitated by your current plan. For this: \n\n 1. Click *«Team»* button located at left panel. You will see window with team adding form. \n\n 2. Enter user's e-mail who will be added as team member.\n\n 3. Click *«Open»* (Update) button. \n\n\n\n <img src=\"/assets/images/docs/synecto_5_1.jpg\"/> \n\n\n\n After you will add user as project team member the name of your project will be added in *«Available project»* of this user (*«Open projects»* button in header). \n\n\n\n Notice: team members cannot remove elements from trash bin."
   },
   {
     "code": "trash",
     "title": "5. Trash bin",
-    "text": "All removed elements will be placed in a trash bin and only from trash bin it can be removed irretrievably. To open trash bin click on *«Trash»* button (at right of project's title). \n\n\n\n <img style=\"max-width:360px\" src=\"/assets/images/docs/synecto_6_ru.svg\"/>"
+    "text": "All removed elements will be placed in a trash bin and only from trash bin it can be removed irretrievably. To open trash bin click on *«Trash»* button. \n\n\n\n <img src=\"/assets/images/docs/synecto_6_1.jpg\"/>"
   },
   {
-    "code":"work-with-trash",
+    "code": "work-with-trash",
     "title": "5.2. Trash bin functions",
-    "text": "\n\n 1. ***Sorting***. There is ability to sort elements by name or date. \n\n 2. ***Empty trash***. Removing of all bin's elements irretrievably. Files will be removed from cloud drives. \n\n 3. ***Restore all***. All elements of trash bin will be restored . \n\n\n\n <img style=\"max-width:465px\" src=\"/assets/images/docs/synecto_62_eng.svg\"/> \n\n\n\n ### Removing/restoring of certain element \n\n Click on element using left or right mouse button. In first case it will be appeared window with information about the file, also ther are two buttons *«Remove»* and *«Restore»*. In the second case it will be appeared the context menu. \n\n ### Removing/restoring of group \n\n 1. Mark elements using *CTRL+LMB* combination.\n\n 2. At the top of screen you will see **Group operation panel**. \n\n  <img src=\"/assets/images/docs/synecto_62_2_eng.svg\"/> "
+    "text": "\n\n 1. ***Sorting***. There is ability to sort elements by name or date. \n\n 2. ***Empty trash***. Removing of all bin's elements irretrievably. \n\n 3. ***Restore all***. All elements of trash bin will be restored . \n\n\n\n ### Removing/restoring of certain element \n\n Click on element using left or right mouse button. In first case it will be appeared window with information about the file, also ther are two buttons *«Remove»* and *«Restore»*. In the second case it will be appeared the context menu. \n\n ### Removing/restoring of group \n\n 1. Mark elements using *CTRL(CMD)+LMB* combination.\n\n 2. At the top of screen you will see **Group operation panel**."
   },
   {
-    "code":"task-manager",
+    "code": "task-manager",
     "title": "6. Task manager",
-    "text": "The task manager contains tasks bound to opened project only. To go to task manager click on *\"Task manager\"* button placed at left from the project's title. \n\n\n\n <img style=\"max-width:360px\" src=\"/assets/images/docs/synecto_7_eng.svg\"/> \n\n\n\n User should have *\"Edit\"* access to use task manager of the project. The project's owner can edit any task added to the project. \n\n Another user can: \n\n 1. Edit tasks made by itself. \n\n 2. Change task status if he/she is asigned on it. \n\n\n\n At left of the screen we will see *«Task list»* panel. There are: tasks ***filter*** (1) and ***list*** (2). \n\n <img src=\"/assets/images/docs/synecto_7_2_eng.svg\"/> \n\n When you add a task the list will be changed. \n\n  <img style=\"max-width:566px\" src=\"/assets/images/docs/synecto_7_3_eng.svg\"/> \n\n\n\n There are 4 possible statuses:\n\n 1. ***«Awaiting»*** ― task is opened but nobody start to work on it.\n\n 2. ***«In progress»*** ― task is already started.\n\n 3. ***«Completed»*** ― task has been done.\n\n 4. ***«Expired»*** ― status will be shown automatically if task was expired. \n\n <img style=\"max-width:630px\" src=\"/assets/images/docs/synecto_7_4_eng.svg\"/> "
+    "text": "The task manager contains tasks bound to opened project only. To go to task manager click on *\"Task manager\"* button placed at left panel. \n\n\n\n <img src=\"/assets/images/docs/synecto_7_1.jpg\"/> \n\n The project's owner can manage any task added to the project. \n\n Another user can: \n\n 1. Edit tasks made by itself. \n\n 2. Change task status and track time if he/she is asigned on it. \n\n 3. Attach files \n\n 4. Estimate task difficulty.\n\n 5. Comment task."
   },
   {
     "code": "task-list",
     "title": "6.1. «Task list» panel",
-    "text": "\n\n 1. To ***change the task status*** you have to click on *Status* button placed at left. Statuses changes one by one:  «in progress», «completed», and «awaiting» again.\n\n 2. ***Time to expire*** — shows how much time is left. This parameter can be set by task's owner. If the parameter won't be set up manually Synecto makes it automatically.\n\n 3. ***Assign the responsible***. Responsible user will be able to change status of the task.\n\n 4. ***Subtask amount***. Click on it to focus *Subtask input*. Also there is a number displays amount of current task's subtasks.<img style=\"max-width:630px\" src=\"/assets/images/docs/synecto_71_eng.svg\"/> "
+    "text": "At left of the screen you will see *«Task list»* panel. There are: tasks ***filter*** (1) and ***list*** (2). \n\n <img src=\"/assets/images/docs/synecto_8_1.jpg\"/> \n\n When you add a task the list will be changed. There are 4 possible statuses:\n\n 1. ***«Awaiting»*** ― task is opened but nobody start to work on it.\n\n 2. ***«In progress»*** ― task is already started.\n\n 3. ***«Completed»*** ― task has been done.\n\n 4. ***«Expired»*** ― status will be shown automatically if task was expired. \n\n <img src=\"/assets/images/docs/synecto_8_2.jpg\"/> \n\n\n\nTask list elements: \n\n1. **Status** button. Located at left. Click on *Status* button to ***change the task status***. Statuses change one by one:  «in progress», «completed», and «awaiting» again.\n\n2. ***Due date*** — shows how much time is left. This parameter can be set by task's or project's owner. If the parameter won't be set up manually Synecto makes it automatically.\n\n3. ***Subtask amount***. Click on it to focus *Subtask input*. Also there is a number displays amount of current task's subtasks.<img src=\"/assets/images/docs/synecto_8_3.jpg\"/> "
   },
   {
     "code": "task-details",
     "title": "6.2.«Task details» panel",
-    "text": "\n\n 1. ***Assign the responsible***. Dublicate button represented.in p. 7.1.\n\n 2. ***A Task title***. To change task title click on it. Edit it and click on *Next* button or press *CTRL+Enter*.\n\n 3. ***Task description***. You will be able to change task's description same way like a task title.\n\n 4. ***«Due date»***. Calendar will be opened by clicking on it.\n\n 5. ***«Attach file»***. There is ability to attach a few files to certain task. Files will be added to selected cloud drive.\n\n 6. ***«Remove»***. The task will be removed including all its contetn (files, subtasks) irretrievably. Later we will make possibility to archive it. \n\n 7. ***Add subtask***.\n\n <img src=\"/assets/images/docs/synecto_72_eng.svg\"/> \n\n Added subtasks can be viewed on «Task's details» panel. Breadcrumbs will be added in case of creating a few levels of subtasks into deep. <img style=\"max-width:430px\" src=\"/assets/images/docs/synecto_72_2_eng.svg\"/>"
+    "text": "\n\n 1. **«Assign the responsible»** using this button. You can assign only team members or yourself. \n\n 2. **«A Task title»**. To change task title click on it. Blur this filed or press *CTRL(CMD)+Enter*.\n\n 3. **«Task description»**. You will be able to change task's description same way like a task title.\n\n 4. ***«Due date»***. Calendar will be opened by clicking on it.\n\n 5. ***«Attach file»***. Click on this button to open file system menu. This menu reflects all your project's files. Choose files or upload new in selected folder. \n\n 6. ***«Remove»***. The task will be removed including all its content (files, subtasks) irretrievably. Later we will make possibility to archive it. \n\n 7. **«Add subtask»**. Added subtasks can be viewed on «Task's details» panel. Breadcrumbs will be added in case of creating a few levels of subtasks into deep. \n\n 8. **«Comments»**. Add new comment via \"Comments field\". You can reply to another user using appropriate button. \n\n 9. **«Task estimation»**. You can estimate task \"Estimate\" button. You can find more detailed info about task estimation below. \n\n 10. **«Time tracking»**. Track time spent on task using \"play\" button. \n\n <img src=\"/assets/images/docs/synecto_8_4.jpg \"/>"
   },
   {
-    "code":"notifications",
-    "title": "7. Notifications",
-    "text": "Synecto has ***flash notifications system*** to provide possibility of quick reaction. You will receive notifications if: another user open an access to his project for you, you will be assigned like a responsible, sombody will add a sticker to your image. \n\n <img style=\"max-width:430px\" src=\"/assets/images/docs/synecto_8_eng.svg\"/> \n\n\n\n To explore all notifications at same time click on *«Notifications»* button.\n\n Also you will receive notifications by e-mail. This option can be switched off in Synecto settings. To do this uncheck *«Fetch notifications»* (*«Account settings»* > *«Settings»*)."
+    "code": "task-estimation",
+    "title": "6.3. Task estimation",
+    "text": "Task estimation button is located on task-details section. To estimate task: \n\n1. Click on **«Estimate required»** button (or there will be a number with average estimate) \n\n2. Choose a number in opened window. \n\n3. Press \"Select\" button. \n\n <img src=\"/assets/images/docs/synecto_8_5.jpg\"/> \n\n After estimation you can see average estimation and estimation of each user separetly. Using of estimation system in Synecto is not required. All task estimation is done in story points (not human hours). But you can interpritate it whatever you want..."
   },
   {
-    "code":"settings",
-    "title": "8. Account settings",
+    "code": "chat",
+    "title": "7. Project chat",
+    "text": "Project chat allows to discuss current objectives in real-time. All chat message is realted with opened project only. That means if you open new project you see new chat. It allows to store all project messages separetly in one special place. To open chat click on \"Project chat\" button at left menu or same button in header. \n\n <img src=\"/assets/images/docs/synecto_9_1.jpg\"/>"
+  },
+  {
+    "code": "app",
+    "title": "8. Desktop app",
+    "text": "Synecto desktop app allows to create dropws and to upload drops in Synecto projects automatically. Currently you can create screenshots only. To take screenshot: \n\n1. Install app on your computer. \n\n2. Sign in with Google or auth form. \n\n3. Open app menu by clicking on appropriate tray icon (Win - on the botom, Mac - on the top) \n\n4. Click on **Selected area** button \n\n5. Click on dark overlay and stretch rectangle of area you need. \n\n6. Click on white tick. Link on screenshot will be uploaded in clipboard. Created file will be added in \"Drops\" folder of slected project. \n\n <img src=\"/assets/images/docs/synecto_10_1.jpg\"/>"
+  },
+  {
+    "code": "notifications",
+    "title": "9. Notifications",
+    "text": "Synecto has ***flash notifications system*** to provide possibility of quick reaction. You will receive notifications if: another user open an access to his project for you, you will be assigned like a responsible, sombody will add a precise comment to your image. \n\n <img src=\"/assets/images/docs/synecto_11_1.jpg\"/> \n\n\n\n To explore all notifications at same time click on *«Notifications»* button.\n\n Also you will receive notifications by e-mail. This option can be switched off in Synecto settings. To do this uncheck *«Fetch notifications»* (*«Account settings»* > *«Settings»*)."
+  },
+  {
+    "code": "settings",
+    "title": "10. Account settings",
     "text": "To reach Synecto settings, open ***User's menu*** and click ***Account settings***. You will see 3 tabs: \n\n 1. ***Profile***. Setup your avatar and fill out your name/lastname (this helps to find you more easier). \n\n 2. ***Account***. Here you can change your password and bind cloud drive accounts. \n\n 3. ***Settings***. The main settings of the Synecto application"
   },
   {
-    "code":"conclusion",
+    "code": "conclusion",
     "title": "Now you are ready to work with Synecto!",
-    "text": "Synecto team wishes you good day and productive work! \n\n\n\n If you dindn't find an answer on your question in documentation, wtite us: synecto.io@gmail.com."
+    "text": "Synecto team wishes you good day and productive work! \n\n\n\n If you dindn't find an answer on your question in documentation, wtite us: support@synecto.io"
   }
 ]

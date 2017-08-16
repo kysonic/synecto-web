@@ -3,6 +3,7 @@
 <link rel="import" href="../designmap-icons/designmap-confirm-icons.html">
 <link rel="import" href="../designmap-fs/designmap-fs-service.html">
 <link rel="import" href="../../../redux/actions/files-actions.html">
+<link rel="import" href="../../../redux/actions/user-actions.html">
 <link rel="import" href="../designmap-buttons/designmap-file-button.html">
 
 <link rel="import" href="../designmap-tutorial/designmap-hint-service.html">
@@ -136,6 +137,9 @@
             designmap-file-button {
                 margin-top: 0;
             }
+            .inprgrs {
+                margin-bottom: 10px;
+            }
 
         </style>
         <!-- Add File Dialog -->
@@ -163,7 +167,7 @@
                                 [[_showAllowedExtension(allowedExtension.*)]]
                             </div>
                         </div>
-                        <div id="message" hidden$="[[!fileUploadLoading]]">
+                        <div id="message" class="inprgrs" hidden$="[[!fileUploadLoading]]">
                             <i18-n msgid="Files loading in progress">Files loading in progress</i18-n>
                         </div>
                         <!-- Files here -->
@@ -233,7 +237,7 @@
                 Polymer.DesignMapFsService,
                 Polymer.DesignMapUtilsBehavior,
                 Polymer.DesignMapHintService,
-                Polymer.FilesActions
+                Polymer.CombineActions(Polymer.FilesActions,Polymer.UserActions)
             ],
             storageNames: {
                 'dropBox': 'Dropbox',
@@ -298,6 +302,10 @@
                         this.selected = stores && stores[0] ? stores[0].code : null;*/
                         return ['designmap'];
                     }
+                },
+                user: {
+                    type: Object,
+                    statePath: 'user'
                 },
                 role: {
                     type: String,
@@ -394,10 +402,23 @@
                     id: this._id
                 }).then(function (response) {
                     if (!response.success) return this.manageErrorResponse(response);
+                    console.log(response.upload/1024/1024);
+                    this.user.plan.upload = response.upload;
+                    this.dispatch('_userUpdate',this.user);
                     this.fileUploadingIsEnded(response.files);
                 }.bind(this)).catch(function (err) {
                     this.manageErrorResponse(err);
                 }.bind(this));
+            },
+            /**
+             * Count file sizes
+             */
+            _countSize: function(files){
+                let totalSize = 0;
+                files.forEach(function(file){
+                    totalSize+=file.size;
+                });
+                return totalSize;
             },
             /**
              * When file uploading is ended we have to change state of loading
@@ -500,7 +521,7 @@
                 return this.allowedExtension.join(', ');
             },
             _toUploadState: function(loading,length){
-                return !loading && length;
+                return !(!loading && length);
             }
         })
     </script>

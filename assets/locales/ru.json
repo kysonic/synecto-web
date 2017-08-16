@@ -1119,7 +1119,7 @@
     "message":"Вы совершили вход через Google аккунт"
   },
   "There is no token": {
-    "message":"Ваш e-mail уже подтвержден"
+    "message":"Токен не верный или его срок действия истек"
   },
   "Leave a feedback": {
     "message":"Оставить отзыв"

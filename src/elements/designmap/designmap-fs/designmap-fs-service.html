@@ -84,6 +84,8 @@
             this.dispatch('removeFolders', [e.detail.element]).then(function (response) {
                 if (!response.success) throw new Error(response.errors.message);
                 if (!e.detail.skip) this.showMessage('Folder has been removed from trash.', {"#NAME#": e.detail.element.name});
+                this.user.plan.upload = response.upload;
+                this.dispatch('_userUpdate',this.user);
             }.bind(this)).catch(this.manageErrorResponse.bind(this));
         },
         /**
@@ -102,6 +104,8 @@
             this.dispatch('removeFiles', [e.detail.element]).then(function (response) {
                 if (!response.success) throw new Error(response.errors.message);
                 if (!e.detail.skip) this.showMessage('File has been removed from trash.', {"#NAME#": this.cutFileName(e.detail.element)});
+                this.user.plan.upload = response.upload;
+                this.dispatch('_userUpdate',this.user);
             }.bind(this)).catch(this.manageErrorResponse.bind(this));
         },
         /**
@@ -110,6 +114,8 @@
         removeFilesIrretrievably: function (files) {
             this.dispatch('removeFiles', files).then(function (response) {
                 if (!response.success) throw new Error(response.errors.message);
+                this.user.plan.upload = response.upload;
+                this.dispatch('_userUpdate',this.user);
             }.bind(this)).catch(this.manageErrorResponse.bind(this));
         },
         /**

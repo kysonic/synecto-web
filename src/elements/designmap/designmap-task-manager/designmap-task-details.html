@@ -617,17 +617,18 @@
             .comments-list li .text {
                 margin-left: 10px;
                 padding-right: 20px;
-
+                width: 100%;
             }
 
             .comments-list li .text .content {
                 white-space: pre-line;
                 position: relative;
+                width: 100%;
             }
 
             .comments-list li .text .content .comment-arrow {
                 top: -25px;
-                margin-left: -25px;
+                margin-left: 0px;
             }
 
             .comments-list .panel {
@@ -1069,7 +1070,7 @@
                 <!-- Estimate due date tracking -->
                 <div class="date-and-estimate">
                     <div id="date" class="date" on-tap="openDatePicker">
-                        [[computeTimeLeft(date)]]
+                        [[computeTimeLeft(task)]]
                     </div>
                     <paper-tooltip for="date">
                         <i18-n msgid="up to">up to</i18-n>
@@ -1206,6 +1207,8 @@
                                     <template is="dom-if" if="[[comment.edit]]">
                                         <textarea on-blur="_saveComment" on-focus="hideCommentsOnMobile" value="[[comment.text]]"
                                                   class="comment-edit"></textarea>
+                                        <iron-a11y-keys id="a11ySave" keys="ctrl+enter meta+enter"
+                                                        on-keys-pressed="_saveComment"></iron-a11y-keys>
                                         <div class="comment-arrow hidden-xs" on-tap="_saveComment">
                                             <iron-icon icon="icons:arrow-forward"></iron-icon>
                                         </div>
@@ -1999,8 +2002,9 @@
                 this.resolveInvokedUsers();
             },
 
-            computeTimeLeft: function (expired) {
-                var diff = moment.duration(moment(expired).diff(moment()));
+            computeTimeLeft: function (task) {
+                if(task && task.status=='completed') return this.translate('completed');
+                var diff = moment.duration(moment(task?task.expired:0).diff(moment()));
                 if (diff._milliseconds < 0) return this.translate('expired');
                 return (diff.asDays() > 1 ? (Math.round(diff.asDays()) + ' ' + this.translate('days')) : Math.round(diff.asHours()) + ' ' + this.translate('hours')) + ' ' + this.translate('left');
             },

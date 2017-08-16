@@ -124,8 +124,9 @@
             save: function (e) {
                 e.preventDefault();
                 if (this.selectedAvatar) {
+                    const user = Object.assign({},this.user);
                     this.user.profile.avatar = this.selectedAvatar.src;
-                    this.dispatch('userUpdate', this.user);
+                    this.dispatch('userUpdate', user);
                     this.fire('avatar-loaded');
                 }
             },

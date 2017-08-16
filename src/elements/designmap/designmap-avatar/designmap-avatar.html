@@ -258,8 +258,9 @@
                 this.$.avatarDialog.close();
                 this.$.avatarDialog.modal = false;
                 this.hideLink = true;
+                const user = Object.assign({},this.user);
                 this.user.profile.avatar = e.detail;
-                this.dispatch('userUpdate', this.user);
+                this.dispatch('userUpdate', user);
                 if (this.$$('#img')) this.$$('#img').src = Designmap.config.apiURL + e.detail + '?v=' + this.generateUid();
             },
             presetAvatarLoaded: function (e) {
@@ -289,8 +290,9 @@
             removeAvatar: function () {
                 const promise = xhr.get(Designmap.config.apiURL + 'user/remove-avatar/?path=' + decodeURI(this.user.profile.avatar));
                 promise.then(function (response) {
-                    this.user.profile.avatar = null;
-                    this.dispatch('userUpdate', this.user);
+                    const user = Object.assign({},this.user);
+                    user.profile.avatar = null;
+                    this.dispatch('userUpdate', user);
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));
             },
             goToPreset: function () {

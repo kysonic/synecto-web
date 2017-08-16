@@ -368,7 +368,7 @@
         <div class="content">
             <div class="row tabs-row">
                 <div class="col col-md-12 pad">
-                    <paper-tabs class$="[[_mobileClass(MQ)]]" id="tabs" noink selected="{{selector}}">
+                    <paper-tabs class$="[[_mobileClass(MQ)]]" id="tabs" noink selected="{{selectedRoute}}">
                         <paper-tab>
                             <i18-n msgid="Profile">Profile</i18-n>
                         </paper-tab>
@@ -731,7 +731,8 @@
                 }
                 delete this.user.local.password;
                 this.$['save' + formName + 'Button'].loading = true;
-                this.dispatch('userUpdate', this.user).then(function (response) {
+                const user = Object.assign({},this.user);
+                this.dispatch('userUpdate', user).then(function (response) {
                     this.$['save' + formName + 'Button'].loading = false;
                     if (!response.success) return this.manageErrorResponse(response);
                     this.showMessage(response.message);
@@ -828,7 +829,7 @@
             },
             _pathChanged: function (path) {
                 const index = ROUTES.indexOf(path);
-                this.selectedRoute = (index > 0 && index < 3) ? index : 0;
+                this.selectedRoute = (index >= 0 && index < 3) ? index : 0;
             },
             _openDataspaceShowCase: function(){
                 this.$$('#dataSpaceShowCaseDialog').open();

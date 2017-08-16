@@ -483,13 +483,8 @@
             _computeMessageClass: function (message, user) {
                 this.async(function () {
                     const currentMsg = this.$.messages.querySelector('[data-id="' + message._id + '"]');
-                    if (!currentMsg) return;
-                    const prev = currentMsg.previousElementSibling;
-                    if (!prev) return currentMsg.classList.add('first');
-                    // Classes
-                    const notOwn = currentMsg.classList.contains('own') && !prev.classList.contains('own');
-                    const notAnother = currentMsg.classList.contains('anothers') && !prev.classList.contains('anothers');
-                    if (notOwn || notAnother) return currentMsg.classList.add('first');
+                    if(!currentMsg) return;
+                    if (this._isFirst(message)) return currentMsg.classList.add('first');
                 });
                 return this._isAnothers(message, user) ? 'own' : 'anothers';
             },

@@ -214,6 +214,12 @@
                 };
             }
 
+            .list li.expired .status-icon {
+                --iron-icon-components-mixin: {
+                    stroke: var(--filter-expired) !important;
+                };
+            }
+
             .list li.selected .status-icon {
                 --iron-icon-components-mixin: {
                     stroke: var(--white-color) !important;
@@ -229,12 +235,19 @@
                 }
             }
 
+            .list li.expired designmap-circle-button {
+                --designmap-circle-button-circle-mixin: {
+                    stroke: var(--filter-expired) !important;
+                };
+            }
+
             .list li.selected designmap-circle-button {
                 --designmap-circle-button-circle-mixin: {
                     stroke-width: 1px !important;
                     stroke: var(--white-color) !important;
                 };
             }
+
 
             .list li:nth-child(2n+1) {
                 transition: background .3s;
@@ -295,6 +308,10 @@
                 top: 11px;
             }
 
+            li.expired .title {
+                color: var(--filter-expired);
+            }
+
             .list li.selected.in_progress {
                 background: var(--filter-inprogress);
                 transition: background .2s;
@@ -313,6 +330,10 @@
             .list li.selected.expired {
                 background: var(--filter-expired);
                 transition: background .2s;
+            }
+
+            .list li.selected .title {
+                color: var(--white-color);
             }
 
             /** ASSIGNEE **/
@@ -344,6 +365,8 @@
                 }
             }
 
+
+
             /** SUBTASKS **/
             li .subtask {
                 padding: 0 15px 0 5px;
@@ -362,6 +385,16 @@
                 top: 15px;
                 left: 21px;
                 color: var(--filter-color);
+            }
+
+            .list li.expired .subtask-count {
+                color: var(--filter-expired);
+            }
+
+            .list li.expired .subtask iron-icon {
+                --iron-icon-components-mixin: {
+                    stroke: var(--filter-expired) !important;
+                };
             }
 
             .list li.selected .subtask-count {
@@ -387,7 +420,11 @@
                 flex-grow: 1;
             }
 
-            /** ADD TASK FIELD **/
+            .list li.expired .expired_row {
+                color: var(--filter-expired);
+            }
+
+                /** ADD TASK FIELD **/
             .add-task {
                 width: 100%;
                 height: 35px;
@@ -514,8 +551,8 @@
                         </designmap-circle-button>
                         <paper-tooltip for$="statusButton[[index]]" position="right"><i18-n msgid="Change status">Change status</i18-n></paper-tooltip>
                         <div class="title" on-click="select">[[task.name]]</div>
-                        <div class="expired_row hidden-xs">[[computeTimeLeft(task.expired,language)]]</div>
-                        <div class="expired_row hidden-lg">[[computeTimeLeftFormMobile(task.expired,language)]]</div>
+                        <div class="expired_row hidden-xs">[[computeTimeLeft(task,language)]]</div>
+                        <div class="expired_row hidden-lg">[[computeTimeLeftFormMobile(task,language)]]</div>
                         <!--<designmap-assignee id$="assignee[[index]]" horizontal-offset="-170" vertical-offset="60" class="hidden-xs"
                                             no-details
                                             assignee="[[task.assignee]]" task="[[task]]" on-assign="selectAssignee"
@@ -879,8 +916,9 @@
              * @param expired - expired time ;
              * @returns {*}
              */
-            computeTimeLeft: function (expired) {
-                var diff = moment.duration(moment(expired).diff(moment()));
+            computeTimeLeft: function (task) {
+                if(task.status=='completed') return this.translate('completed');
+                var diff = moment.duration(moment(task.expired).diff(moment()));
                 if (diff._milliseconds < 0) return this.translate('expired');
                 return (diff.asDays() > 1 ? (Math.round(diff.asDays()) + ' ' + this.translate('days')) : Math.round(diff.asHours()) + ' ' + this.translate('hours')) + ' ' + this.translate('left');
             },
@@ -890,8 +928,9 @@
              * @param expired - expired time ;
              * @returns {*}
              */
-            computeTimeLeftFormMobile: function (expired) {
-                var diff = moment.duration(moment(expired).diff(moment()));
+            computeTimeLeftFormMobile: function (task) {
+                if(task.status=='completed') return this.translate('completed');
+                var diff = moment.duration(moment(task.expired).diff(moment()));
                 if (diff._milliseconds < 0) return this.translate('expired');
                 return (diff.asDays() > 1 ? (Math.round(diff.asDays()) + ' ' + this.translate('days').substr(0, 1)) : Math.round(diff.asHours()) + ' ' + this.translate('hours').substr(0, 1));
             },

@@ -491,16 +491,6 @@
                     type: Number,
                     value: 0
                 },
-                token: {
-                    type: String,
-                    value: null,
-                    observer: 'tokenChanged'
-                },
-                approveToken: {
-                    type: String,
-                    value: null,
-                    observer: 'approveTokenChanged'
-                },
                 clientID: {
                     type: String,
                     value: function () {
@@ -521,7 +511,6 @@
                 }
             },
             ready: function () {
-                this.resolveQuery();
                 if(this.fakeSupport) {
                     this.selected = 2;
                     if(this.user) return;
@@ -533,38 +522,7 @@
                     this.selected = 1;
                 }
             },
-            /**
-             * If we get approve token we have to launch a process of
-             * checking. For instance - We get approve token, next approveTokenChanged
-             * has invoked, after that user will be able to login.
-             */
-            resolveQuery: function () {
-                const query = this.parseQuery();
-                if (query.token) this.token = query.token;
-                if (query.approveToken) this.approveToken = query.approveToken;
-            },
-            /**
-             * Entering with temporary token
-             */
-            tokenChanged: function () {
-                if (!this.token || this.token.length < 12) return;
-                this.dispatch('token', this.token).then(function (response) {
-                    if (!response.success) return this.showErrorMessage(response.errors.message, {}, 10000);
-                    // Message
-                    this.showMessage('You have entered using temporary token');
-                }.bind(this))
-            },
-            /**
-             * Approve token is needed for preventing of signing up with
-             * fake email
-             */
-            approveTokenChanged: function () {
-                if (!this.approveToken) return;
-                this.dispatch('approveToken', this.approveToken).then(function (response) {
-                    if (!response.success) return this.showErrorMessage(response.errors.message);
-                    this.showMessage('You have been approved your email successfully!');
-                }.bind(this)).catch(this.manageErrorResponse.bind(this));
-            },
+
             /**
              * To provide right-left animation in form
              */

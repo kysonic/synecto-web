@@ -68,6 +68,10 @@
                 background: url('/assets/images/svg/three-dots-gray.svg') no-repeat center, repeating-linear-gradient(-45deg, var(--fs-folder-color), var(--fs-folder-line-color) 5px, rgba(256, 256, 256, 0.3) 5px, rgba(256, 256, 256, 0.3) 10px);
             }
 
+            .element .content.file.loaded {
+                background: repeating-linear-gradient(-45deg, var(--fs-folder-color), var(--fs-folder-line-color) 5px, rgba(256, 256, 256, 0.3) 5px, rgba(256, 256, 256, 0.3) 10px);
+            }
+
             .type {
                 color: #c4c4c4;
                 text-align: center;
@@ -288,7 +292,7 @@
             <div class$="content [[item.type]]" on-tap="applyTouchAction" on-click="selectElement" on-contextmenu="openContextMenu" data-hint$="[[item.type]]" data-id$="[[item._id]]">
                 <template is="dom-if" if="[[isFile(item.type)]]">
                     <template is="dom-if" if="[[shouldViewImage(item)]]">
-                        <iron-image class$="[[item.orientation]]"  preload src="[[computeImageSource(item)]]" />
+                        <iron-image class$="[[item.orientation]]" on-load="loaded" preload src="[[computeImageSource(item)]]" />
                     </template>
                     <template is="dom-if" if="[[!shouldViewImage(item)]]">
                         <div class="borders" >
@@ -428,6 +432,9 @@
                 if(!this.isMobile()) return;
                 if(e.path[0]==this.$.menu) return;
                 this.fire('apply-action',{item:this.item});
+            },
+            loaded: function(e){
+                e.target.parentNode.classList.add('loaded');
             }
         })
     </script>

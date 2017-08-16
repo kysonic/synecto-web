@@ -52,7 +52,9 @@
                     promise.then(function (response) {
                         if (!response.success) return;
                         dispatch({type: 'REMOVE_PROJECT', index: this.findProjectIndexByID(id)});
-                        this.async(function () {this.dispatch('userUpdate', {system:{lastOpenedProject: null}});},1000);
+                        const user = Object.assign({},this.user);
+                        user.system.lastOpenedProject = null;
+                        this.async(function () {this.dispatch('userUpdate',user);},1000);
                     }.bind(this));
                     return promise;
                 }.bind(this)
