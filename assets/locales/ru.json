@@ -1631,6 +1631,9 @@
   "Downgrade": {
     "message": "Понизить"
   },
+  "Unsubscribe": {
+    "message": "Отписаться"
+  },
   "Current": {
     "message": "Текущий"
   },
@@ -1654,6 +1657,15 @@
   },
   "Are you sure that you want to downgrade to startup plan. It is free but you won't be able to manage projects exceed your plan possibilities.": {
     "message":"Вы уверены, что хотите понизить план? Это бесплатно но Вы не сможете управлять проектами в которых привышены возможности этого плана."
+  },
+  "Your current plan is available if you change it now all old data will be loss...": {
+    "message":"Ваш текущий план еще доступен. Если вы обновите его сейчас, все данные предидущего плана будут потеряны..."
+  },
+  "Click on unsubscribe button on your current plan.": {
+    "message":"Ваш текущий план еще доступен. Вы должны отписаться от него чтобы сменить план. Нажмите на кнопку \"Отписаться\" на вашем текущем плане."
+  },
+  "Are you sure that you want to unsubscribe?": {
+    "message":"Вы уверены что хотите отписаться? План будет понижен до \"startup\". Это бесплатно но Вы не сможете управлять проектами в которых привышены возможности этого плана."
   },
   "Are you sure that you want to downgrade plan? You won't be able to manage projects exceed your plan possibilities.": {
     "message":"Вы уверены, что хотите понизить план? Вы не сможете управлять проектами в которых привышены возможности этого плана."
@@ -1780,5 +1792,8 @@
   },
   "There are no projects": {
     "message": "У вас пока нет проектов..."
+  },
+  "Cannot cancel subscription via API": {
+    "message": "Не удалось отменить подписку... Напишите в службу технической поддержки - \"suport@synecto.io\" "
   }
 }

@@ -1143,7 +1143,7 @@
                     // Scroll mouse wheel up
                     this.zoom = this.zoom + this.step < this.maxZoom ? this.zoom + this.step : this.maxZoom;
                 }
-                else {
+                else if(delta > 0)  {
                     // Scroll mouse wheel down
                     this.zoom = this.zoom - this.step > this.minZoom ? this.zoom - this.step : this.minZoom;
                 }

@@ -212,15 +212,15 @@
                 <i18-n msgid="Activate premium"></i18-n>
             </div>
         </designmap-dashboard>
-        <designmap-confirm id="startupConfirm"
-                           on-continue="downgradeToStratup"
-                           on-suspend="closeDowngradeConfirm"
-                           message="Are you sure that you want to downgrade to startup plan. It is free but you won't be able to manage projects exceed your plan possibilities.">
+        <designmap-confirm id="unsubsConfirm"
+                           on-continue="unsubscribe"
+                           on-suspend="closeUnsubsConfirm"
+                           message="Are you sure that you want to unsubscribe?">
         </designmap-confirm>
-        <designmap-confirm id="downgradeConfirm"
-                           on-continue="next"
-                           on-suspend="closeDowngradeConfirm"
-                           message="Are you sure that you want to downgrade plan? You won't be able to manage projects exceed your plan possibilities.">
+        <designmap-confirm id="unsubsWarn"
+                           on-continue="closeUnsubsConfirm"
+                           on-suspend="closeUnsubsConfirm"
+                           message="Click on unsubscribe button on your current plan.">
         </designmap-confirm>
         <div class="wrapper">
             <div class="content">
@@ -344,6 +344,7 @@
                             storage: 5000,
                             price: 15,
                             power:1,
+                            gumlink: "https://gum.co/LtMXJ",
                             features: [
                                 'unlimited projects',
                                 'premium support'
@@ -356,6 +357,7 @@
                             price: 30,
                             months: 3,
                             power:2,
+                            gumlink: "https://gum.co/ImYsT",
                             features: [
                                 'unlimited projects',
                                 'premium support'
@@ -369,7 +371,7 @@
             },
             ready: function(){
                //this.quicker = localStorage.getItem('designmap:quicker');
-                TCO.loadPubKey('sandbox');
+                //TCO.loadPubKey('sandbox');
             },
             speedUp: function(){
                 this.showMessage('Thank you! We will try to do it quicker!');
@@ -391,7 +393,7 @@
             },
             _getCodeName: function(userPlan,plan){
                 if(this._getUserPlanPower(userPlan)>plan.power) return 'Downgrade';
-                if(userPlan.name==plan.name) return 'Update';
+                if(userPlan.name==plan.name && new Date(userPlan.expired)>new Date()) return 'Unsubscribe';
                 return 'Upgrade';
             },
             _getUserPlanPower: function(userPlan){
@@ -406,23 +408,23 @@
             },
             selectPlan: function(e){
                 this.chosenPlan = e.model.plan;
-                if(e.model.plan.name=='startup') return this.openStartupConfirm();
-                if(this._getUserPlanPower(this.user.plan)>e.model.plan.power) return this.openDowngradeConfirm();
-                this.next();
+                if(this._getUserPlanPower(this.user.plan)>0 && this.user.plan.name==e.model.plan.name && new Date(this.user.plan.expired)>new Date()) return this.openUnsbsConfirm();
+                if(this._getUserPlanPower(this.user.plan)>0 && new Date(this.user.plan.expired)>new Date()) return this.openUnsbsWarn();
+                window.open(e.model.plan.gumlink,'_self');
             },
-            openStartupConfirm: function(){
-                this.$.startupConfirm.open();
+            openUnsbsWarn: function(){
+                this.$.unsubsWarn.open();
             },
-            openDowngradeConfirm: function(){
-                this.$.downgradeConfirm.open();
+            openUnsbsConfirm: function(){
+                this.$.unsubsConfirm.open();
             },
-            closeDowngradeConfirm: function(){
-                this.$.startupConfirm.close();
-                this.$.downgradeConfirm.close();
+            closeUnsubsConfirm: function(){
+                this.$.unsubsWarn.close();
+                this.$.unsubsConfirm.close();
             },
-            downgradeToStratup: function(){
-                this.closeDowngradeConfirm();
-                xhr.post(Designmap.config.apiURL + 'pay/downgrade').then(function(response){
+            unsubscribe: function(){
+                this.closeUnsubsConfirm();
+                xhr.post('http://localhost:4000/' + 'pay/unsubscribe').then(function(response){
                     if(!response.success) return this.manageErrorResponse(response);
                     this.dispatch('_userUpdate',{plan:response.plan});
                     this.showMessage('Your plan has been downgraded.');

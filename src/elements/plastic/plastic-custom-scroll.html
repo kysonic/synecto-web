@@ -131,6 +131,10 @@
                 disappear: {
                     type: Boolean,
                     value: false
+                },
+                superDelta: {
+                    type:Number,
+                    value: 30
                 }
             },
             listeners: {
@@ -188,7 +192,8 @@
             mouseWheel: function (e) {
                 e.stopPropagation();
                 var delta = e.deltaY || e.detail || e.wheelDelta;
-                delta > 0 ? this.scrollDown() : this.scrollUp();
+                delta > 0 ? this.scrollDown():null;
+                delta < 0 ? this.scrollUp():null;
                 this.calculate();
             },
             /**
@@ -198,8 +203,8 @@
                 var target = this.$.content;
                 var scrollRatio = this.$.content.scrollHeight / this.$.content.clientHeight;
                 if (parseFloat(this.scrollRatio.toFixed(2)) > this.limit) return;
-                var power = scrollRatio * 30;
-                target.scrollTop += this.scrollRatio * power;
+                var power = this.$.content.clientHeight / 6;
+                target.scrollTop += power;
                 this.fire('plastic-scroll',{target:target,scrollTop:target.scrollTop});
             },
             /**
@@ -209,8 +214,8 @@
                 var target = this.$.content;
                 var scrollRatio = this.$.content.scrollHeight / this.$.content.clientHeight;
                 if (parseFloat(this.scrollRatio.toFixed(2)) > this.limit) return;
-                var power = scrollRatio * 30;
-                target.scrollTop -= this.scrollRatio * power;
+                var power = this.$.content.clientHeight / 6;
+                target.scrollTop -= power;
                 this.fire('plastic-scroll',{target:target,scrollTop:target.scrollTop});
             },
             _onIronResize: function () {

@@ -1619,6 +1619,9 @@
   "Downgrade": {
     "message": "Downgrade"
   },
+  "Unsubscribe": {
+    "message": "Unsubscribe"
+  },
   "Current": {
     "message": "Current"
   },
@@ -1645,6 +1648,12 @@
   },
   "Are you sure that you want to downgrade plan? You won't be able to manage projects exceed your plan possibilities.": {
     "message":"Are you sure that you want to downgrade plan? You won't be able to manage projects exceed your plan possibilities."
+  },
+  "Click on unsubscribe button on your current plan.": {
+    "message":"Your current plan is available. You should unsubscribe at first. Click on \"Unsubscribe\" button on your current plan."
+  },
+  "Are you sure that you want to unsubscribe?": {
+    "message":"Are you sure that you want to unsubscribe? Plan will be downgraded on \"startup\". It is free but you won't be able to manage projects which exceed possibilities of free plan."
   },
   "Address": {
     "message": "Address"
@@ -1768,5 +1777,8 @@
   },
   "There are no projects": {
     "message": "There are no projects..."
+  },
+  "Cannot cancel subscription via API": {
+    "message": "Cannot cancel subscription via Synecto... Email support on \"suport@synecto.io\" "
   }
 }
