@@ -532,7 +532,7 @@
                 this.horizontalOffset = MQ=='sm'?-223:plan&&plan.name=='startup'?-80:-105;
             },
             _isPremium: function(user) {
-                if(!user) return false;
+                if(!user || !user.plan) return false;
                 return user.plan.name!='startup';
             }
         })

@@ -145,6 +145,9 @@
         },
         _spentAndAssignee: function(spent, task){
             return spent && this.isAssignee(task);
+        },
+        _isMyComment: function(user,comment){
+            return user._id==comment.owner._id;
         }
     }
 </script>

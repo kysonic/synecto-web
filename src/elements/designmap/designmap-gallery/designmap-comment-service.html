@@ -99,6 +99,9 @@
         _canUserManageComment(file, comment){
             return (comment.owner._id === this.user._id);
         },
+        _canRemoveSticker(user, sticker){
+            return (user._id === sticker.owner._id);
+        },
 
         _editComment: function () {
             let comment = this.lastCommentData.comment;
@@ -154,6 +157,16 @@
             this.$.removeCommentConfirm.close();
         },
 
+        _removeStickerViaButton: function(e){
+            const sticker = e.model.sticker;
+            const comments = this._computeComments(sticker._id);
+            if(comments.length) {
+                this.lastSticker = sticker;
+                return this.$.removeCommentConfirm.open();
+            }
+            this.dispatch('removeSticker', sticker._id);
+        },
+
         _removeSticker: function () {
             if(!this.lastSticker) return this.showErrorMessage('Something went wrong!');
             this.dispatch('removeSticker', this.lastSticker._id);
@@ -161,7 +174,7 @@
         },
 
         _checkSticker: function (e) {
-            if(this.$.select.$.dropdown.opened) return;
+            /*if(this.$.select.$.dropdown.opened) return;
             this.async(function () {
                 this.lastSticker = e.model.sticker;
                 const stickersComments = this.comments.filter(function (comment) {
@@ -170,7 +183,7 @@
                 if (stickersComments && !stickersComments.length) {
                     this._removeSticker();
                 }
-            }, 500);
+            }, 500);*/
         }
     }
 </script>

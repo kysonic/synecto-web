@@ -698,7 +698,7 @@
                          on-touchend="_touchEnd"
                     >
                         <!-- Prev item -->
-                        <template is="dom-if" if="[[_computeSwipeImageState(files.length)]]">
+                        <template is="dom-if" if="[[_computeSwipeImageState(files.length,MQ)]]">
 
                             <template is="dom-if" if="[[!isImageFile(prevFile)]]" restamp="true">
                                 <div class="swipe-ext extension" id="prev-itm">
@@ -762,7 +762,7 @@
 
 
                         <!-- Next item -->
-                        <template is="dom-if" if="[[_computeSwipeImageState(files.length)]]">
+                        <template is="dom-if" if="[[_computeSwipeImageState(files.length,MQ)]]">
 
                                 <template is="dom-if" if="[[!isImageFile(nextFile)]]" restamp="true">
                                     <div class="swipe-ext extension" id="next-itm">
@@ -1035,17 +1035,22 @@
                     this.fire('app-loading',false);
                     return this.file = file;
                 }
+                this.loading = true;
                 // Get data if there is no any file.
                 this.dispatch('getStickers', {file: fileId});
                 this.dispatch('getComments', {file: fileId});
                 this.dispatch('getFile', fileId).then(function (response) {
-                    if (!response.success) {
-                        this.fire('app-loading',false);
+                    if (!response.success) {this.fire('app-loading',false);
                         return this.error = response.errors.message;
                     }
                     this.file = response.file;
-                    this.async(function(){this.fire('app-loading',false);});
+                    this.async(function(){
+                        this.loading = false;
+                        this.fire('app-loading',false);
+                        //this.$('#stickers').$.stickersTemplate.render();
+                    }.bind(this),100);
                 }.bind(this)).catch(function(err){
+                    this.loading = false;
                     this.fire('app-loading',false);
                     this.manageErrorResponse(err);
                 }.bind(this));
@@ -1573,8 +1578,8 @@
               },2000);
             },
 
-            _computeSwipeImageState: function(length){
-                return length>1;
+            _computeSwipeImageState: function(length,MQ){
+                return length>1 && MQ=='sm';
             },
 
             getPrevFile: function(){

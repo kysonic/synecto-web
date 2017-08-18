@@ -764,6 +764,10 @@
                 noScroll: {
                     type: Boolean,
                     value: false
+                },
+                canBeNull: {
+                    type: Boolean,
+                    value: false
                 }
             },
             listeners: {
@@ -781,6 +785,7 @@
             },
             attached: function () {
                 this.updateStyles();
+                this.async(this.updateStyles,1000);
             },
             /**
              * Compute icon.
@@ -895,10 +900,12 @@
              * @returns {string}
              */
             computeLineClass: function (selected) {
-                var root = this.findRoot(selected);
-                if (!root) return '';
-                var cls = this.isExpired(root.expired, root.status) ? 'expired' : root.status;
-                return 'line hide-on-mobile ' + (cls || '');
+//                var root = this.findRoot(selected);
+//                if (!root) return '';
+//                var cls = this.isExpired(root.expired, root.status) ? 'expired' : root.status;
+                if(!selected) return 'line hide-on-mobile';
+                var cls = this.isExpired(selected.expired, selected.status) ? 'expired' : selected.status;
+                return 'line hide-on-mobile ' + cls;
             },
             /**
              * Compute class of the line which placed
@@ -976,7 +983,8 @@
              * change sub tasks.
              */
             parentChanged: function () {
-                if (!this.parent) return;
+                this.async(this.updateStyles,100);
+                if (!this.parent && !this.canBeNull) return;
                 this.tasks = ReduxStore.getState().tasks.filter(function (task) {
                     return task.parent == this.parent;
                 }.bind(this));

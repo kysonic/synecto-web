@@ -9,6 +9,7 @@
         objectIDRegexp: /^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/i,
         IMAGE_REGEXP: /images/,
         shareRegexp: /share/,
+        urlRegexp: /https?\:\/\/[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/ig,
         /**
          * Find parent node
          * @param node - DOM node
@@ -270,6 +271,14 @@
         },
         isMobile: function(){
             return /Mobi/.test(navigator.userAgent);
+        },
+        processLinksInText(text) {
+            if(!text) return '';
+            return text.replace(this.urlRegexp,function(match){
+                const target = match.indexOf('synecto')==-1 ? '_blank' : '_self';
+                const text = match.length>30 ? match.substr(0,30)+'...' : match;
+                return '<a href="'+match+'" target="'+target+'">'+text+'</a>';
+            })
         }
     }
 </script>

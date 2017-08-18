@@ -18,6 +18,7 @@
         },
         finishTutorial: function (tutorial,cb) {
             var tutorial = document.querySelector('designmap-app').$[tutorial+'Tutorial'];
+            if(!tutorial.isRunning) return;
             tutorial.close();
             this.async(function(){
                 if(cb) cb();

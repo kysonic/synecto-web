@@ -134,12 +134,10 @@
 
         </style>
         <div class$="project-name [[breadCrumbs(breadcrumbs.length)]]" hidden$="[[trashMode]]" on-click="goOnTop">
-            [[projectName]]
+            <i18-n msgid="Files">Files</i18-n>
         </div>
         <div class="trash-name" hidden$="[[!trashMode]]">
             <i18-n msgid="Trash bin">Trash bin</i18-n>
-            <i18-n class="of-project" msgid="of project">of project</i18-n>
-            <div class="project">&laquo;<span>[[project.name]]</span>&raquo;</div>
         </div>
         <div class$="arrow-back [[breadCrumbs(breadcrumbs.length)]]" on-click="goBack">
             <iron-icon icon="designmap-workspace:open"></iron-icon>

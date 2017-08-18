@@ -238,6 +238,7 @@
                 font-weight: 100;
                 height: 30px;
                 line-height: 30px;
+                margin-left: 10px;
             }
 
             .share .remove {
@@ -373,14 +374,15 @@
         <div id="formContent" class="animatable-content">
             <div class$="personalSharing sharing">
                 <div id="personalSharingContent">
-                    <designmap-users-combo hidden$="[[!onpage]]" label="[[translate('User email',language,i18Loaded)]]" id="userCombo"
+                    <designmap-users-combo hidden$="[[!edit]]" label="[[translate('User email',language,i18Loaded)]]" id="userCombo"
                                            on-selected="select"></designmap-users-combo>
                     <plastic-custom-scroll id="usersScroll" max-height="200"
                                            fit>
                         <template is="dom-repeat" items="[[project.users]]" as="user">
                             <div class="share">
+                                <designmap-avatar-projector user="[[user]]"></designmap-avatar-projector>
                                 <div class="email">{{user.local.email}}</div>
-                                <div class="remove" on-click="remove">
+                                <div class="remove" on-click="remove" hidden$="[[!edit]]">
                                     <iron-icon icon="designmap:close"></iron-icon>
                                 </div>
                             </div>
@@ -408,11 +410,9 @@
                             </div>
                         </div>
                     </div>
-                    <designmap-users-combo hidden$="[[onpage]]" label="[[translate('User email',language,i18Loaded)]]" id="userCombo"
-                                           on-selected="select"></designmap-users-combo>
                 </div>
             </div>
-            <div class="button-set">
+            <div class="button-set" hidden$="[[!edit]]">
                 <button is="designmap-button" blue on-click="saveAccesses" thin>
                     <i18-n msgid="Update">Update</i18-n>
                 </button>
@@ -493,6 +493,10 @@
                     ]
                 },
                 onpage: {
+                    type: Boolean,
+                    value: false
+                },
+                edit: {
                     type: Boolean,
                     value: false
                 }
@@ -629,6 +633,9 @@
             _getPlanMessage: function(msg){
                 if(!this.user || !this.user.plan) return 'xxx';
                 return this.replaceExpressions(this.translate(msg),{'#COUNT#':this.user.plan.teamMembers});
+            },
+            _hideOnPage: function(onpage,edit) {
+                return onpage && edit;
             }
         })
     </script>

@@ -1,0 +1,35 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module id="plastic-html">
+    <template>
+        <style>
+            :host {
+                display: inline-block;
+                width: 100%;
+            }
+            #content {
+                white-space: pre-line;
+            }
+            #content a {
+                color: var(--blue-darkest-color);
+            }
+        </style>
+        <div id="content"></div>
+    </template>
+    <script>
+        Polymer({
+            is: 'plastic-html',
+            properties: {
+                msg: {
+                    type:String,
+                    value: '',
+                    observer: '_msgChanged'
+                }
+            },
+            _msgChanged: function(msg){
+                // Escape stuff;
+                this.$.content.innerHTML = msg;
+            }
+        })
+    </script>
+</dom-module>

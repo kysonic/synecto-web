@@ -34,7 +34,7 @@
                 }
             }
 
-            ::content .title {
+            ::content > .title {
                 font-size: 26px;
                 font-weight: 100;
                 display: inline-block;
@@ -45,6 +45,7 @@
                 margin-left: 5px;
                 text-align: left;
                 text-transform: none;
+                @apply(--designmap-dashboard-title-mixin);
             }
 
             .arrow-back, ::content .arrow-back {

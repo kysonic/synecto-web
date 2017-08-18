@@ -158,7 +158,7 @@
         <!-- Sharing dialog -->
         <paper-dialog id="sharingDialog" cancel-auto-refit entry-animation="scale-up-animation"
                       exit-animation="scale-down-animation">
-            <designmap-accesses id="accesses"></designmap-accesses>
+            <designmap-accesses edit="[[topAccess(user.role)]]" id="accesses"></designmap-accesses>
             <!--<iron-icon dialog-dismiss class="dialog-close access" icon="icons:close"></iron-icon>-->
         </paper-dialog>
         <!-- Confirms -->
@@ -201,7 +201,7 @@
                         fallback-selection="designmap-404"
                         role="main">
                     <designmap-fs-view id="fsView" name="fs"></designmap-fs-view>
-                    <designmap-accesses-view id="accessesView" name="accesses"></designmap-accesses-view>
+                    <designmap-accesses-view id="accessesView" name="accesses" edit="[[topAccess(user.role)]]"></designmap-accesses-view>
                     <designmap-chat-view id="chatView" name="chat"></designmap-chat-view>
                     <designmap-task-manager-view id="taskManagerView" name="task-manager"></designmap-task-manager-view>
                     <designmap-settings-view name="settings"></designmap-settings-view>

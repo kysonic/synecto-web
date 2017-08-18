@@ -17,6 +17,7 @@
                 width: 100%;
                 transition: .2s height;
                 overflow: hidden;
+                line-height: 27px;
                 @apply(--plastic-textarea-mixin);
             }
         </style>
@@ -50,6 +51,12 @@
             ready: function(){
                 //if(this.initialHeight) return this.$.textarea.style.height = this.initialHeight + 'px';
                 autosize(this.$.textarea);
+            },
+            refit: function(){
+                autosize.update(this.$.textarea);
+            },
+            focus: function(){
+                this.$.textarea.focus();
             },
             blur: function(){
                 this.$.textarea.blur();

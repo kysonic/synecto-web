@@ -424,8 +424,15 @@
             },
             unsubscribe: function(){
                 this.closeUnsubsConfirm();
-                xhr.post('http://localhost:4000/' + 'pay/unsubscribe').then(function(response){
-                    if(!response.success) return this.manageErrorResponse(response);
+                xhr.post(Designmap.config.apiURL + 'pay/unsubscribe').then(function(response){
+                    if(!response.success) {
+                        // Cannot do it via api...
+                        if(response.subscriptionId) {
+                            xhr.post(Designmap.config.apiURL + 'pay/downgrade');
+                            return window.open('https://gumroad.com/subscriptions/cancel_subscription/'+response.subscriptionId,'_self')
+                        }
+                        return this.manageErrorResponse(response);
+                    }
                     this.dispatch('_userUpdate',{plan:response.plan});
                     this.showMessage('Your plan has been downgraded.');
                     this.back();

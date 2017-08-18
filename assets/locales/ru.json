@@ -159,7 +159,7 @@
     "message": ", чтобы начать работу"
   },
   "Manage accesses": {
-    "message": "Управление командой проекта"
+    "message": "Команда проекта"
   },
   "ShareLinkDesc": {
     "message": "Любой пользователь получивший эту ссылку будет способен просмотреть Ваш Проект и оставить для него стикеры."
@@ -1290,7 +1290,7 @@
     "message": "Напишите комментарий"
   },
   "AreYouSureThatYouWantToRemoveWholeConversation": {
-    "message": "Вы увеврены, что хотите удалить весь комментарий?"
+    "message": "Вы увеврены, что хотите удалить весь разговор?"
   },
   "It is not your comment. You cannot drag it": {
     "message": "Это не ваш комментарий. Вы не можете его перетащить."
@@ -1795,5 +1795,8 @@
   },
   "Cannot cancel subscription via API": {
     "message": "Не удалось отменить подписку... Напишите в службу технической поддержки - \"suport@synecto.io\" "
+  },
+  "Tasks": {
+    "message": "Задачи"
   }
 }

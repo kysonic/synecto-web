@@ -153,7 +153,7 @@
     "message": "&nbsp;to start work"
   },
   "Manage accesses": {
-    "message": "Manage team members of"
+    "message": "Team members of"
   },
   "ShareLinkDesc": {
     "message": "Any person who will receive this link will be able to see your project and manage stickers for it."
@@ -1284,7 +1284,7 @@
     "message": "Write a comment"
   },
   "AreYouSureThatYouWantToRemoveWholeConversation": {
-    "message": "Are you sure that you want to remove whole comment?"
+    "message": "Are you sure that you want to remove whole conversation?"
   },
   "It is not your comment. You cannot drag it": {
     "message": "It is not your comment. You cannot drag it."
@@ -1780,5 +1780,8 @@
   },
   "Cannot cancel subscription via API": {
     "message": "Cannot cancel subscription via Synecto... Email support on \"suport@synecto.io\" "
+  },
+  "Tasks": {
+    "message": "Tasks"
   }
 }

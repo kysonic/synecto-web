@@ -28,6 +28,14 @@
             :host {
                 --title-color: var(--blue-darky-color);
                 --taskmanager-color: var(--gray-saturated-color);
+                --breadcrumbs-text-color: var(--blue-color);
+                --breadcrumbs-selected-color: var(--blue-darky-color);
+
+                --designmap-dashboard-title-mixin: {
+                    display: inline-block;
+                    flex: none;
+                    margin-left: 25px;
+                }
             }
 
             *[hidden] {
@@ -43,8 +51,6 @@
             .dashboard {
                 width: 100%;
                 height: 45px;
-                display: flex;
-                align-items: center;
                 background: var(--white-color);
                 position: relative;
             }
@@ -53,7 +59,6 @@
                 font-size: 26px;
                 font-weight: 100;
                 display: inline-block;
-                flex: 1;
                 cursor: pointer;
                 white-space: nowrap;
                 color: var(--title-color);
@@ -102,6 +107,58 @@
             designmap-task-details.no-task{
                 display: none;
             }
+            /** Breadcrumbs **/
+
+            .title {
+                display: inline-block;
+            }
+
+            .breadcrumbs {
+                display: inline-block;
+            }
+
+            .crumb {
+                display: inline-block;
+                margin-left: 25px;
+                font-weight: 100;
+                flex: 1;
+            }
+            .crumb .title{
+                cursor: pointer;
+                display: inline-block;
+                vertical-align: top;
+                font-size: 17px !important;
+                padding: 3px 10px;
+                position: relative;
+                top: 3px;
+                white-space: nowrap;
+                max-width: 150px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                color: var(--breadcrumbs-selected-color);
+            }
+            .crumb .title.selected {
+                border-radius: 3px;
+                background: var(--breadcrumbs-selected-color);
+                color: var(--white-color);
+            }
+
+            .crumb .line {
+                position: absolute;
+                top: 14px;
+                margin-left: -27px;
+                width: 30px;
+                height: 30px;
+                --iron-icon-components-mixin: {
+                    stroke-width: 1px;
+                    stroke: var(--white-color);
+                    fill: var(--blue-darkest-color);
+                };
+            }
+
+            .title.arrowmq {
+                margin-left: 5px !important;
+            }
 
             @media (min-width: 320px) and (max-width: 768px) {
 
@@ -130,16 +187,24 @@
 
         </style>
         <div class="wrapper">
-            <designmap-dashboard hidden$="[[projectError]]" back on-go-back="_arrowBackAction">
-                <div class="title">
-                    <i18-n msgid="Task manager">Task manager</i18-n>
-                    <i18-n class="hidden-xs" msgid="of project">of project</i18-n>
-                    <span class="hidden-xs">&laquo;[[project.name]]&raquo;</span>
+            <designmap-dashboard hidden$="[[projectError]]" back="[[_showBack(selectedTask,MQ)]]" on-go-back="_arrowBackAction" >
+                <div class$="title [[_titleCls(selectedTask,MQ)]]">
+                    <i18-n msgid="Tasks">Tasks</i18-n>
+                   <!-- <i18-n class="hidden-xs" msgid="of project">of project</i18-n>
+                    <span class="hidden-xs">&laquo;[[project.name]]&raquo;</span>-->
+                </div>
+                <div class="breadcrumbs hidden-xs" hidden$="[[!breadcrumbs.length]]">
+                    <template is="dom-repeat" items="[[breadcrumbs]]" as="crumb">
+                        <div class$="crumb [[calculateSelectedCrumb(breadcrumbs.length,index)]]" title="[[crumb.title]]">
+                            <div class$="title [[calculateSelectedCrumb(breadcrumbs.length,index)]]" on-click="goToParent">[[crumb.title]]</div>
+                            <iron-icon class="line" icon="icons:chevron-left"></iron-icon>
+                        </div>
+                    </template>
                 </div>
             </designmap-dashboard>
             <div class$="content [[mode]]">
                 <designmap-task-list class$="[[_isThereSelectedTaskClass(selectedTask)]]" hidden$="[[!computeMainState(tasks.length)]]" id="list"
-                                     selected="{{selectedTask}}" filter selecting></designmap-task-list>
+                                     selected="{{selectedTask}}" can-be-null parent="[[selectedTask.parent]]"  filter selecting></designmap-task-list>
                 <designmap-task-details class$="[[_isThereSelectedTaskClass(selectedTask)]]" hidden$="[[!computeMainState(tasks.length)]]"
                                         id="details" task="[[selectedTask]]"></designmap-task-details>
                 <div class="no-task" hidden$="[[!computeNoTasksState(tasks.length,loading,error)]]">
@@ -213,7 +278,8 @@
                 },
                 selectedTask: {
                     type: Object,
-                    value: null
+                    value: null,
+                    observer: '_selectedTaskChanged'
                 },
                 projectLoading: {
                     type: Boolean,
@@ -263,6 +329,14 @@
                     value: function () {
                         return this.$.slothStub.$.icon
                     }
+                },
+                breadcrumbs: {
+                    type: Array,
+                    value: []
+                },
+                maxBreadcrumbs: {
+                    type: Number,
+                    value: 7
                 }
             },
             listeners: {
@@ -324,8 +398,8 @@
                 return '/' + (projectId || '');
             },
             _arrowBackAction: function(){
-                if(this.MQ!=='sm') return page.redirect('/' + (this.projectId || ''));
-                this.mobileGoBack();
+                //if(this.MQ!=='sm') return page.redirect('/' + (this.projectId || ''));
+                if(this.MQ=='sm') this.mobileGoBack();
             },
             selectTask: function (e) {
                 page.redirect('/' + this.projectId + '/task-manager' + this.getFullPath(e.detail));
@@ -397,6 +471,52 @@
                     this.dispatch('userUpdate',user);
                     this.async(function(){tutorial.start();},1000);
                 }
+            },
+            /**
+             * Breadcrumbs will be calculated
+             * using parent path of all tasks before
+             * basic
+             */
+            calculateBreadCrumbs: function () {
+                if (!this.selectedTask) return;
+                var task = this.selectedTask;
+                this.unshift('breadcrumbs', {id: task._id, title: task.name});
+                while (task.parent) {
+                    task = this.findTaskById(task.parent);
+                    this.unshift('breadcrumbs', {id: task._id, title: task.name});
+                }
+                if (this.breadcrumbs.length > this.maxBreadcrumbs) {
+                    this.set('breadcrumbs', this.breadcrumbs.slice(this.breadcrumbs.length - this.maxBreadcrumbs, this.breadcrumbs.length))
+                    //this.push('breadcrumbs', {id: this.selectedTask._id, title: this.selectedTask.name});
+                }
+            },
+            _selectedTaskChanged: function(){
+                this.set('breadcrumbs', []);
+                this.calculateBreadCrumbs();
+            },
+            /**
+             * Redirect parent task
+             * @param e
+             */
+            goToParent: function (e) {
+                var task = this.findTaskById(e.model.crumb.id);
+                this.selectTask({detail:task})
+            },
+            /**
+             * Redirect parent task
+             * @param e
+             */
+            goOnTop: function (e) {
+                this.selectTask({detail:null})
+            },
+            calculateSelectedCrumb: function (length, index) {
+                return (length - 1) == index ? 'selected' : '';
+            },
+            _showBack: function(selectedTask,MQ){
+                return selectedTask && MQ=='sm';
+            },
+            _titleCls: function(selectedTask,MQ){
+                return selectedTask && MQ=='sm' ? 'arrowmq' : '';
             }
         })
     </script>

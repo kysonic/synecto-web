@@ -2,6 +2,7 @@
 <link rel="import" href="/bower_components/iron-icons/av-icons.html">
 <link rel="import" href="../../plastic/plastic-custom-scroll.html">
 <link rel="import" href="../../plastic/plastic-textarea.html">
+<link rel="import" href="../../plastic/plastic-html.html">
 <link rel="import" href="./designmap-assignee.html">
 <link rel="import" href="../designmap-ui/designmap-date-picker.html">
 <link rel="import" href="../designmap-ui/designmap-file-uploader.html">
@@ -481,7 +482,6 @@
             }
 
             .pure-textarea {
-                margin-top: 5px;
                 --plastic-textarea-mixin: {
                     margin-left: 20px;
                     font-family: var(--font-family);
@@ -501,29 +501,31 @@
                 max-width: calc(100% - 30px);
                 font-weight: 100;
                 font-size: 18px;
-                padding-bottom: 5px;
-                white-space: pre-line;
+                padding-bottom: 12px;
+            }
+            .task-desc.can-edit {
+                cursor: pointer;
             }
 
-            /** Sub tasks **/
+                /** Sub tasks **/
             .sub-tasks {
                 border-top: 1px solid var(--gray-color);
             }
 
             /** STATUSES **/
-            .details.completed .pure-input {
+            .details.completed .pure-input, .details.completed .task-title {
                 color: var(--details-completed)
             }
 
-            .details.expired .pure-input {
+            .details.expired .pure-input, .details.expired .task-title {
                 color: var(--details-expired)
             }
 
-            .details.incomplete .pure-input {
+            .details.incomplete .pure-input, .details.incomplete .task-title {
                 color: var(--details-incomplete)
             }
 
-            .details.in_progress .pure-input {
+            .details.in_progress .pure-input, .details.in_progress .task-title {
                 color: var(--details-inprogress)
             }
 
@@ -584,7 +586,7 @@
                 }
             }
 
-            .comment-arrow {
+            .comment-arrow, .desc-arrow {
                 position: absolute;
                 left: 100%;
                 margin-left: -40px;
@@ -619,16 +621,40 @@
                 padding-right: 20px;
                 width: 100%;
             }
+            .comments-list li .text .head {
+                padding: 2px 0 8px 0;
+                font-size: 18px;
+            }
 
             .comments-list li .text .content {
-                white-space: pre-line;
                 position: relative;
                 width: 100%;
+               /* white-space: pre-line;
+                position: relative;
+                width: 100%;*/
             }
 
             .comments-list li .text .content .comment-arrow {
-                top: -25px;
-                margin-left: 0px;
+                margin-left: 22px;
+                cursor: pointer;
+                z-index: 999;
+            }
+            .comments-list li .text .content .comment-arrow:hover {
+                background: var(--gray-lightern-color);
+                border-radius: 50%;
+            }
+
+            .second-line {
+                position: relative;
+            }
+
+            .desc-arrow {
+                cursor: pointer;
+                z-index: 999;
+            }
+            .desc-arrow:hover {
+                background: var(--gray-lightern-color);
+                border-radius: 50%;
             }
 
             .comments-list .panel {
@@ -645,29 +671,32 @@
             }
 
             .comments-list .panel .heart {
-                width: 14px;
-                height: 14px;
+                width: 17px;
+                height: 17px;
+                position: relative;
+                bottom: 1px;
+                margin-right: 2px;
             }
 
             .comments-list .panel .likesCount {
                 font-size: 10px;
+                position: absolute;
+                margin-left: 2px;
             }
 
             .more {
                 position: relative;
-                top: 2px;
-                --iron-icon-components-mixin: {
-                    stroke-width: 4px;
-                    r: 3px;
-                };
+                width: 18px;
+                height: 18px;
+                top: 3px;
             }
 
             .reply {
-                width: 16px;
-                height: 16px;
-                margin-right: 5px;
+                width: 18px;
+                height: 18px;
+                margin-right: 2px;
                 position: relative;
-                top: 5px;
+                top: 2px;
             }
 
             .comment-edit {
@@ -886,6 +915,13 @@
                 border-width: 0 12px 12px 12px;
                 border-color: transparent transparent var(--gray-color) transparent;
             }
+            .comment-text {
+                width: 100%;
+                height: 100%;
+            }
+            .comment-text.my-comment:hover {
+                cursor: pointer;
+            }
 
             @media (min-width: 320px) and (max-width: 768px) {
                 .hidden-xs {
@@ -984,19 +1020,19 @@
                     </div>
                     <div class="center" id="center">
                         <!-- BREADCRUMBS -->
-                        <div class="breadcrumbs hidden-xs" hidden$="[[!breadcrumbs.length]]">
+                        <!--<div class="breadcrumbs hidden-xs" hidden$="[[!breadcrumbs.length]]">
                             <template is="dom-repeat" items="[[breadcrumbs]]" as="crumb">
                                 <div class="crumb" title="[[crumb.title]]">
                                     <div class="title" on-click="goToParent">[[crumb.title]]</div>
                                     <iron-icon class="arrow" icon="designmap:arrow"></iron-icon>
                                 </div>
                             </template>
-                        </div>
+                        </div>-->
                         <!-- TITLE -->
                         <input id="title" is="iron-input"
                                on-blur="saveTitle"
                                on-focus="hideCommentsOnMobile"
-                               class$="pure-input [[calculateBCStyle(breadcrumbs.length)]]"
+                               class="pure-input"
                                placeholder="[[translate('Enter title',language,i18Loaded)]]"
                                hidden$="[[!canRemoveTask(task)]]"
                                value="[[task.name]]"/>
@@ -1140,7 +1176,7 @@
                                       on-change="_descChange"
                                       on-focus="hideCommentsOnMobile"
                                       on-blur="saveDesc" value="[[task.description]]"
-                                      hidden$="[[!canRemoveTask(task)]]"
+                                      hidden$="[[!editDesc]]"
                                       placeholder="[[translate('Enter description',language,i18Loaded)]]"></plastic-textarea>
                     <!-- Hint -->
                     <designmap-hint id="changeTaskDescHint" previous name="changeTaskDesc" vertical-offset="60"
@@ -1153,8 +1189,13 @@
                         </div>
                     </designmap-hint>
                     <!-- Hint-->
-                    <div hidden$="[[canRemoveTask(task)]]" class="task-desc">[[_generateDesc(task.description)]]</div>
-
+                    <div hidden$="[[editDesc]]" on-tap="_tryToEdit" id="plasticDesc" class$="task-desc [[_canEditCls(task)]]">
+                        <plastic-html  msg="[[_generateDesc(task.description)]]"></plastic-html>
+                    </div>
+                    <!-- Arrow -->
+                    <div hidden$="[[!editDesc]]" class="desc-arrow hidden-xs" on-tap="saveDesc">
+                        <iron-icon icon="icons:arrow-forward"></iron-icon>
+                    </div>
                 </div>
                 <!-- Files -->
                 <div class="third-line">
@@ -1202,7 +1243,9 @@
                                 </div>
                                 <div class="content">
                                     <template is="dom-if" if="[[!comment.edit]]">
-                                        <div class="comment-text">[[comment.text]]</div>
+                                        <div class$="comment-text [[_isMyCommentCls(user,comment)]]" on-tap="_editCommentThroughClick">
+                                            <plastic-html msg="[[processLinksInText(comment.text)]]"></plastic-html>
+                                        </div>
                                     </template>
                                     <template is="dom-if" if="[[comment.edit]]">
                                         <textarea on-blur="_saveComment" on-focus="hideCommentsOnMobile" value="[[comment.text]]"
@@ -1225,7 +1268,7 @@
                                 </div>
                                 <iron-icon on-tap="_openDropdown" hidden$="[[!_hideForMySelf(user,comment)]]"
                                            class="more"
-                                           icon="designmap-workspace:more"></iron-icon>
+                                           icon="icons:more-vert"></iron-icon>
                             </div>
                         </li>
                     </template>
@@ -1471,6 +1514,10 @@
                 mobileEdit: {
                     type: Boolean,
                     value: false
+                },
+                editDesc: {
+                    type: Boolean,
+                    value:false
                 }
             },
             listeners: {
@@ -1588,6 +1635,7 @@
                     return this.showErrorMessage('You do not have access to make it');
                 }
                 this.dispatch('updateTask', this.task._id, {description: val}).then(function (response) {
+                    this.editDesc = false;
                     if (!response.success) return this.showErrorMessage('Cannot save description');
                     if (e.type == 'keys-pressed') this.showMessage('Description has been saved!');
                 }.bind(this));
@@ -2215,10 +2263,31 @@
                 return this.translate('Status: ')+'"'+this.translate(status)+'"';
             },
             _generateDesc: function(desc){
-                return desc || this.translate('There is no description')
+                return this.processLinksInText(desc) || this.translate('There is no description')
             },
             _dateChanged: function(date){
                 //if (this.$.datePicker && this.task && this.task.expired) this.date = new Date(this.task.expired);
+            },
+            _editCls: function(){
+              return this.canRemoveTask(this.task)?'can-edit':''
+            },
+            _tryToEdit: function(){
+                if(!this.canRemoveTask(this.task)) return;
+                this.editDesc = true;
+                    this.$.desc.refit();
+                this.async(function(){this.$.desc.focus();},10);
+            },
+            _editCommentThroughClick: function(e){
+                if(this.user._id != e.model.comment.owner._id) return;
+                this.lastComment = e.model.comment;
+                this.commentNode = e.currentTarget.parentNode;
+                this._editComment();
+            },
+            _isMyCommentCls(user,comment) {
+                return this._isMyComment(user,comment) ? 'my-comment' : '';
+            },
+            _canEditCls(task) {
+                return this.canRemoveTask(task) ? 'can-edit' : '';
             }
         })
     </script>
