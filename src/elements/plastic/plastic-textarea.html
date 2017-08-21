@@ -23,6 +23,7 @@
         </style>
         <textarea id="textarea"
                   placeholder="[[placeholder]]"
+                  rows="[[rows]]"
                   on-keyup="_onChange"
                   on-keydown="_onKeydown"
                   value="{{value::input}}"
@@ -46,11 +47,16 @@
                 placeholder: {
                     type: String,
                     value: ''
+                },
+                rows: {
+                    type: Number
                 }
             },
             ready: function(){
-                //if(this.initialHeight) return this.$.textarea.style.height = this.initialHeight + 'px';
                 autosize(this.$.textarea);
+                if(this.initialHeight) this.async(function(){
+                    this.$.textarea.style.height = this.initialHeight + 'px'
+                },0);
             },
             refit: function(){
                 autosize.update(this.$.textarea);
@@ -67,16 +73,8 @@
             _onKeydown: function(e){
                 this.fire('keydown',e);
             },
-            _change: function(){
-
-            },
             _valueChanged: function(){
                 this.async(function(){autosize.update(this.$.textarea)},0);
-            },
-            _track: function(e){
-                //alert(navigator.userAgent);
-                //if(/Mobi/.test(navigator.userAgent)) return;
-                //e.stopPropagation();
             }
         });
     </script>

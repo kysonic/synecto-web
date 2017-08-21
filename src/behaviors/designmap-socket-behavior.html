@@ -7,16 +7,16 @@
             this.type = type;
             //if (Designmap[type+'Socket']) Designmap[type+'Socket'].disconnect();
             if (!Designmap[type+'Socket']) {
-                this.roomId = roomId;
+                Designmap[type+'RoomId'] = roomId;
                 // Connect to appropriate room created specially for this project.
                 Designmap[type+'Socket'] = io.connect(Designmap.config.apiURL, {query: 'room=' + roomId});
                 this.setupSocketSubscribers(type);
             } else if(roomId) {
-                if(this.roomId==roomId) return;
-                this.roomId = roomId;
+                if(Designmap[type+'RoomId']==roomId) return;
+                Designmap[type+'RoomId'] = roomId;
                 // Change room
-                Designmap[type+'Socket'].emit('change-room',{room:this.roomId});
-                console.log('Change '+type+' room on '+this.roomId);
+                Designmap[type+'Socket'].emit('change-room',{room:Designmap[type+'RoomId']});
+                console.log('Change '+type+' room on '+Designmap[type+'RoomId']);
             }
         },
         /**
@@ -24,7 +24,7 @@
          */
         setupSocketSubscribers: function (type) {
             Designmap[type+'Socket'].on('connect', function () {
-                console.log('DesignMap '+type+' socket is connected. Room ='+this.roomId);
+                console.log('DesignMap '+type+' socket is connected. Room ='+Designmap[type+'RoomId']);
                 this.fire('socket-connected',{type:type});
             }.bind(this));
 

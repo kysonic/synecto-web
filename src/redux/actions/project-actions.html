@@ -103,6 +103,12 @@
                     path: path
                 }
             },
+            updatePage: function (page) {
+                return {
+                    type: 'UPDATE_PAGE',
+                    page: page
+                }
+            },
             updateReady: function (ready) {
                 return {
                     type: 'UPDATE_READY',

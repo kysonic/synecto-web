@@ -497,11 +497,14 @@
             .task-desc {
                 margin-left: 20px;
                 font-family: var(--font-family);
-                color: var(--gray-darky-color);
+                color: var(--gray-saturated-color);
                 max-width: calc(100% - 30px);
                 font-weight: 100;
                 font-size: 18px;
                 padding-bottom: 12px;
+                --plastic-html-mixin: {
+                    color: var(--gray-saturated-color);
+                }
             }
             .task-desc.can-edit {
                 cursor: pointer;
@@ -590,7 +593,7 @@
                 position: absolute;
                 left: 100%;
                 margin-left: -40px;
-                top: 7px;
+                top: 3px;
                 cursor: pointer;
             }
 
@@ -1176,6 +1179,7 @@
                                       on-change="_descChange"
                                       on-focus="hideCommentsOnMobile"
                                       on-blur="saveDesc" value="[[task.description]]"
+                                      rows="1"
                                       hidden$="[[!editDesc]]"
                                       placeholder="[[translate('Enter description',language,i18Loaded)]]"></plastic-textarea>
                     <!-- Hint -->
@@ -2081,6 +2085,7 @@
             },
 
             openFile: function (e) {
+                e.preventDefault();
                 page.redirect('/gallery/' + e.model.file._id);
             },
 
@@ -2263,7 +2268,7 @@
                 return this.translate('Status: ')+'"'+this.translate(status)+'"';
             },
             _generateDesc: function(desc){
-                return this.processLinksInText(desc) || this.translate('There is no description')
+                return this.processLinksInText(desc) || (this.canUpdateTask(this.task) ? this.translate('Enter description') : this.translate('There is no description') )
             },
             _dateChanged: function(date){
                 //if (this.$.datePicker && this.task && this.task.expired) this.date = new Date(this.task.expired);

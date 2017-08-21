@@ -275,9 +275,10 @@
         processLinksInText(text) {
             if(!text) return '';
             return text.replace(this.urlRegexp,function(match){
-                const target = match.indexOf('synecto')==-1 ? '_blank' : '_self';
+                console.log(Designmap.config.appURL);
+                const target = match.indexOf(Designmap.config.appURL)==-1 ? '_blank' : '_self';
                 const text = match.length>30 ? match.substr(0,30)+'...' : match;
-                return '<a href="'+match+'" target="'+target+'">'+text+'</a>';
+                return '<a href="'+match.replace(Designmap.config.appURL,'')+'" target="'+target+'">'+text+'</a>';
             })
         }
     }

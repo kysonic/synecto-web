@@ -19,30 +19,30 @@
             :host {
                 display: flex;
                 flex-direction: column;
-                height: 100%;
+                height: calc(100% - 55px);
                 flex-wrap: wrap;
                 flex-grow: 1;
-                background: url('/assets/images/bkg/collage.jpg');
-                background-size: 320%;
+              /*  background: url('/assets/images/bkg/collage.jpg');*/
+/*                background-size: 320%;*/
 
                 --plastic-textarea-mixin: {
                     font-family: var(--font-family);
                     color: var(--gray-darky-color);
                     font-weight: 100;
                     font-size: 16px;
-                    padding: 5px 0 0 9px;
+                    padding: 5px 0 3px 9px;
                     border: 1px solid var(--gray-color);
                     width: calc(100% - 11px);
                 };
 
                 --plastic-custom-scroll-bar-mixin: {
-                    margin-left: -7px;
+                    margin-left: -12px;
                 };
                 --plastic-custom-scroll-bar-hover-mixin: {
-                    margin-left: -9px;
+                    margin-left: -14px;
                 };
                 --plastic-custom-scroll-bar-grabbed-mixin: {
-                    margin-left: -9px;
+                    margin-left: -14px;
                 };
 
                 --designmap-context-menu-deep-content-mixin: {
@@ -57,13 +57,14 @@
 
             .scroll {
                 display: flex;
-                margin-top: 50px;
                 flex: 2;
                 overflow: auto;
+                padding: 0 20px;
             }
 
             .comment {
-                padding: 0 5px;
+                padding: 10px 5px 5px 0;
+                border-top: 1px solid var(--gray-color);
             }
 
             .comment button {
@@ -87,8 +88,8 @@
 
             /** Messages **/
             .messages {
-                margin-top: 25px;
-                height: calc(100% - 25px);
+                margin-top: 10px;
+                height: calc(100% - 10px);
             }
 
             .messages.loading {
@@ -117,27 +118,24 @@
             }
 
             .message .text {
-                min-width: 50%;
-                max-width: 65%;
+                max-width: 50%;
                 padding: 5px 10px 2px 10px;
                 margin-top: 10px;
                 position: relative;
             }
 
             .own .text {
-                background: var(--white-color);
+                background: var(--gray-lightern-color);
                 color: var(--gray-darkend-color);
-                float: right;
+                float: left;
                 margin-right: 10px;
             }
 
             .own .footer .date {
-                float: right;
                 vertical-align: bottom;
             }
 
             .anothers .footer .date {
-                float: left;
                 vertical-align: bottom;
             }
 
@@ -150,7 +148,7 @@
             }
 
             .projector {
-                display: none;
+                display: inline-block;
             }
 
             .balloon-tick, .balloon-tick-border {
@@ -178,19 +176,22 @@
 
             .own.first .balloon-tick {
                 display: block;
-                border-width: 0 10px 10px 0;
-                border-color: transparent var(--white-color) transparent transparent;
+                /*border-width: 0 10px 10px 0;*/
+                /*border-color: transparent var(--gray-color) transparent transparent;*/
+                border-width: 10px 10px 0 0;
+                border-color: var(--gray-lightern-color) transparent transparent transparent;
                 top: 100%;
-                left: 100%;
+               /* left: 100%;*/
+                left: 0;
                 margin-top: 0;
-                margin-left: -10px;
+                /*margin-left: -10px;*/
             }
 
-            .anothers .text {
+            .anothers .text, .own .text {
                 margin-left: 45px;
             }
 
-            .anothers.first .projector {
+            .anothers.first .projector, .own.first .projector {
                 display: inline-block;
                 float: left;
                 position: absolute;
@@ -203,31 +204,30 @@
 
             .text .footer {
                 display: block;
-                height: 17px;
+                height: 20px;
                 width: 100%;
             }
 
             .text .footer .date {
                 display: inline-block;
+                vertical-align: middle;
                 font-size: 10px;
             }
 
             .menu {
-                display: inline-block;
-                border-radius: 50%;
                 cursor: pointer;
-                height: 15px;
+                position: relative;
+                left: 3px;
             }
 
             .menu iron-icon {
-                height: 15px;
-                width: 15px;
-                top: -5px;
+                height: 18px;
+                width: 18px;
                 position: relative;
             }
 
             .own .menu {
-                float: left;
+                float: right;
             }
 
             .anothers .menu {
@@ -245,6 +245,62 @@
                 background-size: 50px;
                 margin-top: 20px;
             }
+            /** Bottom **/
+            .user-projector {
+                display: inline-block;
+                vertical-align: top;
+            }
+            .textarea {
+                margin-left: 10px;
+                flex: 11;
+            }
+
+            .comment .comment-wrap{
+                padding: 0 20px;
+                display: flex;
+            }
+
+            .buttons {
+                display: flex;
+            }
+
+            .buttons .button {
+                width: 39px;
+                height: 39px;
+                border: 1px solid var(--gray-color);
+                margin-left: 5px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+            }
+            .buttons .button:hover {
+                background: var(--gray-lightern-color);
+                transition: background .2s;
+            }
+            .buttons .button iron-icon {
+                --iron-icon-components-mixin: {
+                    stroke: var(--white-color) !important;
+                    fill: var(--gray-darkend-color) !important;
+                };
+            }
+            .buttons .button.send-msg iron-icon {
+                --iron-icon-components-mixin: {
+                    stroke: var(--expired) !important;
+                    fill: var(--expired) !important;
+                };
+            }
+
+            .send-msg[disabled] iron-icon {
+                opacity: 0.3;
+            }
+
+            .bigicon {
+                width: 50px;
+                height: 50px;
+            }
+
+
             :host(.safari) {
                 --plastic-custom-scroll-content-mixin:{
                     height: calc(100vh - 115px);
@@ -299,7 +355,7 @@
                         </div>
                     </div>
                 </template>
-                <!-- Menu -->
+                <!-- Menu dropdown -->
                 <designmap-context-menu id="contextMenu" width="200" height="134">
                     <ul class="menu">
                         <li on-tap="editMessage">
@@ -322,14 +378,29 @@
                 </div>
             </div>
         </plastic-custom-scroll>
+        <!-- textarea -->
         <div class="comment" id="comment">
-            <iron-a11y-keys keys="ctrl+enter meta+enter" on-keys-pressed="postMessage"></iron-a11y-keys>
-            <plastic-textarea id="textarea" initial-height="66" value="{{message}}"
-                              placeholder="[[translate('Enter a message',language,i18Loaded)]]"></plastic-textarea>
-            <button hidden$="[[!message]]" on-tap="postMessage" is="designmap-button" blue fit>
+            <div class="comment-wrap">
+                <designmap-avatar-projector user="[[user]]" class="user-projector"></designmap-avatar-projector>
+                <iron-a11y-keys keys="ctrl+enter meta+enter" on-keys-pressed="postMessage"></iron-a11y-keys>
+                <plastic-textarea id="textarea" rows="1" class="textarea" on-change="_messageChanged" value="{{message}}"
+                                  placeholder="[[translate('Enter a message',language,i18Loaded)]]"></plastic-textarea>
+                <div class="buttons">
+                    <div class="button add-file">
+                        <iron-icon class="bigicon" icon="designmap-workspace:folder"></iron-icon>
+                    </div>
+                    <div class="button add-task">
+                        <iron-icon class="bigicon" icon="designmap-workspace:file"></iron-icon>
+                    </div>
+                    <div class="button send-msg" on-tap="postMessage" disabled$="[[!message.length]]">
+                        <iron-icon icon="icons:send"></iron-icon>
+                    </div>
+                </div>
+            </div>
+            <!--<button hidden$="[[!message]]" on-tap="postMessage" is="designmap-button" blue fit>
                 <i18-n hidden$="[[editMode]]" msgid="Post">Post</i18-n>
                 <i18-n hidden$="[[!editMode]]" msgid="Save">Save</i18-n>
-            </button>
+            </button>-->
         </div>
 
     </template>
@@ -346,8 +417,12 @@
             properties: {
                 message: {
                     type: String,
-                    value: '',
-                    observer: '_messageChanged'
+                    value: ''
+                },
+                page: {
+                    type: String,
+                    statePath: 'page',
+                    observer: '_pageChanged'
                 },
                 messages: {
                     type: Array,
@@ -413,7 +488,7 @@
                 }
             },
             observers: [
-                '_messagesChanged(messages.length)'
+                '_messagesChanged(messages.*)'
             ],
             ready: function () {
                 //if(/Safari/.test(navigator.userAgent)) this.classList.add('safari');
@@ -429,6 +504,8 @@
                     }.bind(this));
                 }.bind(this);
                 xhr.send();
+                // Setup socket
+                this.setupSocketAction();
             },
             playSound: function () {
                 var source = this.audioContext.createBufferSource();
@@ -443,7 +520,7 @@
                 Designmap.projectSocket.on('action', function (o) {
                     if (o.uid == Designmap.uid) return;
                     if(o.type==="ADD_MESSAGE") {
-                        if(!this.opened || this.MQ=='sm') this.playSound();
+                        this.playSound();
                         //if(this.opened) this.async(this.scrollUp,10);
                         if(new Date(o.data.created)>new Date(localStorage.getItem('designmap:lco')) && !this.opened) {
                             this.fire('set-unread-mark',true);
@@ -464,13 +541,7 @@
              * @private
              */
             _messageChanged: function () {
-                const textAreaBound = this.$.textarea.$.textarea.getBoundingClientRect();
-                this.async(function () {
-                    const height = (textAreaBound.height + (this.message ? 55 : 0));
-                    this.$.comment.style.minHeight = height + 'px';
-                    if(this.MQ=='sm') this.$.scroll.style.height = "calc(100vh - "+(height+135)+"px)";
-                    this.async(this.scrollUp);
-                });
+                //const textAreaBound = this.$.textarea.$.textarea.getBoundingClientRect();
             },
             _isThereMessages: function (length) {
                 return !!length;
@@ -523,22 +594,26 @@
              * Post new message
              */
             postMessage: function () {
+                if(!this.message) return;
                 if (this.editMode) return this.updateMessage();
                 const data = {
+                    _id: this.generateUid(),
                     text: this.message,
                     owner: this.user,
+                    created: new Date(),
                     project: this.projectId
                 };
                 this.dispatch('addMessage', data);
                 this.message = '';
                 this.async(this.scrollUp);
                 this.async(this.$.textarea.blur);
+                this.async(this._messageChanged);
             },
             updateMessage: function () {
                 this.dispatch('updateMessage', this.msg._id, {text: this.message});
                 this.message = '';
                 this.editMode = false;
-                this.async(this.scrollUp);
+                //this.async(this.scrollUp);
                 this.async(this.$.textarea.blur);
             },
             scrollUp: function () {
@@ -600,7 +675,7 @@
             _isLoadingClass: function (inProgress) {
                 return inProgress ? 'loading' : '';
             },
-            _messagesChanged: function () {
+            _messagesChanged: function (splices) {
                 // Remove all delims
                 const delimeters = this.$.messages.querySelectorAll('.date-delimiter:not(.first)');
                 [].forEach.call(delimeters, function (node) {
@@ -623,6 +698,10 @@
                         })
                     }
                 }
+                if(splices.path=='messages.length') this.async(this.scrollUp,10);
+            },
+            _pageChanged: function(){
+                this.scrollUp();
             }
         });
     </script>

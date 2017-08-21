@@ -291,7 +291,7 @@
                 </designmap-circle-button>
                 <!--<iron-icon hidden$="[[user.isPremium]]" class="locked-icon" icon="icons:lock-outline"></iron-icon>-->
                 <div class="text">
-                    <i18-n msgid="Task manager">Task manager</i18-n>
+                    <i18-n msgid="Tasks">Tasks</i18-n>
                 </div>
                 <div class="marker dot"></div>
             </li>
@@ -446,14 +446,15 @@
                 this.fire('open-sharing');
             },
             openChat: function(){
-                if(this.MQ=='sm') {
+                return page.redirect('/'+this.projectId+'/chat');
+                /*if(this.MQ=='sm') {
                     localStorage.setItem('designmap:lco',new Date());
                     this.async(function(){
                         document.querySelector('designmap-app')._setUnreadMark({detail:false});
                     },300);
                     return page.redirect('/'+this.projectId+'/chat');
                 }
-                this.fire('open-chat');
+                this.fire('open-chat');*/
             },
             closeShareDialog: function(){
                 this.$.sharingDialog.close();

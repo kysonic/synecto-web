@@ -1,0 +1,13 @@
+<script>
+    Reducers.PageReducer = function(state,action) {
+        if(!state) state = null;
+        switch(action.type) {
+            case "UPDATE_PAGE":
+                return action.page;
+                break;
+            default:
+                return state;
+                break;
+        }
+    }
+</script>

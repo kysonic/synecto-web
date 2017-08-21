@@ -6,10 +6,24 @@
 
 <dom-module id="designmap-chat-view">
     <style>
-
+        :host {
+            display: block;
+            height: 100%;
+            --designmap-dashboard-title-mixin: {
+                margin-left: 25px;
+            };
+        }
+        .content {
+            height: 100%;
+        }
     </style>
     <template>
         <div class="content">
+            <designmap-dashboard>
+                <div class="title">
+                    <i18-n msgid="Chat">Chat</i18-n>
+                </div>
+            </designmap-dashboard>
             <designmap-chat id="chat" opened="true" dashboard></designmap-chat>
         </div>
     </template>

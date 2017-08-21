@@ -136,6 +136,10 @@
                 top: 1px;
             }
 
+            iron-pages {
+                height: 100%;
+            }
+
             @media (min-width: 320px) and (max-width: 768px) {
                 .showcase-dialog {
                     min-width: 320px;
@@ -221,7 +225,7 @@
                 <!-- Error -->
                 <!-- Info -->
                 <app-drawer id="right" align="end" opened="{{rightOpened}}">
-                    <designmap-chat hidden$="[[!chatMode]]" opened="[[_computeOpened(chatMode,rightOpened)]]" id="chat"></designmap-chat>
+                    <!--<designmap-chat hidden$="[[!chatMode]]" opened="[[_computeOpened(chatMode,rightOpened)]]" id="chat"></designmap-chat>-->
                     <designmap-info hidden$="[[chatMode]]" id="info"></designmap-info>
                 </app-drawer>
             </app-header-layout>
@@ -386,7 +390,6 @@
                 'open-sharing':'_openSharing',
                 'open-project-remove':'_openProjectRemoveConfirm',
                 'iron-resize': '_onResize',
-                'socket-connected': 'socketConnected',
                 'open-protocol-showcase': 'openProtocolShowcase',
                 'close-showcase-dialog':'closeShowCaseDialog',
                 'close-accesses':'closeShareDialog',
@@ -450,6 +453,7 @@
                 // Load page import on demand. Show 404 page if fails
                 const resolvedPageUrl = this.resolveUrl('./views/designmap-' + page + '-view.html');
                 this.loading = true;
+                this.dispatch('updatePage', page);
                 this.importHref(resolvedPageUrl, function(){
                     if(this.page=='login') this.loading = false;
                     if(this.user && this.readyState) this.loading = false;
@@ -550,7 +554,7 @@
                 this.dispatch('getFiles', {project: this.project._id}).then(this._done.bind(this));
                 this.dispatch('getStickers', {project: this.project._id});
                 this.dispatch('getComments', {project: this.project._id});
-                this.dispatch('getMessages', {project: this.project._id, mpr: this.$.chat.mpr});
+                this.dispatch('getMessages', {project: this.project._id, mpr: 30});
                 this.dispatch('getTasks', {project: this.project._id}).then(this._done.bind(this));
             },
 
@@ -744,9 +748,9 @@
                 return chatMode && opened;
             },
 
-            socketConnected: function(e){
+            /*socketConnected: function(e){
                 if(e.detail.type=='project') this.$.chat.setupSocketAction();
-            },
+            },*/
 
             openProtocolShowcase: function(){
                 this.$.protocolShowcaseDialog.open();
