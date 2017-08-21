@@ -110,10 +110,12 @@
             }
             .item .name-email .name{
                 text-align: left;
+                max-height: 20px;
             }
             .item .name-email .email{
                 font-size: 12px;
                 text-align: left;
+                max-height: 20px;
             }
             .item .only-email {
                 display: flex;
@@ -124,9 +126,11 @@
             :host([dishonred]) paper-input {
                 pointer-events: none;
                 visibility: hidden;
+                height: 1px;
             }
             :host([dishonred]) iron-icon {
                 visibility: hidden;
+                height: 1px;
             }
 
         </style>

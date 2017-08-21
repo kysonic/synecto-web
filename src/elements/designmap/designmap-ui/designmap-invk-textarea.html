@@ -1,0 +1,230 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../designmap-accesses/designmap-users-select.html">
+<link rel="import" href="../../plastic/plastic-textarea.html">
+
+<dom-module id="designmap-invk-textarea">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                --plastic-textarea-mixin: {
+                    border: none;
+                    resize: none;
+                    font-size: 14px;
+                    width: 100%;
+                    max-height: 200px;
+                    color: var(--gray-darkend-color);
+                    outline: none;
+                    padding: 5px 0 0 10px;
+                    border-top: 1px solid var(--gray-color);
+                    @apply(--designmap-invk-textarea-mixin);
+                }
+            }
+            .invocation-dropdown {
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 9999;
+                width: 230px;
+                color: var(--gray-darkend-color);
+            }
+
+            /** Invoked\Notified **/
+
+            .invoked {
+                color: var(--gray-darkend-color);
+                cursor: default;
+                text-align: left;
+                padding-left: 10px;
+                border-top: 1px dashed var(--gray-color);
+                @apply(--designmap-invk-ivoked-mixin);
+            }
+
+            .invoked-count {
+                font-weight: 700;
+                text-decoration: underline;
+            }
+
+            designmap-users-select {
+                height: 0;
+            }
+        </style>
+        <!-- Invoked -->
+        <div class="invoked" hidden$="[[!_invokedState(invokedUsers.length,noInvoked)]]">
+                                <span id="invoked-count" class="invoked-count">
+                                    [[invokedUsers.length]]
+                                </span>
+            <paper-tooltip grayder for="invoked-count">[[_getInvokedUsersList(invokedUsers)]]</paper-tooltip>
+            <span>
+                                    <i18-n msgid="persons">persons</i18-n>
+                                </span>
+            <span>
+                                     <i18-n msgid="will be notified">will be notified</i18-n>
+                                </span>
+        </div>
+        <!-- Textarea -->
+        <plastic-textarea
+                  id="textarea"
+                  rows="1"
+                  value="{{value}}"
+                  placeholder="[[placeholder]]"
+                  on-keyup="_invocation"
+                  on-keydown="_specialActionForInvocation"
+        ></plastic-textarea>
+        <!-- Invocation dropdown -->
+        <div id="invocationDropDown" class="invocation-dropdown" hidden$="[[!opened]]">
+            <designmap-users-select id="select" on-close="closeDropDown" on-selected="userSelect"
+                                    dishonred options="[[users]]" vertical-offset="15" search="{{search}}"
+                                    limit="5"></designmap-users-select>
+        </div>
+        <!-- Invocation dropdown -->
+    </template>
+    <script>
+        let tempSearch = '';
+        Polymer({
+            is: 'designmap-invk-textarea',
+            behaviors: [
+
+            ],
+            properties: {
+                value: {
+                    type: String,
+                    notify: true,
+                    value: ''
+                },
+                opened: {
+                    type: Boolean,
+                    value: false
+                },
+                placeholder: {
+                    type: String,
+                    value: ''
+                },
+                users: {
+                    type: Array,
+                    value: []
+                },
+                search: {
+                    type: String,
+                    value: ''
+                },
+                invokedUsers: {
+                    type: Array,
+                    notify: true,
+                    value: []
+                },
+                noInvoked: {
+                    type: Boolean,
+                    value: false
+                }
+            },
+            ready: function(){
+                this.INVOCATION_REGEXP = /(^@([\w\S]*)$| @([\w\S]*)$|\n@([\w\S]*)$)/;
+                this.SYMBOL_REGEXP = /[ ]*/;
+            },
+            /**
+             * Will implement invocation of user via
+             * @name/email/etc.. To add notification
+             * @private
+             */
+            _invocation: function (e) {
+                // Resolve invoked users
+                this.async(this.resolveInvokedUsers);
+                // If there is no any matches - skip
+                if (!this.INVOCATION_REGEXP.test(this.value)) return this.opened = false;
+                // Find matches
+                const matches = this.value.match(this.INVOCATION_REGEXP);
+                tempSearch = matches[1];
+                this.search = matches[2] || matches[3] || matches[4] || "";
+                // Get deep textarea inside plastic-textarea
+                const realTextarea = this.$.textarea.$.textarea;
+                const cords = window.getCaretCoordinates(realTextarea, realTextarea.selectionEnd);
+                this.opened = true;
+                // Position dropdown
+                this.$.invocationDropDown.style.left = cords.left + 'px';
+                this.$.invocationDropDown.style.top = cords.top + 'px';
+                this.$.select.openDropdown();
+                this.async(function(){
+                    const bound = this.$.select.$.dropdown.getBoundingClientRect();
+                    if(bound.top+bound.height>window.innerHeight) this.$.select.$.dropdown.style.top = (bound.top - bound.height - 15) + 'px'
+                },10)
+            },
+
+            resolveInvokedUsers: function(){
+                const users = [];
+                this.users.forEach(function (user) {
+                    const regExpStr = user.profile&&user.profile.name?'@'+user.profile.name:"\\+" + user.local.email;
+                    const regExp = new RegExp(regExpStr,'i');
+                    if(regExp.test(this.value)) users.push(user);
+                }.bind(this));
+                this.set('invokedUsers',users);
+            },
+
+            closeDropDown: function () {
+                this.opened = false;
+            },
+
+            openDropDown: function () {
+                this.opened = true;
+            },
+
+            userSelect: function (e) {
+                this.$.select.$.dropdown.close();
+                const user = e.detail;
+                if(!user) return;
+
+                const replacement = user.profile&&user.profile.name?'@'+user.profile.name+' ':"+" + user.local.email + " ";
+                this.value = this.value.replace(new RegExp(tempSearch.replace(this.SYMBOL_REGEXP, '') + "$", 'i'), replacement);
+                this.$.textarea.focus();
+                this.resolveInvokedUsers();
+            },
+
+            _specialActionForInvocation: function(e){
+
+                if([13,40,38].indexOf(e.detail.keyCode)==-1) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                if(e.detail.keyCode==13 && !e.detail.metaKey && !e.detail.ctrlKey) this.$.select.add();
+                if(e.detail.keyCode==38) this.$.select.up();
+                if(e.detail.keyCode==40) this.$.select.down();
+
+            },
+
+            _hidePersons: function(length) {
+                return length==1;
+            },
+
+            _getInvokedUsersList: function(){
+                return this.invokedUsers.map(function(user){
+                    return user.profile&&user.profile.name?user.profile.name:user.local.email;
+                }).join('; ');
+            },
+
+            _mouseWheel: function(e){
+                e.preventDefault();
+                e.stopPropagation();
+            },
+
+            _textAreaMouseWheel: function(e){
+                e.stopPropagation();
+            },
+
+            focus: function(){
+                if(!this.$.textarea) return;
+                this.$.textarea.focus();
+            },
+
+            blur: function(){
+                if(!this.$.textarea) return;
+                this.$.textarea.blur();
+            },
+
+            _invokedState: function(length,noInvoked){
+               return length && !noInvoked;
+            }
+        })
+    </script>
+</dom-module>

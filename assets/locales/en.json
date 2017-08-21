@@ -917,8 +917,14 @@
   "Available projects": {
     "message": "Available"
   },
-  "New sticker": {
-    "message": "New comment"
+  "New Sticker": {
+    "message": "New file comment"
+  },
+  "New Task Comment": {
+    "message": "New task comment"
+  },
+  "New Message": {
+    "message": "New chat message"
   },
   "New access": {
     "message": "New access"
@@ -1036,6 +1042,12 @@
   },
   "Shortcuts description": {
     "message": "Make your work in Synecto more comfortable using hot keys!"
+  },
+  "Contact us": {
+    "message": "Contact a human"
+  },
+  "Contact us desc": {
+    "message": "If you cannot solve your problem using our docs and tips just write our 24/7 support a couple of lines."
   },
   "Video tutorials": {
     "message": "Video tutorials"
@@ -1297,6 +1309,18 @@
   },
   "Enter your name": {
     "message": "Enter your name"
+  },
+  "Enter your email": {
+    "message": "Enter your email"
+  },
+  "Required.": {
+    "message": "Required."
+  },
+  "Support form": {
+    "message": "Support form"
+  },
+  "Enter your message": {
+    "message": "Enter your message"
   },
   "Click to add a comment": {
     "message": "Click to add a comment"
@@ -1712,6 +1736,9 @@
   "Enter valid name. Required.": {
     "message": "Enter valid name. Required."
   },
+  "Enter valid email. Required.": {
+    "message": "Enter valid email. Required."
+  },
   "Enter valid country": {
     "message": "Enter valid country."
   },
@@ -1783,5 +1810,14 @@
   },
   "Tasks": {
     "message": "Tasks"
+  },
+  "Support form message": {
+    "message": "Please, enter your personal data and your question or proposition. We will reply you during 6-8 hours. Check your email to stay tuned."
+  },
+  "You cannot use support because you have free plan.": {
+    "message": "You cannot use support because you have free plan."
+  },
+  "Chat message": {
+    "message": "Chat message"
   }
 }

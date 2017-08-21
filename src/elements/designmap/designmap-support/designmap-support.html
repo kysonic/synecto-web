@@ -47,6 +47,7 @@
                 margin-top: 18px;
                 font-weight: 100;
                 text-decoration: underline;
+                cursor: pointer;
             }
 
             .content .item .desc {
@@ -54,10 +55,12 @@
                 font-weight: 300;
                 color: var(--gray-saturated-color);
                 margin-top: 20px;
+                cursor: pointer;
             }
 
             .content .item .icon {
                 margin-top: 10px;
+                cursor: pointer;
             }
 
             .content .item .icon designmap-circle-button {
@@ -160,39 +163,39 @@
         <div class="wrapper">
             <div class="content">
                 <div class="item" >
-                    <div class="title" on-click="goToDocs">
+                    <div class="title" on-tap="goToDocs">
                         <i18-n msgid="Documentation">Documentation</i18-n>
                     </div>
-                    <div class="desc" on-click="goToDocs" >
+                    <div class="desc" on-tap="goToDocs" >
                         <i18-n msgid="Documentation description">Detailed description</i18-n>
                     </div>
-                    <div class="icon" on-click="goToDocs">
+                    <div class="icon" on-tap="goToDocs">
                         <designmap-circle-button>
                             <iron-icon icon="designmap-support:book"></iron-icon>
                         </designmap-circle-button>
                     </div>
                 </div>
                 <div class="item">
-                    <div class="title"  on-click="openShortcutsDialog">
-                        <i18-n msgid="Shortcuts">Shortcuts</i18-n>
+                    <div class="title"  on-tap="goToForm">
+                        <i18-n msgid="Contact us">Contact us</i18-n>
                     </div>
-                    <div class="desc"  on-click="openShortcutsDialog">
-                        <i18-n msgid="Shortcuts description">Shortcuts description</i18-n>
+                    <div class="desc"  on-tap="goToForm">
+                        <i18-n msgid="Contact us desc">Contact us desc</i18-n>
                     </div>
-                    <div class="icon"  on-click="openShortcutsDialog">
+                    <div class="icon"  on-tap="goToForm">
                         <designmap-circle-button>
                             <iron-icon icon="designmap-support:rocket"></iron-icon>
                         </designmap-circle-button>
                     </div>
                 </div>
                 <div class="item">
-                    <div class="title" on-click="notSupported">
+                    <div class="title" on-tap="notSupported">
                         <i18-n msgid="Video tutorials">Video tutorials</i18-n>
                     </div>
-                    <div class="desc" on-click="notSupported">
+                    <div class="desc" on-tap="notSupported">
                         <i18-n msgid="Video tutorials description">Video tutorials description</i18-n>
                     </div>
-                    <div class="icon" on-click="notSupported">
+                    <div class="icon" on-tap="notSupported">
                         <designmap-circle-button>
                             <iron-icon icon="designmap-support:play"></iron-icon>
                         </designmap-circle-button>
@@ -259,6 +262,9 @@
             },
             openShortcutsDialog: function () {
                 this.$.shortcutsDialog.open();
+            },
+            goToForm: function () {
+                page.redirect('/support/form');
             },
             notSupported: function () {
                 this.showErrorMessage('Temporary not supported');

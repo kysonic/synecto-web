@@ -1,0 +1,162 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../../styles/flex-grid-shared-styles.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+<link rel="import" href="/bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../designmap-ui/designmap-dashboard.html">
+<link rel="import" href="../designmap-buttons/designmap-loading-button.html">
+<link rel="import" href="../../../redux/redux-store.html">
+
+<dom-module id="designmap-support-form">
+    <template>
+        <style include="flex-grid-shared-styles">
+            :host {
+
+                --paper-input-container-color: var(--gray-darkend-color);
+                --paper-input-container-focus-color: var(--gray-darkend-color);
+                --paper-input-container-input: {
+                    color: var(--gray-darkend-color);
+                    font-family: var(--font-family);
+                    font-size: 16px;
+                    font-weight: 300 !important;
+                };
+                --paper-input-container-label: {
+                    font-size: 16px;
+                    font-weight: 300 !important;
+                };
+                --paper-input-container-label-floating: {
+                    font-weight: 300 !important;
+                };
+                --paper-input-container-invalid-color: var(--error-color);
+            }
+            .content {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: calc(100% - 50px);
+                width: 100%;
+            }
+            .content form {
+                max-width: 830px;
+                position: relative;
+                bottom: 100px;
+            }
+            form .message {
+                color: var(--gray-saturated-color);
+                font-style: italic;
+                padding: 10px 9px;
+            }
+        </style>
+        <designmap-dashboard back back-url="/support/">
+            <div class="title"><i18-n msgid="Support form">Support form</i18-n></div>
+        </designmap-dashboard>
+        <div class="content">
+            <form is="iron-form" id="form">
+                <div class="row">
+                    <div class="message">
+                        <i18-n msgid="Support form message">Support form message</i18-n>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col col-md-6 col-xs-12">
+                        <paper-input id="name" label="[[translate('Enter your name',language,i18Loaded)]]"
+                                     value="{{fullName}}"
+                                     required
+                                     auto-validate
+                                     error-message="[[translate('Enter valid name. Required.',language,i18Loaded)]]"
+                                     pattern="[\w\dа-яА-ЯёЁ ]+"
+                        ></paper-input>
+                    </div>
+                    <div class="col col-md-6 col-xs-12">
+                        <paper-input id="email" label="[[translate('Enter your email',language,i18Loaded)]]"
+                                     value="{{email}}"
+                                     required
+                                     auto-validate
+                                     pattern="[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*"
+                                     error-message="[[translate('Enter valid email. Required.',language,i18Loaded)]]"
+                        ></paper-input>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col col-md-12 col-xs-12">
+                        <paper-textarea
+                                id="message"
+                                label="[[translate('Enter your message',language,i18Loaded)]]"
+                                required
+                                auto-validate
+                                error-message="[[translate('Required.',language,i18Loaded)]]"
+                        ></paper-textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button is="designmap-loading-button" blue thin on-tap="_sendMessage">
+                            <i18-n msgid="Send">Send</i18-n>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-support-form',
+            behaviors: [
+                ReduxBehavior,
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior
+            ],
+            properties: {
+                projectId: {
+                    type: String,
+                    statePath: 'projectId'
+                },
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                fullName: {
+                    type: String,
+                    value: ''
+                },
+                email: {
+                    type: String,
+                    value: ''
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    statePath: 'i18Loaded'
+                }
+            },
+            observers: [
+                '_changeName(user.profile.name,user.profile.lastName)',
+                '_changeEmail(user.local.email)'
+            ],
+            _changeName: function(name,lastName){
+                this.fullName = name + ' '+ lastName
+            },
+            _changeEmail: function(email){
+                this.email = email;
+            },
+            _sendMessage: function(e){
+                e.preventDefault();
+                if(this.user.plan.name=='startup') return this.showErrorMessage('You cannot use support because you have free plan.');
+                // Send message
+                if(!this.$.form.validate())return this.showErrorMessage('Some of form fields is not valid');
+                xhr.post(Designmap.config.apiURL+'support-message',{
+                    name: this.$.name.value,
+                    email: this.$.email.value,
+                    message: this.$.message.value
+                }).then(function(){
+                    this.showMessage('Your message has been sent!');
+                    this.$.message.value = '';
+                    page.redirect('/support/');
+                }.bind(this))
+            }
+        })
+    </script>
+</dom-module>

@@ -46,6 +46,10 @@
                 this.page = 'docs';
             }.bind(this));
 
+            page('/support/form', this._isAuth.bind(this), function(ctx,next){
+                this.page = 'support-form';
+            }.bind(this));
+
             page('/settings/profile', this._isAuth.bind(this), function(ctx,next){
                 this.page = 'settings';
                 this.path = 'profile';

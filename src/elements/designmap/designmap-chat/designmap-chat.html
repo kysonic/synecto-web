@@ -2,8 +2,10 @@
 <!-- Components -->
 <link rel="import" href="../../plastic/plastic-custom-scroll.html">
 <link rel="import" href="../../plastic/plastic-textarea.html">
+<link rel="import" href="../../plastic/plastic-html.html">
 <link rel="import" href="../designmap-avatar/designmap-avatar-projector.html">
 <link rel="import" href="../designmap-ui/designmap-context-menu.html">
+<link rel="import" href="../designmap-ui/designmap-invk-textarea.html">
 <!-- Services -->
 <link rel="import" href="./designmap-message-service.html">
 <!-- Redux -->
@@ -22,6 +24,7 @@
                 height: calc(100% - 55px);
                 flex-wrap: wrap;
                 flex-grow: 1;
+                overflow: hidden;
               /*  background: url('/assets/images/bkg/collage.jpg');*/
 /*                background-size: 320%;*/
 
@@ -48,6 +51,17 @@
                 --designmap-context-menu-deep-content-mixin: {
                     overflow: hidden;
                     height: 124px;
+                };
+
+                --designmap-invk-textarea-mixin: {
+                    border: none;
+                    padding: 5px 0 0 10px;
+                    max-height: none;
+                };
+                --designmap-invk-ivoked-mixin: {
+                    border-top: none;
+                    border-bottom: 1px dashed var(--gray-color);
+                    font-size: 14px;
                 }
             }
 
@@ -235,7 +249,7 @@
             }
 
             .text span {
-                white-space: pre-line;
+               /* white-space: pre-line;*/
             }
 
             .loading {
@@ -300,6 +314,12 @@
                 height: 50px;
             }
 
+            designmap-invk-textarea {
+                border: 1px solid var(--gray-color);
+                flex: 11;
+                margin-left: 10px;
+            }
+
 
             :host(.safari) {
                 --plastic-custom-scroll-content-mixin:{
@@ -342,7 +362,9 @@
                                                         class="projector"></designmap-avatar-projector>
                         </template>
                         <div class="text">
-                            <span>[[message.text]]</span>
+                            <span>
+                                <plastic-html msg="[[processLinksInText(message.text)]]"></plastic-html>
+                            </span>
                             <div class="balloon-tick"></div>
                             <div class="footer">
                                 <div title="[[_computeDate(message.created,'YYYY-MM-DD HH:mm:ss')]]" class="date">
@@ -383,8 +405,13 @@
             <div class="comment-wrap">
                 <designmap-avatar-projector user="[[user]]" class="user-projector"></designmap-avatar-projector>
                 <iron-a11y-keys keys="ctrl+enter meta+enter" on-keys-pressed="postMessage"></iron-a11y-keys>
-                <plastic-textarea id="textarea" rows="1" class="textarea" on-change="_messageChanged" value="{{message}}"
-                                  placeholder="[[translate('Enter a message',language,i18Loaded)]]"></plastic-textarea>
+                <designmap-invk-textarea
+                        id="invkTextarea"
+                        value="{{message}}"
+                        users="[[projectUsers]]"
+                        invoked-users="{{invokedUsers}}"
+                        placeholder="[[translate('Enter a message',language,i18Loaded)]]"
+                ></designmap-invk-textarea>
                 <div class="buttons">
                     <div class="button add-file">
                         <iron-icon class="bigicon" icon="designmap-workspace:folder"></iron-icon>
@@ -432,6 +459,15 @@
                 project: {
                     type: Object,
                     statePath: 'project'
+                },
+                projectUsers: {
+                    type: Array,
+                    statePath: function (state) {
+                        return state.projectUsers.filter(function (user) {
+                            if (!this.user) return true;
+                            return user._id !== this.user._id;
+                        }.bind(this));
+                    }
                 },
                 user: {
                     type: Object,
@@ -485,10 +521,15 @@
                 MQ: {
                     type: String,
                     statePath:'MQ'
+                },
+                invokedUsers: {
+                    type: Array,
+                    value: []
                 }
             },
             observers: [
-                '_messagesChanged(messages.*)'
+                '_messagesChanged(messages.*)',
+                '_userChanged(user)'
             ],
             ready: function () {
                 //if(/Safari/.test(navigator.userAgent)) this.classList.add('safari');
@@ -498,14 +539,15 @@
                 xhr.open('GET', '/assets/sounds/pingpang.ogg', true);
                 xhr.responseType = 'arraybuffer';
                 xhr.onload = function(){
+                    // Setup socket
+                    this.setupSocketAction();
+                    // Resp
                     var audioData = xhr.response;
                     this.audioContext.decodeAudioData(audioData, function(buffer){
                         this.soundBuffer = buffer;
                     }.bind(this));
                 }.bind(this);
                 xhr.send();
-                // Setup socket
-                this.setupSocketAction();
             },
             playSound: function () {
                 var source = this.audioContext.createBufferSource();
@@ -603,12 +645,39 @@
                     created: new Date(),
                     project: this.projectId
                 };
-                this.dispatch('addMessage', data);
+                this.dispatch('addMessage', data).then(function(response){
+                    if(!response.success) return this.manageErrorResponse(response);
+                    this._sendNotification(response.message);
+                }.bind(this));
                 this.message = '';
                 this.async(this.scrollUp);
-                this.async(this.$.textarea.blur);
+                this.async(this.$.invkTextarea.blur);
                 this.async(this._messageChanged);
             },
+
+            _sendNotification: function (message) {
+                let emails = this.invokedUsers.map(function (user) {
+                    return user.fake ? user.local.email : user._id;
+                });
+                this.set('invokedUsers', []);
+                const title = this.translate('Chat message');
+                // Followers
+                const followers = [];
+                // Send message
+                document.querySelector('designmap-app').$.notifier.create({
+                    sender: this.user,
+                    recipient: this.removeDuplicatesInArray(followers.concat(emails)),
+                    type: 'new-message',
+                    text: {
+                        message: message.text,
+                        replacement: {'#NAME#': title},
+                        info: {
+                            xlink: Designmap.config.appURL + this.projectId + '/chat'+'#'+message._id
+                        }
+                    }
+                });
+            },
+
             updateMessage: function () {
                 this.dispatch('updateMessage', this.msg._id, {text: this.message});
                 this.message = '';
@@ -700,8 +769,17 @@
                 }
                 if(splices.path=='messages.length') this.async(this.scrollUp,10);
             },
+
             _pageChanged: function(){
                 this.scrollUp();
+            },
+
+            _userChanged: function(user){
+                const users = this.projectUsers.filter(function (user) {
+                    if (!this.user) return true;
+                    return user._id !== this.user._id;
+                }.bind(this));
+                this.set('projectUsers',users);
             }
         });
     </script>

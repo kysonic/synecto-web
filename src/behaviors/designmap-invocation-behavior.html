@@ -1,0 +1,23 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<script>
+    /**
+     * All invocation stuff right here...
+     * Required elements:
+     *  - invocation dropdown
+     *  -
+     *  -
+     * @type {{}}
+     */
+    Polymer.DesignmapInvocationBehavior = {
+
+        _reply: function(e){
+            const user = e.model.comment.owner;
+            const figure = user.profile&&user.profile.name?'@'+user.profile.name+' ':"+" + user.local.email + " ";
+            this.textAreaValue = figure+ this.textAreaValue;
+            const textArea =  Polymer.dom(this.$.wrapper).querySelector('.sticker.opened .add-comment');
+            textArea.focus();
+            this.resolveInvokedUsers();
+        }
+    }
+</script>

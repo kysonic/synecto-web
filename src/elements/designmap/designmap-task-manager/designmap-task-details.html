@@ -6,6 +6,7 @@
 <link rel="import" href="./designmap-assignee.html">
 <link rel="import" href="../designmap-ui/designmap-date-picker.html">
 <link rel="import" href="../designmap-ui/designmap-file-uploader.html">
+<link rel="import" href="../designmap-ui/designmap-invk-textarea.html">
 <link rel="import" href="../designmap-accesses/designmap-users-select.html">
 <link rel="import" href="../designmap-fs/designmap-fs-explorer.html">
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
@@ -35,6 +36,12 @@
                 display: flex;
                 flex-direction: column;
                 overflow: hidden;
+
+                --designmap-invk-textarea-mixin: {
+                    border: none;
+                    padding: 0 0 0 10px;
+                    max-height: none;
+                };
 
                 --details-color: var(--gray-saturated-color);
 
@@ -593,7 +600,7 @@
                 position: absolute;
                 left: 100%;
                 margin-left: -40px;
-                top: 3px;
+                top: 5px;
                 cursor: pointer;
             }
 
@@ -1308,23 +1315,20 @@
         <div id="comments" hidden$="[[mobileEdit]]" class="comments">
             <designmap-avatar-projector user="[[user]]"></designmap-avatar-projector>
             <div class="field">
-                <plastic-textarea id="commentTextarea" on-keydown="_specialActionForInvocation"
-                                  on-change="_commentChange" class="add-comment"
-                                  placeholder="[[translate('Add a comment',language,i18Loaded)]]"></plastic-textarea>
+                <designmap-invk-textarea
+                        id="invkTextarea"
+                        value="{{commentText}}"
+                        users="[[projectUsers]]"
+                        invoked-users="{{invokedUsers}}"
+                        placeholder="[[translate('Write a comment',language,i18Loaded)]]"
+                        no-invoked
+                ></designmap-invk-textarea>
                 <iron-a11y-keys id="a11ySave" keys="ctrl+enter meta+enter"
                                 on-keys-pressed="_postComment"></iron-a11y-keys>
             </div>
             <div class="comment-arrow" hidden$="[[!commentText]]" on-tap="_postComment">
                 <iron-icon icon="icons:arrow-forward"></iron-icon>
             </div>
-            <!-- Invocation dropdown -->
-            <div id="invocationDropDown" class="invocation">
-                <designmap-users-select id="select" on-close="_closeInvocationDropDown" on-selected="userSelect"
-                                        dishonred options="[[_projectUsersWithoutMe(projectUsers.*,user.*)]]"
-                                        search="{{search}}"
-                                        limit="5"></designmap-users-select>
-            </div>
-
         </div>
         <div hidden$="[[!mobileEdit]]" class="save-mobile">
             <button is="designmap-button" blue fit>
@@ -1458,7 +1462,8 @@
                  */
                 user: {
                     type: Object,
-                    statePath: 'user'
+                    statePath: 'user',
+                    observer: '_userChanged'
                 },
                 /**
                  * Role of current user
@@ -1497,7 +1502,12 @@
                 },
                 projectUsers: {
                     type: Array,
-                    statePath: 'projectUsers'
+                    statePath: function (state) {
+                        return state.projectUsers.filter(function (user) {
+                            if (!this.user) return true;
+                            return user._id !== this.user._id;
+                        }.bind(this));
+                    }
                 },
                 invokedUsers: {
                     type: Array,
@@ -1868,10 +1878,10 @@
                 };
                 this.dispatch('addComment', comment);
 
-                this.$.commentTextarea.$.textarea.value = '';
+                //this.$.invkTextarea.$.textarea.value = '';
                 this.commentText = '';
 
-                this.async(function(){this.$.commentTextarea.$.textarea.blur();});
+                this.async(function(){this.$.invkTextarea.blur();});
 
                 this._sendNotification(this.task, comment);
             },
@@ -1882,15 +1892,18 @@
                 });
                 //if(!(!emails.length || this.user._id != file.owner)) return;
                 this.set('invokedUsers', []);
+                // Followers
+                const followers = [task.owner];
+                // Send notification
                 document.querySelector('designmap-app').$.notifier.create({
                     sender: this.user,
-                    recipient: this.user._id == task.owner ? emails : emails.concat(task.owner),
-                    type: 'new-sticker',
+                    recipient: this.removeDuplicatesInArray(followers.concat(emails)),
+                    type: 'new-task-comment',
                     text: {
                         message: comment.text,
                         replacement: {'#NAME#': task.title},
                         info: {
-                            file: task.title,
+                            task: task.title,
                             xlink: Designmap.config.appURL + this.projectId + '/task-manager' + this.getFullPath(task)
                         }
                     }
@@ -1964,49 +1977,6 @@
                 return moment(date).format('MM-DD-YYYY HH:mm:ss');
             },
 
-            _invocation: function (e) {
-                this.async(this.resolveInvokedUsers);
-                const value = e.target.value;
-                if (!this.INVOCATION_REGEXP.test(value)) {
-                    this.$.invocationDropDown.style.display = 'none';
-                    this.$.invocationDropDown.classList.remove('opened');
-                    return this.$.select.$.dropdown.close();
-                }
-                const matches = value.match(this.INVOCATION_REGEXP);
-                tempSearch = matches[1];
-                this.search = matches[2] || matches[3] || matches[4] || "";
-                const textarea = e.target;
-                this.async(function () {
-                    const cords = window.getCaretCoordinates(textarea, textarea.selectionEnd);
-                    this.$.invocationDropDown.style.display = 'block';
-                    this.$.invocationDropDown.classList.add('opened');
-                    this.$.invocationDropDown.style.left = cords.left + 65 + 'px';
-                    this.$.invocationDropDown.style.top = cords.top - 45 + 'px';
-                    this.$.select.openDropdown();
-                    this.async(function () {
-                        const bound = this.$.select.$.dropdown.getBoundingClientRect();
-                        this.$.select.$.dropdown.style.marginTop = -bound.height + "px";
-                    }, 5);
-                }.bind(this), 10)
-            },
-
-            resolveInvokedUsers: function () {
-                const users = [];
-                this.projectUsers.forEach(function (user) {
-                    const regExpStr = user.profile && user.profile.name ? '@' + user.profile.name : "\\+" + user.local.email;
-                    const regExp = new RegExp(regExpStr, 'i');
-                    if (regExp.test(this.commentText)) users.push(user);
-                }.bind(this));
-                this.set('invokedUsers', users);
-            },
-
-            _projectUsersWithoutMe: function (users) {
-                return this.projectUsers.filter(function (user) {
-                    if (!this.user) return true;
-                    return this.user._id != user._id;
-                })
-            },
-
             _getInvokedUsersList: function () {
                 return this.invokedUsers.map(function (user) {
                     return user.profile && user.profile.name ? user.profile.name : user.local.email;
@@ -2017,41 +1987,13 @@
                 this.$.invocationDropDown.style.display = 'none';
             },
 
-            _specialActionForInvocation: function (event) {
-                const e = event.detail;
-                const dropDown = this.$.invocationDropDown.classList.contains('opened');
-                if (!dropDown || [13, 40, 38].indexOf(e.keyCode) == -1) return;
-                e.preventDefault();
-                e.stopPropagation();
-                const userSelect = this.$.invocationDropDown.querySelector('designmap-users-select');
-
-                if (e.keyCode == 13) userSelect.add();
-                if (e.keyCode == 38) userSelect.up();
-                if (e.keyCode == 40) userSelect.down();
-
-            },
-
-            userSelect: function (e) {
-                this.$.select.$.dropdown.close();
-                const user = e.detail;
-                if (!user) return;
-                if (this.user.local.email == user.local.email) return this.showErrorMessage('You cannot notify yourself');
-                const replacement = user.profile && user.profile.name ? '@' + user.profile.name + ' ' : "+" + user.local.email + " ";
-                let value = this.$.commentTextarea.$.textarea.value;
-                this.$.commentTextarea.$.textarea.value = value.replace(new RegExp(tempSearch.replace(this.SYMBOL_REGEXP, '') + "$", 'i'), replacement);
-                this.$.commentTextarea.$.textarea.focus();
-                this.commentText = this.$.commentTextarea.$.textarea.value;
-                this.resolveInvokedUsers();
-
-            },
-
             _reply: function (e) {
                 const user = e.model.comment.owner;
                 const figure = user.profile && user.profile.name ? '@' + user.profile.name + ' ' : "+" + user.local.email + " ";
                 this.$.commentTextarea.$.textarea.value = figure + this.$.commentTextarea.$.textarea.value;
                 this.commentText = this.$.commentTextarea.$.textarea.value;
                 this.$.commentTextarea.$.textarea.focus();
-                this.resolveInvokedUsers();
+                this.$.invkTextarea.resolveInvokedUsers();
             },
 
             computeTimeLeft: function (task) {
@@ -2293,6 +2235,14 @@
             },
             _canEditCls(task) {
                 return this.canRemoveTask(task) ? 'can-edit' : '';
+            },
+            _userChanged: function(user){
+                if(!this.projectUsers) return;
+                const users = this.projectUsers.filter(function (user) {
+                    if (!this.user) return true;
+                    return user._id !== this.user._id;
+                }.bind(this));
+                this.set('projectUsers',users);
             }
         })
     </script>

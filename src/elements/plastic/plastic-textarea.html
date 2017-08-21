@@ -9,14 +9,18 @@
                 overflow: hidden;
                 position: relative;
             }
+
             textarea {
                 border: none;
                 outline: none;
+                font-family: var(--font-family);
                 padding: 0;
                 resize: none !important;
                 width: 100%;
                 transition: .2s height;
                 overflow: hidden;
+                overflow-y: hidden !important;
+                overflow-x: hidden !important;
                 line-height: 27px;
                 @apply(--plastic-textarea-mixin);
             }
@@ -24,7 +28,7 @@
         <textarea id="textarea"
                   placeholder="[[placeholder]]"
                   rows="[[rows]]"
-                  on-keyup="_onChange"
+                  on-keyup="_onKeyup"
                   on-keydown="_onKeydown"
                   value="{{value::input}}"
         ></textarea>
@@ -37,7 +41,7 @@
                 value: {
                     type: String,
                     value: '',
-                    notify:true,
+                    notify: true,
                     observer: '_valueChanged'
                 },
                 initialHeight: {
@@ -52,29 +56,28 @@
                     type: Number
                 }
             },
-            ready: function(){
+            ready: function () {
                 autosize(this.$.textarea);
-                if(this.initialHeight) this.async(function(){
-                    this.$.textarea.style.height = this.initialHeight + 'px'
-                },0);
             },
-            refit: function(){
+            refit: function () {
                 autosize.update(this.$.textarea);
             },
-            focus: function(){
+            focus: function () {
                 this.$.textarea.focus();
             },
-            blur: function(){
+            blur: function () {
                 this.$.textarea.blur();
             },
-            _onChange: function(e){
-              this.fire('change',e);
+            _onKeyup: function (e) {
+                this.fire('keyup', e);
             },
-            _onKeydown: function(e){
-                this.fire('keydown',e);
+            _onKeydown: function (e) {
+                this.fire('keydown', e);
             },
-            _valueChanged: function(){
-                this.async(function(){autosize.update(this.$.textarea)},0);
+            _valueChanged: function () {
+                this.async(function () {
+                    autosize.update(this.$.textarea)
+                }, 0);
             }
         });
     </script>

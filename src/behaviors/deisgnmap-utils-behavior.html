@@ -275,11 +275,21 @@
         processLinksInText(text) {
             if(!text) return '';
             return text.replace(this.urlRegexp,function(match){
-                console.log(Designmap.config.appURL);
                 const target = match.indexOf(Designmap.config.appURL)==-1 ? '_blank' : '_self';
                 const text = match.length>30 ? match.substr(0,30)+'...' : match;
-                return '<a href="'+match.replace(Designmap.config.appURL,'')+'" target="'+target+'">'+text+'</a>';
+                return '<a href="'+match.replace(Designmap.config.appURL,'/')+'" target="'+target+'">'+text+'</a>';
             })
+        },
+        removeDuplicatesInArray: function(arr) {
+            var obj = {};
+            var ret_arr = [];
+            for (var i = 0; i < arr.length; i++) {
+                obj[arr[i]] = true;
+            }
+            for (var key in obj) {
+                ret_arr.push(key);
+            }
+            return ret_arr;
         }
     }
 </script>

@@ -920,8 +920,14 @@
   "Available projects": {
     "message": "Доступные"
   },
-  "New sticker": {
-    "message": "Новый комментарий"
+  "New Sticker": {
+    "message": "Новый комментарий к файлу"
+  },
+  "New Task Comment": {
+    "message": "Новый комментарий к задаче"
+  },
+  "New Message": {
+    "message": "Новое сообщение чата"
   },
   "New access": {
     "message": "Добавлен доступ"
@@ -1042,6 +1048,12 @@
   },
   "Shortcuts description": {
     "message":"Сделай работу в Synecto еще более удобной используя гарячие клавиши!"
+  },
+  "Contact us": {
+    "message": "Написать в поддержку"
+  },
+  "Contact us desc": {
+    "message": "Если у вас не получилось решить Вашу проблему спомощью нашей документации и подсказок, просто напешите в нашу 24/7 тех. поддержку."
   },
   "Video tutorials": {
     "message":"Видео уроки"
@@ -1303,6 +1315,18 @@
   },
   "Enter your name": {
     "message": "Введите Ваше имя"
+  },
+  "Enter your email": {
+    "message": "Введите Ваш email"
+  },
+  "Required.": {
+    "message": "Обязательно к заполнению."
+  },
+  "Support form": {
+    "message": "Форма поддержки"
+  },
+  "Enter your message": {
+    "message": "Введите Ваше сообщение"
   },
   "Click to add a comment": {
     "message": "Нажмите, чтобы добавить комментарий"
@@ -1727,6 +1751,9 @@
   "Enter valid name. Required.": {
     "message": "Введите имя правильно. Оно не может быть пустым."
   },
+  "Enter valid email. Required.": {
+    "message": "Введите email правильно. Оно не может быть пустым."
+  },
   "Enter valid country": {
     "message": "Введите страну правильно."
   },
@@ -1798,5 +1825,14 @@
   },
   "Tasks": {
     "message": "Задачи"
+  },
+  "Support form message": {
+    "message": "Пожалуйста введите Ваши данные и Ваш вопрос или предложение. Мы постараемся ответить Вам в течении 8-12 часов. Проверяйте Ваш e-mail чтобы не пропустить наше сообщение."
+  },
+  "You cannot use support because you have free plan.": {
+    "message": "Вы не можете использовать тех. поддержку потому что Вы используете бесплатный план."
+  },
+  "Chat message": {
+    "message": "Сообщение чата"
   }
 }

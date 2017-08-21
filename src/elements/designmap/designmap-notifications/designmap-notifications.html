@@ -300,14 +300,14 @@
                 <plastic-custom-scroll fit max-height="[[maxHeight]]" small-bar wheel-target="[[bodyNode]]">
                     <template is="dom-repeat" items="[[notifications]]" as="notification"
                               sort="[[notifySorter(notifications)]]">
-                        <div class$="notification [[computeReadClass(notification)]]" >
+                        <div class$="notification [[computeReadClass(notification)]]" on-click="readNotification">
                             <div class="flex-wrapper">
                                 <!--<div class="icon" on-click="readNotification">
                                     <iron-icon icon="[[computeNotificationIcon(notification.type)]]"></iron-icon>
                                     <div class="mark"></div>
                                 </div>-->
                                 <div class="data">
-                                    <div class="header" on-click="readNotification">
+                                    <div class="header">
                                         <div class="type">[[computeNotificationTypeText(notification.type)]]</div>
                                         <span class="date">([[computeDate(notification.created)]])</span>
                                     </div>

@@ -17,9 +17,12 @@
             });
             //if(!(!emails.length || this.user._id != file.owner)) return;
             this.set('invokedUsers',[]);
+            // Followers
+            const followers = [file.owner,sticker.owner];
+            // Send notification
             document.querySelector('designmap-app').$.notifier.create({
                 sender: this.user,
-                recipient: this.user._id == file.owner ? emails : emails.concat(file.owner),
+                recipient: this.removeDuplicatesInArray(followers.concat(emails)),
                 type: 'new-sticker',
                 text: {
                     message: comment.text.replace(EMAILS_REGEXP,''),
@@ -138,6 +141,7 @@
             if (this.lastCommentData.commentIndex === 0) return this._openRemoveCommentConfirm();
             if(!this.lastCommentData || !this.lastCommentData.comment) return this.showErrorMessage('Something went wrong!');
             this.dispatch('removeComment', this.lastCommentData.comment._id);
+            this._resolveStickerDropdownPosition(this.lastSticker);
         },
 
         _openRemoveCommentConfirm: function () {
