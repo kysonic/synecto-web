@@ -3,14 +3,13 @@
 <link rel="import" href="../designmap-buttons/designmap-button.html">
 <link rel="import" href="../../plastic/plastic-custom-scroll.html">
 <!-- Services -->
-<link rel="import" href="./designmap-fs-service.html">
+<link rel="import" href="./deaignmap-task-service.html">
 <!-- Redux -->
 <link rel="import" href="../../../redux/redux-store.html">
 <link rel="import" href="../../../redux/actions/combine-actions.html">
-<link rel="import" href="../../../redux/actions/folders-actions.html">
-<link rel="import" href="../../../redux/actions/files-actions.html">
+<link rel="import" href="../../../redux/actions/tasks-actions.html">
 
-<dom-module id="designmap-fs-explorer">
+<dom-module id="designmap-tasks-explorer">
     <template>
         <style>
             :host {
@@ -66,8 +65,8 @@
                 padding: 10px;
                 min-width: 300px;
             }
-            /** ELEMENTS **/
-            .elements {
+            /** tasks **/
+            .tasks {
                 list-style: none;
                 padding: 0;
                 margin: 0;
@@ -162,36 +161,36 @@
             }
         </style>
         <div class="header">
-            <div class="arrow-back" hidden$="[[!_drawArrow(currentFolderId)]]" on-tap="_goBack">
+            <div class="arrow-back" hidden$="[[!_drawArrow(currentTaskId)]]" on-tap="_goBack">
                 <iron-icon icon="designmap-workspace:open"></iron-icon>
             </div>
-            <div class="phtm" hidden$="[[_drawArrow(currentFolderId)]]"></div>
+            <div class="phtm" hidden$="[[_drawArrow(currentTaskId)]]"></div>
             <div class="name">
-                [[_getFolderName(currentFolderId,project)]]
+                [[_getTaskName(currentTaskId,project)]]
             </div>
         </div>
         <div class="btn-container">
             <button is="designmap-button" fit thin on-tap="uploadIn">
-                <i18-n msgid="Select folder to upload file in">Select folder to upload file in</i18-n>
-                &laquo;[[_getFolderName(currentFolderId,project)]]&raquo;
+                <i18-n msgid="Create task in">Create task in</i18-n>
+                &laquo;[[_getTaskName(currentTaskId,project)]]&raquo;
             </button>
         </div>
         <div class="content">
             <plastic-custom-scroll fit max-height="272" small-bar>
-                <ul class="elements">
-                    <template id="elementRepeater" is="dom-repeat" items="[[elements]]" as="element">
+                <ul class="tasks">
+                    <template id="elementRepeater" is="dom-repeat" items="[[tasks]]" as="element">
                         <li class$="element [[element.type]] [[_computeSelected(element,selected.*)]]" on-dblclick="_goDown" on-click="selectElement">
-                            <iron-icon class="icon" icon="[[_computeIcon(element.type)]]"></iron-icon>
+                            <iron-icon class="icon" icon="designmap24:task"></iron-icon>
                             <div class="name">[[_getName(element)]]</div>
-                            <iron-icon on-tap="_goDown" hidden$="[[!_computeShowArrow(element.type)]]" class="arrow-right" icon="icons:chevron-right"></iron-icon>
+                            <iron-icon on-tap="_goDown" hidden$="[[!_computeShowArrow(element)]]" class="arrow-right" icon="icons:chevron-right"></iron-icon>
                         </li>
                     </template>
                 </ul>
             </plastic-custom-scroll>
-            <div hidden$="[[_isThereElements(elements.length)]]" class="stub">
+            <div hidden$="[[_isThereTasks(tasks.length)]]" class="stub">
                 <div class="message">
                     <div class="empty">
-                        <i18-n msgid="There is no elements here">There is no elements here</i18-n>
+                        <i18-n msgid="There is no tasks here">There is no tasks here</i18-n>
                     </div>
                     <div class="go-back" on-tap="_goBack">
                         <i18-n msgid="Go back">Go back</i18-n>
@@ -205,26 +204,29 @@
     </template>
     <script>
         Polymer({
-            is: 'designmap-fs-explorer',
+            is: 'designmap-tasks-explorer',
             behaviors: [
                 ReduxBehavior,
-                Polymer.DesignMapFsService,
+                Polymer.DesignMapTaskService,
                 Polymer.DesignMapUtilsBehavior,
-                Polymer.CombineActions(Polymer.FoldersActions,Polymer.FilesActions)
+                Polymer.CombineActions(Polymer.TasksActions)
             ],
             properties: {
-                elements: {
+                tasks: {
                     type: Array,
-                    statePath: function (state) {
-                        return this._countElements(state);
+                    statePath: function(state){
+                        return state.tasks.filter(function (task) {
+                            return task.parent == this.currentTaskId;
+                        }.bind(this));
                     }
                 },
                 project: {
                     type: Object,
                     statePath:'project'
                 },
-                currentFolderId: {
+                currentTaskId: {
                     type: String,
+                    notify: true,
                     value: null
                 },
                 selected: {
@@ -232,31 +234,21 @@
                     value: []
                 }
             },
-            _countElements: function (state) {
-                const parent = this.currentFolderId || null;
-                const folders = state.folders.filter(function (folder) {
-                    return this.trashMode ? folder.removed : String(folder.parent) == String(parent) && !folder.removed;
-                }.bind(this));
-                const files = state.files.filter(function (file) {
-                    return this.trashMode ? file.removed : String(file.folder) == String(parent) && !file.removed && !(state.user && (state.user._id !== file.owner && file.locked));
-                }.bind(this));
-                return folders.concat(files);
-            },
             _getName: function(el) {
-                return el.type=='folder'?el.name:this.cutFileName(el);
+                return el.name || 'xxx';
             },
-            _getFolderName: function(id){
-                const folder = this.findFolderById(id);
-                return folder ? folder.name : this.project?this.project.name:'xxx';
+            _getTaskName: function(id,project){
+                const task = this.findTaskById(id);
+                return task ? task.name : project?project.name:'xxx';
             },
             _drawArrow: function(id){
-                return !!this.findFolderById(id);
+                return !!this.findTaskById(id);
             },
             _computeIcon: function(type){
                 return type=='folder'?'designmap24:folder':'designmap24:file'
             },
             clearSelected: function(){
-                this.selected = [];
+                this.set('selected',[]);
             },
             selectElement: function(e){
                 if(e.target.classList.contains('arrow-right') || e.model.element.type=='folder') return this.clearSelected();
@@ -270,39 +262,47 @@
             _computeButtonMessage: function(selected){
                 return selected._id && selected.type=='file';
             },
-            _computeShowArrow: function(type){
-                return type=='folder';
+            _computeShowArrow: function(task){
+                return this.findSubtasksLength(task);
             },
-            _isThereElements: function(length) {
+            _isThereTasks: function(length) {
               return !!length;
             },
             _goDown: function(e){
-                if(e.model.element.type!='folder') return;
                 e.stopPropagation();
-                this.currentFolderId = e.model.element._id;
-                this.fire('down',this.currentFolderId);
-                this.set('elements',this._countElements(ReduxStore.getState()));
+                this.currentTaskId = e.model.element._id;
+                this.fire('down',this.currentTaskId);
+                this.updateTasks();
                 this.async(function(){this.clearSelected()}.bind(this),0);
             },
             _goBack: function(){
-                const folder = this.findFolderById(this.currentFolderId);
-                if(!folder) return;
-                this.currentFolderId = folder.parent;
-                this.fire('up',this.currentFolderId);
-                this.set('elements',this._countElements(ReduxStore.getState()));
+                const task = this.findTaskById(this.currentTaskId);
+                if(!task) return;
+                this.currentTaskId = task.parent;
+                this.fire('up',this.currentTaskId);
+                this.updateTasks();
+                this.async(function(){this.clearSelected()}.bind(this),0);
+            },
+            updateTasks: function(){
+                this.set('tasks',this.getState(ReduxStore.getState()));
+            },
+            getState: function(state){
+                return state.tasks.filter(function (task) {
+                    return task.parent == this.currentTaskId;
+                }.bind(this));
             },
             applyAction: function(e){
                 if(e.currentTarget.disabled) return;
-                this.fire('file',this.selected);
+                this.fire('task',this.selected);
             },
             uploadIn: function(){
-                this.fire('upload-in',this.currentFolderId||'');
+                this.fire('upload-in',this.currentTaskId||'');
             },
-            selectElements: function(files) {
+            selectTasks: function(files) {
                 this.clearSelected();
                 this.async(function(){
                     this.set('selected',files);
-                    this.set('elements',this._countElements(ReduxStore.getState()));
+                    this.set('tasks',this.tasks);
                 });
             }
         })

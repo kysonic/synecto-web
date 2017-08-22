@@ -1834,5 +1834,23 @@
   },
   "Chat message": {
     "message": "Сообщение чата"
+  },
+  "Send message": {
+    "message": "Отправить сообщение"
+  },
+  "Attach file": {
+    "message": "Прикрепить файл"
+  },
+  "Attach task": {
+    "message": "Прикрепить задачу"
+  },
+  "Create task in": {
+    "message": "Создать задачу в "
+  },
+  "Create task": {
+    "message": "Создать задачу"
+  },
+  "There is no tasks here": {
+    "message": "Тут задач нет..."
   }
 }

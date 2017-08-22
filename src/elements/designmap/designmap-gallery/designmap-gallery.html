@@ -1097,12 +1097,9 @@
              */
             close: function () {
                 if(this.user && this.user.fake) this.dispatch('cleanUser');
-                if(this.user) {
-                    if(this.user.fake) return  page.redirect('/');
-                    const projectId = this.projectId || this.file?this.file.project:null;
-                    return page.redirect('/' + (projectId || '') + (this.path?this.path:''));
-                }
-                page.redirect('/' + (this.projectId || '') + (this.path?this.path:''));
+                if(this.user.fake) return page.redirect('/');
+                if(Designmap.previousPath == Designmap.currentPath) return page.redirect('/'+(this.projectId || this.file.project || ''));
+                return page.redirect(Designmap.previousPath || '/');
             },
             /**
              * Is Previous button disabled?

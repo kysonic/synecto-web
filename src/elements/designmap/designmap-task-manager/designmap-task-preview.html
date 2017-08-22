@@ -1,0 +1,134 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../../../behaviors/deisgnmap-utils-behavior.html">
+<link rel="import" href="../designmap-icons/designmap-workspace-icons.html">
+<link rel="import" href="../designmap-icons/designmap-task-manager.html">
+<link rel="import" href="../designmap-buttons/designmap-circle-button.html">
+<!-- Services -->
+<link rel="import" href="../designmap-task-manager/deaignmap-task-service.html">
+
+<dom-module id="designmap-task-preview">
+    <template>
+        <style>
+            :host {
+                --designmap-task-preview-color: var(--gray-darkend-color);
+            }
+            .task {
+                height: 50px;
+                font-family: var(--font-family);
+                font-weight: 300;
+                font-size: 20px;
+                color: var(--designmap-task-preview-color);
+                display: flex;
+                align-items: center;
+                transition: background .3s;
+                border: 1px solid var(--designmap-task-preview-color);
+                padding: 0 5px;
+            }
+
+
+            .task:hover {
+                /*background: #f7f7f7;*/
+                cursor: pointer;
+                transition: background .3s;
+            }
+
+            .task .title {
+                width: 100%;
+                height: 100%;
+                line-height: 50px;
+                flex-grow: 8;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                text-align: left;
+                font-size: 18px;
+                margin-left: 10px;
+            }
+
+            .task.completed .title{
+                text-decoration: line-through;
+            }
+
+            .task .status-button {
+                width: 20px;
+                height: 20px;
+            }
+
+            .task .status-button .status-icon {
+                width: 20px;
+                height: 20px;
+                display: block;
+            }
+
+            .status-icon {
+                --iron-icon-components-mixin: {
+                    stroke: var(--designmap-task-preview-color) !important;
+                };
+            }
+
+            /** Buttons **/
+
+            .expired_row {
+                min-width: 40px;
+                margin-left: 10px;
+                font-size: 12px;
+                text-align: right;
+            }
+
+        </style>
+        <div class="task">
+            <div class="status-button">
+                <iron-icon class="status-icon" icon="[[computeIcon(task.status,task.expired,task.*)]]"></iron-icon>
+            </div>
+            <div class="title">[[task.name]]</div>
+            <div class="expired_row">[[computeTimeLeftFormMobile(task,language,task.*)]]</div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-task-preview',
+            behaviors: [
+                ReduxBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapMessagesBehavior
+            ],
+            properties: {
+                task: {
+                    type: Object,
+                    value: {}
+                },
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
+                }
+            },
+
+            computeIcon: function (type, expired) {
+                var diff = moment.duration(moment(expired || moment()).diff(moment()));
+                return 'designmap-task-manager:' + type;
+            },
+
+            computeTimeLeft: function (task) {
+                if(task.status=='completed') return this.translate('completed');
+                var diff = moment.duration(moment(task.expired).diff(moment()));
+                if (diff._milliseconds < 0) return this.translate('expired');
+                return (diff.asDays() > 1 ? (Math.round(diff.asDays()) + ' ' + this.translate('days')) : Math.round(diff.asHours()) + ' ' + this.translate('hours')) + ' ' + this.translate('left');
+            },
+
+            computeTimeLeftFormMobile: function (task) {
+                if(!task) return;
+                if(task.status=='completed') return this.translate('completed');
+                var diff = moment.duration(moment(task.expired).diff(moment()));
+                if (diff._milliseconds < 0) return this.translate('expired');
+                return (diff.asDays() > 1 ? (Math.round(diff.asDays()) + ' ' + this.translate('days').substr(0, 1)) : Math.round(diff.asHours()) + ' ' + this.translate('hours').substr(0, 1));
+            },
+
+            _computeLanguage: function(language){
+                return language;
+            }
+        })
+    </script>
+</dom-module>

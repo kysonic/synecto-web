@@ -1,4 +1,7 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
+<!-- Paper -->
+<link rel="import" href="/bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
 <!-- Components -->
 <link rel="import" href="../../plastic/plastic-custom-scroll.html">
 <link rel="import" href="../../plastic/plastic-textarea.html">
@@ -6,17 +9,31 @@
 <link rel="import" href="../designmap-avatar/designmap-avatar-projector.html">
 <link rel="import" href="../designmap-ui/designmap-context-menu.html">
 <link rel="import" href="../designmap-ui/designmap-invk-textarea.html">
+<link rel="import" href="../designmap-fs/designmap-file-uploader.html">
+<link rel="import" href="../designmap-task-manager/designmap-task-creator.html">
+<link rel="import" href="../designmap-fs/designmap-file-preview.html">
+<link rel="import" href="../designmap-task-manager/designmap-task-preview.html">
+<link rel="import" href="../designmap-fs/designmap-fs-explorer.html">
+<link rel="import" href="../designmap-task-manager/designmap-tasks-explorer.html">
+<link rel="import" href="../designmap-icons/designmap-task-manager.html">
+<!-- Iron -->
+<link rel="import" href="/bower_components/iron-icons/editor-icons.html">
+<link rel="import" href="/bower_components/iron-image/iron-image.html">
 <!-- Services -->
 <link rel="import" href="./designmap-message-service.html">
+<link rel="import" href="../designmap-fs/designmap-fs-service.html">
+<link rel="import" href="../designmap-task-manager/deaignmap-task-service.html">
 <!-- Redux -->
 <link rel="import" href="../../../redux/redux-store.html">
 <link rel="import" href="../../../redux/actions/combine-actions.html">
 <link rel="import" href="../../../redux/actions/messages-action.html">
 <!-- Styles -->
 <link rel="import" href="../../../styles/context-menu-shared-styles.html">
+<link rel="import" href="../../../styles/tooltip-shared-styles.html">
 
 <dom-module id="designmap-chat">
     <template>
+        <style include="tooltip-shared-styles"></style>
         <style include="context-menu-shared-styles">
             :host {
                 display: flex;
@@ -257,7 +274,6 @@
                 height: 40px;
                 background: url('/assets/images/svg/three-dots-gray.svg') no-repeat center;
                 background-size: 50px;
-                margin-top: 20px;
             }
             /** Bottom **/
             .user-projector {
@@ -279,8 +295,8 @@
             }
 
             .buttons .button {
-                width: 39px;
-                height: 39px;
+                width: 40px;
+                height: 40px;
                 border: 1px solid var(--gray-color);
                 margin-left: 5px;
                 display: flex;
@@ -293,9 +309,11 @@
                 transition: background .2s;
             }
             .buttons .button iron-icon {
+                width: 24px;
+                height: 24px;
                 --iron-icon-components-mixin: {
-                    stroke: var(--white-color) !important;
-                    fill: var(--gray-darkend-color) !important;
+                    stroke: var(--gray-darkend-color) !important;
+                    fill: var(--white-color) !important;
                 };
             }
             .buttons .button.send-msg iron-icon {
@@ -321,11 +339,73 @@
             }
 
 
-            :host(.safari) {
-                --plastic-custom-scroll-content-mixin:{
-                    height: calc(100vh - 115px);
+            .attaches {
+                padding: 10px 20px;
+            }
+
+            .attaches .paper-clip {
+                display: inline-block;
+                --iron-icon-components-mixin: {
+                    stroke: var(--gray-darkend-color) !important;
+                };
+            }
+            .attaches .wrap {
+                display: inline-block;
+                margin-left: 12px;
+            }
+
+            .attaches .wrap .attach {
+                font-size: 14px;
+            }
+
+            .attaches .wrap .attach > * {
+                display: inline-block;
+            }
+
+            .attaches .wrap .attach iron-icon {
+                width: 14px;
+                height: 14px;
+                cursor: pointer;
+                --iron-icon-components-mixin: {
+                    stroke: var(--gray-darkend-color);
+                };
+            }
+
+            .attaches .image {
+                max-width: 100%;
+                max-height: 100%;
+                --iron-image-mixin: {
+                    max-width: 100%;
+                    max-height: 100%;
                 }
             }
+
+            .attach {
+                margin-top: 5px;
+            }
+
+            .attach a {
+                color: var(--gray-darkend-color);
+                text-decoration: none;
+            }
+
+            .attach label {
+                font-size: 12px;
+                margin-top: 5px;
+                color: var(--gray-darkend-color);
+                text-decoration: none;
+            }
+
+            /** Previews classes **/
+            .message.anothers designmap-task-preview{
+                --designmap-task-preview-color: var(--white-color);
+            }
+
+            .task-creator {
+                padding: 5px 20px;
+            }
+
+
             @media (min-width: 320px) and (max-width: 768px) {
                 .scroll {
                     margin-top: 0;
@@ -341,6 +421,30 @@
                 }
             }
         </style>
+
+        <!-- File explorer -->
+        <paper-dialog class="explorer-dialog" on-down="refitFsExplorer" id="fsExplorerDialog"
+                      entry-animation="scale-up-animation" exit-animation="scale-down-animation">
+            <designmap-fs-explorer id="fsExplorer" on-upload-in="openFileUploader"
+                                   on-file="attachElement"></designmap-fs-explorer>
+        </paper-dialog>
+
+        <!-- Tasks explorer -->
+        <paper-dialog class="explorer-dialog" on-down="refitTasksExplorer" id="tasksExplorerDialog"
+                      entry-animation="scale-up-animation" exit-animation="scale-down-animation">
+            <designmap-tasks-explorer id="taskExplorer" current-task-id="{{currentTaskId}}" on-upload-in="openTaskCreator"
+                                   on-task="attachElement"></designmap-tasks-explorer>
+        </paper-dialog>
+
+        <!-- File uploader -->
+        <designmap-file-uploader id="uploader" on-done="selectFiles" parent="folder" _id="[[currentFolderId]]"></designmap-file-uploader>
+
+        <!-- Task creator -->
+        <paper-dialog class="task-creator" id="taskCreatorDialog"  entry-animation="scale-up-animation" exit-animation="scale-down-animation">
+            <designmap-task-creator id="taskCreator" parent="[[currentTaskId]]" on-done="selectTasks" ></designmap-task-creator>
+        </paper-dialog>
+
+        <!-- Messages -->
         <plastic-custom-scroll id="scroll" on-plastic-scroll="scroll" class="scroll" small-bar fit>
             <!--<template is="dom-if" if="[[dashboard]]">
                 <designmap-dashboard back>
@@ -366,6 +470,37 @@
                                 <plastic-html msg="[[processLinksInText(message.text)]]"></plastic-html>
                             </span>
                             <div class="balloon-tick"></div>
+                            <!-- Attaches -->
+                            <div class="attaches" hidden$="[[!message.attaches.length]]">
+                                <template is="dom-repeat" items="[[_computeAttaches(message.attaches,files.*,tasks.*)]]" as="attach">
+                                    <div class="attach">
+                                        <template is="dom-if" if="[[_isThereAttach(attach)]]">
+                                            <template is="dom-if" if="[[_isFile(attach)]]">
+                                                <a href="[[_getFileLink(attach)]]" on-click="goToLink">
+                                                    <template is="dom-if" if="[[_canBeDisplayed(attach)]]" >
+                                                        <iron-image class="image" preload src="[[attach.data.url]]"></iron-image>
+                                                    </template>
+                                                    <template is="dom-if" if="[[!_canBeDisplayed(attach)]]">
+                                                        <designmap-file-preview file="[[attach]]"></designmap-file-preview>
+                                                    </template>
+                                                    <label>[[cutFileName(attach)]]</label>
+                                                </a>
+                                            </template>
+                                            <template is="dom-if" if="[[!_isFile(attach)]]">
+                                                <a href="[[_getTaskLink(attach)]]" on-click="goToLink">
+                                                    <designmap-task-preview task="[[attach]]"></designmap-task-preview>
+                                                </a>
+                                            </template>
+                                        </template>
+                                        <template is="dom-if" if="[[!_isThereAttach(attach)]]">
+                                            <div class="message">
+                                                <i18-n msgid="Attach has been removed">Attach has been removed</i18-n>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+                            </div>
+                            <!-- Attaches -->
                             <div class="footer">
                                 <div title="[[_computeDate(message.created,'YYYY-MM-DD HH:mm:ss')]]" class="date">
                                     [[_computeDate(message.created,'HH:mm:ss')]]
@@ -413,17 +548,37 @@
                         placeholder="[[translate('Enter a message',language,i18Loaded)]]"
                 ></designmap-invk-textarea>
                 <div class="buttons">
-                    <div class="button add-file">
-                        <iron-icon class="bigicon" icon="designmap-workspace:folder"></iron-icon>
+                    <div id="addFileButton" class="button add-file" on-click="openFileExplorer">
+                        <iron-icon class="bigicon" icon="designmap24:file"></iron-icon>
                     </div>
-                    <div class="button add-task">
-                        <iron-icon class="bigicon" icon="designmap-workspace:file"></iron-icon>
+                    <paper-tooltip position="top" for="addFileButton"><i18-n msgid="Attach file">Attach file</i18-n></paper-tooltip>
+                    <!-- -->
+                    <div id="addTaskButton" on-click="openTasksExplorer" class="button add-task">
+                        <iron-icon class="bigicon" icon="designmap24:task"></iron-icon>
                     </div>
-                    <div class="button send-msg" on-tap="postMessage" disabled$="[[!message.length]]">
+                    <paper-tooltip position="top" for="addTaskButton"><i18-n msgid="Attach task">Attach task</i18-n></paper-tooltip>
+                    <!-- -->
+                    <div id="sendMessage" class="button send-msg" on-tap="postMessage" disabled$="[[!_sendButtonState(message,attaches.length)]]">
                         <iron-icon icon="icons:send"></iron-icon>
                     </div>
+                    <paper-tooltip position="top" for="sendMessage"><i18-n msgid="Send message">Send message</i18-n></paper-tooltip>
                 </div>
             </div>
+            <!-- Attaches -->
+            <div class="attaches" hidden$="[[!attaches.length]]">
+                <iron-icon class="paper-clip" icon="designmap24:paper-clip"></iron-icon>
+                <div class="wrap">
+                    <template is="dom-repeat" items="[[attaches]]" as="attach">
+                        <div class="attach">
+                            <div class="name">[[_computeAttachName(attach)]]</div>
+                            <div class="remove" on-click="_removeAttach">
+                                <iron-icon icon="designmap-task-manager:remove"></iron-icon>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+            <!-- Attaches -->
             <!--<button hidden$="[[!message]]" on-tap="postMessage" is="designmap-button" blue fit>
                 <i18-n hidden$="[[editMode]]" msgid="Post">Post</i18-n>
                 <i18-n hidden$="[[!editMode]]" msgid="Save">Save</i18-n>
@@ -438,9 +593,12 @@
                 Polymer.DesignmapMessageService,
                 Polymer.DesignMapUtilsBehavior,
                 Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapFsService,
+                Polymer.DesignMapTaskService,
                 ReduxBehavior,
                 Polymer.CombineActions(Polymer.MessagesActions)
             ],
+            canBeDisplayedExt: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr",".ppm", ".pbm"],
             properties: {
                 message: {
                     type: String,
@@ -455,6 +613,16 @@
                     type: Array,
                     value: [],
                     statePath: 'messages'
+                },
+                files: {
+                    type: Array,
+                    value: [],
+                    statePath: 'files'
+                },
+                tasks: {
+                    type: Array,
+                    value: [],
+                    statePath: 'tasks'
                 },
                 project: {
                     type: Object,
@@ -525,6 +693,14 @@
                 invokedUsers: {
                     type: Array,
                     value: []
+                },
+                attaches: {
+                    type: Array,
+                    value: []
+                },
+                currentTaskId: {
+                    type: String,
+                    value: null
                 }
             },
             observers: [
@@ -583,7 +759,7 @@
              * @private
              */
             _messageChanged: function () {
-                //const textAreaBound = this.$.textarea.$.textarea.getBoundingClientRect();
+                //const textAreaBound = this.$.invkTextarea.$.textarea.getBoundingClientRect();
             },
             _isThereMessages: function (length) {
                 return !!length;
@@ -636,20 +812,22 @@
              * Post new message
              */
             postMessage: function () {
-                if(!this.message) return;
+                if(!this.message && !this.attaches.length) return;
                 if (this.editMode) return this.updateMessage();
                 const data = {
                     _id: this.generateUid(),
                     text: this.message,
                     owner: this.user,
                     created: new Date(),
-                    project: this.projectId
+                    project: this.projectId,
+                    attaches: this.attaches.map((attach)=>attach._id)
                 };
                 this.dispatch('addMessage', data).then(function(response){
                     if(!response.success) return this.manageErrorResponse(response);
                     this._sendNotification(response.message);
                 }.bind(this));
                 this.message = '';
+                this.set('attaches',[]);
                 this.async(this.scrollUp);
                 this.async(this.$.invkTextarea.blur);
                 this.async(this._messageChanged);
@@ -683,7 +861,7 @@
                 this.message = '';
                 this.editMode = false;
                 //this.async(this.scrollUp);
-                this.async(this.$.textarea.blur);
+                this.async(this.$.invkTextarea.blur);
             },
             scrollUp: function () {
                 this.$.scroll.setScroll(this.messages.length * 250);
@@ -692,7 +870,7 @@
                 return moment(date).format(frmt);
             },
             _computeMenuIcon: function (message, user) {
-                return !this._isAnothers(message, user) ? 'icons:reply' : 'designmap-workspace:big_more';
+                return !this._isAnothers(message, user) ? 'editor:format-quote' : 'designmap-workspace:big_more';
             },
             openContextMenu: function (e) {
                 if (this.user._id != e.model.message.owner._id) return this.quote(e.model.message);
@@ -703,13 +881,13 @@
             quote: function (message) {
                 const msg = message.detail ? this.msg : message;
                 this.$.contextMenu.close();
-                this.$.textarea.$.textarea.focus();
+                this.$.invkTextarea.focus();
                 const words = msg.text.split(' ');
                 this.message = '[' + this.computeOwnerName(msg.owner) + ']> "' + (words.length > 5 ? words.slice(0, 5).join(' ') + '...' : words.join(' ')) + '"\n';
             },
             editMessage: function () {
                 this.editMode = true;
-                this.$.textarea.$.textarea.focus();
+                this.$.invkTextarea.focus();
                 this.$.contextMenu.close();
                 this.message = this.msg.text;
             },
@@ -732,13 +910,10 @@
                     skip: this.skip
                 }).then(function (res) {
                     this.inProgress = false;
-                    this.$.scroll.setScroll(this.mpr * 100);
                     this.async(function () {
                         const message = res.messages[0];
-                        const currentMsg = this.$.messages.querySelector('[data-id="' + message._id + '"]');
-                        const top = currentMsg.getBoundingClientRect().top > 0 ? currentMsg.getBoundingClientRect().top : 0;
-                        this.$.scroll.setScroll(top + 100);
-                    }, 10);
+                        this.scrollToMessage(message);
+                    }, 100);
                 }.bind(this));
             },
             _isLoadingClass: function (inProgress) {
@@ -780,6 +955,104 @@
                     return user._id !== this.user._id;
                 }.bind(this));
                 this.set('projectUsers',users);
+            },
+
+            scrollToMessage: function(message){
+                const currentMsg = this.$.messages.querySelector('[data-id="' + message._id + '"]');
+                const bound = currentMsg.getBoundingClientRect();
+                const top = Math.abs(bound.top) > 0 ?  Math.abs(bound.top) : 0;
+                this.$.scroll.setScroll(top + bound.height);
+            },
+
+            openFileExplorer: function(){
+                this.$.fsExplorerDialog.open();
+            },
+
+            refitFsExplorer: function(){
+                //this.$.fsExplorerDialog.refit();
+            },
+
+            refitTasksExplorer: function(){
+                //this.$.tasksExplorerDialog.refit();
+            },
+
+            openFileUploader: function (e) {
+                this.$.uploader._id = e.detail || null;
+                this.$.uploader.openForm();
+            },
+
+            selectFiles: function (e) {
+                this.$.fsExplorer.selectElements(e.detail);
+            },
+
+            selectTasks: function (e) {
+                this.$.taskCreatorDialog.close();
+                this.$.taskExplorer.selectTasks(e.detail);
+            },
+
+            attachElement: function (e) {
+                this.$.fsExplorerDialog.close();
+                this.$.tasksExplorerDialog.close();
+                const attaches = [];
+                e.detail.forEach(function (attach) {
+                    if (this.attaches.indexOf(attach) != -1) return;
+                    attaches.push(attach);
+                },this);
+                this.set('attaches',attaches.concat(this.attaches));
+            },
+
+            _computeAttachName: function(attach){
+                return attach.data?attach.data.name:attach.name;
+            },
+
+            _sendButtonState: function(message,attachesLength){
+                return message.length || attachesLength
+            },
+
+            _removeAttach: function(e){
+                const attaches = this.attaches.slice(0);
+                const index = attaches.indexOf(e.model.attach);
+                attaches.splice(index,1);
+                this.set('attaches',attaches);
+            },
+
+            _computeAttaches: function(attaches) {
+                if (!attaches) return [];
+                return attaches.map(function (attachId) {
+                    return this.findFileById(attachId) || this.findTaskById(attachId) || null;
+                }.bind(this));
+            },
+
+            _isFile: function(attach){
+                if(!attach) return true;
+                return attach.type == 'file';
+            },
+
+            _canBeDisplayed: function(attach){
+                if(!attach || !attach.data) return false;
+                return this.canBeDisplayedExt.indexOf('.' + this.getExtensionWithoutDot(attach.data.name).toLowerCase()) != -1
+            },
+
+            _getFileLink: function(file) {
+                if(!file) return '/';
+                return '/gallery/'+file._id;
+            },
+
+            _getTaskLink: function(task) {
+                if(!task) return '/';
+                return '/'+this.projectId+'/task-manager'+this.getFullPath(task);
+            },
+
+            openTasksExplorer: function(){
+                this.$.tasksExplorerDialog.open();
+            },
+
+            openTaskCreator: function(){
+                this.$.taskCreatorDialog.open();
+            },
+
+            _isThereAttach: function(attach) {
+                return !!attach;
             }
         });
     </script>

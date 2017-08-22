@@ -8,7 +8,10 @@
             page('*', function(ctx, next) {
                 this.firstHash = this.firstHash || ctx.hash;
                 this.hash = ctx.hash;
-                this.previousPath = ctx.path;
+
+                Designmap.previousPath = Designmap.currentPath;
+                Designmap.currentPath = ctx.path;
+
                 // Common for all routes
                 next();
             }.bind(this));
@@ -118,6 +121,8 @@
                 this.trashMode = false;
                 this.page = 'fs';
             }.bind(this));
+
+
 
             // 404
             page('*', function() {

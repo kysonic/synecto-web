@@ -1,0 +1,57 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../../../behaviors/deisgnmap-utils-behavior.html">
+<link rel="import" href="../designmap-icons/designmap-workspace-icons.html">
+
+<dom-module id="designmap-file-preview">
+    <template>
+        <style>
+            .borders {
+                width: 100%;
+                height: 99%;
+                border: 1px solid var(--gray-color);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--gray-darky-hovered-color);
+                background: var(--white-color);
+            }
+
+            .borders iron-icon {
+                --iron-icon-width: 120px;
+                --iron-icon-height: 120px;
+                --iron-icon-components-mixin: {
+                    stroke-width: 0.4;
+                };
+            }
+
+            .extension {
+                width: 100%;
+                position: absolute;
+                font-size: 18px;
+                text-transform: uppercase;
+                font-weight: 100;
+                top: 50%;
+                margin-top: -10px;
+                text-align: center;
+            }
+        </style>
+        <div class="borders" >
+            <iron-icon icon="designmap-workspace:filer"></iron-icon>
+            <span class="extension">[[getExtensionWithoutDot(file.data.name)]]</span>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-file-preview',
+            behaviors: [
+                Polymer.DesignMapUtilsBehavior
+            ],
+            properties: {
+                file: {
+                    type: Object,
+                    value: {}
+                }
+            }
+        })
+    </script>
+</dom-module>

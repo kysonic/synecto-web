@@ -290,6 +290,10 @@
                 ret_arr.push(key);
             }
             return ret_arr;
+        },
+        goToLink: function(e){
+            e.preventDefault();
+            page.redirect(e.currentTarget.getAttribute('href'));
         }
     }
 </script>

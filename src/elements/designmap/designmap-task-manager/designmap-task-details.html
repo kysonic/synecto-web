@@ -5,7 +5,7 @@
 <link rel="import" href="../../plastic/plastic-html.html">
 <link rel="import" href="./designmap-assignee.html">
 <link rel="import" href="../designmap-ui/designmap-date-picker.html">
-<link rel="import" href="../designmap-ui/designmap-file-uploader.html">
+<link rel="import" href="../designmap-fs/designmap-file-uploader.html">
 <link rel="import" href="../designmap-ui/designmap-invk-textarea.html">
 <link rel="import" href="../designmap-accesses/designmap-users-select.html">
 <link rel="import" href="../designmap-fs/designmap-fs-explorer.html">
@@ -346,7 +346,7 @@
                 padding: 20px;
                 font-size: 16px;
                 text-align: center;
-                background: #69b3f2;
+                background: var(--blue-color);
             }
 
             paper-dialog .content button {
@@ -377,7 +377,7 @@
                 display: none;
                 position: absolute;
                 padding: 20px;
-                background: var(--primary-color);
+                background: var(--blue-color);
                 color: var(--white-color);
                 top: 70px;
                 width: 76px;
@@ -1058,7 +1058,7 @@
                         </designmap-hint>
                         <div hidden$="[[canRemoveTask(task)]]" class="task-title">[[task.name]]</div>
                         <!-- Hint-->
-                        <iron-a11y-keys keys="ctrl+enter meta+enter" on-keys-pressed="saveTitle"></iron-a11y-keys>
+                        <iron-a11y-keys keys="enter" on-keys-pressed="saveTitle"></iron-a11y-keys>
                     </div>
                     <div class="panel">
                         <designmap-circle-button id="statusButton" class="status-button hidden-xs"
@@ -1358,8 +1358,7 @@
                                    on-file="attachFile"></designmap-fs-explorer>
         </paper-dialog>
         <!-- Uploader -->
-        <designmap-file-uploader id="uploader" on-done="selectFiles" parent="folder" _id="[[currentFolderId]]"
-                                 allowed-extension='[[allowedExtensions]]'></designmap-file-uploader>
+        <designmap-file-uploader id="uploader" on-done="selectFiles" parent="folder" _id="[[currentFolderId]]"</designmap-file-uploader>
         <!-- Estimate popup -->
         <paper-dialog id="estimateDialog" entry-animation="scale-up-animation" exit-animation="scale-down-animation">
             <designmap-task-estimate on-estimate="estimateTask" task-name="[[task.name]]"

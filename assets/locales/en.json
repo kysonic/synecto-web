@@ -1819,5 +1819,23 @@
   },
   "Chat message": {
     "message": "Chat message"
+  },
+  "Send message": {
+    "message": "Send message"
+  },
+  "Attach file": {
+    "message": "Attach file"
+  },
+  "Attach task": {
+    "message": "Attach task"
+  },
+  "Create task in": {
+    "message": "Create task in"
+  },
+  "Create task": {
+    "message": "Create task"
+  },
+  "There is no tasks here": {
+    "message": "There is no tasks here..."
   }
 }

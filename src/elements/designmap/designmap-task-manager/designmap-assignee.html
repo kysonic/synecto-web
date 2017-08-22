@@ -191,6 +191,7 @@
                     width: 55%;
                     height: 55%;
                     padding: 21% 19%;
+                    @apply(--designmap-assignee-empty-cbc-mixin);
                 };
                 @apply(--designmap-assignee-empty-mixin);
             }
@@ -216,15 +217,15 @@
 
         </style>
         <designmap-circle-button data-cls="blue" x-tooltip$="{{translate('Assign responsible',language,i18Loaded)}}"
-                                 on-click="openDialog" hidden$="[[computeAssignee(assignee)]]">
+                                 on-click="openDialog" hidden$="[[assignee]]">
             <iron-icon id="icon" icon="designmap-task-manager:assignee"></iron-icon>
         </designmap-circle-button>
         <div class="assignee" on-click="openDialog" hidden$="[[!assignee]]">
-            <template is="dom-if" if="[[assignee.profile.avatar]]">
-                <img src="[[computeAvatarPath(assignee.profile.avatar)]]" title="[[assignee.local.email]]">
+            <template is="dom-if" if="[[assigneeUser.profile.avatar]]">
+                <img src="[[computeAvatarPath(assigneeUser.profile.avatar)]]" title="[[assigneeUser.local.email]]">
             </template>
-            <template is="dom-if" if="[[!assignee.profile.avatar]]">
-                <div class="text"> [[computeName(assignee)]]</div>
+            <template is="dom-if" if="[[!assigneeUser.profile.avatar]]">
+                <div class="text"> [[computeName(assigneeUser)]]</div>
             </template>
             <!--<div class="details" hidden$="[[noDetails]]">
               <div class="avatar"></div>
@@ -262,9 +263,8 @@
             ],
             properties: {
                 assignee: {
-                    type: Object,
-                    value: null,
-                    observer: 'assigneeChanged'
+                    type: String,
+                    value: ''
                 },
                 project: {
                     type: Object,
@@ -305,6 +305,10 @@
                 noDetails: {
                     type: Boolean,
                     value: false
+                },
+                assigneeUser: {
+                    type: Object,
+                    computed: '_computeAssigneeData(assignee)'
                 }
             },
             attached: function () {
@@ -312,7 +316,8 @@
             },
             openDialog: function () {
                 if (this.disabled) return;
-                this.$.select.text = this.assignee ? this.assignee.local.email : '';
+                console.log(this.assigneeUser);
+                this.$.select.text = this.assigneeUser ? this.assigneeUser.local.email : '';
                 this.$.dropdown.open();
                 this.$.select.$.dropdown.close();
             },
@@ -324,7 +329,7 @@
                 return !!user;
             },
             computeName: function (user) {
-                if (typeof user == 'string') return '...';
+                if(!user) return 'XX';
                 return user ? user.name && user.lastName ? user.name[0] + user.lastName[0] : user.local.email[0] : 'XX';
             },
             computeAvatarPath: function (path) {
@@ -333,8 +338,8 @@
                 return Designmap.config.apiURL + path + '?v=' + this.generateUid();
             },
             assigneeChanged: function (assignee) {
-                /*this.verticalOffset = this.assignee ? 72 : 72;
-                 this.horizontalOffset = this.assignee ? -160 : -163;*/
+                if(!this.project || !this.project.users || !assignee) return;
+                if(typeof assignee!=='string') return;
             },
             removeAssignee: function () {
                 this.fire('remove', {task: this.task, _id: null});
@@ -346,6 +351,13 @@
             },
             _computeUsers: function(users,ownerData){
                 return users.concat([ownerData]);
+            },
+            _computeAssigneeData: function(assignee){
+                if(!this.project || !this.project.users) return null;
+
+                return this.project.users.concat([this.project.ownerData]).find(function(user){
+                    return assignee == user._id;
+                });
             }
         })
     </script>
