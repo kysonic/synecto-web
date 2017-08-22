@@ -412,7 +412,9 @@
                 // Get possible current user
                 this.dispatch('getCurrentUser').then(function(){
                     if(!this.user) this.loading = false;
-                    document.getElementById('globalLoading').style.display = 'none';
+                    this.async(function(){
+                        document.getElementById('globalLoading').style.display = 'none';
+                    },300)
                 }.bind(this));
                 // Update languages
                 this.$.i18nDomain.addEventListener('i18-n-locale-ready', function () {
@@ -756,9 +758,9 @@
                 return chatMode && opened;
             },
 
-            /*socketConnected: function(e){
-                if(e.detail.type=='project') this.$.chat.setupSocketAction();
-            },*/
+            socketConnected: function(e){
+                if(e.detail.type=='project' && this.$.chatView && this.$.chatView.$.chat) this.$.chatView.$.chat.setupSocketAction();
+            },
 
             openProtocolShowcase: function(){
                 this.$.protocolShowcaseDialog.open();

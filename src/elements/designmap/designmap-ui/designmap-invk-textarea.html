@@ -159,6 +159,7 @@
                     const regExp = new RegExp(regExpStr,'i');
                     if(regExp.test(this.value)) users.push(user);
                 }.bind(this));
+
                 this.set('invokedUsers',users);
             },
 
@@ -182,13 +183,12 @@
             },
 
             _specialActionForInvocation: function(e){
+                if([13,40,38].indexOf(e.detail.keyCode)==-1 || e.detail.ctrlKey || e.detail.metaKey) return;
 
-                if([13,40,38].indexOf(e.detail.keyCode)==-1) return;
+                e.detail.preventDefault();
+                e.detail.stopPropagation();
 
-                e.preventDefault();
-                e.stopPropagation();
-
-                if(e.detail.keyCode==13 && !e.detail.metaKey && !e.detail.ctrlKey) this.$.select.add();
+                if(e.detail.keyCode==13) this.$.select.add();
                 if(e.detail.keyCode==38) this.$.select.up();
                 if(e.detail.keyCode==40) this.$.select.down();
 

@@ -732,7 +732,7 @@
                 source.start(0);
             },
             setupSocketAction: function(){
-                if(this.socketActionIsDone) return;
+                if(this.socketActionIsDone || !Designmap.projectSocket) return;
                 this.socketActionIsDone = true;
                 // Setup sound
                 Designmap.projectSocket.on('action', function (o) {
@@ -822,22 +822,23 @@
                     project: this.projectId,
                     attaches: this.attaches.map((attach)=>attach._id)
                 };
+                const invokedUsers = this.invokedUsers.slice(0);
                 this.dispatch('addMessage', data).then(function(response){
                     if(!response.success) return this.manageErrorResponse(response);
-                    this._sendNotification(response.message);
+                    this._sendNotification(response.message,invokedUsers);
                 }.bind(this));
                 this.message = '';
+                this.set('invokedUsers', []);
                 this.set('attaches',[]);
                 this.async(this.scrollUp);
                 this.async(this.$.invkTextarea.blur);
                 this.async(this._messageChanged);
             },
 
-            _sendNotification: function (message) {
-                let emails = this.invokedUsers.map(function (user) {
+            _sendNotification: function (message,invokedUsers) {
+                let emails = invokedUsers.map(function (user) {
                     return user.fake ? user.local.email : user._id;
                 });
-                this.set('invokedUsers', []);
                 const title = this.translate('Chat message');
                 // Followers
                 const followers = [];
