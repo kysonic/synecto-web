@@ -1,0 +1,130 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module id="plastic-select">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                color: var(--gray-darkend-color);
+                @apply(--plastic-select-mixin);
+            }
+            .dropdown {
+                width: 100%;
+                position: absolute;
+                top: 20px;
+                background: var(--white-color);
+                border: 1px solid var(--gray-color);
+                z-index: 999;
+                box-shadow: var(--box-shadow);
+                @apply(--plastic-select-dropdown-mixin);
+            }
+            .input {
+                cursor: pointer;
+            }
+            .input > * {
+                display: inline-block;
+            }
+            .input .arrow {
+                position: relative;
+                top: 10px;
+                float: right;
+                @apply(--plastic-select-arrow-mixin);
+            }
+            .input .label {
+                @apply(--plastic-select-label-mixin);
+            }
+            ::content option {
+                padding: 5px 10px;
+                cursor: pointer;
+            }
+            ::content option:hover {
+                background: var(--gray-lightern-color);
+            }
+            ::content option.selected {
+                font-weight: 700;
+            }
+            ::content option[disabled] {
+                opacity: 0.6;
+            }
+        </style>
+        <div class="input" on-click="toggle">
+            <div class="label">[[label]]</div>
+            <iron-icon class="arrow" icon="designmap20x6:arrow_down"></iron-icon>
+        </div>
+        <div class="dropdown" hidden$="[[!opened]]">
+            <content id="options" select="option"></content>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'plastic-select',
+            behaviors: [],
+            properties: {
+                defaultLabel: {
+                    type: String,
+                    value: 'No selected...',
+                    observer: '_defaultLabelChanged'
+                },
+                label: {
+                    type: String,
+                    value: ''
+                },
+                value: {
+                    type: String,
+                    value: '',
+                    notify: true
+                },
+                opened: {
+                    type: Boolean,
+                    value: false
+                }
+            },
+            observers: [
+                '_valueChanged(value,options.*)'
+            ],
+            ready: function(){
+                document.body.addEventListener('click',function(e){
+                    if(e.path.indexOf(this)==-1) this.close();
+                }.bind(this))
+            },
+            attached: function(){
+                this.options = this.$.options.getDistributedNodes();
+                // Bind events
+                this.options.forEach(function(option){
+                    option.addEventListener('click',this.selectOption.bind(this))
+                }.bind(this));
+            },
+            _defaultLabelChanged: function(defaultLabel){
+                if(this.label) return;
+                this.label = defaultLabel;
+            },
+            selectOption: function(e){
+                this.value = e.currentTarget.value;
+                this.close();
+            },
+            open: function(){
+                this.opened = true;
+            },
+            close: function(){
+                this.opened = false;
+            },
+            toggle: function(){
+                this.opened = !this.opened;
+            },
+            _valueChanged: function(value){
+                if(!this.options) return;
+                const option = [].find.call(this.options,function(option){
+                    return option.value==value;
+                });
+                [].forEach.call(this.options,function(option){
+                    option.classList.remove('selected');
+                });
+                this.fire('change',value);
+                if(!option) return;
+                option.classList.add('selected');
+                this.label = option.innerText;
+            }
+        })
+    </script>
+</dom-module>

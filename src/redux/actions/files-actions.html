@@ -164,6 +164,15 @@
                 }.bind(this);
             },
             /**
+             * Follow file
+            */
+            followFile: function(file,userId){
+                return function(dispatch){
+                    var promise = xhr.put(Designmap.config.apiURL+'file/'+file._id+'/follow', {follower:userId,project:file.project});
+                    return promise;
+                }.bind(this);
+            },
+            /**
              * Update state tree only
              */
             _updateFile: function(id,data){

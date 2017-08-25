@@ -190,12 +190,14 @@
         </style>
         <div class="wrapper">
             <designmap-dashboard hidden$="[[projectError]]" back="[[_showBack(selectedTask,MQ)]]" on-go-back="_arrowBackAction" >
-                <div class$="title [[_titleCls(selectedTask,MQ)]]">
-                    <i18-n msgid="Tasks">Tasks</i18-n>
-                   <!-- <i18-n class="hidden-xs" msgid="of project">of project</i18-n>
-                    <span class="hidden-xs">&laquo;[[project.name]]&raquo;</span>-->
+                <div class="title" >
+                    [[project.name]]
                 </div>
                 <div class="breadcrumbs hidden-xs" hidden$="[[!breadcrumbs.length]]">
+                    <div class="crumb">
+                        <div class="title" on-click="goOnTop"><i18-n msgid="Tasks">Tasks</i18-n></div>
+                        <iron-icon class="line" icon="icons:chevron-left"></iron-icon>
+                    </div>
                     <template is="dom-repeat" items="[[breadcrumbs]]" as="crumb">
                         <div class$="crumb [[calculateSelectedCrumb(breadcrumbs.length,index)]]" title="[[crumb.title]]">
                             <div class$="title [[calculateSelectedCrumb(breadcrumbs.length,index)]]" on-click="goToParent">[[crumb.title]]</div>
@@ -509,7 +511,8 @@
              * @param e
              */
             goOnTop: function (e) {
-                this.selectTask({detail:null})
+                var task = this.findTaskById(this.breadcrumbs[0].id);
+                this.selectTask({detail:task})
             },
             calculateSelectedCrumb: function (length, index) {
                 return (length - 1) == index ? 'selected' : '';

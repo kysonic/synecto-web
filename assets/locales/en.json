@@ -219,7 +219,7 @@
     "message": "You've successfully connected your #ACCOUNT# account!"
   },
   "Share was updated successful": {
-    "message": "Accesses was updated."
+    "message": "Project team members were updated."
   },
   "From": {
     "message": "From"
@@ -884,6 +884,9 @@
   "You received an access to project": {
     "message": "You received access to project \"#PROJECT#\"."
   },
+  "You were removed from project": {
+    "message": "You were removed from \"#PROJECT#\"."
+  },
   "reader": {
     "message": "Reader"
   },
@@ -920,6 +923,9 @@
   "New Sticker": {
     "message": "New file comment"
   },
+  "New sticker": {
+    "message": "New file comment"
+  },
   "New Task Comment": {
     "message": "New task comment"
   },
@@ -929,11 +935,17 @@
   "New access": {
     "message": "New access"
   },
+  "Remove access": {
+    "message": "Access removed"
+  },
   "Date": {
     "message": "Date"
   },
   "path": {
     "message": "Path"
+  },
+  "mine": {
+    "message": "mine"
   },
   "xlink": {
     "message": "Link"
@@ -1837,5 +1849,32 @@
   },
   "There is no tasks here": {
     "message": "There is no tasks here..."
+  },
+  "Blocks": {
+    "message": "Blocks"
+  },
+  "AreYouSureThatYouWannaCloseProject": {
+    "message": "Close project?"
+  },
+  "Project is closed": {
+    "message": "Project is closed. Restore it to view."
+  },
+  "Active": {
+    "message": "Active"
+  },
+  "Closed": {
+    "message": "Closed"
+  },
+  "Members": {
+    "message": "Members"
+  },
+  "Not selected": {
+    "message": "Not selected..."
+  },
+  "AreYouSureYouWantToRemoveUser": {
+    "message": "Are you sure you want to remove this team member?"
+  },
+  "Add team member": {
+    "message": "Add team member. The member will be able to work on this project with you. There is only one limitation: he cannot remove files irretrievably."
   }
 }

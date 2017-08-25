@@ -38,7 +38,7 @@
             addComment: function (data) {
                 return function (dispatch) {
                     dispatch({type: 'ADD_COMMENT', data: data});
-                    var promise = xhr.post(Designmap.config.apiURL + 'comment/', {data: data});
+                    var promise = xhr.post(Designmap.config.apiURL + 'comment/', {data: data,project:this.projectId});
                     var owner = data.owner;
                     promise.then(function (response) {
                         if (!response.success) throw new Error(response.errors.message);
@@ -70,7 +70,7 @@
                     dispatch({type:'UPDATE_COMMENT',data:data,index:this.findCommentIndexById(id)});
                     var promise = xhr.put(Designmap.config.apiURL + 'comment/' + id, {
                         data: data,
-                        project: historyData.project
+                        project:this.projectId
                     });
                     promise.then(function (response) {
                         if (!response.success) throw new Error(response.errors.message);
@@ -100,7 +100,7 @@
                     var index = this.findCommentIndexById(id);
                     var historyData = this.findCommentById(id);
                     dispatch({type: 'REMOVE_COMMENT', index: index});
-                    var promise = xhr.delete(Designmap.config.apiURL + 'comment/' + id, {project: historyData.project});
+                    var promise = xhr.delete(Designmap.config.apiURL + 'comment/' + id, {project:this.projectId});
                     promise.then(function (response) {
                         if (!response.success) throw new Error();
                         // Real time

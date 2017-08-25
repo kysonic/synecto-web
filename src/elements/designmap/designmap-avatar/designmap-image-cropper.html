@@ -453,7 +453,7 @@
             },
             getFilePath: function (file) {
                 if (!file) return '';
-                return Designmap.config.apiURL.substring(0, Designmap.config.apiURL.length - 1) + file.path + '?v=' + this.generateUid();
+                return Designmap.config.apiURL.substring(0, Designmap.config.apiURL.length - 1) + file.path /*+ '?v=' + this.generateUid()*/;
             },
             onIronResize: function () {
                 var wrapper = this.$$('#wrapper');

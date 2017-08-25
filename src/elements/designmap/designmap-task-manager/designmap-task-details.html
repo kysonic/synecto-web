@@ -1122,7 +1122,8 @@
                         <i18-n msgid="up to">up to</i18-n>
                         [[formatDate(date)]]
                     </paper-tooltip>
-                    <div id="estimate" on-tap="openEstimateDialog" on-mouseenter="showGradeDropdown"
+                    <!-- Estimate -->
+                    <div id="estimate" on-click="openEstimateDialog" on-mouseenter="showGradeDropdown"
                          on-mouseleave="hideGradeDropdown" class$="estimate [[computeAssigneeStatus(task)]]">
                         <div class="grade">[[_computeOverAllGrade(task.grade)]]</div>
                         <!-- Estimate dropdown -->
@@ -1146,6 +1147,7 @@
                             <div class="triangle-border"></div>
                         </div>
                     </div>
+                    <!-- Track time -->
                     <div id="trackTime" hidden$="[[!canUpdateTask(task)]]" class="track-time">
                         <div id="timeValue" class="time">
                             [[_computeTime(task.time,spentTime)]]
@@ -1358,7 +1360,7 @@
                                    on-file="attachFile"></designmap-fs-explorer>
         </paper-dialog>
         <!-- Uploader -->
-        <designmap-file-uploader id="uploader" on-done="selectFiles" parent="folder" _id="[[currentFolderId]]"</designmap-file-uploader>
+        <designmap-file-uploader id="uploader" on-done="selectFiles" parent="folder" _id="[[currentFolderId]]"></designmap-file-uploader>
         <!-- Estimate popup -->
         <paper-dialog id="estimateDialog" entry-animation="scale-up-animation" exit-animation="scale-down-animation">
             <designmap-task-estimate on-estimate="estimateTask" task-name="[[task.name]]"
@@ -1817,11 +1819,11 @@
             openRemoveFileConfirm: function (e) {
                 this.$.contextMenu.close();
                 this.fileToRemove = e.model.file;
-                this.$.removeFileConfirm.toggle();
+                this.$.removeFileConfirm.open();
             },
             openRemoveTaskConfirm: function (e) {
                 this.$.contextMenu.close();
-                this.$.removeTaskConfirm.toggle();
+                this.$.removeTaskConfirm.open();
             },
             suspendRemoving: function () {
                 this.$.removeFileConfirm.close();
@@ -1886,17 +1888,18 @@
             },
 
             _sendNotification: function (task, comment) {
-                let emails = this.invokedUsers.map(function (user) {
-                    return user.fake ? user.local.email : user._id;
-                });
+                let emails = this.invokedUsers;
                 //if(!(!emails.length || this.user._id != file.owner)) return;
                 this.set('invokedUsers', []);
                 // Followers
                 const followers = [task.owner];
                 // Send notification
+                const recipients = this.removeDuplicatesInArray(followers.concat(emails));
+                if(!recipients.length) return;
+
                 document.querySelector('designmap-app').$.notifier.create({
                     sender: this.user,
-                    recipient: this.removeDuplicatesInArray(followers.concat(emails)),
+                    recipient: recipients,
                     type: 'new-task-comment',
                     text: {
                         message: comment.text,

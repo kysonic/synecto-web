@@ -3,7 +3,9 @@
 <link rel="import" href="../../../styles/context-menu-shared-styles.html">
 <link rel="import" href="../../../styles/lock-shared-styles.html">
 <link rel="import" href="../designmap-fs/designmap-fs-service.html">
+<link rel="import" href="../designmap-accesses/designmap-members.html">
 <link rel="import" href="../designmap-accesses/designmap-accesses.html">
+<link rel="import" href="../../plastic/plastic-select.html">
 <!-- Redux -->
 <link rel="import" href="../../../redux/actions/combine-actions.html">
 <link rel="import" href="../../../redux/actions/user-actions.html">
@@ -26,10 +28,10 @@
                 stroke: var(--advanced-menu-main-color) !important;
                 stroke-width: 1px;
             };
-            --designmap-dropdown-iron-dropdown-mixin: {
+            /*--designmap-dropdown-iron-dropdown-mixin: {
                 left: 50px !important;
                 top: 77px !important;
-            };
+            };*/
 
             --advanced-menu-main-color: var(--gray-saturated-color);
             --designmap-advanced-menu-hoverd: var(--gray-lightern-color);
@@ -106,7 +108,8 @@
         }
 
         ul.indented {
-            margin-left: 15px;
+            margin-top: 10px;
+            margin-left: 5px;
         }
 
         .icon-wrapper {
@@ -218,6 +221,49 @@
             background: var(--blue-color);
             transition: .2s background;
         }
+        .menu-title {
+            margin-left: 15px;
+            font-size: 14px;
+            color: var(--gray-darkend-color);
+        }
+        .delimiter {
+            padding: 10px 0;
+        }
+        .line {
+            width: 100%;
+            height: 1px;
+            border-bottom: 1px solid var(--gray-color);
+        }
+        .create-project {
+            margin-left: 15px;
+            text-decoration: underline;
+            cursor: pointer;
+            color: var(--blue-darkest-color);
+            margin-bottom: 5px;
+        }
+        .create-project:hover {
+            text-decoration: none;
+        }
+        designmap-members {
+            margin-left: 5px;
+        }
+        .project-status {
+            display: inline-block;
+            margin-left: 10px;
+            --plastic-select-mixin: {
+                width: 120px;
+                font-size: 12px;
+                text-transform: lowercase;
+            };
+            --plastic-select-label-mixin: {
+                font-size: 12px;
+            };
+            --plastic-select-arrow-mixin: {
+                width: 25px;
+                height: 20px;
+                top:8px;
+            }
+        }
         @media (min-width: 320px) and (max-width: 768px) {
             .mobile-project-menu {
                 display: block;
@@ -235,43 +281,25 @@
 
     </style>
     <template>
-
-        <designmap-projects-list menu-mode hidden$="[[project._id]]"></designmap-projects-list>
-
-        <div class="project-name" hidden$="[[!project._id]]">
-            <div class="name">[[project.name]]</div>
-            <div hidden$="[[!topAccess(user.role)]]" class="icon-wrapper">
-                <iron-icon class="project-menu" icon="designmap-workspace:more" on-click="openContext"></iron-icon>
-                <!-- Context -->
-                <designmap-context-menu id="projectContextMenu" previous>
-                    <ul class="menu">
-                        <li on-click="openRenameProjectContext">
-                            <i18-n msgid="Rename">Rename</i18-n>
-                        </li>
-                        <!-- Rename project -->
-                        <designmap-context-menu darker id="renameProjectContext" previous >
-                            <div class="context-content">
-                                <iron-a11y-keys id="a11yAddFolder" keys="enter" on-keys-pressed="renameIt"></iron-a11y-keys>
-                                <paper-input label$="[[translate('Project Name',language,i18Loaded)]]"
-                                             value="{{project.name}}" auto-validate pattern="[\w\dа-яА-ЯёЁ -]+"
-                                             error-message="[[translate('ProjectNameError',language,i18Loaded)]]"
-                                             id="renameProject"></paper-input>
-                                <div class="button-container">
-                                    <button is="designmap-round-button" on-click="renameIt">
-                                        <iron-icon icon="icons:arrow-forward"></iron-icon>
-                                    </button>
-                                </div>
-                            </div>
-                        </designmap-context-menu>
-                        <li on-click="openRemoveProjectConfirm" on-touchend="_closeMenu">
-                            <i18-n msgid="Remove">Remove</i18-n>
-                        </li>
-                    </ul>
-                </designmap-context-menu>
-                <!-- Context -->
-            </div>
+        <div class="menu-title" style="margin-top: 10px;">
+            <i18-n msgid="Projects">Projects</i18-n>
+            <plastic-select class="project-status" value="{{projectStatus}}" default-label="[[translate('Not selected',language,i18Loaded)]]">
+                <option value="active">[[translate('Active',language,i18Loaded)]]</option>
+                <option value="closed" disabled$="[[!closedProjects.length]]">[[translate('Closed',language,i18Loaded)]] ([[closedProjects.length]])</option>
+            </plastic-select>
         </div>
 
+        <designmap-projects-list id="projectList" closed-projects="{{closedProjects}}"></designmap-projects-list>
+
+        <div class="create-project" on-click="openCreateProjectDialog">
+            <i18-n msgid="Create Project">Create Project</i18-n>
+        </div>
+
+        <div class="delimiter" hidden$="[[!project._id]]"><div class="line"></div></div>
+
+        <div class="menu-title" hidden$="[[!project._id]]" style="margin-top: 5px;">
+            <i18-n msgid="Blocks">Blocks</i18-n>
+        </div>
         <ul class="indented" hidden$="[[!project._id]]">
             <!-- Context menu -->
             <li on-click="goToTheProject"   on-mouseover="_mouseOver" on-touchend="_closeMenu" class$="[[_computeSelectedItem(page,trashMode,'fs')]]" on-mouseleave="_mouseLeave"
@@ -308,17 +336,17 @@
                 <div id="chatMarker" class="chat marker"></div>
             </li>
 
-            <li id="accessesItem" on-touchend="_closeMenu" on-click="openSharingDialog" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave">
+            <!--<li id="accessesItem" on-touchend="_closeMenu" on-click="openSharingDialog" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave">
                 <designmap-circle-button>
                     <iron-icon icon="designmap-workspace:link"></iron-icon>
                 </designmap-circle-button>
-                <!--<iron-icon hidden$="[[user.isPremium]]" class="locked-icon" icon="icons:lock-outline"></iron-icon>-->
+                &lt;!&ndash;<iron-icon hidden$="[[user.isPremium]]" class="locked-icon" icon="icons:lock-outline"></iron-icon>&ndash;&gt;
                 <div class="text">
                     <i18-n msgid="Team">Team</i18-n>
                 </div>
-            </li>
+            </li>-->
 
-            <li id="protocolItem" on-click="goToProtocol" on-touchend="_closeMenu"  on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class="locked">
+            <!--<li id="protocolItem" on-click="goToProtocol" on-touchend="_closeMenu"  on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class="locked">
                 <designmap-circle-button>
                     <iron-icon icon="designmap-workspace:protocol"></iron-icon>
                 </designmap-circle-button>
@@ -326,7 +354,7 @@
                 <div class="text">
                     <i18-n msgid="Protocol">Protocol</i18-n>
                 </div>
-            </li>
+            </li>-->
 
             <li id="trashItem" on-click="goToTrashBox" on-touchend="_closeMenu" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class$="[[_computeSelectedItem(page,trashMode,'trash')]]">
                 <designmap-circle-button>
@@ -340,10 +368,18 @@
             </li>
         </ul>
 
-        <ul class="mobile-project-menu">
+        <div class="delimiter" hidden$="[[!project._id]]"><div class="line"></div></div>
+
+        <div class="menu-title" hidden$="[[!project._id]]" style="margin-top: 5px;">
+            <i18-n msgid="Members">Members</i18-n>
+        </div>
+
+        <designmap-members></designmap-members>
+
+        <!--<ul class="mobile-project-menu">
             <li on-click="openCreateProjectDialog"><i18-n msgid="Create Project">Create Project</i18-n></li>
             <li on-click="openSelectProjectDialog"><i18-n msgid="Open Project">Open Project</i18-n></li>
-        </ul>
+        </ul>-->
 
         <!--<div class="upgrade-set">
             <a href="/activate" class="upgrade">
@@ -418,6 +454,15 @@
                 MQ: {
                     type: String,
                     statePath: 'MQ'
+                },
+                projectStatus: {
+                    type: String,
+                    value: 'active',
+                    observer: '_projectStatusChanged'
+                },
+                closedProjects: {
+                    type: Array,
+                    value:[]
                 }
             },
             listeners: {
@@ -525,6 +570,13 @@
             openSelectProjectDialog: function(){
                 this.fire('close-menu');
                 this.fire('open-select-project-dialog');
+            },
+            openCreateProjectDialog: function(){
+                this.fire('open-create-project-dialog');
+            },
+            _projectStatusChanged: function(value){
+                if(value=='closed' && !this.$.projectList.closedProjects.length) return this.projectStatus = 'active';
+                this.$.projectList.selectedTab = value=='active'?0:1;
             }
         });
     </script>

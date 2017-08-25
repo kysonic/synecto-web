@@ -228,7 +228,7 @@
     "message": "Вы успешно прикрепили #ACCOUNT# аккаунт!"
   },
   "Share was updated successful": {
-    "message": "Доступы были обнавленены."
+    "message": "Участники проекта были обновлены."
   },
   "From": {
     "message": "От"
@@ -887,6 +887,9 @@
   "You received an access to project": {
     "message": "Вы получили доступ к Проекту \"#PROJECT#\"."
   },
+  "You were removed from project": {
+    "message": "Вы были удалены с проекта \"#PROJECT#\"."
+  },
   "reader": {
     "message": "Только чтение"
   },
@@ -923,6 +926,9 @@
   "New Sticker": {
     "message": "Новый комментарий к файлу"
   },
+  "New sticker": {
+    "message": "Новый комментарий к файлу"
+  },
   "New Task Comment": {
     "message": "Новый комментарий к задаче"
   },
@@ -932,11 +938,17 @@
   "New access": {
     "message": "Добавлен доступ"
   },
+  "Remove access": {
+    "message": "Доступ удален"
+  },
   "Date": {
     "message": "Дата"
   },
   "path": {
     "message": "Путь"
+  },
+  "mine": {
+    "message": "мой"
   },
   "xlink": {
     "message": "Перейти"
@@ -1852,5 +1864,32 @@
   },
   "There is no tasks here": {
     "message": "Тут задач нет..."
+  },
+  "Blocks": {
+    "message": "Блоки"
+  },
+  "AreYouSureThatYouWannaCloseProject": {
+    "message": "Закрыть проект?"
+  },
+  "Project is closed": {
+    "message": "Проект закрыт. Восстановите его, чтобы просмотреть."
+  },
+  "Active": {
+    "message": "Активные"
+  },
+  "Closed": {
+    "message": "Закрытые"
+  },
+  "Members": {
+    "message": "Участники"
+  },
+  "Not selected": {
+    "message": "Не выбран..."
+  },
+  "AreYouSureYouWantToRemoveUser": {
+    "message": "Вы уверены что хотите удалить этого участника проекта?"
+  },
+  "Add team member": {
+    "message": "Добавить участника проекта. Участник сможет управлять проектом вместе с Вами. Есть только одно ограничение: он не сможет удалять файлы или папки из корзины."
   }
 }

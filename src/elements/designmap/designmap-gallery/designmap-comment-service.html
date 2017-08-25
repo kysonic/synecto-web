@@ -12,17 +12,20 @@
          * Send notification
          */
         _sendNotification: function (file,sticker,comment) {
-            let emails = this.invokedUsers.map(function(user){
-               return user.fake ? user.local.email : user._id;
-            });
+            let emails = this.invokedUsers;
             //if(!(!emails.length || this.user._id != file.owner)) return;
             this.set('invokedUsers',[]);
             // Followers
-            const followers = [file.owner,sticker.owner];
+            //console.log(file.owner,sticker.owner);
+            const followers = file.followers&&file.followers.length ? file.followers : [this.project.owner,this.file.owner];
+            if(followers.indexOf(this.user._id)===-1) this.dispatch('followFile',file,this.user._id);
             // Send notification
+            const recipients = this.prepareFollowers(followers.concat(emails),this.user);
+            if(!recipients.length) return;
+            // Notify
             document.querySelector('designmap-app').$.notifier.create({
                 sender: this.user,
-                recipient: this.removeDuplicatesInArray(followers.concat(emails)),
+                recipient: recipients,
                 type: 'new-sticker',
                 text: {
                     message: comment.text.replace(EMAILS_REGEXP,''),
@@ -103,6 +106,7 @@
             return (comment.owner._id === this.user._id);
         },
         _canRemoveSticker(user, sticker){
+            if(!user || !sticker.owner) return;
             return (user._id === sticker.owner._id);
         },
 

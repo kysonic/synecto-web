@@ -334,8 +334,8 @@
             },
             computeAvatarPath: function (path) {
                 if (!path) return '';
-                if (/images/.test(path)) return path + '?v=' + this.generateUid();
-                return Designmap.config.apiURL + path + '?v=' + this.generateUid();
+                if (/images/.test(path)) return path /*+ '?v=' + this.generateUid()*/;
+                return Designmap.config.apiURL + path /*+ '?v=' + this.generateUid()*/;
             },
             assigneeChanged: function (assignee) {
                 if(!this.project || !this.project.users || !assignee) return;

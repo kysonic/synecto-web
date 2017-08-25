@@ -9,6 +9,7 @@
 <link rel="import" href="../designmap-ui/designmap-dropdown.html">
 <link rel="import" href="../designmap-ui/designmap-showcase.html">
 <link rel="import" href="../designmap-ui/designmap-stub.html">
+<link rel="import" href="../designmap-ui/designmap-followers.html">
 <link rel="import" href="./designmap-stickers.html">
 <link rel="import" href="../designmap-icons/designmap-logo-icons.html">
 <link rel="import" href="./designmap-gallery-user-list.html">
@@ -816,6 +817,9 @@
         <div class="bottom-panel panel">
             <div class="left">
                 <!--<designmap-gallery-user-list></designmap-gallery-user-list>-->
+                <template is="dom-if" if="[[project]]">
+                    <designmap-followers followers="[[_getFollowers(file)]]"></designmap-followers>
+                </template>
             </div>
             <div class="center" hidden$="[[!isImageFile(file)]]">
                 <button class="minus-button" is="designmap-gallery-button" on-click="zoomOut">
@@ -863,7 +867,7 @@
                 Polymer.DesignMapHintService,
                 Polymer.DesignMapFsService,
                 ReduxBehavior,
-                Polymer.CombineActions(Polymer.UserActions, Polymer.FilesActions, Polymer.StickersActions, Polymer.CommentsActions)
+                Polymer.CombineActions(Polymer.ProjectActions, Polymer.UserActions, Polymer.FilesActions, Polymer.StickersActions, Polymer.CommentsActions)
             ],
             // Zoom options
             step: 0.1,
@@ -888,6 +892,10 @@
                 projectId: {
                     type: String,
                     statePath: 'projectId'
+                },
+                project: {
+                    type: String,
+                    statePath: 'project'
                 },
                 fileId: {
                     type: String,
@@ -1031,7 +1039,13 @@
              * Whe file id changed
              */
             _fileIdChanged: function (fileId) {
-                this.error = false;
+                this.fire('app-loading',true);
+                const file = this.findFileById(fileId);
+                if (file) {
+                    this.fire('app-loading',false);
+                    return this.file = file;
+                }
+                /*this.error = false;
                 this.fire('app-loading',true);
                 // Work with file
                 const file = this.findFileById(fileId);
@@ -1048,6 +1062,7 @@
                         return this.error = response.errors.message;
                     }
                     this.file = response.file;
+                    this.dispatch('getProject',this.file.project);
                     this.async(function(){
                         this.loading = false;
                         this.fire('app-loading',false);
@@ -1057,7 +1072,7 @@
                     this.loading = false;
                     this.fire('app-loading',false);
                     this.manageErrorResponse(err);
-                }.bind(this));
+                }.bind(this));*/
             },
             /**
              * Previous file
@@ -1068,7 +1083,7 @@
                 if (previousIndex < 0) previousIndex = this.files.length - 1;
                 const previousFileId = this.files[previousIndex]._id;
                 this._showCounter();
-                page.redirect('/gallery/' + previousFileId);
+                page.redirect('/'+this.projectId+'/gallery/' + previousFileId);
             },
             /**
              * Set zoom to zero
@@ -1090,16 +1105,14 @@
                 if (nextIndex >= this.files.length) nextIndex = 0;
                 const nextFileId = this.files[nextIndex]._id;
                 this._showCounter();
-                page.redirect('/gallery/' + nextFileId);
+                page.redirect('/'+this.projectId+'/gallery/' + nextFileId);
             },
             /**
              * Close gallery, but before we have to play exit animation
              */
             close: function () {
-                if(this.user && this.user.fake) this.dispatch('cleanUser');
-                if(this.user.fake) return page.redirect('/');
                 if(Designmap.previousPath == Designmap.currentPath) return page.redirect('/'+(this.projectId || this.file.project || ''));
-                return page.redirect(Designmap.previousPath || '/');
+                return page.redirect(Designmap.previousPagePath || '/');
             },
             /**
              * Is Previous button disabled?
@@ -1610,6 +1623,11 @@
 
             _getPDFFilePreview: function(file) {
                 return 'https://docs.google.com/gview?url='+file.data.url+'&embedded=true';
+            },
+            _getFollowers: function(file){
+                if(!file) return [];
+                const defaultFollowers = this.removeDuplicatesInArray([this.project.owner,file.owner]);
+                return file.followers&&file.followers.length?file.followers:defaultFollowers;
             }
         });
     </script>

@@ -1,0 +1,44 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../designmap-avatar/designmap-avatar-projector.html">
+
+<dom-module id="designmap-followers">
+    <template>
+        <style>
+            .follower {
+                display: inline-block;
+                margin-left: 10px;
+                margin-top: 5px;
+            }
+        </style>
+        <div class="followers">
+            <template is="dom-repeat" items="[[followers]]" as="follower">
+                <designmap-avatar-projector class="follower" user="[[_getFollower(follower,project)]]"></designmap-avatar-projector>
+            </template>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-followers',
+            behaviors: [
+                ReduxBehavior
+            ],
+            properties: {
+                project: {
+                    type: Object,
+                    statePath:'project'
+                },
+                followers: {
+                    type: Array,
+                    value: []
+                }
+            },
+            _getFollower: function(follower,project){
+                if(!follower || !project || !project.users) return;
+                const users = project.users.concat([project.ownerData]);
+                return users.find(function(user){
+                    return user._id==follower;
+                });
+            }
+        })
+    </script>
+</dom-module>

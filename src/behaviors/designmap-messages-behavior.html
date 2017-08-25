@@ -37,7 +37,14 @@
         notify: function(message, type, replacement, sender, duration){
           var msg = this.i18nDomain.getMsg(message) || message;
           if(replacement) msg = this.replaceExpressions(msg,replacement);
-          this.snackbar.add({text:msg,type: type, notify:true,sender:sender,duration:duration});
+          if(!("Notification" in window) || Notification.permission === "denied") return  this.snackbar.add({text:msg,type: type, notify:true,sender:sender,duration:duration});
+          if(Notification.permission === 'granted') return this.browserNotification({text:msg,type: type, notify:true,sender:sender});
+          Notification.requestPermission(function (permission) {
+            if (permission === "granted") {
+                this.browserNotification({text:msg,type: type, notify:true,sender:sender});
+            }
+          }.bind(this));
+
           /*this.async(function(){
             var notifier = document.querySelector('designmap-notifier');
             var notifierBounding = notifier.getBoundingClientRect();
@@ -45,6 +52,13 @@
             this.snackbar.style.left = notifierBounding.left - (toastBounding.width/2) - 65 + 'px';
             this.snackbar.style.top = 70 + 'px';
           },0);*/
+        },
+        browserNotification(opts){
+            const message = opts.text+'\n\n'+this.translate('From')+': '+this.computeOwnerName(opts.sender);
+            new Notification(this.translate(opts.type.replace('-',' ').capitalize()),{
+                body: message,
+                icon: '/assets/images/manifest/icon-48x48.png'
+            })
         },
         /**
          * Replace all of expressions in the sentence

@@ -45,7 +45,7 @@
             addMessage: function (data) {
                 return function (dispatch) {
                     dispatch({type: 'ADD_MESSAGE', data: data});
-                    var promise = xhr.post(Designmap.config.apiURL + 'message/', {data: data});
+                    var promise = xhr.post(Designmap.config.apiURL + 'message/', {data: data,project:this.projectId});
                     var owner = data.owner;
                     promise.then(function (response) {
                         if (!response.success) throw new Error(response.errors.message);
@@ -77,7 +77,7 @@
                     dispatch({type:'UPDATE_MESSAGE',data:data,index:this.findMessageIndexById(id)});
                     var promise = xhr.put(Designmap.config.apiURL + 'message/' + id, {
                         data: data,
-                        project: historyData.project
+                        project:this.projectId
                     });
                     promise.then(function (response) {
                         if (!response.success) throw new Error(response.errors.message);
@@ -107,7 +107,7 @@
                     var index = this.findMessageIndexById(id);
                     var historyData = this.findMessageById(id);
                     dispatch({type: 'REMOVE_MESSAGE', index: index});
-                    var promise = xhr.delete(Designmap.config.apiURL + 'message/' + id, {project: historyData.project});
+                    var promise = xhr.delete(Designmap.config.apiURL + 'message/' + id, {project:this.projectId});
                     promise.then(function (response) {
                         if (!response.success) throw new Error();
                         // Real time

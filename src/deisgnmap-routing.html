@@ -1,10 +1,16 @@
 
 <script>
+    function _setPreviousPagePath(page) {
+        if(this.page!=page)  Designmap.previousPagePath = Designmap.previousPath;
+    }
     /**
      * Route like a boss
      */
     Polymer.DesignmapRouting = {
         ready: function(){
+
+            _setPreviousPagePath = _setPreviousPagePath.bind(this);
+
             page('*', function(ctx, next) {
                 this.firstHash = this.firstHash || ctx.hash;
                 this.hash = ctx.hash;
@@ -20,50 +26,55 @@
                 this.projectId = null;
                 this.path = '/';
                 this.trashMode = false;
+                _setPreviousPagePath('fs');
                 this.page = 'fs';
             }.bind(this));
 
-            page('/gallery/:id', function(ctx,next){
-                this.page = 'gallery';
-                this.fileId = ctx.params.id;
-            }.bind(this));
-
             page('/settings', this._isAuth.bind(this), function(ctx,next){
+                _setPreviousPagePath('settings');
                 this.page = 'settings';
                 this.path = 'profile';
             }.bind(this));
 
             page('/notifications', this._isAuth.bind(this), function(ctx,next){
+                _setPreviousPagePath('notifications');
                 this.page = 'notifications';
             }.bind(this));
 
             page('/support', this._isAuth.bind(this), function(ctx,next){
+                if(this.page!='support') Designmap.previousPagePath = Designmap.previousPath;
                 this.page = 'support';
             }.bind(this));
 
             page('/activate', this._isAuth.bind(this), function(ctx,next){
+                _setPreviousPagePath('activate');
                 this.page = 'activate';
             }.bind(this));
 
             page('/support/docs', this._isAuth.bind(this), function(ctx,next){
+                if(this.page!='docs') Designmap.previousPagePath = Designmap.previousPath;
                 this.page = 'docs';
             }.bind(this));
 
             page('/support/form', this._isAuth.bind(this), function(ctx,next){
+                _setPreviousPagePath('support-form');
                 this.page = 'support-form';
             }.bind(this));
 
             page('/settings/profile', this._isAuth.bind(this), function(ctx,next){
+                _setPreviousPagePath('settings');
                 this.page = 'settings';
                 this.path = 'profile';
             }.bind(this));
 
             page('/settings/account', this._isAuth.bind(this), function(ctx,next){
+                _setPreviousPagePath('settings');
                 this.page = 'settings';
                 this.path = 'account';
             }.bind(this));
 
             page('/settings/config', this._isAuth.bind(this), function(ctx,next){
+                _setPreviousPagePath('settings');
                 this.page = 'settings';
                 this.path = 'config';
             }.bind(this));
@@ -73,6 +84,7 @@
                 this.projectId = ctx.params.id;
                 this.path = '/';
                 this.trashMode = false;
+                _setPreviousPagePath('fs');
                 this.page = 'fs';
             }.bind(this));
 
@@ -81,34 +93,40 @@
                 this.projectId = ctx.params.id;
                 this.path = '/';
                 this.trashMode = true;
+                _setPreviousPagePath('fs');
                 this.page = 'fs';
             }.bind(this));
 
             page('/:id/task-manager', this._isAuth.bind(this), function(ctx,next){
+
                 if(!this.isObjectID(ctx.params.id)) return next();
                 this.projectId = ctx.params.id;
+                _setPreviousPagePath('task-manager');
                 this.page = 'task-manager';
                 this.path = '/';
             }.bind(this));
 
-            page('/:id/accesses', this._isAuth.bind(this), function(ctx,next){
-                if(!this.isObjectID(ctx.params.id)) return next();
-                this.projectId = ctx.params.id;
-                this.page = 'accesses';
-                this.path = '/';
-            }.bind(this));
 
             page('/:id/chat', this._isAuth.bind(this), function(ctx,next){
                 if(!this.isObjectID(ctx.params.id)) return next();
                 this.projectId = ctx.params.id;
+                _setPreviousPagePath('chat');
                 this.page = 'chat';
                 this.path = '/';
+            }.bind(this));
+
+            page('/:projectId/gallery/:id', this._isAuth.bind(this), function(ctx,next){
+                _setPreviousPagePath('gallery');
+                this.page = 'gallery';
+                this.projectId = ctx.params.projectId;
+                this.fileId = ctx.params.id;
             }.bind(this));
 
             page(/^\/(.*?)\/task-manager\/(.*)/, this._isAuth.bind(this), function(ctx,next){
                 const id = ctx.params[0];
                 if(!this.isObjectID(id)) return next();
                 this.projectId = id;
+                _setPreviousPagePath('task-manager');
                 this.page = 'task-manager';
                 this.path = '/'+ctx.params[1];
             }.bind(this));
@@ -119,6 +137,7 @@
                 this.projectId = id;
                 this.path = '/'+ctx.params[1];
                 this.trashMode = false;
+                _setPreviousPagePath('fs');
                 this.page = 'fs';
             }.bind(this));
 

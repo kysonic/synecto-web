@@ -111,6 +111,7 @@
                            on-continue="removeAllElements" on-suspend="suspendRemoving"></designmap-confirm>
         <!-- Panel -->
         <div class="buttons-panel">
+            <!-- Left -->
             <div class="left">
                 <designmap-circle-button id="createFolderButton"
                                          plastic-tooltip$="[[translate('Add folder',language,i18Loaded)]]" data-cls="blue"
@@ -128,6 +129,7 @@
                         <i18-n msgid="creatingSubFolderMsg">creatingSubFolderMsg</i18-n>
                     </div>
                 </designmap-hint>
+                <!-- Hint -->
                 <paper-tooltip for="createFolderButton"><i18-n msgid="Add folder">Add folder</i18-n></paper-tooltip>
                 <!-- Add folder -->
                 <designmap-context-menu id="addFolderContext" previous>
@@ -160,6 +162,7 @@
                         <i18-n msgid="addFileMsg">addFileMsg</i18-n>
                     </div>
                 </designmap-hint>
+                <!-- Hint -->
                 <paper-tooltip for="uploadFileButton"><i18-n msgid="Upload file">Upload file</i18-n></paper-tooltip>
                 <!-- Trash mode -->
                 <designmap-circle-button id="restoreButton" plastic-tooltip$="[[translate('Restore all',language,i18Loaded)]]" data-cls="blue"
@@ -173,6 +176,7 @@
                 </designmap-circle-button>
                 <paper-tooltip for="removeButton"><i18-n msgid="Remove all">Remove all</i18-n></paper-tooltip>
             </div>
+            <!-- Right -->
             <div class="right">
                 <designmap-circle-button id="sortButton" data-cls="blue"
                                          on-click="openMoreContext">

@@ -183,7 +183,7 @@
             },
 
             _specialActionForInvocation: function(e){
-                if([13,40,38].indexOf(e.detail.keyCode)==-1 || e.detail.ctrlKey || e.detail.metaKey) return;
+                if([13,40,38].indexOf(e.detail.keyCode)==-1 || !this.opened) return;
 
                 e.detail.preventDefault();
                 e.detail.stopPropagation();

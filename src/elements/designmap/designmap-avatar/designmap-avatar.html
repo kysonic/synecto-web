@@ -261,7 +261,7 @@
                 const user = Object.assign({},this.user);
                 this.user.profile.avatar = e.detail;
                 this.dispatch('userUpdate', user);
-                if (this.$$('#img')) this.$$('#img').src = Designmap.config.apiURL + e.detail + '?v=' + this.generateUid();
+                if (this.$$('#img')) this.$$('#img').src = Designmap.config.apiURL + e.detail /*+ '?v=' + this.generateUid()*/;
             },
             presetAvatarLoaded: function (e) {
                 this.$.avatarDialog.refit();
@@ -284,8 +284,8 @@
             },
             computeAvatarPath: function (path) {
                 if (!path) return '';
-                if (/images/.test(path)) return path + '?v=' + this.generateUid();
-                return Designmap.config.apiURL + path + '?v=' + this.generateUid();
+                if (/images/.test(path)) return path /*+ '?v=' + this.generateUid()*/;
+                return Designmap.config.apiURL + path /*+ '?v=' + this.generateUid()*/;
             },
             removeAvatar: function () {
                 const promise = xhr.get(Designmap.config.apiURL + 'user/remove-avatar/?path=' + decodeURI(this.user.profile.avatar));

@@ -1,0 +1,308 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../designmap-avatar/designmap-avatar-projector.html">
+<link rel="import" href="../designmap-ui/designmap-dropdown.html">
+<link rel="import" href="../designmap-ui/designmap-confirm.html">
+<link rel="import" href="./designmap-users-combo.html">
+<link rel="import" href="../designmap-fs/designmap-fs-service.html">
+<link rel="import" href="../../../redux/actions/project-actions.html">
+<link rel="import" href="../../../styles/tooltip-shared-styles.html">
+
+<dom-module id="designmap-members">
+    <template>
+        <style include="tooltip-shared-styles">
+            :host {
+                display: block;
+                position: relative;
+                --designmap-avatar-projector-mixin: {
+                    width: 40px;
+                    height: 40px;
+                    line-height: 40px;
+                    font-size: 26px;
+                };
+                --designmap-avatar-projector-text-mixin: {
+                    font-size: 18px;
+                };
+                --designmap-users-select-dropdown-content-mixin: {
+                    max-width: 400px;
+                };
+                --paper-input-container-color: var(--gray-darkend-color);
+                --paper-input-container-focus-color: var(--gray-darkend-color);
+                --paper-input-container-input: {
+                    color: var(--gray-darkend-color);
+                    font-family: var(--font-family);
+                    font-size: 16px;
+                    font-weight: 300 !important;
+                };
+                --paper-input-container-label: {
+                    font-size: 16px;
+                    font-weight: 300 !important;
+                };
+                --paper-input-container-label-floating: {
+                    font-weight: 300 !important;
+                };
+                --paper-input-container-invalid-color: var(--error-color);
+                --designmap-dropdown-triangle-mixin: {
+                    top: 50% !important;
+                    margin-top: -10px !important;
+                };
+                --designmap-dropdown-triangle-border-mixin: {
+                    top: 50% !important;
+                    margin-top: -10px!important;
+                }
+            }
+            *[hidden] {
+                display: none!important;
+            }
+            .members {
+                display: inline-block;
+            }
+            .member {
+                display: inline-block;
+                vertical-align: top;
+                position: relative;
+                margin-left: 10px;
+                margin-top: 10px;
+            }
+            .mark {
+                position: absolute;
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background: var(--expired);
+                top: 0;
+                left: 100%;
+            }
+            .mark.online {
+                background: var(--inprogress);
+            }
+            designmap-avatar-projector.owner {
+                border: 2px solid var(--blue-darkest-color);
+            }
+            .add {
+                display: inline-block;
+                vertical-align: top;
+                margin-left: 10px;
+                margin-top: 10px;
+                width: 40px;
+                height: 40px;
+                border: 1px solid var(--gray-darkend-color);
+                border-radius: 50%;
+                cursor: pointer;
+                transform: rotate(0deg);
+                transition: .2s transform;
+            }
+            .add:hover {
+                transform: rotate(90deg);
+                transition: .2s transform;
+            }
+            .add iron-icon {
+                padding: 8px;
+                --iron-icon-components-mixin: {
+                    fill: var(--gray-darkend-color) !important;
+                };
+            }
+            designmap-dropdown .content {
+                padding: 0 20px 5px 20px;
+            }
+            .member .remove {
+                opacity: 0;
+                position: absolute;
+                top: -10px;
+                left: 100%;
+                width: 20px;
+                height: 20px;
+                background: rgba(0, 0, 0, 0.9);
+                border-radius: 50%;
+                cursor: pointer;
+                transform: translate(-5px, 5px);
+            }
+
+            .member:hover .remove {
+                opacity: 1;
+                transform: translate(0, 0);
+                transition: transform .2s ease-in, opacity .1s;
+            }
+
+            .member .remove iron-icon {
+                width: 20px;
+                height: 20px;
+                position: relative;
+                bottom: 4px;
+                --iron-icon-stroke-color: var(--white-color);
+                --iron-icon-fill-color: var(--white-color);
+            }
+        </style>
+        <!-- Confirm -->
+        <designmap-confirm id="removingConfirm" message="AreYouSureYouWantToRemoveUser"
+                           on-continue="remove" on-suspend="suspendRemoving"></designmap-confirm>
+        <!-- Members -->
+        <div class="members">
+            <template is="dom-repeat" items="[[members]]" as="member">
+                <div class="member">
+                    <designmap-avatar-projector class$="[[_ownerCls(member)]]" user="[[member]]"></designmap-avatar-projector>
+                    <div class$="mark [[_isOnline(member)]]"></div>
+                    <div class="remove" on-click="openRemoveConfirm" hidden$="[[!_canRemove(user,member,project)]]">
+                        <iron-icon icon="icons:close"></iron-icon>
+                    </div>
+                </div>
+            </template>
+        </div>
+        <div id="addMember" class="add" hidden$="[[!_isOwner(user,project)]]" on-click="openContext">
+            <iron-icon icon="icons:add"></iron-icon>
+        </div>
+        <!-- Context -->
+        <designmap-dropdown left id="context" tri-left tri-border vertical-offset="-10" horizontal-offset="60" previous>
+            <div class="content">
+                <designmap-users-combo id="userCombo" label="[[translate('User email',language,i18Loaded)]]"  on-selected="select"></designmap-users-combo>
+            </div>
+        </designmap-dropdown>
+
+        <paper-tooltip position="right" for="addMember"><i18-n msgid="Add team member">Add team member</i18-n></paper-tooltip>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-members',
+            behaviors: [
+                ReduxBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapFsService,
+                Polymer.ProjectActions
+            ],
+            properties: {
+                project: {
+                    type: Object,
+                    statePath: 'project'
+                },
+                projects: {
+                    type: Object,
+                    statePath: 'projects'
+                },
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    statePath:'i18Loaded'
+                },
+                projectId: {
+                    type: Object,
+                    statePath: 'projectId'
+                },
+                members: {
+                    type: Array,
+                    computed: '_computeMembers(project.ownerData,project.users)'
+                }
+            },
+            ready: function(){
+                  setInterval(function(){
+                      if(this.projectId) this.dispatch('getProject',this.projectId)
+                  }.bind(this),60000);
+            },
+            _computeMembers: function(ownerData,users){
+                return [ownerData].concat(users);
+            },
+            _ownerCls: function(member){
+                return  this._isOwner(member) ? 'owner' : '';
+            },
+            _isOwner: function(member){
+                if(!this.project) return;
+                return this.project.owner == member._id;
+            },
+            _isOnline: function(user){
+                if(user._id==this.user._id) return 'online';
+                return user.online ? 'online' : '';
+            },
+            openContext: function(e){
+                this.$.context.open();
+            },
+            select: function (e) {
+                const user = e.detail;
+                // Drop the select value
+                this.$.userCombo.$.select.value = '';
+                // Prevent repeats
+                if (this.checkUsers(e.detail.local.email)) return this.showErrorMessage('This user already added');
+                if (e.detail.local.email == this.user.local.email) return this.showErrorMessage('You cannot add yourself. You are already there!');
+                if (this.project.users && (this.project.users.length+1)>this.user.plan.teamMembers) {
+                    this.$.userCombo.blur();
+                    return this.showPremiumMessage = true;
+                }
+                this.$.context.close();
+                // Dispatch event
+                if(!this.project.users) this.set('project.users',[]);
+                this.push('project.users',e.detail);
+                //
+                this.dispatch('updateProject', this.project._id, this.project).then(function (response) {
+                    if(!response.success) return this.manageErrorResponse(response);
+                    // Notify
+                    console.log(user);
+                    this.sendNotification(user);
+                    this.showMessage('Share was updated successful');
+                }.bind(this));
+            },
+            remove: function(){
+                const index = this.project.users.indexOf(this.tempUser);
+                this.project.users.splice(index,1);
+                this.set('project.users', this.project.users);
+                //
+                this.suspendRemoving();
+                this.dispatch('updateProject', this.project._id, this.project).then(function (response) {
+                    if(!response.success) return this.manageErrorResponse(response);
+                    // Notify
+                    this.sendNotification(this.tempUser,true);
+                    this.showMessage('Share was updated successful');
+                }.bind(this));
+            },
+            /**
+             * Check users if they can be repeted
+             */
+            checkUsers: function (email) {
+                if (!this.project || !this.project.users) return;
+                let found = null;
+                this.project.users.forEach(function (user) {
+                    if ((user && user.local && user.local.email === email) || (user.email === email) || (user.label === email)) found = user;
+                }, this);
+                return found;
+            },
+            _canRemove: function(user,member){
+                if(!user || !member) return false;
+                return this._isOwner(user) && user._id!=member._id;
+            },
+            openRemoveConfirm: function(e){
+                this.tempUser = e.model.member;
+                this.$.removingConfirm.open();
+            },
+            suspendRemoving: function(){
+                this.$.removingConfirm.close();
+            },
+            /**
+             * Send notifications using
+             * designmap-notifier
+             */
+            sendNotification: function (user,remove) {
+                const notifier = document.querySelector('designmap-app').$.notifier;
+                if(!notifier || !user ||  !user._id) return;
+                // Create notify
+                notifier.create({
+                    sender: this.user,
+                    recipient: user._id,
+                    type: remove?'remove-access':'new-access',
+                    text: {
+                        message: remove?'You were removed from project':'You received an access to project',
+                        replacement: { "#PROJECT#": this.project.name},
+                        projectID: this.project._id,
+                        info: {
+                            xlink: Designmap.config.appURL+this.project._id
+                        }
+                    }
+                });
+            }
+        })
+    </script>
+</dom-module>

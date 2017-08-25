@@ -31,6 +31,16 @@
                 --paper-input-container-color: var(--white-color);
                 --paper-input-container-focus-color: var(--white-color);
                 --paper-input-container-input: {  color: var(--white-color);  };
+
+                --plastic-custom-scroll-bar-mixin: {
+                    margin-left: -10px;
+                };
+                --plastic-custom-scroll-bar-hover-mixin: {
+                    margin-left: -12px;
+                };
+                --plastic-custom-scroll-bar-grabbed-mixin: {
+                    margin-left: -12px;
+                };
             }
 
             *[hidden] {
@@ -46,8 +56,8 @@
             .tabs .title {
                 flex: 1;
                 font-weight: 100;
-                text-align: center;
-                padding: 15px;
+                text-align: left;
+                padding: 15px 15px 0 15px;
                 cursor: pointer;
                 pointer-events: auto;
                 text-transform: none;
@@ -70,10 +80,11 @@
                 font-weight: 100;
                 padding: 0 0 0 0;
                 list-style: none;
+                margin: 5px 0;
             }
 
             .list li {
-                padding: 10px 15px;
+                padding: 5px 15px;
                 cursor: pointer;
                 transition: background .2s ease-in;
                 text-transform: none;
@@ -98,15 +109,14 @@
 
             .project-name {
                 width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .project-name .author {
+                font-size: 12px;
             }
 
-            /** SCROLLERS **/
-
-            .scroller {
-                max-height: calc(100vh - 140px);
-            }
-
-            /** PROJECTS **/
+                /** PROJECTS **/
             .your-projects li, .available-projects li {
                 display: flex;
                 align-items: center;
@@ -126,55 +136,67 @@
             .title {
                 padding: 13px;
             }
+            .closed-icon {
+                min-width: 30px;
+                height: 20px;
+                --iron-icon-components-mixin: {
+                    stroke: var(--gray-darkend-color) !important;
+                    fill: var(--white-color) !important;
+                };
+            }
+
             :host([menu-mode]) .your-projects, :host([menu-mode]) .available-projects  {
                 margin: 0 !important;
             }
         </style>
 
-        <div class="tabs" hidden$="[[menuMode]]">
+        <!--<div class="tabs" hidden$="[[menuMode]]">
             <div on-click="selectTab" disabled?="[[projects.length]]"
                  class$="title [[computeSelectedTab(selectedTab,0)]]" data-id="0">
-                <i18-n msgid="Mine">Mine</i18-n>
+                <i18-n msgid="Active">Active</i18-n>
             </div>
             <div on-click="selectTab" disabled?="[[sharedProjects.length]]"
                  class$="title [[computeSelectedTab(selectedTab,1)]]"
-                 disabled$="[[!sharedProjects.length]]" data-id="1">
-                <i18-n msgid="Available">Available</i18-n>
+                 disabled$="[[!closedProjects.length]]" data-id="1">
+                <i18-n msgid="Closed">Closed</i18-n>
             </div>
-        </div>
+        </div>-->
 
-        <div class="title" hidden$="[[!menuMode]]">
-            <template is="dom-if" if="[[projects.length]]">
-                <i18-n msgid="Select project">Select project</i18-n>
-            </template>
-            <template is="dom-if" if="[[!projects.length]]">
-                <i18-n style="max-width: 200px; white-space: normal" msgid="There are no projects">There are no projects</i18-n>
-            </template>
-        </div>
-
-        <plastic-custom-scroll class="scroller" hidden$="[[hideUnselected(selectedTab,0)]]" fit>
+        <plastic-custom-scroll class="scroller" hidden$="[[hideUnselected(selectedTab,0)]]" fit max-height="205" small-bar>
             <ul class="list your-projects">
-                <template is="dom-repeat" items="[[projects]]" as="project">
-                    <li class$="[[computeSelected(selectedProjectID,project)]]">
-                        <div class="project-name" on-click="selectProject">[[project.name]]</div>
-                        <iron-icon icon="designmap-workspace:more" on-click="openContext"></iron-icon>
+                <template is="dom-repeat" items="[[overallProjects]]" as="project" sort="[[_sortProjects(sortWay,projectId)]]">
+                    <li class$="[[computeSelected(projectId,project)]]">
+                        <div class="project-name" on-click="selectProject">
+                            <span>[[project.name]]</span>
+                            <span class="author">[ [[_computeAuthorName(project)]] ]</span>
+                        </div>
+                        <iron-icon hidden$="[[project.user]]" icon="designmap-workspace:big_more" on-click="openContext"></iron-icon>
                     </li>
                 </template>
             </ul>
         </plastic-custom-scroll>
 
-        <plastic-custom-scroll class="scroller" hidden$="[[hideUnselected(selectedTab,1)]]" fit>
+        <plastic-custom-scroll class="scroller" hidden$="[[hideUnselected(selectedTab,1)]]" fit max-height="205" small-bar>
             <ul class="list available-projects">
-                <template is="dom-repeat" items="[[sharedProjects]]" as="share">
-                    <li on-click="selectShare" class$="[[computeSelected(selectedProjectID,share)]]">
-                        <div class="project-name" on-click="selectShare">[[share.name]]</div>
+                <template is="dom-repeat" items="[[closedProjects]]" as="project">
+                    <li class$="[[computeSelected(projectId,project)]]">
+                        <div class="project-name" title="[[_computeAuthorName(project)]]">
+                            <span>[[project.name]]</span>
+                            <span class="author">[ [[_computeAuthorName(project)]] ]</span>
+                        </div>
+                        <iron-icon hidden$="[[project.user]]" icon="designmap-workspace:big_more" on-click="openClosedContext"></iron-icon>
+                        <!--<iron-icon class="closed-icon" icon="designmap-workspace:restore" on-click="removeClosed"></iron-icon>
+                        <iron-icon class="closed-icon" icon="designmap-workspace:remove" on-click="removeClosed"></iron-icon>-->
                     </li>
                 </template>
             </ul>
         </plastic-custom-scroll>
-        <!-- Context menu -->
+        <!-- Remove confirm -->
         <designmap-confirm id="removeProjectConfirm" message="AreYouSureThatYouWannaRemoveProject"
                            on-continue="removeIt" on-suspend="suspendRemoving"></designmap-confirm>
+        <!-- Close confirm -->
+        <designmap-confirm id="closeProjectConfirm" message="AreYouSureThatYouWannaCloseProject"
+                           on-continue="closeIt" on-suspend="suspendRemoving"></designmap-confirm>
         <!-- Context -->
         <designmap-context-menu id="projectContextMenu" previous>
             <ul class="menu">
@@ -196,18 +218,25 @@
                         </div>
                     </div>
                 </designmap-context-menu>
-                <li on-click="openRemoveProjectConfirm">
-                    <i18-n msgid="Remove">Remove</i18-n>
+                <li on-click="openCloseProjectConfirm">
+                    <i18-n msgid="Close">Close</i18-n>
                 </li>
             </ul>
         </designmap-context-menu>
         <!-- Context -->
+        <designmap-context-menu id="closedContext" previous>
+            <ul class="menu">
+                <li on-click="restoreIt"><i18-n msgid="Restore">Restore</i18-n></li>
+                <li  on-click="openRemoveProjectConfirm"><i18-n msgid="Remove">Remove</i18-n></li>
+            </ul>
+        </designmap-context-menu>
     </template>
     <script>
         Polymer({
             is: 'designmap-projects-list',
             behaviors: [
                 Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior,
                 Polymer.DesignMapFsService,
                 ReduxBehavior,
                 Polymer.CombineActions(Polymer.ProjectActions, Polymer.UserActions, Polymer.UserActions)
@@ -246,6 +275,13 @@
                     statePath: 'project'
                 },
                 /**
+                 * Project
+                 */
+                projectId: {
+                    type: String,
+                    statePath: 'projectId'
+                },
+                /**
                  * Projects list for current user
                  */
                 projects: {
@@ -260,6 +296,21 @@
                     statePath: 'sharedProjects'
                 },
                 /**
+                 * My + Shared
+                 */
+                overallProjects: {
+                    type: Array,
+                    computed: '_computeOverallProjects(projects,sharedProjects)'
+                },
+                /**
+                 * Closed
+                 */
+                closedProjects: {
+                    type: Array,
+                    notify: true,
+                    computed: '_computeClosedProjects(projects,sharedProjects)'
+                },
+                /**
                  * Temp name for project
                  */
                 renameProjectName: {
@@ -269,8 +320,16 @@
                 menuMode: {
                     type: Boolean,
                     value: false
+                },
+                sortWay: {
+                    type: String,
+                    value: 'abs'
                 }
+
             },
+            observers: [
+                '_projectChanged(project)'
+            ],
             /**
              * Select certain project
              * @param e
@@ -308,8 +367,8 @@
              * @param e
              */
             selectTab: function (e) {
-                if(e.currentTarget.dataset.id && !this.sharedProjects.length)  return;
-                if(!e.currentTarget.dataset.id && !this.projects.length)  return;
+                if(e.currentTarget.dataset.id && !this.closedProjects.length)  return;
+                if(!e.currentTarget.dataset.id && !this.overallProjects.length)  return;
                 this.selectedTab = e.currentTarget.dataset.id;
             },
             /**
@@ -327,8 +386,18 @@
              */
             openContext: function (e) {
                 this.projectID = e.model.project._id;
+                this.currentProject = e.model.project;
                 this.renameProjectName = e.model.project.name;
                 this.$.projectContextMenu.toggle(e);
+            },
+            /**
+             * Open context for
+             * current selected project
+             */
+            openClosedContext: function (e) {
+                this.projectID = e.model.project._id;
+                this.currentProject = e.model.project;
+                this.$.closedContext.toggle(e);
             },
             /**
              * Open rename project context
@@ -340,12 +409,18 @@
                 }, 150);
             },
             /**
-             * Open rename project context
+             * Open close project confirm
              */
-            openRemoveProjectConfirm: function (e) {
+            openCloseProjectConfirm: function (e) {
                 this.$.projectContextMenu.close();
+                this.$.closeProjectConfirm.open();
+            },
+
+            openRemoveProjectConfirm: function (e) {
+                this.$.closedContext.close();
                 this.$.removeProjectConfirm.open();
             },
+
             /**
              * Rename current project
              */
@@ -366,9 +441,34 @@
                 this.$.removeProjectConfirm.close();
                 this.$.projectContextMenu.close();
                 this.dispatch('removeProject',this.projectID).then(function () {
-                    this.fire('close-project-list');
-                    if(this.projects && this.projects[0]) return page.redirect('/'+this.projects[0]._id);
-                    page.redirect('/');
+                    if(this.projectID==this.projectId) {
+                        if(this.projects && this.projects[0]) return page.redirect('/'+this.projects[0]._id);
+                        page.redirect('/');
+                    }
+                    if(!this.closedProjects.length) this.selectedTab = 0;
+                }.bind(this));
+            },
+            /**
+             * Remove current project
+             */
+            closeIt: function () {
+                this.$.removeProjectConfirm.close();
+                this.$.closeProjectConfirm.close();
+                this.$.projectContextMenu.close();
+                this.dispatch('updateProject', this.projectID, {closed: true}).then(function(){
+                    if(this.projectID==this.projectId) {
+                        if(this.overallProjects && this.overallProjects[0]) return page.redirect('/'+this.overallProjects[0]._id);
+                        page.redirect('/');
+                    }
+                }.bind(this));
+            },
+            /**
+             * Remove current project
+             */
+            restoreIt: function () {
+                this.$.closedContext.close();
+                this.dispatch('updateProject', this.projectID, {closed: false}).then(function(){
+                    if(!this.closedProjects.length) this.selectedTab = 0;
                 }.bind(this));
             },
             /**
@@ -376,6 +476,36 @@
              */
             suspendRemoving: function () {
                 this.$.removeProjectConfirm.close();
+                this.$.closeProjectConfirm.close();
+            },
+
+            _computeOverallProjects: function(p,sp){
+                return p.concat(sp).filter(function(project){
+                    return !project.closed;
+                });
+            },
+
+            _computeClosedProjects: function(p,sp){
+                return p.concat(sp).filter(function(project){
+                    return project.closed;
+                });
+            },
+
+            _computeAuthorName: function(project){
+                if(!project.user) return this.translate('mine');
+                return this.computeOwnerName({profile:project.user});
+            },
+
+            _projectChanged: function(project) {
+                //if(!project) return;
+                //this.selectedTab = project.closed ? 1 : 0;
+            },
+
+            _sortProjects: function(sortWay){
+                const projectId = this.projectId;
+                return function(a,b) {
+                    return a._id == projectId ? 0 : 1;
+                }
             }
         });
     </script>

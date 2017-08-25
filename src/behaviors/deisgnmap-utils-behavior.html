@@ -172,8 +172,8 @@
          */
         computeAvatarPath: function(path){
             if(!path) return '';
-            if(this.IMAGE_REGEXP.test(path)) return path+'?v='+this.generateUid();
-            return Designmap.config.apiURL+path+'?v='+this.generateUid();
+            if(this.IMAGE_REGEXP.test(path)) return path/*+'?v='+this.generateUid()*/;
+            return Designmap.config.apiURL+path/*+'?v='+this.generateUid()*/;
         },
         /**
          * Upload file
@@ -290,6 +290,11 @@
                 ret_arr.push(key);
             }
             return ret_arr;
+        },
+        prepareFollowers: function(arr,user){
+            const pure = this.removeDuplicatesInArray(arr);
+            pure.splice(pure.indexOf(user._id),1);
+            return pure;
         },
         goToLink: function(e){
             e.preventDefault();

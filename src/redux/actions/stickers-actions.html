@@ -38,7 +38,7 @@
             addSticker: function (data) {
                 return function (dispatch) {
                     dispatch({type: 'ADD_STICKER', data: data});
-                    var promise = xhr.post(Designmap.config.apiURL + 'sticker/', {data: data});
+                    var promise = xhr.post(Designmap.config.apiURL + 'sticker/', {data: data,project:this.projectId});
                     var owner = data.owner;
                     promise.then(function (response) {
                         if (!response.success) throw new Error(response.errors.message);
@@ -70,7 +70,7 @@
                     dispatch({type:'UPDATE_STICKER',data:data,index:this.findStickerIndexById(id)});
                     var promise = xhr.put(Designmap.config.apiURL + 'sticker/' + id, {
                         data: data,
-                        project: historyData.project
+                        project:this.projectId
                     });
                     promise.then(function (response) {
                         if (!response.success) throw new Error(response.errors.message);
@@ -100,7 +100,7 @@
                     var index = this.findStickerIndexById(id);
                     var historyData = this.findStickerById(id);
                     dispatch({type: 'REMOVE_STICKER', index: index});
-                    var promise = xhr.delete(Designmap.config.apiURL + 'sticker/' + id, {project: historyData?historyData.project:null});
+                    var promise = xhr.delete(Designmap.config.apiURL + 'sticker/' + id, {project:this.projectId});
                     promise.then(function (response) {
                         if (!response.success) throw new Error();
                         // Real time

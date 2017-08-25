@@ -13,7 +13,7 @@
                 border-radius: 50%;
                 color: var(--gray-darkend-color);
                 background: transparent;
-                font-family: 'Open Sans'; font-weight: 300;
+                font-family: var(--font-family); font-weight: 300;
                 font-size: 20px;
                 text-transform: uppercase;
                 text-align: center;
@@ -36,7 +36,21 @@
 
             .text {
                 font-size: 14px;
+                @apply(--designmap-avatar-projector-text-mixin);
             }
+            .mark {
+                position: absolute;
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background: var(--expired);
+                top: 0;
+                left: 100%;
+            }
+            .mark.online {
+                background: var(--inprogress);
+            }
+
 
             @keyframes appearance {
                 from {
@@ -49,10 +63,10 @@
 
         </style>
         <template is="dom-if" if="[[user.profile.avatar]]">
-            <img src="[[computeAvatarPath(user.profile.avatar)]]" title="[[computeOwnerName(user)]]">
+            <img src="[[computeAvatarPath(user.profile.avatar)]]" title="[[user.local.email]]">
         </template>
         <template is="dom-if" if="[[!user.profile.avatar]]">
-            <div class="text"> [[computeName(user)]]</div>
+            <div class="text" title="[[user.local.email]]"> [[computeName(user)]]</div>
         </template>
     </template>
     <script>
@@ -67,7 +81,6 @@
             },
             computeAvatarPath: function (path) {
                 if (!path) return '';
-                // + '?v=' + this.generateUid();
                 if (/images/.test(path)) return path;
                 return Designmap.config.apiURL + path;
             },
