@@ -1,0 +1,207 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../reworked/paper-color-picker/paper-color-picker.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../plastic/plastic-select.html">
+<link rel="import" href="../designmap-ui/designmap-dropdown.html">
+<link rel="import" href="../designmap-fs/designmap-fs-service.html">
+
+<dom-module id="designmap-task-manager-labels">
+    <template>
+        <style>
+            :host {
+                display: inline-block;
+                color: var(--gray-darkend-color);
+                text-transform: lowercase;
+                vertical-align: middle;
+                /** PAPER_INPUT **/
+                --paper-input-container-color: var(--gray-darkend-color);
+                --paper-input-container-focus-color: var(--gray-darkend-color);
+                --paper-input-container-input: {
+                    color: var(--gray-darkend-color);
+                    font-family: var(--font-family);
+                    font-size: 16px;
+                    font-weight: 300 !important;
+                };
+                --paper-input-container-label: {
+                    font-size: 16px;
+                    font-weight: 300 !important;
+                };
+                --paper-input-container-label-floating: {
+                    font-weight: 300 !important;
+                };
+                --paper-input-container-invalid-color: var(--error-color);
+            }
+            .not-set {
+               text-decoration: underline;
+            }
+            .label-editor {
+                padding: 20px;
+            }
+            .add-field {
+                width: 100%;
+            }
+            .add-field paper-input {
+                display: inline-block;
+                width: calc(100% - 85px);
+            }
+            .add-field .add-icon {
+                display: inline-block;
+            }
+            .color {
+                margin-left: 10px;
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                vertical-align: middle;
+                border: 1px solid var(--gray-color);
+            }
+            .select {
+                display: inline-block;
+                min-width: 150px;
+            }
+            .gear-icon {
+                display: inline-block;
+                width: 15px;
+                height: 15px;
+                margin-left: 5px;
+            }
+            .labels .label > * {
+                display: inline-block;
+                vertical-align: middle;
+            }
+        </style>
+        <template is="dom-if" if="[[!labels.length]]" restamp>
+            <div class="not-set" on-tap="openDropdown">
+                <i18-n msgid="There is no lables...">There is no lables...</i18-n>
+            </div>
+        </template>
+        <template is="dom-if" if="[[labels.length]]" restamp>
+            <plastic-select class="select" options="[[_getLabels(labels)]]" default-label="Label not set..."></plastic-select>
+            <iron-icon class="gear-icon" icon="icons:settings" on-tap="openDropdown"></iron-icon>
+        </template>
+        <!-- Dropdown -->
+        <designmap-dropdown id="dropdown" tri-border vertical-offset="20" horizontal-offset="-60">
+            <div class="label-editor">
+                <div class="labels">
+                    <template is="dom-repeat" items="[[labels]]" as="label">
+                        <div class="label">
+                            <div class="name">[[label.label]]</div>
+                            <div class="color" style$="[[_getColorStyle(label.color)]]"></div>
+                            <iron-icon on-click="removeLabel" icon="icons:close"></iron-icon>
+                        </div>
+                    </template>
+                </div>
+                <form id="form" is="iron-form" class="add-field">
+                    <paper-input id="label" auto-validate required label="[[translate('Add new label',language,i18Loaded)]]"></paper-input>
+                    <paper-color-picker color="{{color}}" immediateColor="[[immediateColor]]" id="colorPicker"></paper-color-picker>
+                    <div class="color" on-click="openColorPicker" style$="[[_getColorStyle(color,color.*)]]"></div>
+                    <paper-icon-button on-click="addLabel" class="add-icon" icon="icons:add"></paper-icon-button>
+                </form>
+            </div>
+        </designmap-dropdown>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-task-manager-labels',
+            behaviors: [
+                ReduxBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapFsService,
+                Polymer.CombineActions(Polymer.ProjectActions)
+            ],
+            properties: {
+                project: {
+                    type: Object,
+                    statePath:'project'
+                },
+                projects: {
+                    type: Array,
+                    statePath:'projects'
+                },
+                user: {
+                    type: Object,
+                    statePath:'user'
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    value: false
+                },
+                labels: {
+                    type: Array,
+                    computed: '_computeLabels(project.settings.taskManager.labels)'
+                },
+                color: {
+                    type: Object,
+                    value: {
+                        red: 100,
+                        green: 226,
+                        blue: 233,
+                        alpha: 1
+                    }
+                },
+                immediateColor: {
+                    type: Object,
+                    value: {
+                        red: 100,
+                        green: 226,
+                        blue: 233,
+                        alpha: 1
+                    }
+                }
+            },
+            _computeLabels: function(labels){
+                return labels || [];
+            },
+            _getLabels: function(labels){
+                return labels.map(function(label){
+                    return {
+                        value: label.label,
+                        label: label.label
+                    }
+                });
+            },
+            openDropdown: function(){
+                this.$.dropdown.toggle();
+            },
+            openColorPicker: function(){
+                this.$.colorPicker.open();
+            },
+            _getColorStyle: function(color) {
+                return 'background:rgb('+color.red+','+color.green+','+color.blue+');';
+            },
+            addLabel: function(){
+                if(!this.$.form.validate()) return this.showErrorMessage('Some of form fields is not valid');
+                const label = {
+                    label: this.$.label.value,
+                    color: this.color
+                };
+                this.$.label.value = '';
+                this.$.label.invalid = false;
+                this.project.settings = this.project.settings || {taskManager:{labels:[]}};
+                this.project.settings.taskManager.labels.push(label);
+                this.dispatch('updateProject',this.project._id,this.project).then(function(response){
+                    if(!response.success) return;
+                    //
+                    this.set('project.settings.taskManager.labels',response.project.settings.taskManager.labels);
+                    this.async( this.$.dropdown.refit);
+                }.bind(this)).catch(this.manageErrorResponse)
+            },
+            removeLabel: function(e){
+                const labels = this.project.settings.taskManager.labels;
+                labels.splice(labels.indexOf(e.model.label),1);
+                this.dispatch('updateProject',this.project._id,this.project).then(function(response){
+                    if(!response.success) return;
+                    //
+                    this.set('project.settings.taskManager.labels',response.project.settings.taskManager.labels);
+                    this.async( this.$.dropdown.refit);
+                }.bind(this)).catch(this.manageErrorResponse)
+            }
+        })
+    </script>
+</dom-module>

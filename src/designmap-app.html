@@ -642,11 +642,6 @@
                 this._threeColumns();
                 this.$.chat.scrollUp();
                 this.updateStyles();
-                // Save user last chat opened
-                localStorage.setItem('designmap:lco',new Date());
-                this.async(function(){
-                    this._setUnreadMark({detail:false});
-                },300);
             },
 
             _twoColumns: function(){
@@ -748,10 +743,10 @@
             },
 
             _setUnreadMark: function(e){
-                const chatButton = this.$.dmHeader.$.userMenu.$$('#chat');
+                /*const chatButton = this.$.dmHeader.$.userMenu.$$('#chat');
                 const chatMarker = this.$.advancedMenu.$.chatMarker;
                 if(chatButton) chatButton.classList[e.detail?'add':'remove']('unread');
-                if(chatMarker) chatMarker.classList[e.detail?'add':'remove']('unread');
+                if(chatMarker) chatMarker.classList[e.detail?'add':'remove']('unread');*/
             },
 
             _computeOpened: function(chatMode,opened){

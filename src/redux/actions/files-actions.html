@@ -168,7 +168,21 @@
             */
             followFile: function(file,userId){
                 return function(dispatch){
-                    var promise = xhr.put(Designmap.config.apiURL+'file/'+file._id+'/follow', {follower:userId,project:file.project});
+                    var promise = xhr.put(Designmap.config.apiURL+'file/'+file._id+'/follow', {follower:userId,project:file.project}).then(function(response){
+                        dispatch({type:'UPDATE_FILE',data:response.file,index:this.findFileIndexById(file._id)});
+                    }.bind(this));
+                    return promise;
+                }.bind(this);
+            },
+            /**
+             * Follow file
+            */
+            unfollowFile: function(file,userId){
+                return function(dispatch){
+                    var promise = xhr.delete(Designmap.config.apiURL+'file/'+file._id+'/follow',
+                        {follower:userId,project:file.project}).then(function(response){
+                        dispatch({type:'UPDATE_FILE',data:response.file,index:this.findFileIndexById(response.file._id)});
+                    }.bind(this));
                     return promise;
                 }.bind(this);
             },

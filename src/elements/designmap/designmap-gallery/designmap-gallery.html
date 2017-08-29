@@ -21,9 +21,11 @@
 <link rel="import" href="../designmap-tutorial/designmap-hint-service.html">
 <!-- Styles -->
 <link rel="import" href="../../../styles/context-menu-shared-styles.html">
+<link rel="import" href="../../../styles/tooltip-shared-styles.html">
 
 <dom-module id="designmap-gallery">
     <template>
+        <style include="tooltip-shared-styles"></style>
         <style include="context-menu-shared-styles">
             :host {
                 width: 100%;
@@ -490,6 +492,14 @@
                 display: none;
             }
 
+            .followers-label {
+                margin-left: 20px;
+                border-bottom: 1px dashed var(--gray-darkend-color);
+                cursor: help;
+            }
+
+
+
             @media (min-width: 320px) and (max-width: 768px) {
                 .designmap-logo-mobile {
                     display: block;
@@ -681,7 +691,7 @@
             </div>
         </div>
         <div class="content">
-            <div class="previous" on-click="previous" hidden$="[[_computeButtons(files.*)]]">
+            <div class="previous" on-click="previous" hidden$="[[_computeButtons(files)]]">
                 <iron-icon icon="icons:chevron-left"></iron-icon>
             </div>
             <template is="dom-if" if="[[!loading]]">
@@ -808,7 +818,7 @@
                                 image="designmap-workspace-stub:error"
                                 message="[[error]]"></designmap-stub>
             </template>
-            <div class="next" on-click="next" hidden$="[[_computeButtons(files.*)]]">
+            <div class="next" on-click="next" hidden$="[[_computeButtons(files)]]">
                 <iron-icon icon="icons:chevron-right"></iron-icon>
             </div>
             <!-- Counter -->
@@ -817,8 +827,13 @@
         <div class="bottom-panel panel">
             <div class="left">
                 <!--<designmap-gallery-user-list></designmap-gallery-user-list>-->
+                <div class="followers-label" id="followTxt" hidden$="[[!file.followers.length]]">
+                    <i18-n msgid="Followers">Followers</i18-n>:
+                    <paper-tooltip for="followTxt" position="right"><i18-n msgid="FollowerTextHint">FollowerTextHint</i18-n></paper-tooltip>
+                </div>
+
                 <template is="dom-if" if="[[project]]">
-                    <designmap-followers followers="[[_getFollowers(file)]]"></designmap-followers>
+                    <designmap-followers on-cancel="_cancelFollowing" followers="[[_getFollowers(file.followers)]]"></designmap-followers>
                 </template>
             </div>
             <div class="center" hidden$="[[!isImageFile(file)]]">
@@ -1010,11 +1025,13 @@
             },
             observers: [
                 '_entityIdChanged(entityId,entityType)',
-                '_fileChanged(file)'
+                '_fileChanged(file)',
+                '_filesChanged(files)'
             ],
             listeners: {
                 'open-protocol-showcase': "openProtocolShowCase",
                 'close-showcase-dialog': "closeShowCaseDialog",
+                'check-file': "checkFile",
                 'iron-resize': '_onIronResize'
             },
             attached: function(){
@@ -1045,34 +1062,13 @@
                     this.fire('app-loading',false);
                     return this.file = file;
                 }
-                /*this.error = false;
-                this.fire('app-loading',true);
-                // Work with file
-                const file = this.findFileById(fileId);
-                if (file) {
-                    this.fire('app-loading',false);
-                    return this.file = file;
-                }
-                this.loading = true;
-                // Get data if there is no any file.
-                this.dispatch('getStickers', {file: fileId});
-                this.dispatch('getComments', {file: fileId});
-                this.dispatch('getFile', fileId).then(function (response) {
-                    if (!response.success) {this.fire('app-loading',false);
-                        return this.error = response.errors.message;
-                    }
-                    this.file = response.file;
-                    this.dispatch('getProject',this.file.project);
-                    this.async(function(){
-                        this.loading = false;
-                        this.fire('app-loading',false);
-                        //this.$('#stickers').$.stickersTemplate.render();
-                    }.bind(this),100);
-                }.bind(this)).catch(function(err){
-                    this.loading = false;
-                    this.fire('app-loading',false);
-                    this.manageErrorResponse(err);
-                }.bind(this));*/
+            },
+            _filesChanged: function(){
+                  this._fileIdChanged(this.fileId);
+            },
+            checkFile: function(){
+                const file = this.findFileById(this.fileId);
+                if (file) return this.file = file;
             },
             /**
              * Previous file
@@ -1624,10 +1620,15 @@
             _getPDFFilePreview: function(file) {
                 return 'https://docs.google.com/gview?url='+file.data.url+'&embedded=true';
             },
-            _getFollowers: function(file){
-                if(!file) return [];
-                const defaultFollowers = this.removeDuplicatesInArray([this.project.owner,file.owner]);
-                return file.followers&&file.followers.length?file.followers:defaultFollowers;
+            _getFollowers: function(followers){
+                if(!followers) return [];
+                const defaultFollowers = this.removeDuplicatesInArray([this.project.owner,this.file.owner]);
+                return followers.length?followers:[];
+            },
+            _cancelFollowing: function(){
+                this.dispatch('unfollowFile',this.file,this.user._id).then(function(){
+                    this.async(this.checkFile);
+                }.bind(this));
             }
         });
     </script>

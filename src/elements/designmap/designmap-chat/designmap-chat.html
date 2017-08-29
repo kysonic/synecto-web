@@ -27,6 +27,7 @@
 <link rel="import" href="../../../redux/redux-store.html">
 <link rel="import" href="../../../redux/actions/combine-actions.html">
 <link rel="import" href="../../../redux/actions/messages-action.html">
+<link rel="import" href="../../../redux/actions/user-actions.html">
 <!-- Styles -->
 <link rel="import" href="../../../styles/context-menu-shared-styles.html">
 <link rel="import" href="../../../styles/tooltip-shared-styles.html">
@@ -599,7 +600,7 @@
                 Polymer.DesignMapFsService,
                 Polymer.DesignMapTaskService,
                 ReduxBehavior,
-                Polymer.CombineActions(Polymer.MessagesActions)
+                Polymer.CombineActions(Polymer.MessagesActions,Polymer.UserActions)
             ],
             canBeDisplayedExt: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr",".ppm", ".pbm"],
             properties: {
@@ -643,6 +644,10 @@
                 user: {
                     type: Object,
                     statePath: 'user'
+                },
+                isAuth: {
+                    type: Object,
+                    computed: '_isAuth(user)'
                 },
                 language: {
                     type: String,
@@ -708,7 +713,8 @@
             },
             observers: [
                 '_messagesChanged(messages.*)',
-                '_userChanged(user)'
+                '_userChanged(user)',
+                '_isAuthChanged(isAuth)'
             ],
             ready: function () {
                 //if(/Safari/.test(navigator.userAgent)) this.classList.add('safari');
@@ -742,10 +748,6 @@
                     if (o.uid == Designmap.uid) return;
                     if(o.type==="ADD_MESSAGE") {
                         this.playSound();
-                        //if(this.opened) this.async(this.scrollUp,10);
-                        if(new Date(o.data.created)>new Date(localStorage.getItem('designmap:lco')) && !this.opened) {
-                            this.fire('set-unread-mark',true);
-                        }
                     }
                 }.bind(this));
                 this.scrollUp();
@@ -839,11 +841,12 @@
             },
 
             _sendNotification: function (message,invokedUsers) {
-                let emails = invokedUsers;
+                let emails = invokedUsers.map(function(user){return user._id});
                 const title = this.translate('Chat message');
                 // Followers
-                const followers = [];
-                const recipients = this.removeDuplicatesInArray(followers.concat(emails));
+                const followers = !this.sent ? this._getFollowers() : [];
+                if(followers.length) this.sent = true;
+                const recipients = this.prepareFollowers(followers.concat(emails),this.user);
                 if(!recipients.length) return;
                 // Send message
                 document.querySelector('designmap-app').$.notifier.create({
@@ -857,6 +860,17 @@
                             xlink: Designmap.config.appURL + this.projectId + '/chat'+'#'+message._id
                         }
                     }
+                });
+            },
+
+            _getFollowers: function(){
+                return this.project.users.filter(function(user){
+                    const defaultDate = new Date();
+                    const date = new Date(user.system.lastChatReview || defaultDate.setMinutes(defaultDate.getMinutes() - 130));
+                    date.setMinutes(date.getMinutes() + 120);
+                    return date < new Date();
+                }).map(function(user){
+                    return user._id;
                 });
             },
 
@@ -904,6 +918,10 @@
                 this.async(this.scrollUp);
             },
             scroll: function (e) {
+                /*if(e.detail.scrollTop+this.$.scroll.$.content.clientHeight==this.$.scroll.$.content.scrollHeight && this.user) {
+                    this.user.system.lastChatReview = new Date();
+                    this.dispatch('_userUpdate', this.user);
+                }*/
                 if (e.detail.scrollTop !== 0 || this.inProgress) return;
                 this.skip += this.mpr;
                 if (this.skip > this.messagesCount) return;
@@ -949,8 +967,15 @@
                 if(splices.path=='messages.length') this.async(this.scrollUp,10);
             },
 
-            _pageChanged: function(){
+            _pageChanged: function(page){
+                if(page=='chat' && this.user) this._setUserLastReview();
                 this.scrollUp();
+            },
+
+            _setUserLastReview: function () {
+                const user = Object.assign({},this.user);
+                user.system.lastChatReview = new Date();
+                this.dispatch('userUpdate',user);
             },
 
             _userChanged: function(user){
@@ -1057,6 +1082,14 @@
 
             _isThereAttach: function(attach) {
                 return !!attach;
+            },
+
+            _isAuth: function(user) {
+                return !!user;
+            },
+
+            _isAuthChanged: function(isAuth){
+                if(isAuth) this._setUserLastReview();
             }
         });
     </script>

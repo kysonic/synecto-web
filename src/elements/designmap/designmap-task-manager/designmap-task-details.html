@@ -4,9 +4,11 @@
 <link rel="import" href="../../plastic/plastic-textarea.html">
 <link rel="import" href="../../plastic/plastic-html.html">
 <link rel="import" href="./designmap-assignee.html">
+<link rel="import" href="./designmap-task-manager-labels.html">
 <link rel="import" href="../designmap-ui/designmap-date-picker.html">
 <link rel="import" href="../designmap-fs/designmap-file-uploader.html">
 <link rel="import" href="../designmap-ui/designmap-invk-textarea.html">
+<link rel="import" href="../designmap-ui/designmap-followers.html">
 <link rel="import" href="../designmap-accesses/designmap-users-select.html">
 <link rel="import" href="../designmap-fs/designmap-fs-explorer.html">
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
@@ -28,7 +30,6 @@
     <template>
         <style include="tooltip-shared-styles">
             :host {
-                margin-top: 33px;
                 flex: 1;
                 box-sizing: border-box;
                 position: relative;
@@ -63,6 +64,7 @@
             .details {
                 width: 100%;
                 height: 100%;
+                margin-top: 33px;
             }
 
             .details .header {
@@ -570,6 +572,11 @@
                 display: none;
             }
 
+            designmap-task-manager-labels {
+                margin-left: 15px;
+                cursor: pointer;
+            }
+
             /** Comments **/
 
             .comments, .save-mobile {
@@ -864,6 +871,7 @@
                 border: 1px solid var(--gray-color);
                 box-shadow: var(--box-shadow);
                 right: 0;
+                left: 0px;
                 top: 50px;
                 color: var(--gray-darkend-color);
             }
@@ -905,8 +913,8 @@
             .triangle, .triangle-border {
                 z-index: 10;
                 position: absolute;
-                left: 100%;
-                margin-left: -30px;
+                left: 0;
+                margin-left: 12px;
                 top: -10px;
                 width: 0;
                 height: 0;
@@ -918,7 +926,8 @@
 
             .triangle-border {
                 display: block;
-                margin-left: -32px;
+                left: 0;
+                margin-left: 10px;
                 top: -12px;
                 z-index: 9;
                 border-style: solid;
@@ -931,6 +940,24 @@
             }
             .comment-text.my-comment:hover {
                 cursor: pointer;
+            }
+            /** followers **/
+            .followers {
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                min-height: 40px;
+                border-top: 1px dashed var(--gray-color);
+            }
+            .followers .txt {
+                font-size: 14px;
+                vertical-align: middle;
+                border-bottom: 1px dashed var(--gray-darkend-color);
+                cursor: help;
+            }
+            .followers designmap-followers {
+                vertical-align: middle;
+                margin-right: 20px;
             }
 
             @media (min-width: 320px) and (max-width: 768px) {
@@ -1160,11 +1187,17 @@
                             <iron-icon id="clearTimeButton" icon="icons:clear"></iron-icon>
                         </div>
                     </div>
+                    <!-- Labels -->
+                    <designmap-task-manager-labels task="[[task]]" id="labels"></designmap-task-manager-labels>
+                    <!-- Tooltips -->
                     <paper-tooltip for="timeValue">
                         <i18-n msgid="Tack time">Track time spent on this task</i18-n>
                     </paper-tooltip>
                     <paper-tooltip for="trackButton">
                         <i18-n msgid="Start/stop time tracking">Start/stop time tracking</i18-n>
+                    </paper-tooltip>
+                    <paper-tooltip for="labels">
+                        <i18-n msgid="Add custom labels">Add custom labels</i18-n>
                     </paper-tooltip>
                 </div>
                 <!-- Hint -->
@@ -1300,6 +1333,11 @@
                 </designmap-dropdown>
             </div>
         </plastic-custom-scroll>
+        <div class="followers" hidden$="[[!task.followers.length]]">
+            <span class="txt" id="followTxt" ><i18-n msgid="Followers">Followers</i18-n>:</span>
+            <paper-tooltip for="followTxt"><i18-n msgid="FollowerTextHint">FollowerTextHint</i18-n></paper-tooltip>
+            <designmap-followers on-cancel="_cancelFollowing" followers="[[_getFollowers(task)]]"></designmap-followers>
+        </div>
         <!-- Invoked -->
         <div class="invoked" hidden$="[[!invokedUsers.length]]">
                                 <span id="invoked-count" class="invoked-count">
@@ -1677,17 +1715,17 @@
                 this.dispatch('updateTask', this.task._id, {assignee: e.detail._id});
                 // Notify but do not do this if for itself
                 if (e.detail._id == this.user._id) return;
-                this.sendNotification(e.detail.task, e.detail._id);
+                this.sendAssigneeNotification(e.detail.task, e.detail._id);
             },
             /**
              * Send notification
              */
-            sendNotification: function (task, assigneeID) {
+            sendAssigneeNotification: function (task, assigneeID) {
                 var pth = this.getFullPath(task);
                 this.notifier = this.notifier || document.querySelector('designmap-app').$.notifier;
                 this.notifier.create({
                     sender: this.user._id,
-                    recipient: assigneeID,
+                    recipient: [assigneeID],
                     type: 'new-assignee',
                     text: {
                         message: 'You was assigned to task', replacement: {"#TASK#": task.name},
@@ -1888,13 +1926,14 @@
             },
 
             _sendNotification: function (task, comment) {
-                let emails = this.invokedUsers;
+                let emails = this.invokedUsers.slice(0).map(function(user){return user._id});
                 //if(!(!emails.length || this.user._id != file.owner)) return;
                 this.set('invokedUsers', []);
                 // Followers
-                const followers = [task.owner];
+                const followers = task.followers&&task.followers.length ? task.followers : [];
+                if(followers.indexOf(this.user._id)===-1) this.dispatch('followTask',task,this.user._id);
                 // Send notification
-                const recipients = this.removeDuplicatesInArray(followers.concat(emails));
+                const recipients = this.prepareFollowers(followers.concat(emails),this.user);
                 if(!recipients.length) return;
 
                 document.querySelector('designmap-app').$.notifier.create({
@@ -2245,6 +2284,14 @@
                     return user._id !== this.user._id;
                 }.bind(this));
                 this.set('projectUsers',users);
+            },
+            _getFollowers: function(task){
+                if(!task) return [];
+                const defaultFollowers = this.removeDuplicatesInArray([]);
+                return task.followers&&task.followers.length?task.followers:defaultFollowers;
+            },
+            _cancelFollowing: function(){
+                this.dispatch('unfollowTask',this.task,this.user._id);
             }
         })
     </script>

@@ -1,169 +1,219 @@
 <script>
-  Polymer.TasksActions = {
-    actions: {
-      idMapper: {},
-      /**
-       * Get all tasks for certain project from the server
-       * @returns {function(this:Polymer.TasksActions)}
-       */
-      getTasks: function(query){
-        return function(dispatch) {
-          var state = ReduxStore.getState();
-          query.scope = state.project._id;
-          var promise = xhr.get(Designmap.config.apiURL+'task/'+this.objectToQueryString(query));
-          promise.then(function(response){
-            if(!response.success) return;
-            dispatch({type:'SET_TASKS',tasks:response.tasks});
-          });
-          return promise;
-        }.bind(this)
-      },
-      /**
-       * Update tasks bunch
-       * @param tasks
-       * @returns {{type: string, tasks: *}}
-       */
-      setTasks: function(tasks){
-        return {
-          type: 'SET_TASKS',
-          tasks: tasks
+    Polymer.TasksActions = {
+        actions: {
+            idMapper: {},
+            /**
+             * Get all tasks for certain project from the server
+             * @returns {function(this:Polymer.TasksActions)}
+             */
+            getTasks: function (query) {
+                return function (dispatch) {
+                    var state = ReduxStore.getState();
+                    query.scope = state.project._id;
+                    var promise = xhr.get(Designmap.config.apiURL + 'task/' + this.objectToQueryString(query));
+                    promise.then(function (response) {
+                        if (!response.success) return;
+                        dispatch({type: 'SET_TASKS', tasks: response.tasks});
+                    });
+                    return promise;
+                }.bind(this)
+            },
+            /**
+             * Update tasks bunch
+             * @param tasks
+             * @returns {{type: string, tasks: *}}
+             */
+            setTasks: function (tasks) {
+                return {
+                    type: 'SET_TASKS',
+                    tasks: tasks
+                }
+            },
+            /**
+             * Clean tasks bunch
+             */
+            cleanTasks: function () {
+                return {
+                    type: 'CLEAN_TASKS'
+                }
+            },
+            /**
+             * Add task with undo\redo
+             * @param task
+             * @returns {*}
+             */
+            $addTask: function (task) {
+                Designmap.undoManager.add({
+                    undo: function () {
+                        this.dispatch('removeTask', this.actions.idMapper[task._id] || task._id);
+                    }.bind(this),
+                    redo: function () {
+                        this.dispatch('addTask', task);
+                    }.bind(this)
+                });
+                return this.actions.addTask.call(this, task);
+            },
+            /**
+             * Add task
+             * @param task - task data
+             * @returns {function(this:Polymer.TasksActions)}
+             */
+            addTask: function (task) {
+                return function (dispatch) {
+                    var state = ReduxStore.getState();
+                    dispatch({type: 'ADD_TASK', data: task});
+                    var promise = xhr.post(Designmap.config.apiURL + 'task/', {
+                        path: task.path,
+                        data: task,
+                        projectID: state.project._id
+                    });
+                    promise.then(function (response) {
+                        if (!response.success) throw new Error(response.errors.message);
+                        this.actions.idMapper[task._id] = response.task._id;
+                        Designmap.projectSocket.emit('action', {
+                            type: 'ADD_TASK',
+                            data: response.task,
+                            uid: Designmap.uid
+                        });
+                        dispatch({type: 'UPDATE_TASK', data: response.task, index: this.findTaskIndexById(task._id)});
+                    }.bind(this)).catch(function (err) {
+                        var index = this.findTaskIndexById(task._id);
+                        dispatch({type: 'REMOVE_TASK', index: index});
+                    }.bind(this));
+                    return promise;
+                }.bind(this);
+            },
+            /**
+             * Update task with undo/redo
+             * @param path - task full path
+             * @param data - task data
+             * @returns {*}
+             */
+            $updateTask: function (path, data) {
+                var historyData = this.findTaskById(path);
+                Designmap.undoManager.add({
+                    undo: function () {
+                        this.dispatch('updateTask', path, historyData);
+                    }.bind(this),
+                    redo: function () {
+                        this.dispatch('updateTask', path, data);
+                    }.bind(this)
+                });
+                return this.actions.updateTask.call(this, path, data);
+            },
+            /**
+             * Update task
+             * @param id - task id
+             * @param data - task data
+             * @returns {function(this:Polymer.TasksActions)}
+             */
+            updateTask: function (id, data) {
+                var historyData = this.findTaskById(id);
+                return function (dispatch) {
+                    var state = ReduxStore.getState();
+                    var index = this.findTaskIndexById(id);
+                    dispatch({type: 'UPDATE_TASK', data: data, index: index});
+                    var promise = xhr.put(Designmap.config.apiURL + 'task/', {
+                        path: id,
+                        data: data,
+                        projectID: state.project._id
+                    });
+                    promise.then(function (response) {
+                        if (!response.success) throw new Error(response.errors.message);
+                        var taskIndex = this.findTaskIndexById(id);
+                        dispatch({type: 'UPDATE_TASK', data: response.task, index: taskIndex});
+                        Designmap.projectSocket.emit('action', {
+                            type: 'UPDATE_TASK',
+                            data: response.task,
+                            index: taskIndex,
+                            uid: Designmap.uid
+                        });
+                        if (data.assignee) data.assignee = response.task.assignee;
+                    }.bind(this)).catch(function (err) {
+                        var index = this.findTaskIndexById(id);
+                        dispatch({type: 'UPDATE_TASK', data: historyData, index: index});
+                    }.bind(this));
+                    return promise;
+                }.bind(this);
+            },
+            /**
+             * Just store
+             */
+            _updateTask: function (id, data) {
+                var index = this.findTaskIndexById(id);
+                return {type: 'UPDATE_TASK', data: data, index: index};
+            },
+            /**
+             * Add task with undo\redo
+             * @param task
+             * @returns {*}
+             */
+            $removeTask: function (id) {
+                var historyData = this.findTaskById(id);
+                Designmap.undoManager.add({
+                    undo: function () {
+                        this.dispatch('addTask', historyData);
+                    }.bind(this),
+                    redo: function () {
+                        this.dispatch('removeTask', id);
+                    }.bind(this)
+                });
+                return this.actions.removeTask.call(this, id);
+            },
+            /**
+             * Remove task
+             * @param path - full path
+             * @returns {function(this:Polymer.TasksActions)}
+             */
+            removeTask: function (id) {
+                return function (dispatch) {
+                    var state = ReduxStore.getState();
+                    var index = this.findTaskIndexById(id);
+                    var historyData = this.findTaskById(id);
+                    dispatch({type: 'REMOVE_TASK', index: index});
+                    var promise = xhr.delete(Designmap.config.apiURL + 'task/', {
+                        path: id,
+                        projectID: state.project._id
+                    });
+                    promise.then(function (response) {
+                        if (!response.success) throw new Error();
+                        Designmap.projectSocket.emit('action', {type: 'REMOVE_TASK', index: index, uid: Designmap.uid});
+                    }.bind(this)).catch(function () {
+                        dispatch({type: 'ADD_TASK', data: historyData});
+                    }.bind(this));
+                    return promise;
+                }.bind(this);
+            },
+            /**
+             * Follow task
+             */
+            followTask: function (task, userId) {
+                return function (dispatch) {
+                    var promise = xhr.put(Designmap.config.apiURL + 'task/' + task._id + '/follow', {
+                        follower: userId,
+                        project: task.scope
+                    }).then(function(response){
+                        var taskIndex = this.findTaskIndexById(task._id);
+                        dispatch({type: 'UPDATE_TASK', data: response.task, index: taskIndex});
+                    }.bind(this));
+                    return promise;
+                }.bind(this);
+            },
+            /**
+             * Follow task
+             */
+            unfollowTask: function (task, userId) {
+                return function (dispatch) {
+                    var promise = xhr.delete(Designmap.config.apiURL + 'task/' + task._id + '/follow', {
+                        follower: userId,
+                        project: task.scope
+                    }).then(function(response){
+                        var taskIndex = this.findTaskIndexById(task._id);
+                        dispatch({type: 'UPDATE_TASK', data: response.task, index: taskIndex});
+                    }.bind(this));
+                    return promise;
+                }.bind(this);
+            }
         }
-      },
-      /**
-       * Clean tasks bunch
-       */
-      cleanTasks: function(){
-        return {
-          type: 'CLEAN_TASKS'
-        }
-      },
-      /**
-       * Add task with undo\redo
-       * @param task
-       * @returns {*}
-       */
-      $addTask: function(task){
-        Designmap.undoManager.add({
-          undo: function() {
-            this.dispatch('removeTask',this.actions.idMapper[task._id]||task._id);
-          }.bind(this),
-          redo: function() {
-            this.dispatch('addTask',task);
-          }.bind(this)
-        });
-        return this.actions.addTask.call(this,task);
-      },
-      /**
-       * Add task
-       * @param task - task data
-       * @returns {function(this:Polymer.TasksActions)}
-       */
-      addTask: function(task){
-        return function(dispatch){
-          var state = ReduxStore.getState();
-          dispatch({type:'ADD_TASK',data:task});
-          var promise = xhr.post(Designmap.config.apiURL+'task/', {path:task.path,data:task,projectID:state.project._id});
-          promise.then(function(response){
-            if(!response.success) throw new Error(response.errors.message);
-            this.actions.idMapper[task._id] = response.task._id;
-            Designmap.projectSocket.emit('action',{type:'ADD_TASK',data:response.task,uid:Designmap.uid});
-            dispatch({type:'UPDATE_TASK',data:response.task,index:this.findTaskIndexById(task._id)});
-          }.bind(this)).catch(function(err){
-            var index = this.findTaskIndexById(task._id);
-            dispatch({type:'REMOVE_TASK',index:index});
-          }.bind(this));
-          return promise;
-        }.bind(this);
-      },
-      /**
-       * Update task with undo/redo
-       * @param path - task full path
-       * @param data - task data
-       * @returns {*}
-       */
-      $updateTask: function(path,data){
-        var historyData = this.findTaskById(path);
-        Designmap.undoManager.add({
-          undo: function() {
-            this.dispatch('updateTask',path,historyData);
-          }.bind(this),
-          redo: function() {
-            this.dispatch('updateTask',path,data);
-          }.bind(this)
-        });
-        return this.actions.updateTask.call(this,path,data);
-      },
-      /**
-       * Update task
-       * @param id - task id
-       * @param data - task data
-       * @returns {function(this:Polymer.TasksActions)}
-       */
-      updateTask: function(id,data){
-        var historyData = this.findTaskById(id);
-        return function(dispatch){
-          var state = ReduxStore.getState();
-          var index = this.findTaskIndexById(id);
-          dispatch({type:'UPDATE_TASK',data:data,index:index});
-          var promise = xhr.put(Designmap.config.apiURL+'task/', {path:id,data:data,projectID:state.project._id});
-          promise.then(function(response){
-            if(!response.success) throw new Error(response.errors.message);
-            var taskIndex = this.findTaskIndexById(id);
-            dispatch({type:'UPDATE_TASK',data:response.task,index:taskIndex});
-            Designmap.projectSocket.emit('action',{type:'UPDATE_TASK',data:response.task,index: taskIndex,uid:Designmap.uid});
-            if(data.assignee) data.assignee = response.task.assignee;
-          }.bind(this)).catch(function(err){
-            var index = this.findTaskIndexById(id);
-            dispatch({type:'UPDATE_TASK',data:historyData,index:index});
-          }.bind(this));
-          return promise;
-        }.bind(this);
-      },
-      /**
-       * Just store
-       */
-      _updateTask: function(id,data){
-        var index = this.findTaskIndexById(id);
-        return {type:'UPDATE_TASK',data:data,index:index};
-      },
-      /**
-       * Add task with undo\redo
-       * @param task
-       * @returns {*}
-       */
-      $removeTask: function(id){
-        var historyData = this.findTaskById(id);
-        Designmap.undoManager.add({
-          undo: function() {
-            this.dispatch('addTask',historyData);
-          }.bind(this),
-          redo: function() {
-            this.dispatch('removeTask',id);
-          }.bind(this)
-        });
-        return this.actions.removeTask.call(this,id);
-      },
-      /**
-       * Remove task
-       * @param path - full path
-       * @returns {function(this:Polymer.TasksActions)}
-       */
-      removeTask: function(id){
-        return function(dispatch){
-          var state = ReduxStore.getState();
-          var index = this.findTaskIndexById(id);
-          var historyData = this.findTaskById(id);
-          dispatch({type:'REMOVE_TASK',index:index});
-          var promise = xhr.delete(Designmap.config.apiURL+'task/', {path:id,projectID:state.project._id});
-          promise.then(function(response){
-            if(!response.success) throw new Error();
-            Designmap.projectSocket.emit('action',{type:'REMOVE_TASK',index: index, uid:Designmap.uid});
-          }.bind(this)).catch(function(){
-            dispatch({type:'ADD_TASK',data:historyData});
-          }.bind(this));
-          return promise;
-        }.bind(this);
-      }
     }
-  }
 </script>

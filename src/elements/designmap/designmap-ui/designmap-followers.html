@@ -4,15 +4,55 @@
 <dom-module id="designmap-followers">
     <template>
         <style>
+            :host {
+                display: inline-block;
+            }
             .follower {
                 display: inline-block;
-                margin-left: 10px;
+                position: relative;
+                margin-left:5px;
                 margin-top: 5px;
+            }
+            .follower .cancel {
+                display: none;
+                opacity: 0;
+                position: absolute;
+                top: -10px;
+                left: 100%;
+                width: 15px;
+                height: 15px;
+                background: rgba(0, 0, 0, 0.9);
+                border-radius: 50%;
+                cursor: pointer;
+                transform: translate(-3px, 3px);
+                z-index: 999;
+            }
+
+            .follower .cancel.can {
+                display: block;
+            }
+
+            .follower:hover .cancel {
+                opacity: 1;
+                transform: translate(0, 0);
+                transition: transform .2s ease-in, opacity .1s;
+            }
+
+            .follower .cancel iron-icon {
+                width: 15px;
+                height: 15px;
+                position: relative;
+                bottom: 6px;
+                --iron-icon-stroke-color: var(--white-color);
+                --iron-icon-fill-color: var(--white-color);
             }
         </style>
         <div class="followers">
             <template is="dom-repeat" items="[[followers]]" as="follower">
-                <designmap-avatar-projector class="follower" user="[[_getFollower(follower,project)]]"></designmap-avatar-projector>
+                <div class="follower">
+                    <designmap-avatar-projector user="[[_getFollower(follower,project)]]"></designmap-avatar-projector>
+                    <div class$="cancel [[_cancelCls(follower,user)]]" on-click="cancel"><iron-icon icon="icons:close"></iron-icon></div>
+                </div>
             </template>
         </div>
     </template>
@@ -27,6 +67,10 @@
                     type: Object,
                     statePath:'project'
                 },
+                user: {
+                    type: Object,
+                    statePath:'user'
+                },
                 followers: {
                     type: Array,
                     value: []
@@ -38,6 +82,13 @@
                 return users.find(function(user){
                     return user._id==follower;
                 });
+            },
+            _cancelCls: function(followerId,user){
+                if(!user) return '';
+                return followerId==user._id?'can':'';
+            },
+            cancel: function(){
+                this.fire('cancel');
             }
         })
     </script>

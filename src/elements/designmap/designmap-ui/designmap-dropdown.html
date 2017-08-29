@@ -207,6 +207,9 @@
             toggle: function () {
                 this.$.dropdown.opened?this.$.dropdown.close(): this.$.dropdown.open();
             },
+            refit: function () {
+                this.$.dropdown.refit();
+            },
             computeOpenAnimation: function (left) {
                 return left ? this.slideLeftOpenAnimation : this.slideTopOpenAnimation;
             },

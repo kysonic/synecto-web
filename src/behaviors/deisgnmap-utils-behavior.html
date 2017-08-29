@@ -293,7 +293,8 @@
         },
         prepareFollowers: function(arr,user){
             const pure = this.removeDuplicatesInArray(arr);
-            pure.splice(pure.indexOf(user._id),1);
+            const indx = pure.indexOf(user._id);
+            if(indx!==-1) pure.splice(pure.indexOf(user._id),1);
             return pure;
         },
         goToLink: function(e){

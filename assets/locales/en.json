@@ -1876,5 +1876,17 @@
   },
   "Add team member": {
     "message": "Add team member. The member will be able to work on this project with you. There is only one limitation: he cannot remove files irretrievably."
+  },
+  "Followers": {
+    "message": "Followers"
+  },
+  "FollowerTextHint": {
+    "message": "All followers will receive messages about task activity automatically"
+  },
+  "There is no lables...": {
+    "message": "There is no lables..."
+  },
+  "Add new label": {
+    "message": "Add label"
   }
 }

@@ -12,13 +12,15 @@
          * Send notification
          */
         _sendNotification: function (file,sticker,comment) {
-            let emails = this.invokedUsers;
+            let emails = this.invokedUsers.slice(0).map(function(user){return user._id});
             //if(!(!emails.length || this.user._id != file.owner)) return;
             this.set('invokedUsers',[]);
             // Followers
             //console.log(file.owner,sticker.owner);
-            const followers = file.followers&&file.followers.length ? file.followers : [this.project.owner,this.file.owner];
-            if(followers.indexOf(this.user._id)===-1) this.dispatch('followFile',file,this.user._id);
+            const followers = file.followers&&file.followers.length ? file.followers : [];
+            if(followers.indexOf(this.user._id)===-1) this.dispatch('followFile',file,this.user._id).then(function(){
+                this.async(function(){this.fire('check-file')});
+            }.bind(this));
             // Send notification
             const recipients = this.prepareFollowers(followers.concat(emails),this.user);
             if(!recipients.length) return;

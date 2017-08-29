@@ -34,33 +34,42 @@
             .input .label {
                 @apply(--plastic-select-label-mixin);
             }
-            ::content option {
+            option {
                 padding: 5px 10px;
                 cursor: pointer;
             }
-            ::content option:hover {
+            option:hover {
                 background: var(--gray-lightern-color);
             }
-            ::content option.selected {
+            option.selected {
                 font-weight: 700;
             }
-            ::content option[disabled] {
+            option[disabled] {
                 opacity: 0.6;
             }
         </style>
         <div class="input" on-click="toggle">
-            <div class="label">[[label]]</div>
+            <div class="label">[[_translateLabel(label)]]</div>
             <iron-icon class="arrow" icon="designmap20x6:arrow_down"></iron-icon>
         </div>
-        <div class="dropdown" hidden$="[[!opened]]">
-            <content id="options" select="option"></content>
+        <div class="dropdown plastic-select-dropdown" hidden$="[[!opened]]">
+            <template is="dom-repeat" items="[[options]]" as="opt">
+                <option disabled$="[[opt.disabled]]" class$="[[_computeSelectedCls(opt,value)]]" value="[[opt.value]]" on-tap="selectOption">[[_translateLabel(opt.label)]]</option>
+            </template>
         </div>
     </template>
     <script>
         Polymer({
             is: 'plastic-select',
-            behaviors: [],
+            behaviors: [
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior
+            ],
             properties: {
+                options: {
+                    type: Array,
+                    value: []
+                },
                 defaultLabel: {
                     type: String,
                     value: 'No selected...',
@@ -85,22 +94,17 @@
             ],
             ready: function(){
                 document.body.addEventListener('click',function(e){
-                    if(e.path.indexOf(this)==-1) this.close();
+                    //if(e.path && e.path.indexOf(this)==-1) return this.close();
+                    //if(!this.parents(e.target,'plastic-select-dropdown')) return this.close();
                 }.bind(this))
-            },
-            attached: function(){
-                this.options = this.$.options.getDistributedNodes();
-                // Bind events
-                this.options.forEach(function(option){
-                    option.addEventListener('click',this.selectOption.bind(this))
-                }.bind(this));
             },
             _defaultLabelChanged: function(defaultLabel){
                 if(this.label) return;
                 this.label = defaultLabel;
             },
             selectOption: function(e){
-                this.value = e.currentTarget.value;
+                if(e.model.opt.disabled) return;
+                this.value = e.model.opt.value;
                 this.close();
             },
             open: function(){
@@ -113,17 +117,17 @@
                 this.opened = !this.opened;
             },
             _valueChanged: function(value){
-                if(!this.options) return;
-                const option = [].find.call(this.options,function(option){
-                    return option.value==value;
+                const opt = this.options.find(function(opt){
+                    return opt.value==value;
                 });
-                [].forEach.call(this.options,function(option){
-                    option.classList.remove('selected');
-                });
+                if(opt) this.label = opt.label;
                 this.fire('change',value);
-                if(!option) return;
-                option.classList.add('selected');
-                this.label = option.innerText;
+            },
+            _computeSelectedCls: function(opt,value){
+                return opt.value==value?'selected':'';
+            },
+            _translateLabel: function(label){
+                return this.translate(label)
             }
         })
     </script>

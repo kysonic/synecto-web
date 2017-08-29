@@ -136,7 +136,7 @@
             justify-content: center;
         }
 
-        .dot, .chat.marker {
+        .dot {
             width: 6px;
             height: 6px;
             margin-left: 10px;
@@ -192,16 +192,17 @@
             margin-left: -30px;
             cursor: pointer;
         }
-        .chat.marker:not(.unread) {
-            display: none !important;
-        }
-        .chat.marker.unread {
+        ul li .chat.marker {
             display: block;
-            background: var(--orange-darky-color);
-            position: absolute;
-            top: 24px;
-            left: 100%;
-            margin-left: -38px;
+            background: var(--expired);
+            position: absolute !important;
+            top: 24px !important;
+            margin-left: 24px !important;
+            left: 50%;
+            opacity: 1 !important;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
         }
         .upgrade-set {
             display: block;
@@ -283,9 +284,7 @@
     <template>
         <div class="menu-title" style="margin-top: 10px;">
             <i18-n msgid="Projects">Projects</i18-n>
-            <plastic-select class="project-status" value="{{projectStatus}}" default-label="[[translate('Not selected',language,i18Loaded)]]">
-                <option value="active">[[translate('Active',language,i18Loaded)]]</option>
-                <option value="closed" disabled$="[[!closedProjects.length]]">[[translate('Closed',language,i18Loaded)]] ([[closedProjects.length]])</option>
+            <plastic-select class="project-status" value="{{projectStatus}}" options="[[projectTypeOptions]]" default-label="[[translate('Not selected',language,i18Loaded)]]">
             </plastic-select>
         </div>
 
@@ -333,7 +332,7 @@
                     <i18-n msgid="Project chat">Project chat</i18-n>
                 </div>
                 <div class="marker dot"></div>
-                <div id="chatMarker" class="chat marker"></div>
+                <div id="chatMarker" hidden$="[[!_isThereUnread(user.system.lastChatReview,messages,messages.length)]]" class="chat marker"></div>
             </li>
 
             <!--<li id="accessesItem" on-touchend="_closeMenu" on-click="openSharingDialog" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave">
@@ -426,6 +425,10 @@
                     type: Array,
                     statePath: 'projects'
                 },
+                messages: {
+                    type: Array,
+                    statePath: 'messages'
+                },
                 projectId: {
                     type: String,
                     statePath: 'projectId'
@@ -463,6 +466,10 @@
                 closedProjects: {
                     type: Array,
                     value:[]
+                },
+                projectTypeOptions: {
+                    type: Array,
+                    computed: '_computeOptions(language,closedProjects.length)'
                 }
             },
             listeners: {
@@ -577,6 +584,30 @@
             _projectStatusChanged: function(value){
                 if(value=='closed' && !this.$.projectList.closedProjects.length) return this.projectStatus = 'active';
                 this.$.projectList.selectedTab = value=='active'?0:1;
+            },
+            _isThereUnread: function(lastChatReview,messages){
+                if(!messages.length || !lastChatReview || !this.user) return false;
+                const onlyNotMine = messages.filter(function(message){
+                    return message.owner._id!=this.user._id;
+                }.bind(this));
+                const sortedMessages = onlyNotMine.sort(function(a,b){
+                    return new Date(a.created)>new Date(b.created);
+                });
+                const lastMSG = sortedMessages[sortedMessages.length-1];
+                return new Date(lastMSG.created)>new Date(lastChatReview);
+            },
+            _computeOptions: function(language,length){
+                return [
+                    {
+                        value: 'active',
+                        label: this.translate('Active')
+                    },
+                    {
+                        value: 'closed',
+                        label: this.translate('Closed'),
+                        disabled: length==0
+                    }
+                ]
             }
         });
     </script>
