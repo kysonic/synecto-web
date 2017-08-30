@@ -363,7 +363,7 @@
                     owner: this.user._id,
                     status: 'incomplete',
                     created: moment(),
-                    expired: moment().day(10)
+                    expired: null
                 }).then(function (response) {
                     this.showMessage('Task was added successfully.');
                     this.selectTask({detail: response.task});

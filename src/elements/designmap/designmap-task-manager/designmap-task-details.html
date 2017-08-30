@@ -388,6 +388,7 @@
                 transition: opacity .2s
             }
 
+
             /** TRI **/
             .triangle {
                 position: absolute;
@@ -802,6 +803,18 @@
                 display: inline-block;
                 color: var(--gray-super-dark);
                 cursor: pointer;
+            }
+
+            .date-icon {
+                display: inline-block;
+                vertical-align: bottom;
+                --iron-icon-fill-color: var(--gray-saturated-color);
+            }
+
+            .date-text {
+                display: inline-block;
+                vertical-align: bottom;
+                margin-left: 5px;
                 text-decoration: underline;
             }
 
@@ -947,7 +960,7 @@
                 justify-content: flex-end;
                 align-items: center;
                 min-height: 40px;
-                border-top: 1px dashed var(--gray-color);
+                border-top: 1px dashed var(--gray-special-color);
             }
             .followers .txt {
                 font-size: 14px;
@@ -1142,8 +1155,12 @@
                 </div>
                 <!-- Estimate due date tracking -->
                 <div class="date-and-estimate">
-                    <div id="date" class="date" on-tap="openDatePicker">
-                        [[computeTimeLeft(task)]]
+                    <div id="date" class="date" >
+                        <iron-icon class="date-icon" on-tap="openDatePicker" icon="icons:date-range"></iron-icon>
+                        <div class="date-text" on-tap="openDatePicker">
+                            [[computeTimeLeft(task)]]
+                        </div>
+                        <iron-icon hidden$="[[_hideDiscard(task.expired,user)]]" class="date-icon" on-tap="removeTaskDate" icon="icons:close"></iron-icon>
                     </div>
                     <paper-tooltip for="date">
                         <i18-n msgid="up to">up to</i18-n>
@@ -1188,7 +1205,7 @@
                         </div>
                     </div>
                     <!-- Labels -->
-                    <designmap-task-manager-labels task="[[task]]" id="labels"></designmap-task-manager-labels>
+                    <designmap-task-manager-labels hidden$="[[_hideLabels(user,project,labels)]]" label="[[task.label]]" on-change="_labelChanged" id="labels"></designmap-task-manager-labels>
                     <!-- Tooltips -->
                     <paper-tooltip for="timeValue">
                         <i18-n msgid="Tack time">Track time spent on this task</i18-n>
@@ -1197,7 +1214,7 @@
                         <i18-n msgid="Start/stop time tracking">Start/stop time tracking</i18-n>
                     </paper-tooltip>
                     <paper-tooltip for="labels">
-                        <i18-n msgid="Add custom labels">Add custom labels</i18-n>
+                        <i18-n msgid="Custom labels">Custom labels</i18-n>
                     </paper-tooltip>
                 </div>
                 <!-- Hint -->
@@ -1383,11 +1400,11 @@
                                    max-date="April 1, 2030" force-narrow id="picker"
                                    date="{{date}}"></designmap-date-picker>
             <div class="buttons">
-                <paper-button dialog-dismiss>
-                    <i18-n msgid="Cancel">Cancel</i18-n>
+                <paper-button hidden$="[[!task.expired]]" dialog-confirm on-tap="removeTaskDate">
+                    <i18-n msgid="Discard">Discard</i18-n>
                 </paper-button>
-                <paper-button dialog-confirm>
-                    <i18-n msgid="Select" on-tap="saveDate">Select</i18-n>
+                <paper-button dialog-confirm on-tap="saveDate">
+                    <i18-n msgid="Select" >Select</i18-n>
                 </paper-button>
             </div>
         </paper-dialog>
@@ -1571,6 +1588,10 @@
                 editDesc: {
                     type: Boolean,
                     value:false
+                },
+                labels: {
+                    type: Array,
+                    computed: '_computeLabels(project.settings.taskManager.labels)'
                 }
             },
             listeners: {
@@ -1591,6 +1612,9 @@
                     this.updateStyles();
                 });
                 return MQ == 'sm' ? 'mobile' : 'desktop';
+            },
+            _computeLabels: function (labels) {
+                return labels || [];
             },
             attached: function () {
                 this.$.scroller.calculate();
@@ -1704,6 +1728,9 @@
                 if (this.$.contextMenu) this.$.contextMenu.close();
                 this.dispatch('updateTask', this.task._id, {expired: this.$.datePicker.dateFormat(this.date)});
             },
+            removeTaskDate: function(){
+                this.dispatch('updateTask', this.task._id, {expired: null});
+            },
             /**
              * Select new assignee to current task
              * @param
@@ -1787,8 +1814,36 @@
                 //if (this.isExpired(this.task.expired)) return;
                 var status = STATUSES[STATUSES.indexOf(this.task.status) + 1] || STATUSES[0];
                 this.dispatch('updateTask', this.task._id, {status: status});
+                // Notify
+                this.sendTaskStatusNotification(this.task);
                 this.doneHint('status','tm');
             },
+
+            /**
+             * Send notification for status
+             * changing
+             */
+            sendTaskStatusNotification: function (task) {
+                if (!task.assignee) return;
+                if (this.user._id != task.assignee._id) return;
+                if (this.user._id == this.project.owner) return;
+                var pth = this.getFullPath(task);
+                this.notifier = this.notifier || document.querySelector('designmap-app').$.notifier;
+                this.notifier.create({
+                    sender: task.assignee._id,
+                    recipient: this.project.owner,
+                    type: 'new-status',
+                    text: {
+                        message: 'Status of task was changed on',
+                        replacement: {"#NAME#": task.name, '#STATUS#': this.translate(task.status)},
+                        info: {
+                            xlink: this.getAppUrl() + this.project._id + '/task-manager' + pth,
+                            project: this.project.name
+                        }
+                    }
+                });
+            },
+
             /**
              * Redirect parent task
              * @param e
@@ -1816,6 +1871,7 @@
              * @returns {boolean}
              */
             isExpired: function (expired, status) {
+                if(!expired) return false;
                 var diff = moment.duration(moment(expired).diff(moment()));
                 return diff._milliseconds < 0 && status != 'completed';
             },
@@ -2039,6 +2095,7 @@
 
             computeTimeLeft: function (task) {
                 if(task && task.status=='completed') return this.translate('completed');
+                if (task && !task.expired) return this.translate('due date');
                 var diff = moment.duration(moment(task?task.expired:0).diff(moment()));
                 if (diff._milliseconds < 0) return this.translate('expired');
                 return (diff.asDays() > 1 ? (Math.round(diff.asDays()) + ' ' + this.translate('days')) : Math.round(diff.asHours()) + ' ' + this.translate('hours')) + ' ' + this.translate('left');
@@ -2069,7 +2126,7 @@
 
             openFile: function (e) {
                 e.preventDefault();
-                page.redirect('/gallery/' + e.model.file._id);
+                page.redirect('/'+this.projectId+'/gallery/' + e.model.file._id);
             },
 
             openFileUploader: function (e) {
@@ -2292,6 +2349,19 @@
             },
             _cancelFollowing: function(){
                 this.dispatch('unfollowTask',this.task,this.user._id);
+            },
+            _labelChanged: function(e){
+                this.task.label = e.detail;
+                this.dispatch('updateTask', this.task._id, this.task).then(function (response) {
+                    if (!response.success) return;
+                }.bind(this));
+            },
+            _hideLabels: function(user,project,labels){
+                if(!user || !project || !labels) return true;
+                return !labels.length && project.owner!=user._id;
+            },
+            _hideDiscard: function(expired,user){
+                return !expired || this.project.owner!=user._id;
             }
         })
     </script>

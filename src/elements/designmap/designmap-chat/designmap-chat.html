@@ -1064,7 +1064,7 @@
 
             _getFileLink: function(file) {
                 if(!file) return '/';
-                return '/gallery/'+file._id;
+                return '/'+this.projectId+'/gallery/'+file._id;
             },
 
             _getTaskLink: function(task) {

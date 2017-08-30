@@ -594,6 +594,7 @@
                     return new Date(a.created)>new Date(b.created);
                 });
                 const lastMSG = sortedMessages[sortedMessages.length-1];
+                if(!lastMSG) return false;
                 return new Date(lastMSG.created)>new Date(lastChatReview);
             },
             _computeOptions: function(language,length){

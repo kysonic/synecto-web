@@ -1888,5 +1888,17 @@
   },
   "Add new label": {
     "message": "Add label"
+  },
+  "Custom labels": {
+    "message": "Custom labels"
+  },
+  "Label not set...": {
+    "message": "Select..."
+  },
+  "due date": {
+    "message": "no due date..."
+  },
+  "Discard": {
+    "message": "Discard"
   }
 }

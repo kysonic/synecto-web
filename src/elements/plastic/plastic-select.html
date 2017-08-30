@@ -24,6 +24,7 @@
             }
             .input > * {
                 display: inline-block;
+                vertical-align: bottom;
             }
             .input .arrow {
                 position: relative;
@@ -32,11 +33,18 @@
                 @apply(--plastic-select-arrow-mixin);
             }
             .input .label {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: calc(100% - 40px);
                 @apply(--plastic-select-label-mixin);
             }
             option {
                 padding: 5px 10px;
                 cursor: pointer;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
             option:hover {
                 background: var(--gray-lightern-color);
@@ -48,13 +56,13 @@
                 opacity: 0.6;
             }
         </style>
-        <div class="input" on-click="toggle">
-            <div class="label">[[_translateLabel(label)]]</div>
+        <div class="input plastic-select-mark" on-click="toggle">
+            <div class="label" title="[[_translateLabel(label)]]">[[_translateLabel(label)]]</div>
             <iron-icon class="arrow" icon="designmap20x6:arrow_down"></iron-icon>
         </div>
-        <div class="dropdown plastic-select-dropdown" hidden$="[[!opened]]">
+        <div class="dropdown plastic-select-mark" hidden$="[[!opened]]">
             <template is="dom-repeat" items="[[options]]" as="opt">
-                <option disabled$="[[opt.disabled]]" class$="[[_computeSelectedCls(opt,value)]]" value="[[opt.value]]" on-tap="selectOption">[[_translateLabel(opt.label)]]</option>
+                <option title="[[opt.label]]" disabled$="[[opt.disabled]]" class$="[[_computeSelectedCls(opt,value)]]" value="[[opt.value]]" on-tap="selectOption">[[_translateLabel(opt.label)]]</option>
             </template>
         </div>
     </template>
@@ -94,12 +102,13 @@
             ],
             ready: function(){
                 document.body.addEventListener('click',function(e){
-                    //if(e.path && e.path.indexOf(this)==-1) return this.close();
-                    //if(!this.parents(e.target,'plastic-select-dropdown')) return this.close();
+                    if(e.path && e.path.indexOf(this)!==-1) return;
+                    if(this.parents(e.target,'plastic-select-mark')) return;
+                    this.close();
                 }.bind(this))
             },
             _defaultLabelChanged: function(defaultLabel){
-                if(this.label) return;
+                if(this.label && this.label!='No selected...') return;
                 this.label = defaultLabel;
             },
             selectOption: function(e){
@@ -120,7 +129,7 @@
                 const opt = this.options.find(function(opt){
                     return opt.value==value;
                 });
-                if(opt) this.label = opt.label;
+                this.label = opt ? opt.label : this.defaultLabel;
                 this.fire('change',value);
             },
             _computeSelectedCls: function(opt,value){

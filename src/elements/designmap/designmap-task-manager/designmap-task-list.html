@@ -95,12 +95,13 @@
                 margin-left: 15px;
                 align-items: center;
             }
+
             .desktop-filters .row:first-child {
                 display: flex;
                 margin-left: 24px;
             }
 
-            .desktop-filters .row  span {
+            .desktop-filters .row span {
                 margin-left: 10px !important;
             }
 
@@ -140,7 +141,7 @@
                 cursor: pointer;
             }
 
-            #filterSelector .row span, .desktop-filters .row span{
+            #filterSelector .row span, .desktop-filters .row span {
                 font-size: 15px;
                 margin-left: 18px;
             }
@@ -174,8 +175,6 @@
                 transition: background .3s;
             }
 
-
-
             .list li:hover {
                 /*background: #f7f7f7;*/
                 cursor: pointer;
@@ -193,7 +192,7 @@
                 @apply(--designmap-task-list-title-mixin);
             }
 
-            .list li.completed .title{
+            .list li.completed .title {
                 text-decoration: line-through;
             }
 
@@ -248,7 +247,6 @@
                 };
             }
 
-
             .list li:nth-child(2n+1) {
                 transition: background .3s;
             }
@@ -263,9 +261,10 @@
                 color: var(--white-color);
             }
 
-            .list li.selected designmap-assignee, .list li.selected .expired_row, .list li.selected .subtask {
+            .list li.selected designmap-assignee, .list li.selected .expired_row, .list li.selected .subtask, .list li.selected .label {
                 display: none;
             }
+
             .list li .done {
                 display: none;
                 min-width: 20px;
@@ -274,6 +273,7 @@
                 border-radius: 50%;
                 background: var(--white-color);
             }
+
             .list li.selected .done {
                 display: block;
             }
@@ -285,16 +285,15 @@
             .completed .done .mark {
                 display: block;
                 width: 20px;
-                height:20px;
+                height: 20px;
                 transform: rotate(45deg);
             }
 
-
             .checkmark_stem {
                 position: absolute;
-                width:3px;
-                height:9px;
-                background-color:var(--gray-darkend-color);
+                width: 3px;
+                height: 9px;
+                background-color: var(--gray-darkend-color);
                 left: 11px;
                 top: 4px;
             }
@@ -303,7 +302,7 @@
                 position: absolute;
                 width: 7px;
                 height: 3px;
-                background-color:var(--gray-darkend-color);
+                background-color: var(--gray-darkend-color);
                 left: 7px;
                 top: 11px;
             }
@@ -365,8 +364,6 @@
                 }
             }
 
-
-
             /** SUBTASKS **/
             li .subtask {
                 padding: 0 15px 0 5px;
@@ -424,12 +421,11 @@
                 color: var(--filter-expired);
             }
 
-                /** ADD TASK FIELD **/
+            /** ADD TASK FIELD **/
             .add-task {
                 width: 100%;
                 height: 35px;
             }
-
 
             .add-task-wrapper {
                 position: relative;
@@ -495,7 +491,16 @@
             .hidden-lg {
                 display: none;
             }
-
+            .label {
+                color: var(--white-color);
+                font-size: 12px;
+                white-space: nowrap;
+                min-width: 60px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding: 5px 10px;
+                text-align: center;
+            }
 
             @media (min-width: 320px) and (max-width: 768px) {
                 .hidden-xs {
@@ -509,6 +514,7 @@
                 .add-task-wrapper {
                     padding: 5px 0 0 20px;
                 }
+
                 .add-task-wrapper input {
                     font-size: 18px;
                 }
@@ -541,28 +547,37 @@
                 </template>
             </div>-->
         </div>
-        <plastic-custom-scroll no-scroll="[[noScroll]]" id="scroller" fit small-bar max-height="[[computeMaxHeight(maxHeight)]]">
-            <ul class="list">
-                <template is="dom-repeat" items="[[tasks]]" as="task" filter="[[taskFilter(selectedFilter)]]">
-                    <li class$="[[computeItemClass(task,selected)]]" data-task-id$="[[task._id]]">
+        <plastic-custom-scroll no-scroll="[[noScroll]]" id="scroller" fit small-bar
+                               max-height="[[computeMaxHeight(maxHeight)]]">
+            <ul class="list" id="list">
+                <template is="dom-repeat" items="[[tasks]]" as="task" filter="[[taskFilter(selectedFilter)]]" sort="[[_sort(sortWay)]]">
+                    <li draggable="true" on-dragstart="dragStart" on-dragenter="dragEnter" on-dragover="dragOver" on-drop="dragDrop" class$="[[computeItemClass(task,selected)]]" data-task-id$="[[task._id]]">
                         <!--<div class="line" class$="[[computeSubLineClass(task)]]"></div>-->
-                        <designmap-circle-button id$="statusButton[[index]]" class="status-button" on-tap="changeStatus">
+                        <designmap-circle-button id$="statusButton[[index]]" class="status-button"
+                                                 on-tap="changeStatus">
                             <iron-icon class="status-icon" icon="[[computeIcon(task.status,task.expired)]]"></iron-icon>
                         </designmap-circle-button>
-                        <paper-tooltip for$="statusButton[[index]]" position="right"><i18-n msgid="Change status">Change status</i18-n></paper-tooltip>
+                        <paper-tooltip for$="statusButton[[index]]" position="right">
+                            <i18-n msgid="Change status">Change status</i18-n>
+                        </paper-tooltip>
                         <div class="title" on-click="select">[[task.name]]</div>
-                        <div class="expired_row hidden-xs">[[computeTimeLeft(task,language)]]</div>
-                        <div class="expired_row hidden-lg">[[computeTimeLeftFormMobile(task,language)]]</div>
+                        <!--<div class="expired_row hidden-xs">[[computeTimeLeft(task,language)]]</div>-->
+                        <div class="label" hidden$="[[!_getLabel(task,labels)]]" style$="[[_getLabelStyle(task,labels)]]">[[_getLabelText(task,labels)]]</div>
+                        <div class="expired_row">[[computeTimeLeftFormMobile(task,language)]]</div>
                         <!--<designmap-assignee id$="assignee[[index]]" horizontal-offset="-170" vertical-offset="60" class="hidden-xs"
                                             no-details
                                             assignee="[[task.assignee]]" task="[[task]]" on-assign="selectAssignee"
                                             on-remove="removeAssignee"></designmap-assignee>-->
-                        <paper-tooltip for$="assignee[[index]]" position="left"><i18-n msgid="Assign responsible">Assign responsible</i18-n></paper-tooltip>
+                        <paper-tooltip for$="assignee[[index]]" position="left">
+                            <i18-n msgid="Assign responsible">Assign responsible</i18-n>
+                        </paper-tooltip>
                         <div id$="subtask[[index]]" class="subtask hidden-xs" on-tap="selectWithFocus">
                             <iron-icon icon="designmap-taskmanager:subtask"></iron-icon>
                             <div class="subtask-count">[[findSubtasksLength(task,tasks)]]</div>
                         </div>
-                        <paper-tooltip for$="subtask[[index]]" position="left"><i18-n msgid="Subtask count">Subtask count</i18-n></paper-tooltip>
+                        <paper-tooltip for$="subtask[[index]]" position="left">
+                            <i18-n msgid="Subtask count">Subtask count</i18-n>
+                        </paper-tooltip>
                         <!--<div id$="done[[index]]" class="done hidden-xs" on-click="completeTask">
                             <div class="mark">
                                 <div class="checkmark_stem"></div>
@@ -585,7 +600,8 @@
                 <div class="add-task-wrapper">
                     <iron-a11y-keys id="a11yEditor" keys="enter" on-keys-pressed="addTask"></iron-a11y-keys>
                     <iron-a11y-keys id="a11yEditor" keys="backspace" on-keys-pressed="removeLastTask"></iron-a11y-keys>
-                    <input is="iron-input" placeholder="[[translate(placeholder,language,i18Loaded)]]" on-focus="addTaskFocus" on-blur="addTask"
+                    <input is="iron-input" placeholder="[[translate(placeholder,language,i18Loaded)]]"
+                           on-focus="addTaskFocus" on-blur="addTask"
                            value="{{taskName::keyup}}" auto-validate pattern="[\w\dа-яА-ЯёЁ ]+"
                            error-message="{{translate('TaskNameError',language,i18nLoaded)}}" id="addTask"/>
                 </div>
@@ -593,7 +609,8 @@
         </template>
         <div hidden$="[[!filter]]" class$="[[computeLineClass(selected)]]"></div>
         <!-- Hint -->
-        <designmap-hint id="taskListHint" have-skip target="[[overviewTaskHintTarget]]" on-skip="skipTutorialStep" name="taskList" vertical-offset="120"
+        <designmap-hint id="taskListHint" have-skip target="[[overviewTaskHintTarget]]" on-skip="skipTutorialStep"
+                        name="taskList" vertical-offset="120"
                         horizontal-offset="0">
             <div class="title">
                 <i18-n msgid="Task list">Task list</i18-n>
@@ -768,6 +785,14 @@
                 canBeNull: {
                     type: Boolean,
                     value: false
+                },
+                labels: {
+                    type: Array,
+                    computed: '_computeLabels(project.settings.taskManager.labels)'
+                },
+                sortWay: {
+                    type: String,
+                    value: 'position'
                 }
             },
             listeners: {
@@ -781,11 +806,14 @@
                 this.changeTime = null;
                 this.timer = null;
                 const filter = JSON.parse(localStorage.getItem('designmap:filter'));
-                if(filter) this.selectedFilter = filter;
+                if (filter) this.selectedFilter = filter;
             },
             attached: function () {
                 this.updateStyles();
-                this.async(this.updateStyles,1000);
+                this.async(this.updateStyles, 1000);
+            },
+            _computeLabels: function (labels) {
+                return labels || [];
             },
             /**
              * Compute icon.
@@ -798,7 +826,7 @@
                 //if (diff._milliseconds < 0 && type != 'completed') return 'designmap-task-manager:expired';
                 return 'designmap-task-manager:' + type;
             },
-            computeFilterIcon: function(type){
+            computeFilterIcon: function (type) {
                 return 'designmap-task-manager:' + type;
             },
             computeMsg: function (msg) {
@@ -810,7 +838,7 @@
              */
             validate: function () {
                 var found = null;
-                if(/[\#\?\\\%\/\:]/.test(this.taskName)) return false;
+                if (/[\#\?\\\%\/\:]/.test(this.taskName)) return false;
                 this.tasks.forEach(function (task) {
                     if (task.name == this.taskName) found = task;
                 }.bind(this));
@@ -859,7 +887,7 @@
             computeItemClass: function (task) {
                 var cls = this.isExpired(task.expired, task.status) ? 'expired' : task.status;
                 if (!this.selected) return task.type;
-                return (this.selected._id == task._id || this.isChildOf(this.selected._id, task._id) ? 'item ' + (this.selecting ? ' selected ' : ' ') + cls : 'item ' + cls)+' '+task.type;
+                return (this.selected._id == task._id || this.isChildOf(this.selected._id, task._id) ? 'item ' + (this.selecting ? ' selected ' : ' ') + cls : 'item ' + cls) + ' ' + task.type;
             },
             /**
              * Change task status
@@ -870,16 +898,12 @@
                 // Tricky timer manipulation
                 clearInterval(this.timer);
                 var status = STATUSES[STATUSES.indexOf(e.model.task.status) + 1] || STATUSES[0];
-                this.dispatch('_updateTask', e.model.task._id, {status: status});
-                // Wait
-                this.timer = setTimeout(function () {
-                    this.dispatch('updateTask', e.model.task._id, {status: status});
-                    // Notify
-                    this.sendTaskStatusNotification(e.model.task);
-                }.bind(this), 1000);
+                this.dispatch('updateTask', e.model.task._id, {status: status});
+                // Notify
+                this.sendTaskStatusNotification(e.model.task);
             },
 
-            completeTask: function(e){
+            completeTask: function (e) {
                 if (!this.canChangeStatus(e.model.task)) return this.showErrorMessage('Only assignee can do it.');
                 // Tricky timer manipulation
                 clearInterval(this.timer);
@@ -903,7 +927,7 @@
 //                var root = this.findRoot(selected);
 //                if (!root) return '';
 //                var cls = this.isExpired(root.expired, root.status) ? 'expired' : root.status;
-                if(!selected) return 'line hide-on-mobile';
+                if (!selected) return 'line hide-on-mobile';
                 var cls = this.isExpired(selected.expired, selected.status) ? 'expired' : selected.status;
                 return 'line hide-on-mobile ' + cls;
             },
@@ -924,7 +948,7 @@
              * @returns {*}
              */
             computeTimeLeft: function (task) {
-                if(task.status=='completed') return this.translate('completed');
+                if (task.status == 'completed') return this.translate('completed');
                 var diff = moment.duration(moment(task.expired).diff(moment()));
                 if (diff._milliseconds < 0) return this.translate('expired');
                 return (diff.asDays() > 1 ? (Math.round(diff.asDays()) + ' ' + this.translate('days')) : Math.round(diff.asHours()) + ' ' + this.translate('hours')) + ' ' + this.translate('left');
@@ -936,7 +960,8 @@
              * @returns {*}
              */
             computeTimeLeftFormMobile: function (task) {
-                if(task.status=='completed') return this.translate('completed');
+                if (task.status == 'completed') return this.translate('completed');
+                if (!task.expired) return '';
                 var diff = moment.duration(moment(task.expired).diff(moment()));
                 if (diff._milliseconds < 0) return this.translate('expired');
                 return (diff.asDays() > 1 ? (Math.round(diff.asDays()) + ' ' + this.translate('days').substr(0, 1)) : Math.round(diff.asHours()) + ' ' + this.translate('hours').substr(0, 1));
@@ -947,6 +972,7 @@
              * @returns {boolean}
              */
             isExpired: function (expired, status) {
+                if(!expired) return false;
                 var diff = moment.duration(moment(expired).diff(moment()));
                 return diff._milliseconds < 0 && status != 'completed';
             },
@@ -983,7 +1009,7 @@
              * change sub tasks.
              */
             parentChanged: function () {
-                this.async(this.updateStyles,100);
+                this.async(this.updateStyles, 100);
                 if (!this.parent && !this.canBeNull) return;
                 this.tasks = ReduxStore.getState().tasks.filter(function (task) {
                     return task.parent == this.parent;
@@ -1018,7 +1044,7 @@
                     parent: this.parent,
                     owner: this.user._id,
                     status: 'incomplete',
-                    expired: moment().day(10)
+                    expired: null
                 };
                 // Notify
                 this.sendNewTaskNotification(task);
@@ -1026,20 +1052,20 @@
                 this.dispatch('addTask', task).then(function (response) {
                     this.showUndoMessage('Task was added successfully.');
                     this.$.scroller.calculate();
-                    if(this.MQ!='sm') this.$$('#addTask').focus();
+                    if (this.MQ != 'sm') this.$$('#addTask').focus();
                     //this.fire('select-task',response.task);
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));
                 this.taskName = '';
             },
-            addTaskFocus: function(){
-              this.fire('add-task-focus');
+            addTaskFocus: function () {
+                this.fire('add-task-focus');
             },
             /**
              * Select filter
              */
             selectFilter: function (e) {
                 this.selectedFilter = e.model.filter;
-                localStorage.setItem('designmap:filter',JSON.stringify(this.selectedFilter));
+                localStorage.setItem('designmap:filter', JSON.stringify(this.selectedFilter));
                 this.$.filterSelector.close();
                 this.async(this.updateStyles);
             },
@@ -1049,7 +1075,7 @@
             taskFilter: function (selectedFilter) {
                 return function (task) {
                     if (selectedFilter.type == 'all') return true;
-                    if (selectedFilter.type == 'not_completed') return task.status!='completed';
+                    if (selectedFilter.type == 'not_completed') return task.status != 'completed';
                     if (selectedFilter.type == 'expired') return this.isExpired(task.expired, task.status);
                     return selectedFilter.type == task.status;
                 }.bind(this)
@@ -1057,11 +1083,11 @@
             /**
              * Task filter to define message displaying
              */
-            checkTaskFilter: function (filter,selectedFilter) {
+            checkTaskFilter: function (filter, selectedFilter) {
                 if (!this.filter) return true;
                 return this.tasks ? !!this.tasks.filter(function (task) {
                         if (selectedFilter.type == 'all') return true;
-                        if (selectedFilter.type == 'not_completed') return task.status!='completed';
+                        if (selectedFilter.type == 'not_completed') return task.status != 'completed';
                         if (selectedFilter.type == 'expired') return this.isExpired(task.expired, task.status);
                         return selectedFilter.type == task.status;
                     }.bind(this)).length : true;
@@ -1160,7 +1186,7 @@
              * Change max height
              */
             onIronResize: function () {
-                if(this.noScroll) return;
+                if (this.noScroll) return;
                 this.maxHeight = window.innerHeight;
             },
             /**
@@ -1174,9 +1200,11 @@
                 this.dispatch('removeTask', task._id).then(function () {
                     if (this.MQ == 'sm') return;
                     if (task.parent) return this.fire('select-task', this.findTaskById(task.parent));
-                    if(this.MQ!='sm') {this.fire('reset');}
+                    if (this.MQ != 'sm') {
+                        this.fire('reset');
+                    }
                 }.bind(this));
-                if(this.MQ!='sm') {
+                if (this.MQ != 'sm') {
                     if (task.parent) return this.fire('select-task', this.findTaskById(task.parent));
                     this.fire('reset');
                 }
@@ -1201,15 +1229,54 @@
                 this.updateScrollHeight();
             },
             updateScrollHeight: function () {
-                if(this.noScroll) return;
+                if (this.noScroll) return;
                 var offest = this.MQ == 'sm' ? 230 : this.maxHeightOffset;
                 this.$.scroller.$.content.style.maxHeight = window.innerHeight - offest + 'px';
             },
-            _computeSelectedFilterClass: function(filter,selectedFilter){
-                return filter.type==selectedFilter.type?'selected':'';
+            _computeSelectedFilterClass: function (filter, selectedFilter) {
+                return filter.type == selectedFilter.type ? 'selected' : '';
             },
-            skipTutorialStep: function(){
-                this.doneHint('taskList','tm');
+            skipTutorialStep: function () {
+                this.doneHint('taskList', 'tm');
+            },
+            _getLabel: function(task,labels){
+                if(!labels || !task) return false;
+                const label = labels.find(function(label){
+                    return label.label == task.label;
+                });
+                return label;
+            },
+            _getLabelStyle: function (task,labels) {
+                const label = this._getLabel(task,labels);
+                if(!label) return '';
+                return 'background:rgb('+label.color.red+','+label.color.green+','+label.color.blue+');';
+            },
+            _getLabelText: function (task,labels) {
+                const label = this._getLabel(task,labels);
+                if(!label) return 'xxx';
+                return label.label;
+            },
+            _sort: function(sortWay){
+                return function(a,b) {
+                    return a.position - b.position > 1;
+                }
+            },
+            dragStart: function(e){
+                console.log('dragStart');
+                this.draggedTask = e.model.task;
+            },
+            dragEnter: function(e){
+                //console.log( this.draggedTask,e.model.task,Polymer.dom(this.$.list).querySelector('*[data-task-id="'+e.model.task._id+'"]'));
+                e.preventDefault();
+                return true;
+            },
+            dragOver: function(e){
+                e.preventDefault();
+            },
+            dragDrop: function(e){
+                const newPosition = e.model.task.position - 2;
+                this.dispatch('updateTask',this.draggedTask._id,{position:newPosition});
+                this.async(this.updateStyles)
             }
         })
     </script>

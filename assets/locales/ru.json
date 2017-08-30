@@ -1903,5 +1903,17 @@
   },
   "Add new label": {
     "message": "Добавить метку"
+  },
+  "Custom labels": {
+    "message": "Пользовательские метки"
+  },
+  "Label not set...": {
+    "message": "Выбрать..."
+  },
+  "due date": {
+    "message": "бессрочная"
+  },
+  "Discard": {
+    "message": "Сбросить"
   }
 }
