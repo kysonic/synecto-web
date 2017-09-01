@@ -213,6 +213,20 @@
                     }.bind(this));
                     return promise;
                 }.bind(this);
+            },
+            /**
+             * Save tasks positions
+             */
+            savePositions: function(tasks){
+                return function (dispatch) {
+                    var promise = xhr.put(Designmap.config.apiURL + 'task/position', {
+                        tasks: tasks,
+                        project: this.projectId
+                    }).then(function(response){
+
+                    }.bind(this));
+                    return promise;
+                }.bind(this);
             }
         }
     }

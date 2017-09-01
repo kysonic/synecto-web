@@ -195,6 +195,7 @@
                 this.$.dropdown.toggle();
             },
             _isProjectOwner: function(){
+                if(!this.project || !this.user) return false;
                 return this.project.owner==this.user._id;
             },
             openColorPicker: function(){

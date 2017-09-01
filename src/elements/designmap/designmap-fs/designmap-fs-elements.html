@@ -130,8 +130,7 @@
         <template is="dom-if" if="[[elements.length]]">
             <div id="elementsWrapper" class="elements" hidden$="[[!elements.length]]">
                 <plastic-custom-scroll id="fsElementsCustomScroll" fit small-bar>
-                    <template id="elementsRepeater" is="dom-repeat" items="[[elements]]"
-                              sort="[[elementsSort(sortWay)]]">
+                    <template id="elementsRepeater" is="dom-repeat" items="[[elements]]" >
                         <designmap-fs-element item="[[item]]"
                                               id="element-[[index]]"
                                               type$="[[item.type]]"
@@ -235,7 +234,7 @@
             </designmap-context-menu>
             <!-- Context menu -->
         </template>
-        <template is="dom-if" if="[[!elements.length]]">
+        <template is="dom-if" if="[[_isThereElements(elements.length,searchMode)]]">
             <div class="white-space">
                 <div class="wrapper">
                     <div class="text" hidden$="[[trashMode]]">
@@ -252,6 +251,16 @@
                     <!--<div class="text" hidden$="[[!trashMode]]">
                       <i18-n msgid="Your elements has been recycled"></i18-n>
                     </div>-->
+                </div>
+            </div>
+        </template>
+        <template is="dom-if" if="[[_notFound(elements.length,searchMode)]]">
+            <div class="white-space">
+                <div class="wrapper">
+                    <div class="text">
+                        There is not found elements...
+                        <a href="#" on-click="cancelSearch">Cancel search</a>
+                    </div>
                 </div>
             </div>
         </template>
@@ -396,6 +405,11 @@
                 language: {
                     type: String,
                     computed: '_computeLanguage(user.system.language)'
+                },
+                searchMode: {
+                    type: Boolean,
+                    value: false,
+                    notify: true
                 }
             },
             listeners: {
@@ -526,6 +540,7 @@
              * file - open gallery
              */
             applyAction: function (e) {
+                this.cancelSearch();
                 var element = e.model&&e.model.item ? e.model.item : this.currentElement;
                 if (this.trashMode) return this.openRestoreDialog(element);
                 if(e.detail && e.detail.item) element = e.detail.item;
@@ -710,6 +725,53 @@
             },
             closeRestoreConfirm: function(){
                 this.$.restoreConfirm.close();
+            },
+
+            search: function(filters){
+                this.searchMode = true;
+                const elements = this._countAllElements(ReduxStore.getState());
+                const filtred = elements.filter(function(element){
+                    let fit = true;
+                    Object.keys(filters).forEach(function(filterName){
+                        const filter = filters[filterName];
+                        switch(filter.type) {
+                            case 'select':
+                                if(filter.value=='all') return;
+                                if(element[filterName]!=filter.value) fit = false;
+                                break;
+                            case 'search':
+                                const name = element.type=='folder' ? element.name : this.cutFileName(element);
+                                if(!new RegExp(filter.value.toLowerCase()).test(name.toLowerCase())) fit = false;
+                                break;
+                        }
+                    }.bind(this));
+                    return fit;
+                }.bind(this));
+                this.set('elements',filtred);
+            },
+
+            _countAllElements: function (state) {
+                const parent = this.currentFolderId || null;
+                const folders = state.folders.filter(function (folder) {
+                    return this.trashMode ? folder.removed : !folder.removed;
+                }.bind(this));
+                const files = state.files.filter(function (file) {
+                    return this.trashMode ? file.removed : !file.removed;
+                }.bind(this));
+                return folders.concat(files);
+            },
+
+            _isThereElements: function(length,searchMode){
+                return !length && !searchMode;
+            },
+
+            _notFound: function(length,searchMode){
+                return !length && searchMode;
+            },
+
+            cancelSearch: function(){
+                this.searchMode = false;
+                this.set('elements',this._countElements(ReduxStore.getState()));
             }
         });
     </script>

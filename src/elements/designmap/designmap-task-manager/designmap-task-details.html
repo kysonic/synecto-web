@@ -1783,6 +1783,7 @@
                         this.fire('reset');
                     }
                 }.bind(this));
+                this.fire('task-normalize-positions');
                 if (this.$.removeTaskConfirm) this.$.removeTaskConfirm.close();
 
                 if (this.MQ != 'sm') {
@@ -2087,9 +2088,9 @@
             _reply: function (e) {
                 const user = e.model.comment.owner;
                 const figure = user.profile && user.profile.name ? '@' + user.profile.name + ' ' : "+" + user.local.email + " ";
-                this.$.commentTextarea.$.textarea.value = figure + this.$.commentTextarea.$.textarea.value;
-                this.commentText = this.$.commentTextarea.$.textarea.value;
-                this.$.commentTextarea.$.textarea.focus();
+                this.$.invkTextarea.$.textarea.value = figure + this.$.invkTextarea.$.textarea.value;
+                this.commentText = this.$.invkTextarea.$.textarea.value;
+                this.$.invkTextarea.$.textarea.focus();
                 this.$.invkTextarea.resolveInvokedUsers();
             },
 

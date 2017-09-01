@@ -1915,5 +1915,14 @@
   },
   "Discard": {
     "message": "Сбросить"
+  },
+  "owner": {
+    "message": "владелец"
+  },
+  "type": {
+    "message": "тип"
+  },
+  "Search...": {
+    "message": "Поиск..."
   }
 }

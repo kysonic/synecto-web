@@ -201,9 +201,9 @@
                 }
             },
             ready: function(){
-                  setInterval(function(){
+                  /*setInterval(function(){
                       if(this.projectId) this.dispatch('getProject',this.projectId)
-                  }.bind(this),60000);
+                  }.bind(this),60000);*/
             },
             _computeMembers: function(ownerData,users){
                 return [ownerData].concat(users);
@@ -241,7 +241,6 @@
                 this.dispatch('updateProject', this.project._id, this.project).then(function (response) {
                     if(!response.success) return this.manageErrorResponse(response);
                     // Notify
-                    console.log(user);
                     this.sendNotification(user);
                     this.showMessage('Share was updated successful');
                 }.bind(this));

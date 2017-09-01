@@ -1,0 +1,123 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+<link rel="import" href="./designmap-dropdown.html">
+<link rel="import" href="../../plastic/plastic-select.html">
+
+<dom-module id="designmap-search-filter">
+    <template>
+        <style>
+            :host {
+                --paper-input-container-color: var(--blue-darkest-color);
+                --paper-input-container-focus-color: var(--blue-darkest-color);
+                --paper-input-container: {
+                    padding: 0;
+                };
+                --paper-input-container-input: {
+                    color: var(--blue-darkest-color);
+                    font-family: var(--font-family);
+                    font-size: 16px;
+                    font-weight: 300 !important;
+                    padding: 0;
+                };
+                --paper-input-container-label: {
+                    font-size: 16px;
+                    font-weight: 300 !important;
+                };
+                --paper-input-container-label-floating: {
+                    font-weight: 300 !important;
+                };
+                --paper-input-container-invalid-color: var(--error-color);
+                --iron-icon-fill-color: var(--blue-darkest-color);
+                --paper-icon-button: {
+                    padding: 0;
+                    width: 24px;
+                    height: 24px;
+                    position: relative;
+                    bottom: 2px;
+                };
+                --paper-font-caption: {
+                    height: 10px;
+                };
+                --designmap-dropdown-triangle-mixin: {
+                    display: none;
+                };
+                --designmap-dropdown-mixin: {
+                    width: 230px;
+                    padding: 10px;
+                    border: 1px solid var(--gray-color);
+                    box-shadow: var(--box-shadow);
+                }
+            }
+            designmap-dropdown {
+                width: 100%;
+            }
+            .item {
+                padding: 5px 0;
+            }
+        </style>
+        <div class="wrap">
+            <paper-input id="search" on-change="_changeSearchInput" label="[[label]]" on-click="openDropdown">
+                <paper-icon-button suffix icon="search" on-click="search"></paper-icon-button>
+            </paper-input>
+            <designmap-dropdown id="dropdown" previous vertical-offset="40" horizontal-offset="0">
+                <template is="dom-repeat" items="[[items]]" as="item">
+                    <div class="item">
+                        <template is="dom-if" if="[[_isSelect(item)]]">
+                            <label><i18-n msgid="[[item.name]]">[[item.name]]</i18-n></label>
+                            <plastic-select on-change="_change" value="[[item.default]]" options="[[item.options]]"></plastic-select>
+                        </template>
+                    </div>
+                </template>
+            </designmap-dropdown>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-search-filter',
+            behaviors: [],
+            properties: {
+                items: {
+                    type: Array,
+                    value:[]
+                },
+                label: {
+                    type: String,
+                    value: 'Search...'
+                },
+                values: {
+                    type: Object,
+                    value: {}
+                }
+            },
+            _isSelect: function(item){
+                return item.type=='select';
+            },
+            _change: function(e){
+                if(!e.model.item || !e.model.item.name) return;
+                this.values[e.model.item.name] = {
+                    type: e.model.item.type,
+                    value: e.detail
+                };
+                this.fire('search',this.values);
+            },
+            _changeSearchInput: function(){
+                this.values.searchInpt = {
+                    type: 'search',
+                    value: this.$.search.value
+                };
+                this.fire('search',this.values);
+            },
+            openDropdown: function(){
+                this.$.dropdown.open();
+            },
+            search: function(){
+                this.async(this.$.dropdown.close);
+                this.fire('search',this.values);
+            },
+            empty: function(){
+                this.$.search.value = '';
+            }
+        })
+    </script>
+</dom-module>

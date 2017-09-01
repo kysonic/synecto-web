@@ -140,15 +140,16 @@
             </div>-->
             <!-- Crumbs -->
             <designmap-fs-breadcrumbs id="breadcrumbs" trash-mode="[[trashMode]]" project-name="[[project.name]]"
-                                      current-folder-id="{{currentFolderId}}"></designmap-fs-breadcrumbs>
+                                      current-folder-id="{{currentFolderId}}" search-mode="[[searchMode]]"></designmap-fs-breadcrumbs>
             <!-- Button panel -->
             <designmap-fs-panel hidden$="[[!project]]" id="panel" sort-way="{{sortWay}}"
-                                trash-mode="[[trashMode]]" current-folder-id="[[currentFolderId]]"></designmap-fs-panel>
+                                trash-mode="[[trashMode]]" search-mode="[[searchMode]]" current-folder-id="[[currentFolderId]]"></designmap-fs-panel>
         </div>
         <div class="workarea" on-contextmenu="openContextMenu">
             <template is="dom-if" if="[[shouldWeShowElements(project)]]">
                 <designmap-fs-elements id="elements" acl="[[acl]]" role="[[role]]" id="elements" sort-way="[[sortWay]]"
                                        trash-mode="[[trashMode]]"
+                                       search-mode="{{searchMode}}"
                                        current-folder-id="{{currentFolderId}}"></designmap-fs-elements>
                 <!-- Context menu -->
                 <designmap-context-menu id="contextMenu" parent>
@@ -302,6 +303,10 @@
                 MQ: {
                     type: String,
                     statePath: 'MQ'
+                },
+                searchMode: {
+                    type: Boolean,
+                    value: false
                 }
             },
             listeners: {
@@ -318,7 +323,9 @@
                 'open-file-uploader': 'openFileUploader',
                 'open-context-menu': 'openContextMenuEvent',
                 'apply-route': 'applyRouteManually',
-                'set-cutted': 'setCuttedElement'
+                'set-cutted': 'setCuttedElement',
+                'search': '_search',
+                'cancel-search':'cancelSearch'
             },
             drawEdits: function (trashMode) {
                 return !trashMode
@@ -473,6 +480,12 @@
             openRemoveAllConfirm: function(){
                 this.$$('#contextMenu').close();
                 this.$.panel.removeAll();
+            },
+            _search: function(e){
+                this.$$('#elements').search(e.detail);
+            },
+            cancelSearch: function () {
+                this.$$('#elements').cancelSearch();
             }
         });
     </script>

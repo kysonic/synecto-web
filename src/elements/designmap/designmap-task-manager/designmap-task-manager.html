@@ -345,6 +345,7 @@
             },
             listeners: {
                 'select-task': 'selectTask',
+                'task-normalize-positions': 'normalizePositions',
                 'focus-input': 'focusInput',
                 'reset': 'findDefaultTask',
                 'mobile-go-back':'mobileGoBack'
@@ -522,6 +523,9 @@
             },
             _titleCls: function(selectedTask,MQ){
                 return selectedTask && MQ=='sm' ? 'arrowmq' : '';
+            },
+            normalizePositions: function(){
+                this.$.list.normalizePositions();
             }
         })
     </script>

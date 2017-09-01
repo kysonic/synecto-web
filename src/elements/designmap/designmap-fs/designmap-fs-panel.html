@@ -2,6 +2,7 @@
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="/bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../designmap-ui/designmap-confirm.html">
+<link rel="import" href="../designmap-ui/designmap-search-filter.html">
 <link rel="import" href="../designmap-tutorial/designmap-hint.html">
 <link rel="import" href="../designmap-buttons/designmap-circle-button.html">
 <link rel="import" href="../designmap-buttons/designmap-round-button.html">
@@ -87,6 +88,10 @@
             .mobile-menu {
                 display: none;
             }
+            designmap-search-filter {
+                margin-right: 5px;
+                min-width: 230px;
+            }
 
             @media (min-width: 320px) and (max-width: 768px) {
                 #createFolderButton ,#uploadFileButton, #sortButton, #infoButton, #restoreButton,#removeButton {
@@ -115,7 +120,7 @@
             <div class="left">
                 <designmap-circle-button id="createFolderButton"
                                          plastic-tooltip$="[[translate('Add folder',language,i18Loaded)]]" data-cls="blue"
-                                         hidden$="[[trashMode]]" id="addFolderButton"
+                                         hidden$="[[_hideFsButtons(trashMode,searchMode)]]" id="addFolderButton"
                                          on-click="openAddFolderContext">
                     <iron-icon icon="designmap-workspace:folder"></iron-icon>
                 </designmap-circle-button>
@@ -149,7 +154,7 @@
                 <!-- Upload file -->
                 <designmap-circle-button id="uploadFileButton"
                                          plastic-tooltip$="[[translate('Upload file',language,i18Loaded)]]" data-cls="blue"
-                                         hidden$="[[trashMode]]" on-click="openFileUploader" data-hint="add-file">
+                                         hidden$="[[_hideFsButtons(trashMode,searchMode)]]" on-click="openFileUploader" data-hint="add-file">
                     <iron-icon icon="designmap-workspace:file"></iron-icon>
                 </designmap-circle-button>
                 <!-- Hint -->
@@ -166,19 +171,20 @@
                 <paper-tooltip for="uploadFileButton"><i18-n msgid="Upload file">Upload file</i18-n></paper-tooltip>
                 <!-- Trash mode -->
                 <designmap-circle-button id="restoreButton" plastic-tooltip$="[[translate('Restore all',language,i18Loaded)]]" data-cls="blue"
-                                         hidden$="[[!trashMode]]" class="trash" on-click="restoreAll">
+                                         hidden$="[[!_hideTrashButtons(trashMode,searchMode)]]" class="trash" on-click="restoreAll">
                     <iron-icon icon="designmap-workspace:restore"></iron-icon>
                 </designmap-circle-button>
                 <paper-tooltip for="restoreButton"><i18-n msgid="Restore all">Restore all</i18-n></paper-tooltip>
                 <designmap-circle-button id="removeButton" plastic-tooltip$="[[translate('Remove all',language,i18Loaded)]]" data-cls="blue"
-                                         hidden$="[[!_canRemoveAll(user.role,trashMode)]]" class="trash" on-click="removeAll">
+                                         hidden$="[[!_canRemoveAll(user.role,trashMode,searchMode)]]" class="trash" on-click="removeAll">
                     <iron-icon icon="designmap-workspace:remove"></iron-icon>
                 </designmap-circle-button>
                 <paper-tooltip for="removeButton"><i18-n msgid="Remove all">Remove all</i18-n></paper-tooltip>
             </div>
             <!-- Right -->
             <div class="right">
-                <designmap-circle-button id="sortButton" data-cls="blue"
+                <designmap-search-filter id="searchFilter" label="[[translate('Search...',language,i18Loaded)]]" items="[[filterItems]]"></designmap-search-filter>
+                <!--<designmap-circle-button id="sortButton" data-cls="blue"
                                          on-click="openMoreContext">
                     <iron-icon icon="designmap-workspace:sort"></iron-icon>
                 </designmap-circle-button>
@@ -198,8 +204,8 @@
                     <iron-icon icon="designmap-workspace:info"></iron-icon>
                 </designmap-circle-button>
                 <paper-tooltip for="infoButton"><i18-n msgid="Info">Info</i18-n></paper-tooltip>
-                <!--Mobile menu -->
-                <iron-icon class="mobile-menu" icon="designmap-workspace:more" on-click="openMobileMenu"></iron-icon>
+                &lt;!&ndash;Mobile menu &ndash;&gt;
+                <iron-icon class="mobile-menu" icon="designmap-workspace:more" on-click="openMobileMenu"></iron-icon>-->
             </div>
         </div>
     </template>
@@ -222,6 +228,10 @@
                 user: {
                     type: Object,
                     statePath: 'user'
+                },
+                project: {
+                    type: Object,
+                    statePath: 'project'
                 },
                 language: {
                     type: String,
@@ -268,6 +278,15 @@
                     value: function(){
                         return this;
                     }
+                },
+                filterItems: {
+                    type: Object,
+                    computed: '_computeFilterItems(project,language,i18Loaded)'
+                },
+                searchMode: {
+                    type: Boolean,
+                    value: false,
+                    observer: '_searchModeChanged'
                 }
             },
             attached: function () {
@@ -363,12 +382,62 @@
              * Could user remove all ?
              * @returns {boolean|*}
              */
-            _canRemoveAll: function (role,trashMode) {
-                return this.topAccess(role) && trashMode;
+            _canRemoveAll: function (role,trashMode,searchMode) {
+                return !searchMode && this.topAccess(role) && trashMode;
             },
 
             openMobileMenu: function(e){
                this.fire('open-context-menu',e);
+            },
+
+            _computeFilterItems: function(project) {
+                const users = project ? project.users.concat([project.ownerData]) : [];
+                return [
+                    {
+                        name:'type',
+                        type: 'select',
+                        default: 'all',
+                        options: [
+                            {
+                                value: 'all',
+                                label: this.translate('All')
+                            },
+                            {
+                                value: 'folder',
+                                label: this.translate('Folder')
+                            },
+                            {
+                                value: 'file',
+                                label: this.translate('File')
+                            }
+                        ]
+                    },
+                    {
+                        name:'owner',
+                        type: 'select',
+                        default: 'all',
+                        options: [
+                            {
+                                value: 'all',
+                                label: 'All'
+                            }
+                        ].concat(users.map(function(user){
+                            return {
+                                value: user._id,
+                                label: this.computeOwnerName(user)
+                            }
+                        }.bind(this)))
+                    }
+                ]
+            },
+            _hideFsButtons: function(trashMode,searchMode){
+                return searchMode || trashMode;
+            },
+            _hideTrashButtons: function(trashMode,searchMode){
+                return !searchMode && trashMode;
+            },
+            _searchModeChanged: function(searchMode) {
+                if(!searchMode) this.$.searchFilter.empty();
             }
         })
     </script>

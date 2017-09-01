@@ -1,5 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="./designmap-fs-service.html">
 
 <dom-module is="designmap-fs-breadcrumbs">
@@ -107,6 +108,26 @@
                 }
             }
 
+            .crumb.search {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .cancel-search {
+                display: inline-block;
+                width: 24px;
+                height: 24px;
+                padding: 2px;
+                position: relative;
+                top: 5px;
+
+                --iron-icon-components-mixin: {
+                    fill: var(--blue-darkest-color) !important;
+                    stroke: var(--blue-darkest-color) !important;
+                };
+            }
+
             @media (min-width: 320px) and (max-width: 768px) {
                 .project-name, .project, .of-project, .arrow-back.selected, .crumb, .crumb.selected iron-icon {
                     display: none;
@@ -152,13 +173,20 @@
             <iron-icon icon="designmap-workspace:open"></iron-icon>
         </div>
         <template is="dom-repeat" items="[[breadcrumbs]]" as="crumb">
-            <div class$="crumb [[calculateSelectedCrumb(breadcrumbs.length,index)]]">
+            <div class$="crumb [[calculateSelectedCrumb(breadcrumbs.length,index)]]" hidden$="[[searchMode]]">
                 <iron-icon class$="line [[isFirst(index,breadcrumbs)]] " icon="icons:chevron-left"></iron-icon>
                 <div class$="title [[calculateSelectedCrumb(breadcrumbs.length,index)]]" on-click="goToParent">
                     [[crumb.name]]
                 </div>
             </div>
         </template>
+        <div class="crumb search" hidden$="[[!searchMode]]">
+            <iron-icon class$="line [[isFirst(index,breadcrumbs)]] " icon="icons:chevron-left"></iron-icon>
+            <div class$="title [[calculateSelectedCrumb(breadcrumbs.length,index)]]">
+                <i18-n msgid="Search">Search</i18-n>
+            </div>
+            <paper-icon-button class="cancel-search" on-click="cancelSearch" icon="icons:close"></paper-icon-button>
+        </div>
     </template>
     <script>
         Polymer({
@@ -193,6 +221,10 @@
                  * Trash mode
                  */
                 trashMode: {
+                    type: Boolean,
+                    value: false
+                },
+                searchMode: {
                     type: Boolean,
                     value: false
                 }
@@ -254,6 +286,9 @@
             },
             breadCrumbs: function (length) {
                 return !length ? 'selected' : '';
+            },
+            cancelSearch: function(){
+                this.fire('cancel-search');
             }
         })
     </script>

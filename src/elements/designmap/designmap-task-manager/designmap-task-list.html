@@ -550,7 +550,7 @@
         <plastic-custom-scroll no-scroll="[[noScroll]]" id="scroller" fit small-bar
                                max-height="[[computeMaxHeight(maxHeight)]]">
             <ul class="list" id="list">
-                <template is="dom-repeat" items="[[tasks]]" as="task" filter="[[taskFilter(selectedFilter)]]" sort="[[_sort(sortWay)]]">
+                <template id="listRepeater" is="dom-repeat" items="[[tasks]]" as="task" observe="parent" sort="taskSort">
                     <li draggable="true" on-dragstart="dragStart" on-dragenter="dragEnter" on-dragover="dragOver" on-drop="dragDrop" class$="[[computeItemClass(task,selected)]]" data-task-id$="[[task._id]]">
                         <!--<div class="line" class$="[[computeSubLineClass(task)]]"></div>-->
                         <designmap-circle-button id$="statusButton[[index]]" class="status-button"
@@ -561,6 +561,7 @@
                             <i18-n msgid="Change status">Change status</i18-n>
                         </paper-tooltip>
                         <div class="title" on-click="select">[[task.name]]</div>
+                        <div style="font-size: 12px">([[task.position]])</div>
                         <!--<div class="expired_row hidden-xs">[[computeTimeLeft(task,language)]]</div>-->
                         <div class="label" hidden$="[[!_getLabel(task,labels)]]" style$="[[_getLabelStyle(task,labels)]]">[[_getLabelText(task,labels)]]</div>
                         <div class="expired_row">[[computeTimeLeftFormMobile(task,language)]]</div>
@@ -670,10 +671,8 @@
                  */
                 tasks: {
                     type: Array,
-                    statePath: function (state) {
-                        return state.tasks.filter(function (task) {
-                            return task.parent == this.parent;
-                        }.bind(this));
+                    statePath: function(state) {
+                        return this._getTasks(state);
                     }
                 },
                 /**
@@ -1009,10 +1008,20 @@
              * change sub tasks.
              */
             parentChanged: function () {
-                this.async(this.updateStyles, 100);
                 if (!this.parent && !this.canBeNull) return;
-                this.tasks = ReduxStore.getState().tasks.filter(function (task) {
+                this.tasks = this._getTasks(ReduxStore.getState());
+                this.async(this.updateStyles,100);
+            },
+            /**
+             *
+             */
+            _getTasks: function(state){
+                const tasks = state.tasks.filter(function (task) {
                     return task.parent == this.parent;
+                }.bind(this));
+                return tasks.map(function(task,i){
+                    task.position = task.position || (i+1);
+                    return task;
                 }.bind(this));
             },
             /**
@@ -1095,10 +1104,8 @@
             /**
              * Tasks sort
              */
-            taskSort: function () {
-                return function (a, b) {
-                    return 1;
-                }
+            taskSort: function (a,b) {
+                return a.position-b.position;
             },
             /**
              * Select new assignee to current task
@@ -1258,11 +1265,10 @@
             },
             _sort: function(sortWay){
                 return function(a,b) {
-                    return a.position - b.position > 1;
+                    return a.position > b.position;
                 }
             },
             dragStart: function(e){
-                console.log('dragStart');
                 this.draggedTask = e.model.task;
             },
             dragEnter: function(e){
@@ -1274,9 +1280,20 @@
                 e.preventDefault();
             },
             dragDrop: function(e){
-                const newPosition = e.model.task.position - 2;
-                this.dispatch('updateTask',this.draggedTask._id,{position:newPosition});
-                this.async(this.updateStyles)
+                if(!this.draggedTask || !e.model.task || this.draggedTask.parent!=e.model.task.parent) return;
+                this.dispatch('_updateTask',this.draggedTask._id,{position:e.model.task.position});
+                this.dispatch('_updateTask',e.model.task._id,{position:this.draggedTask.position});
+                this.draggedTask = null;
+                this.async(this.updateStyles);
+                // Save current positions
+                this.async(function(){this.dispatch('savePositions',this.tasks);});
+            },
+            normalizePositions: function(){
+                const tasks = this.tasks.sort(this.taskSort);
+                tasks.forEach(function(task,i){
+                    this.dispatch('_updateTask',task._id,{position:i+1});
+                }.bind(this));
+                this.async(function(){this.dispatch('savePositions',this.tasks);},100);
             }
         })
     </script>
