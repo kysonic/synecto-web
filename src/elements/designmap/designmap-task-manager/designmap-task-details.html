@@ -64,7 +64,6 @@
             .details {
                 width: 100%;
                 height: 100%;
-                margin-top: 33px;
             }
 
             .details .header {
@@ -98,13 +97,12 @@
                 display: flex;
                 justify-content: flex-end;
                 align-items: flex-start;
-                position: relative;
-                top: 5px;
+                margin-top: 3px;
             }
 
             .panel designmap-circle-button, designmap-assignee {
-                width: 60px;
-                height: 60px;
+                width: 55px;
+                height: 55px;
                 --designmap-circle-button-circle-mixin: {
                     stroke-width: 1px;
                     stroke: var(--details-color) !important;
@@ -112,21 +110,22 @@
             }
 
             designmap-assignee {
-                margin-top: 3px;
+                width: 60px;
+                height: 60px;
                 margin-left: 5px;
                 --iron-icon-stroke-color: var(--gray-color);
                 --iron-icon-fill-color: var(--gray-color);
             }
 
-            /** TYPE COLORS **/
+            /** ASSIGNEE **/
 
             designmap-assignee {
                 --designmap-assignee-assigned-mixin: {
                     width: 45px;
                     height: 45px;
-                    margin: 7px 0 5px 5px;
+                    margin: 5px 0 5px 5px;
                     border: 2px solid var(--white-color);
-                }
+                };
             }
 
             .panel .panel-icon {
@@ -480,7 +479,7 @@
                 color: var(--gray-darky-color);
                 border: none;
                 outline: none;
-                margin-top: 10px;
+                margin-top: 5px;
                 width: 100%;
             }
 
@@ -574,7 +573,7 @@
             }
 
             designmap-task-manager-labels {
-                margin-left: 15px;
+                margin-left: 20px;
                 cursor: pointer;
             }
 
@@ -794,7 +793,7 @@
             /** Date and Estimate **/
 
             .date-and-estimate {
-                margin-left: 20px;
+                /*margin-left: 20px;*/
                 padding: 10px 0;
                 position: relative;
             }
@@ -807,7 +806,15 @@
 
             .date-icon {
                 display: inline-block;
+                margin-left: 17px;
                 vertical-align: bottom;
+                --iron-icon-fill-color: var(--gray-saturated-color);
+            }
+
+            .date-remove-icon {
+                display: inline-block;
+                vertical-align: bottom;
+                margin-left: 0px;
                 --iron-icon-fill-color: var(--gray-saturated-color);
             }
 
@@ -1160,7 +1167,7 @@
                         <div class="date-text" on-tap="openDatePicker">
                             [[computeTimeLeft(task)]]
                         </div>
-                        <iron-icon hidden$="[[_hideDiscard(task.expired,user)]]" class="date-icon" on-tap="removeTaskDate" icon="icons:close"></iron-icon>
+                        <iron-icon hidden$="[[_hideDiscard(task.expired,user)]]" class="date-remove-icon" on-tap="removeTaskDate" icon="icons:close"></iron-icon>
                     </div>
                     <paper-tooltip for="date">
                         <i18-n msgid="up to">up to</i18-n>
@@ -1565,6 +1572,10 @@
                         }.bind(this));
                     }
                 },
+                projectAllUsers: {
+                    type: Array,
+                    statePath: 'projectUsers'
+                },
                 invokedUsers: {
                     type: Array,
                     value: []
@@ -1814,7 +1825,9 @@
                 if (!this.canUpdateTask(this.task)) return ;
                 //if (this.isExpired(this.task.expired)) return;
                 var status = STATUSES[STATUSES.indexOf(this.task.status) + 1] || STATUSES[0];
-                this.dispatch('updateTask', this.task._id, {status: status});
+                const data = {status: status};
+                if(status=='completed') data.completed = new Date();
+                this.dispatch('updateTask', e.model.task._id, data);
                 // Notify
                 this.sendTaskStatusNotification(this.task);
                 this.doneHint('status','tm');
@@ -2352,6 +2365,7 @@
                 this.dispatch('unfollowTask',this.task,this.user._id);
             },
             _labelChanged: function(e){
+                if(e.detail.sourceEvent) return;
                 this.task.label = e.detail;
                 this.dispatch('updateTask', this.task._id, this.task).then(function (response) {
                     if (!response.success) return;
@@ -2362,7 +2376,7 @@
                 return !labels.length && project.owner!=user._id;
             },
             _hideDiscard: function(expired,user){
-                return !expired || this.project.owner!=user._id;
+                return !expired || !this.project || this.project.owner!=user._id;
             }
         })
     </script>

@@ -280,7 +280,7 @@
                     }
                 },
                 filterItems: {
-                    type: Object,
+                    type: Array,
                     computed: '_computeFilterItems(project,language,i18Loaded)'
                 },
                 searchMode: {
@@ -390,7 +390,7 @@
                this.fire('open-context-menu',e);
             },
 
-            _computeFilterItems: function(project) {
+            _computeFilterItems: function(project,lang,i18Loaded) {
                 const users = project ? project.users.concat([project.ownerData]) : [];
                 return [
                     {

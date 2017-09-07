@@ -162,7 +162,7 @@
             </div>
         </div>-->
 
-        <plastic-custom-scroll class="scroller" hidden$="[[hideUnselected(selectedTab,0)]]" fit max-height="205" small-bar>
+        <plastic-custom-scroll class="scroller" hidden$="[[hideUnselected(selectedTab,0)]]" fit max-height="130" small-bar>
             <ul class="list your-projects">
                 <template is="dom-repeat" items="[[overallProjects]]" as="project" sort="[[_sortProjects(sortWay,projectId)]]">
                     <li class$="[[computeSelected(projectId,project)]]">
@@ -493,7 +493,7 @@
 
             _computeAuthorName: function(project){
                 if(!project.user) return this.translate('mine');
-                return this.computeOwnerName({profile:project.user});
+                return this.computeOwnerName(project.user);
             },
 
             _projectChanged: function(project) {

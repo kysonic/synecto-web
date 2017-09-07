@@ -1912,5 +1912,68 @@
   },
   "All": {
     "message": "All"
+  },
+  "Any": {
+    "message": "Any"
+  },
+  "Folder": {
+    "message": "Folder"
+  },
+  "File": {
+    "message": "File"
+  },
+  "see more": {
+    "message": "see more"
+  },
+  "label": {
+    "message": "label"
+  },
+  "assignee": {
+    "message": "assignee"
+  },
+  "status": {
+    "message": "status"
+  },
+  "Attach has been removed": {
+    "message": "Attachment has been removed"
+  },
+  "There is not found elements...": {
+    "message": "There is not found elements..."
+  },
+  "Cancel search": {
+    "message": "Cancel search"
+  },
+  "my": {
+    "message": "mine"
+  },
+  "Tasks overview": {
+    "message": "Tasks overview"
+  },
+  "Overall Tasks": {
+    "message": "Overall Tasks"
+  },
+  "Completed Tasks": {
+    "message": "Completed Tasks"
+  },
+  "CompletedTasksMsg": {
+    "message": "There are completed tasks grouped by date of completing"
+  },
+  "OverallTasksMsg": {
+    "message": "All tasks grouped by statuses"
+  },
+  "SpentTimeMsg": {
+    "message": "Overall spent time. Each member's spent time on the chart."
+  },
+  "Spent time": {
+    "message": "Spent time"
+  },
+  "Collapse panel": {
+    "message": "Collapse panel"
+  },
+  "Who": {
+    "message": "Who"
+  },
+  "How much": {
+    "message": "How much"
   }
 }

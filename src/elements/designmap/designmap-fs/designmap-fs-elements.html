@@ -120,6 +120,12 @@
                 --iron-icon-fill-color: var(--gray-color);
                 --iron-icon-stroke-color: var(--gray-color);
             }
+            .show-more {
+                width: 100%;
+                padding: 10px 0;
+                text-align: center;
+                cursor: pointer;
+            }
             @media (min-width: 320px) and (max-width: 540px) {
                 .elements {
                     left: 10px;
@@ -130,7 +136,7 @@
         <template is="dom-if" if="[[elements.length]]">
             <div id="elementsWrapper" class="elements" hidden$="[[!elements.length]]">
                 <plastic-custom-scroll id="fsElementsCustomScroll" fit small-bar>
-                    <template id="elementsRepeater" is="dom-repeat" items="[[elements]]" >
+                    <template id="elementsRepeater" is="dom-repeat" filter="[[elementFilter(limit)]]" items="[[elements]]" >
                         <designmap-fs-element item="[[item]]"
                                               id="element-[[index]]"
                                               type$="[[item.type]]"
@@ -234,6 +240,9 @@
             </designmap-context-menu>
             <!-- Context menu -->
         </template>
+        <div hidden$="[[!_showMoreState(elements.length,limit)]]" class="show-more" on-click="showMore">
+            <i18-n msgid="see more">see more</i18-n>
+        </div>
         <template is="dom-if" if="[[_isThereElements(elements.length,searchMode)]]">
             <div class="white-space">
                 <div class="wrapper">
@@ -258,8 +267,10 @@
             <div class="white-space">
                 <div class="wrapper">
                     <div class="text">
-                        There is not found elements...
-                        <a href="#" on-click="cancelSearch">Cancel search</a>
+                        <i18-n msgid="There is not found elements...">There is not found elements...</i18-n>
+                        <a href="#" on-click="cancelSearch">
+                            <i18-n msgid="Cancel search">Cancel search</i18-n>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -410,6 +421,14 @@
                     type: Boolean,
                     value: false,
                     notify: true
+                },
+                limit: {
+                    type: Number,
+                    value: 20
+                },
+                defaultLimit: {
+                    type: Number,
+                    value: 20
                 }
             },
             listeners: {
@@ -541,6 +560,7 @@
              */
             applyAction: function (e) {
                 this.cancelSearch();
+                this.limit = this.defaultLimit;
                 var element = e.model&&e.model.item ? e.model.item : this.currentElement;
                 if (this.trashMode) return this.openRestoreDialog(element);
                 if(e.detail && e.detail.item) element = e.detail.item;
@@ -553,7 +573,7 @@
              */
             executeFolderAction: function (folder) {
                 this.$$('#contextMenu').close();
-                page.redirect('/'+this.projectId+this.getFullPath(folder));
+                page.redirect('/'+this.projectId+'/fs'+this.getFullPath(folder));
             },
             /**
              * Open the gallery
@@ -730,7 +750,7 @@
             search: function(filters){
                 this.searchMode = true;
                 const elements = this._countAllElements(ReduxStore.getState());
-                const filtred = elements.filter(function(element){
+                let filtred = elements.filter(function(element){
                     let fit = true;
                     Object.keys(filters).forEach(function(filterName){
                         const filter = filters[filterName];
@@ -747,7 +767,19 @@
                     }.bind(this));
                     return fit;
                 }.bind(this));
+
                 this.set('elements',filtred);
+            },
+
+            _allData: function(filters){
+                let count = 0;
+                const filtersKeys = Object.keys(filters);
+                filtersKeys.forEach(function(filterKey){
+                    const filter = filters[filterKey];
+                    if(filter.value=='all' || !filter.value) count++;
+                });
+
+                return filtersKeys.length==count;
             },
 
             _countAllElements: function (state) {
@@ -772,6 +804,22 @@
             cancelSearch: function(){
                 this.searchMode = false;
                 this.set('elements',this._countElements(ReduxStore.getState()));
+            },
+
+            showMore: function(){
+                this.limit = this.elements.length + 1;
+            },
+
+            _showMoreState: function(length,limit) {
+                return length>=limit;
+            },
+
+            elementFilter: function (limit) {
+                return function (element) {
+                    const index = this.elements.indexOf(element);
+                    if(index>limit) return false;
+                    return true;
+                }.bind(this)
             }
         });
     </script>

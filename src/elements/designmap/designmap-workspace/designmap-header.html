@@ -1,5 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/paper-input/paper-input.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../designmap-buttons/designmap-button.html">
 <link rel="import" href="../designmap-ui/designmap-dropdown.html">
 <link rel="import" href="../designmap-fs/designmap-fs-service.html">
@@ -173,8 +174,23 @@
                 --iron-icon-fill-color: var(--gray-darkend-color);
             }
 
-            .mobile-burger {
+            .burger {
                 display: none;
+                width: 45px;
+                height: 45px;
+                --iron-icon-stroke-color: var(--gray-darkend-color);
+                --iron-icon-fill-color: var(--gray-darkend-color);
+            }
+
+            .burger.mobile-mode {
+                display: block;
+            }
+
+            .arrow-left {
+                width: 45px;
+                height: 45px;
+                --iron-icon-stroke-color: var(--gray-darkend-color);
+                --iron-icon-fill-color: var(--gray-darkend-color);
             }
 
 
@@ -182,15 +198,14 @@
                 .left-content {
                     display: none;
                 }
-                .mobile-burger {
+                .burger {
                     display: block;
-                    width: 28px;
-                    height: 28px;
-                    --iron-icon-stroke-color: var(--gray-darkend-color);
-                    --iron-icon-fill-color: var(--gray-darkend-color);
                 }
                 paper-dialog {
                     max-width: 300px !important;
+                }
+                .arrow-left {
+                    display: none;
                 }
             }
         </style>
@@ -229,7 +244,11 @@
                                 id="projectList">
                 <designmap-projects-list></designmap-projects-list>
             </designmap-dropdown>-->
-            <iron-icon class="mobile-burger" style="margin-left: 5px" icon="icons:menu" on-tap="openMenu"></iron-icon>
+            <paper-icon-button class$="burger [[_burgerCls(mobileMode)]]" icon="icons:menu" on-tap="openMenu"></paper-icon-button>
+            <paper-icon-button id="collapseMenu" class="arrow-left" icon="[[_computeIcon(mobileMode)]]" on-tap="toggleMobileMode"></paper-icon-button>
+            <paper-tooltip for="collapseMenu">
+                <i18-n msgid="Collapse panel">Collapse panel</i18-n>
+            </paper-tooltip>
         </div>
         <div class="center">
 
@@ -295,6 +314,11 @@
                 MQ: {
                     type: String,
                     statePath:'MQ'
+                },
+                mobileMode: {
+                    type: Boolean,
+                    value: false,
+                    notify: true
                 }
             },
             listeners: {
@@ -331,12 +355,21 @@
             openMenu: function(){
                 this.fire('open-menu')
             },
+            toggleMobileMode: function(){
+                this.mobileMode = !this.mobileMode;
+            },
             _computeMobileClass: function (MQ) {
                 this.async(function(){this.updateStyles()});
                 return MQ=='sm'?'mobile':'desktop';
             },
             _computeOffset: function(MQ){
                 return MQ=='sm'?((window.innerWidth-280)/2):70;
+            },
+            _computeIcon: function(mobileMode){
+                return !mobileMode ? 'icons:chevron-left' : 'icons:chevron-right';
+            },
+            _burgerCls: function(mobileMode){
+                return mobileMode ? 'mobile-mode' : ''
             }
         })
     </script>

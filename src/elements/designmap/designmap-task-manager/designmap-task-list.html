@@ -26,6 +26,9 @@
                 --plastic-custom-scroll-bar-hover-mixin: {
                     margin-left: -10px;
                 };
+                --plastic-custom-scroll-bar-grabbed-mixin: {
+                    margin-left: -10px;
+                };
 
                 --designmap-circle-button-circle-mixin: {
                     stroke-width: 1px !important;
@@ -86,8 +89,6 @@
 
             .desktop-filters {
                 display: flex;
-                position: absolute;
-                width: 100vh;
             }
 
             .desktop-filters .row {
@@ -107,7 +108,6 @@
 
             .desktop-filters .row.selected {
                 text-decoration: underline;
-                font-weight: bold;
             }
 
             /** DROP DOWN **/
@@ -185,7 +185,7 @@
                 width: 100%;
                 height: 100%;
                 line-height: 50px;
-                flex-grow: 8;
+                flex-grow: 1;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 text-align: left;
@@ -193,7 +193,7 @@
             }
 
             .list li.completed .title {
-                text-decoration: line-through;
+                /*text-decoration: line-through;*/
             }
 
             .list li .status-button {
@@ -261,7 +261,7 @@
                 color: var(--white-color);
             }
 
-            .list li.selected designmap-assignee, .list li.selected .expired_row, .list li.selected .subtask, .list li.selected .label {
+            .list li.selected .no-selected {
                 display: none;
             }
 
@@ -384,6 +384,10 @@
                 color: var(--filter-color);
             }
 
+            .subtask-count.dec {
+                left: 18px;
+            }
+
             .list li.expired .subtask-count {
                 color: var(--filter-expired);
             }
@@ -454,8 +458,8 @@
             .line {
                 position: absolute;
                 width: 4px;
-                top: 42px;
-                height: calc(100% - 42px);
+                top: 0;
+                height: 100%;
                 left: 100%;
                 margin-left: -4px;
                 background: var(--white-color);
@@ -500,6 +504,53 @@
                 text-overflow: ellipsis;
                 padding: 5px 10px;
                 text-align: center;
+                margin-right: 10px;
+            }
+
+            /** WHITE SPACE **/
+            .white-space {
+                display: flex;
+                width: 100%;
+                height: 100%;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .white-space .wrapper {
+                width: 245px;
+                height: 270px;
+            }
+
+            .white-space .wrapper iron-icon {
+                width: 200px;
+                height: 100%;
+                position: relative;
+                left: 42px;
+            }
+
+            .white-space .wrapper .text {
+                font-weight: 100;
+                text-align: center;
+                color: var(--gray-saturated-color);
+            }
+
+            .white-space .wrapper .text a {
+                color: var(--blue-darkest-color);
+            }
+
+            .author {
+                font-size: 12px;
+                max-width: 200px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                margin-right: 10px;
+            }
+
+            .show-more {
+                margin-left: 25px;
+                cursor: pointer;
+                text-decoration: underline;
             }
 
             @media (min-width: 320px) and (max-width: 768px) {
@@ -521,13 +572,13 @@
             }
 
         </style>
-        <div class="filters" hidden$="[[computeFiltersState(filter,selectedFilter,tasks)]]">
+        <!--<div class="filters" hidden$="[[computeFiltersState(filter,selectedFilter,tasks)]]">
             <div class="filter-wrapper">
                 <div class$="current-filter filter [[selectedFilter.type]]" on-tap="openFilterSelector">
                     <iron-icon class="filter-icon" icon="[[computeFilterIcon(selectedFilter.type)]]"></iron-icon>
                     <span>[[computeMsg(selectedFilter.type)]]</span>
                 </div>
-                <!-- Dropdown -->
+                &lt;!&ndash; Dropdown &ndash;&gt;
                 <designmap-dropdown id="filterSelector" tri-border vertical-offset="45" horizontal-offset="-20"
                                     previous>
                     <template is="dom-repeat" items="[[filters]]" as="filter">
@@ -538,20 +589,21 @@
                     </template>
                 </designmap-dropdown>
             </div>
-            <!--<div class="desktop-filters filters hidden-xs">
-                <template is="dom-repeat" items="[[filters]]" as="filter">
-                    <div class$="row [[filter.type]] [[_computeSelectedFilterClass(filter,selectedFilter)]]" on-click="selectFilter">
-                        <iron-icon class="filter-icon" icon="[[computeFilterIcon(filter.type)]]"></iron-icon>
-                        <span><i18-n msgid="[[filter.text]]">[[filter.text]]</i18-n></span>
-                    </div>
-                </template>
-            </div>-->
+
+        </div>-->
+        <div class="desktop-filters filters" hidden$="[[!tasks.length]]">
+            <template is="dom-repeat" items="[[filters]]" as="filter">
+                <div class$="row [[filter.type]] [[_computeSelectedFilterClass(filter,selectedFilter)]]" on-click="selectFilter">
+                    <iron-icon class="filter-icon" icon="[[computeFilterIcon(filter.type)]]"></iron-icon>
+                    <span><i18-n msgid="[[filter.text]]">[[filter.text]]</i18-n></span>
+                </div>
+            </template>
         </div>
-        <plastic-custom-scroll no-scroll="[[noScroll]]" id="scroller" fit small-bar
+        <plastic-custom-scroll hidden$="[[!tasks.length]]" no-scroll="[[noScroll]]" id="scroller" fit small-bar
                                max-height="[[computeMaxHeight(maxHeight)]]">
             <ul class="list" id="list">
-                <template id="listRepeater" is="dom-repeat" items="[[tasks]]" as="task" observe="parent" sort="taskSort">
-                    <li draggable="true" on-dragstart="dragStart" on-dragenter="dragEnter" on-dragover="dragOver" on-drop="dragDrop" class$="[[computeItemClass(task,selected)]]" data-task-id$="[[task._id]]">
+                <template id="listRepeater" is="dom-repeat" items="[[tasks]]" as="task" filter="[[taskFilter(selectedFilter,limit,tasks.*)]]" observe="parent limit searchMode" sort="[[taskSort(parent,limit,tasks.*)]]">
+                    <li draggable$="[[_computeDraggable(searchMode)]]" on-dragstart="dragStart" on-dragenter="dragEnter" on-dragover="dragOver" on-drop="dragDrop" class$="[[computeItemClass(task,selected)]]" data-task-id$="[[task._id]]">
                         <!--<div class="line" class$="[[computeSubLineClass(task)]]"></div>-->
                         <designmap-circle-button id$="statusButton[[index]]" class="status-button"
                                                  on-tap="changeStatus">
@@ -561,20 +613,21 @@
                             <i18-n msgid="Change status">Change status</i18-n>
                         </paper-tooltip>
                         <div class="title" on-click="select">[[task.name]]</div>
-                        <div style="font-size: 12px">([[task.position]])</div>
-                        <!--<div class="expired_row hidden-xs">[[computeTimeLeft(task,language)]]</div>-->
-                        <div class="label" hidden$="[[!_getLabel(task,labels)]]" style$="[[_getLabelStyle(task,labels)]]">[[_getLabelText(task,labels)]]</div>
-                        <div class="expired_row">[[computeTimeLeftFormMobile(task,language)]]</div>
-                        <!--<designmap-assignee id$="assignee[[index]]" horizontal-offset="-170" vertical-offset="60" class="hidden-xs"
-                                            no-details
-                                            assignee="[[task.assignee]]" task="[[task]]" on-assign="selectAssignee"
-                                            on-remove="removeAssignee"></designmap-assignee>-->
-                        <paper-tooltip for$="assignee[[index]]" position="left">
-                            <i18-n msgid="Assign responsible">Assign responsible</i18-n>
-                        </paper-tooltip>
+                        <div class="label no-selected" hidden$="[[!_getLabel(task,labels)]]" style$="[[_getLabelStyle(task,labels)]]">[[_getLabelText(task,labels)]]</div>
+                        <!--<div class="position no-selected">
+                            [[task.position]]
+                        </div>-->
+                        <template is="dom-if" if="[[task.assignee]]">
+                            <div class="assignee no-selected">
+                                <designmap-avatar-projector user="[[_computeOwner(task.assignee)]]"></designmap-avatar-projector>
+                            </div>
+                        </template>
+                        <template is="dom-if" if="[[_isThereExp(task.expired,task.status)]]">
+                            <div class="expired_row no-selected">[[computeTimeLeftFormMobile(task,language)]]</div>
+                        </template>
                         <div id$="subtask[[index]]" class="subtask hidden-xs" on-tap="selectWithFocus">
                             <iron-icon icon="designmap-taskmanager:subtask"></iron-icon>
-                            <div class="subtask-count">[[findSubtasksLength(task,tasks)]]</div>
+                            <div class$="subtask-count [[_subtskCls(task,tasks)]]">[[findSubtasksLength(task,tasks)]]</div>
                         </div>
                         <paper-tooltip for$="subtask[[index]]" position="left">
                             <i18-n msgid="Subtask count">Subtask count</i18-n>
@@ -592,10 +645,10 @@
                     <i18-n msgid="There are no found elements">There are no found elements</i18-n>
                 </div>
             </ul>
+            <div hidden$="[[!_showMoreState(tasks,limit,selectedFilter)]]" class="show-more" on-click="showMore">
+                <i18-n msgid="see more">see more</i18-n>
+            </div>
         </plastic-custom-scroll>
-        <!-- <div hidden$="{{computeTasksMessage(tasks.length)}}" class="message">
-           <i18-n msg-id="Create new task">There are no tasks bound to this project. Create new using a field below.</i18-n>
-         </div>-->
         <template is="dom-if" if="[[!cannotAdd]]">
             <div class="add-task">
                 <div class="add-task-wrapper">
@@ -608,7 +661,19 @@
                 </div>
             </div>
         </template>
-        <div hidden$="[[!filter]]" class$="[[computeLineClass(selected)]]"></div>
+        <template is="dom-if" if="[[_notFound(tasks.length,searchMode)]]">
+            <div class="white-space">
+                <div class="wrapper">
+                    <div class="text">
+                        <i18-n msgid="There is not found elements...">There is not found elements...</i18-n>
+                        <a href="#" on-click="cancelSearch">
+                            <i18-n msgid="Cancel search">Cancel search</i18-n>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </template>
+        <div class$="[[computeLineClass(selected)]]"></div>
         <!-- Hint -->
         <designmap-hint id="taskListHint" have-skip target="[[overviewTaskHintTarget]]" on-skip="skipTutorialStep"
                         name="taskList" vertical-offset="120"
@@ -691,10 +756,8 @@
                     value: [
                         {type: 'all', text: 'all'},
                         {type: 'not_completed', text: 'not_completed'},
-                        {type: 'incomplete', text: 'incomplete'},
-                        {type: 'in_progress', text: 'in progress'},
-                        {type: 'completed', text: 'completed'},
-                        {type: 'expired', text: 'expired'}
+                        {type: 'my', text: 'my'},
+                       /* {type: 'expired', text: 'expired'}*/
                     ]
                 },
                 /**
@@ -749,7 +812,7 @@
                  */
                 maxHeightOffset: {
                     type: Number,
-                    value: 270
+                    value: 180
                 },
                 projectId: {
                     type: String,
@@ -792,6 +855,22 @@
                 sortWay: {
                     type: String,
                     value: 'position'
+                },
+                searchMode: {
+                    type: Boolean,
+                    value: false
+                },
+                limit: {
+                    type: Number,
+                    value: 11
+                },
+                defaultLimit: {
+                    type: Number,
+                    value: 11
+                },
+                filter: {
+                    type: Boolean,
+                    value: false
                 }
             },
             listeners: {
@@ -804,8 +883,6 @@
                 if (/Firefox/.test(window.navigator.userAgent)) this.classList.add('firefox');
                 this.changeTime = null;
                 this.timer = null;
-                const filter = JSON.parse(localStorage.getItem('designmap:filter'));
-                if (filter) this.selectedFilter = filter;
             },
             attached: function () {
                 this.updateStyles();
@@ -856,7 +933,6 @@
                 /*this.details.$.title.mode = 'read';
                  this.details.$.desc.mode = 'read';
                  this.manager.mode = 'details';*/
-
                 this.fire('select-task', e.model.task);
             },
             /**
@@ -897,7 +973,9 @@
                 // Tricky timer manipulation
                 clearInterval(this.timer);
                 var status = STATUSES[STATUSES.indexOf(e.model.task.status) + 1] || STATUSES[0];
-                this.dispatch('updateTask', e.model.task._id, {status: status});
+                const data = {status: status};
+                if(status=='completed') data.completed = new Date();
+                this.dispatch('updateTask', e.model.task._id, data);
                 // Notify
                 this.sendTaskStatusNotification(e.model.task);
             },
@@ -1009,11 +1087,13 @@
              */
             parentChanged: function () {
                 if (!this.parent && !this.canBeNull) return;
+                const filterStorage = JSON.parse(localStorage.getItem('designmap:filter'));
+                if(filterStorage && filterStorage[this.parent]) this.selectedFilter = filterStorage[this.parent];
                 this.tasks = this._getTasks(ReduxStore.getState());
                 this.async(this.updateStyles,100);
             },
             /**
-             *
+             * Get tasks
              */
             _getTasks: function(state){
                 const tasks = state.tasks.filter(function (task) {
@@ -1074,20 +1154,29 @@
              */
             selectFilter: function (e) {
                 this.selectedFilter = e.model.filter;
-                localStorage.setItem('designmap:filter', JSON.stringify(this.selectedFilter));
-                this.$.filterSelector.close();
+                const filterStorage = JSON.parse(localStorage.getItem('designmap:filter')) || {};
+                filterStorage[this.parent] = this.selectedFilter;
+                localStorage.setItem('designmap:filter', JSON.stringify(filterStorage));
+                if(this.$.filterSelector) this.$.filterSelector.close();
                 this.async(this.updateStyles);
             },
             /**
              * Task filter
              */
-            taskFilter: function (selectedFilter) {
+            taskFilter: function (selectedFilter,limit) {
+                let i = 0;
                 return function (task) {
-                    if (selectedFilter.type == 'all') return true;
-                    if (selectedFilter.type == 'not_completed') return task.status != 'completed';
-                    if (selectedFilter.type == 'expired') return this.isExpired(task.expired, task.status);
-                    return selectedFilter.type == task.status;
+                    const ok = this.statusFilter(selectedFilter,task);
+                    ok ? i++ : null;
+                    if(i>limit) return false;
+                    return ok;
                 }.bind(this)
+            },
+            statusFilter: function(selectedFilter,task){
+                if (selectedFilter.type == 'all') return true;
+                if (selectedFilter.type == 'not_completed') return task.status != 'completed';
+                if (selectedFilter.type == 'my' && this.user) {return task.assignee == this.user._id;}
+                return selectedFilter.type == task.status;
             },
             /**
              * Task filter to define message displaying
@@ -1104,8 +1193,10 @@
             /**
              * Tasks sort
              */
-            taskSort: function (a,b) {
-                return a.position-b.position;
+            taskSort: function (limit,parent) {
+                return function(a,b){
+                    return a.position-b.position;
+                }
             },
             /**
              * Select new assignee to current task
@@ -1247,7 +1338,7 @@
                 this.doneHint('taskList', 'tm');
             },
             _getLabel: function(task,labels){
-                if(!labels || !task) return false;
+                if(!labels || !labels.find || !task) return false;
                 const label = labels.find(function(label){
                     return label.label == task.label;
                 });
@@ -1294,6 +1385,80 @@
                     this.dispatch('_updateTask',task._id,{position:i+1});
                 }.bind(this));
                 this.async(function(){this.dispatch('savePositions',this.tasks);},100);
+            },
+            search: function(filters) {
+                const elements = ReduxStore.getState().tasks;
+                let filtred = elements.filter(function(element){
+                    let fit = true;
+                    Object.keys(filters).forEach(function(filterName){
+                        const filter = filters[filterName];
+                        switch(filter.type) {
+                            case 'select':
+                                if(filter.value=='all') return;
+                                if(element[filterName]!=filter.value) fit = false;
+                                break;
+                            case 'search':
+                                const name = element.name;
+                                if(!new RegExp(filter.value.toLowerCase()).test(name.toLowerCase())) fit = false;
+                                break;
+                        }
+                    }.bind(this));
+                    return fit;
+                }.bind(this));
+                //if(this._allData(filters)) filtred = filtred.slice(0,30);
+                this.set('tasks',filtred);
+            },
+
+            _allData: function(filters){
+                let count = 0;
+                const filtersKeys = Object.keys(filters);
+                filtersKeys.forEach(function(filterKey){
+                    const filter = filters[filterKey];
+                    if(filter.value=='all' || !filter.value) count++;
+                });
+
+                return filtersKeys.length==count;
+            },
+
+
+            _notFound: function(length,searchMode){
+                return !length && searchMode;
+            },
+
+            _computeDraggable: function(searchMode){
+                return searchMode?'false':'true';
+            },
+
+            _computeAuthorName: function(userId) {
+                return this.computeOwnerName(this._computeOwner(userId));
+            },
+
+            _computeOwner: function(id) {
+                const project = this.project;
+                if(!project || !project.users) return;
+                const users = project.users.concat([project.ownerData]);
+                return users.find(function(user){
+                    return user._id==id;
+                });
+            },
+
+            cancelSearch: function(){
+                this.fire('cancel-search');
+            },
+
+            _isThereExp: function(exp,status){
+                return exp || status=='completed';
+            },
+
+            showMore: function(){
+                this.limit = this.tasks.length + 1;
+            },
+
+            _showMoreState: function(tasks,limit,selectedFilter) {
+                const tsks = tasks.filter(function(task){
+                    return this.statusFilter(selectedFilter,task)
+                }.bind(this))
+                return tsks.length>limit;
             }
         })
     </script>

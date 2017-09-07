@@ -129,7 +129,7 @@
          * projectUsers statePath is required!
          */
         getProjectsUserById: function(id) {
-            return this.projectUsers.find(function(user){
+            return this.projectAllUsers.find(function(user){
                 return user._id == id;
             });
         },

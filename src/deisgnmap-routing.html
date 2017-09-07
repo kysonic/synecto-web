@@ -26,8 +26,8 @@
                 this.projectId = null;
                 this.path = '/';
                 this.trashMode = false;
-                _setPreviousPagePath('fs');
-                this.page = 'fs';
+                _setPreviousPagePath('task-manager');
+                this.page = 'task-manager';
             }.bind(this));
 
             page('/settings', this._isAuth.bind(this), function(ctx,next){
@@ -83,9 +83,8 @@
                 if(!this.isObjectID(ctx.params.id)) return next();
                 this.projectId = ctx.params.id;
                 this.path = '/';
-                this.trashMode = false;
-                _setPreviousPagePath('fs');
-                this.page = 'fs';
+                _setPreviousPagePath('task-manager');
+                this.page = 'task-manager';
             }.bind(this));
 
             page('/:id/trash', this._isAuth.bind(this), function(ctx,next){
@@ -97,12 +96,12 @@
                 this.page = 'fs';
             }.bind(this));
 
-            page('/:id/task-manager', this._isAuth.bind(this), function(ctx,next){
-
+            page('/:id/fs', this._isAuth.bind(this), function(ctx,next){
                 if(!this.isObjectID(ctx.params.id)) return next();
                 this.projectId = ctx.params.id;
-                _setPreviousPagePath('task-manager');
-                this.page = 'task-manager';
+                this.trashMode = false;
+                _setPreviousPagePath('fs');
+                this.page = 'fs';
                 this.path = '/';
             }.bind(this));
 
@@ -122,23 +121,23 @@
                 this.fileId = ctx.params.id;
             }.bind(this));
 
-            page(/^\/(.*?)\/task-manager\/(.*)/, this._isAuth.bind(this), function(ctx,next){
+            page(/^\/(.*?)\/fs\/(.*)/, this._isAuth.bind(this), function(ctx,next){
                 const id = ctx.params[0];
                 if(!this.isObjectID(id)) return next();
                 this.projectId = id;
-                _setPreviousPagePath('task-manager');
-                this.page = 'task-manager';
+                _setPreviousPagePath('fs');
+                this.page = 'fs';
                 this.path = '/'+ctx.params[1];
             }.bind(this));
 
-            page(/^\/(.*?)\/(.*)/, this._isAuth.bind(this), function(ctx,next){
+            page(/^\/(.*?)\/task-manager\/(.*)/, this._isAuth.bind(this), function(ctx,next){
                 const id = ctx.params[0];
                 if(!this.isObjectID(id)) return next();
                 this.projectId = id;
                 this.path = '/'+ctx.params[1];
                 this.trashMode = false;
-                _setPreviousPagePath('fs');
-                this.page = 'fs';
+                _setPreviousPagePath('task-manager');
+                this.page = 'task-manager';
             }.bind(this));
 
 

@@ -1,9 +1,11 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="../designmap-ui/designmap-dashboard.html">
+<link rel="import" href="../designmap-ui/designmap-search-filter.html">
 <link rel="import" href="../designmap-icons/designmap-task-manager.html">
 <link rel="import" href="../designmap-icons/designmap-workspace-icons.html">
 <link rel="import" href="./designmap-task-list.html">
 <link rel="import" href="./designmap-task-details.html">
+<link rel="import" href="./designmap-tasks-overview.html">
 <link rel="import" href="../designmap-ui/designmap-stub.html">
 <link rel="import" href="../designmap-tutorial/designmap-hint.html">
 <!-- Redux -->
@@ -45,7 +47,7 @@
 
             :host > .wrapper > .content {
                 display: flex;
-                height: calc(100vh - 120px);
+                height: calc(100vh - 130px);
             }
 
             .dashboard {
@@ -55,14 +57,15 @@
                 position: relative;
             }
 
-            .dashboard .title {
+            .left > .title {
                 font-size: 26px;
                 font-weight: 100;
                 display: inline-block;
                 cursor: pointer;
                 white-space: nowrap;
+                vertical-align: middle;
                 color: var(--title-color);
-                margin-left: 5px;
+                margin-left: 23px;
             }
 
             .arrow-back {
@@ -107,6 +110,15 @@
             designmap-task-details.no-task{
                 display: none;
             }
+
+            /** List and Details **/
+            designmap-task-list {
+                flex: 1;
+            }
+            designmap-task-details {
+                flex: 1;
+            }
+
             /** Breadcrumbs **/
 
             .title {
@@ -127,7 +139,7 @@
             .crumb .title{
                 cursor: pointer;
                 display: inline-block;
-                vertical-align: top;
+                vertical-align: middle;
                 font-size: 17px !important;
                 padding: 3px 10px;
                 position: relative;
@@ -146,7 +158,7 @@
 
             .crumb .line {
                 position: absolute;
-                top: 3px;
+                top: 4px;
                 margin-left: -27px;
                 width: 30px;
                 height: 30px;
@@ -160,6 +172,41 @@
 
             .title.arrowmq {
                 margin-left: 5px !important;
+            }
+
+            .dashborad {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .right {
+                float: right;
+                margin-right: 20px;
+                min-width: 230px;
+            }
+
+            designmap-search-filter {
+                min-width: 230px;
+            }
+
+            .cancel-search {
+                display: inline-block;
+                width: 24px;
+                height: 24px;
+                padding: 2px;
+                position: relative;
+                top: 5px;
+
+                --iron-icon-components-mixin: {
+                    fill: var(--blue-darkest-color) !important;
+                    stroke: var(--blue-darkest-color) !important;
+                };
+            }
+
+            designmap-tasks-overview {
+                min-width: 400px;
+                border-left: 1px solid var(--gray-color);
             }
 
             @media (min-width: 320px) and (max-width: 768px) {
@@ -184,33 +231,53 @@
                 designmap-task-details {
                     margin-top: 0px;
                 }
+                designmap-tasks-overview {
+                    display: none;
+                }
             }
 
 
         </style>
         <div class="wrapper">
-            <designmap-dashboard hidden$="[[projectError]]" back="[[_showBack(selectedTask,MQ)]]" on-go-back="_arrowBackAction" >
-                <div class="title" >
-                    [[project.name]]
-                </div>
-                <div class="breadcrumbs hidden-xs" hidden$="[[!breadcrumbs.length]]">
-                    <div class="crumb">
-                        <div class="title" on-click="goOnTop"><i18-n msgid="Tasks">Tasks</i18-n></div>
-                        <iron-icon class="line" icon="icons:chevron-left"></iron-icon>
+            <designmap-dashboard class="dashborad" hidden$="[[projectError]]" back="[[_showBack(selectedTask,MQ)]]" on-go-back="_arrowBackAction" >
+                <div class="left">
+                    <div class="title" >
+                        [[project.name]]
                     </div>
-                    <template is="dom-repeat" items="[[breadcrumbs]]" as="crumb">
-                        <div class$="crumb [[calculateSelectedCrumb(breadcrumbs.length,index)]]" title="[[crumb.title]]">
-                            <div class$="title [[calculateSelectedCrumb(breadcrumbs.length,index)]]" on-click="goToParent">[[crumb.title]]</div>
+                    <div class="breadcrumbs hidden-xs">
+                        <div class="crumb">
+                            <div class="title" on-click="goOnTop"><i18-n msgid="Tasks">Tasks</i18-n></div>
                             <iron-icon class="line" icon="icons:chevron-left"></iron-icon>
                         </div>
-                    </template>
+                        <template is="dom-repeat" items="[[breadcrumbs]]" as="crumb">
+                            <div class$="crumb [[calculateSelectedCrumb(breadcrumbs.length,index)]]" title="[[crumb.title]]"  hidden$="[[!breadcrumbs.length]]">
+                                <div class$="title [[calculateSelectedCrumb(breadcrumbs.length,index)]]" on-click="goToParent">[[crumb.title]]</div>
+                                <iron-icon class="line" icon="icons:chevron-left"></iron-icon>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="breadcrumbs search" hidden$="[[!searchMode]]">
+                        <div class="crumb">
+                            <div class="title" ><i18-n msgid="Tasks">Tasks</i18-n></div>
+                            <iron-icon class="line" icon="icons:chevron-left"></iron-icon>
+                        </div>
+                        <div class="crumb">
+                            <div class="title"><i18-n msgid="Search">Search</i18-n></div>
+                            <iron-icon class="line" icon="icons:chevron-left"></iron-icon>
+                        </div>
+                        <paper-icon-button class="cancel-search" on-click="cancelSearch" icon="icons:close"></paper-icon-button>
+                    </div>
+                </div>
+                <div class="right">
+                    <designmap-search-filter id="searchFilter" label="[[translate('Search...',language,i18Loaded)]]" items="[[filterItems]]"></designmap-search-filter>
                 </div>
             </designmap-dashboard>
             <div class$="content [[mode]]">
-                <designmap-task-list class$="[[_isThereSelectedTaskClass(selectedTask)]]" hidden$="[[!computeMainState(tasks.length)]]" id="list"
-                                     selected="{{selectedTask}}" can-be-null parent="[[selectedTask.parent]]"  filter selecting></designmap-task-list>
-                <designmap-task-details class$="[[_isThereSelectedTaskClass(selectedTask)]]" hidden$="[[!computeMainState(tasks.length)]]"
-                                        id="details" task="[[selectedTask]]"></designmap-task-details>
+                <designmap-task-list class$="[[_isThereSelectedTaskClass(selectedTask)]]" hidden$="[[!computeListState(tasks.length)]]" id="list"
+                                     selected="{{selectedTask}}" can-be-null parent="[[selectedTask.parent]]" cannot-add="[[searchMode]]" search-mode="[[searchMode]]"  selecting></designmap-task-list>
+                <designmap-task-details class$="[[_isThereSelectedTaskClass(selectedTask)]]" hidden$="[[!computeDetailsState(tasks.length,selectedTask)]]"
+                                        id="details" task="[[selectedTask]]" search-mode="[[searchMode]]"></designmap-task-details>
+                <designmap-tasks-overview hidden$="[[!computeOverviewState(tasks.length,selectedTask)]]"></designmap-tasks-overview>
                 <div class="no-task" hidden$="[[!computeNoTasksState(tasks.length,loading,error)]]">
                     <designmap-stub id="slothStub" value="{{taskName}}" on-action="addTask"
                                     image="designmap-workspace-stub:sloth" message="You do not have tasks yet"
@@ -252,25 +319,22 @@
                 Polymer.CombineActions(Polymer.ProjectActions, Polymer.UserActions, Polymer.TasksActions, Polymer.FilesActions, Polymer.CommentsActions)
             ],
             properties: {
-                /**
-                 * Language
-                 */
-                language: {
-                    type: String,
-                    statePath: 'language'
-                },
                 user: {
                     type: Object,
                     statePath: 'user'
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    value: false
                 },
                 isAuth: {
                     type: Boolean,
                     computed: '_computedAuth(user)',
                     observer: '_isAuthChanged'
-                },
-                i18Loaded: {
-                    type: Boolean,
-                    statePath: 'i18Loaded'
                 },
                 taskName: {
                     type: String,
@@ -284,14 +348,6 @@
                     type: Object,
                     value: null,
                     observer: '_selectedTaskChanged'
-                },
-                projectLoading: {
-                    type: Boolean,
-                    computed: "_computeProjectState(project.loading)"
-                },
-                projectError: {
-                    type: Boolean,
-                    computed: "_computeProjectState(project.error)"
                 },
                 tasks: {
                     type: Array,
@@ -341,14 +397,24 @@
                 maxBreadcrumbs: {
                     type: Number,
                     value: 7
+                },
+                filterItems: {
+                    type: Array,
+                    computed: '_computeFilterItems(project,language,i18Loaded,project.*)'
+                },
+                searchMode: {
+                    type: Boolean,
+                    value: false
                 }
             },
             listeners: {
                 'select-task': 'selectTask',
+                'search': 'search',
                 'task-normalize-positions': 'normalizePositions',
                 'focus-input': 'focusInput',
                 'reset': 'findDefaultTask',
-                'mobile-go-back':'mobileGoBack'
+                'mobile-go-back':'mobileGoBack',
+                'cancel-search':'cancelSearch'
             },
             /**
              * Create new task on level 1.
@@ -384,8 +450,14 @@
             computeRightIcon: function (mode) {
                 return mode != 'list' ? 'designmap40:task' : 'designmap-notify:new-task';
             },
-            computeMainState: function (length) {
+            computeListState: function (length) {
                 return !!length;
+            },
+            computeDetailsState: function (length, selectedTask) {
+                return !!length && selectedTask;
+            },
+            computeOverviewState: function (length, selectedTask) {
+                return length && !selectedTask;
             },
             computeNoTasksState: function (length, loading, error) {
                 return !length && !loading && !error;
@@ -407,6 +479,9 @@
                 if(this.MQ=='sm') this.mobileGoBack();
             },
             selectTask: function (e) {
+                if(this.selectedTask && this.selectedTask.parent!=e.detail.parent) this.$.list.limit = this.$.list.defaultLimit;
+                if(this.selectedTask && this.selectedTask.parent==e.detail.parent) this.$.details.$.list.limit = this.$.list.defaultLimit;
+                this.cancelSearch();
                 page.redirect('/' + this.projectId + '/task-manager' + this.getFullPath(e.detail));
             },
             focusInput: function () {
@@ -416,9 +491,9 @@
                 return !!user;
             },
             _pathChanged: function (path) {
-                if (path == '/' && !this.selectedTask && !this.isMobile()) return this.findDefaultTask();
+                //if (path == '/' && !this.selectedTask && !this.isMobile()) return this.findDefaultTask();
                 const task = this.findTaskByPath(path);
-                if (!task) return;
+                if(!task) return;
                 this.selectedTask = task;
                 //this.$.list.resetFilter();
             },
@@ -469,13 +544,13 @@
                 // Start FileSystem tutorial
                 if(this.tasks && this.tasks.length) return;
                 const MQ = ReduxStore.getState().MQ;
-                if(this.user && this.user.system && this.user.system.tutorials && this.user.system.tutorials.tm && MQ!='sm') {
+                /*if(this.user && this.user.system && this.user.system.tutorials && this.user.system.tutorials.tm && MQ!='sm') {
                     const user = Object.assign({},this.user);
                     const tutorial = document.querySelector('designmap-app').$.tmTutorial;
                     user.system.tutorials.tm = true;
                     this.dispatch('userUpdate',user);
                     this.async(function(){tutorial.start();},1000);
-                }
+                }*/
             },
             /**
              * Breadcrumbs will be calculated
@@ -526,6 +601,89 @@
             },
             normalizePositions: function(){
                 this.$.list.normalizePositions();
+            },
+
+            _computeFilterItems: function(project,lng,loaded,splices) {
+                const users = project ? project.users.concat([project.ownerData]) : [];
+                const userOpts = [
+                    {
+                        value: 'all',
+                        label: 'Any'
+                    }
+                ].concat(users.map(function(user){
+                    return {
+                        value: user._id,
+                        label: this.computeOwnerName(user)
+                    }
+                }.bind(this)));
+                const labels = project&&project.settings&&project.settings.taskManager?project.settings.taskManager.labels:[];
+                const data = [
+                    {
+                        name:'owner',
+                        type: 'select',
+                        default: 'all',
+                        options: userOpts
+                    },
+                    {
+                        name:'assignee',
+                        type: 'select',
+                        default: 'all',
+                        options: userOpts
+                    },
+                    {
+                        name:'status',
+                        type: 'select',
+                        default: 'all',
+                        options: [
+                            {
+                                value: 'all',
+                                label: this.translate('Any')
+                            },
+                            {
+                                value:'incomplete',
+                                label: this.translate('incomplete')
+                            },
+                            {
+                                value:'in_progress',
+                                label: this.translate('in_progress')
+                            },
+                            {
+                                value:'completed',
+                                label: this.translate('completed')
+                            }
+                        ]
+                    }
+                ];
+                if(labels.length) data.push({
+                    name:'label',
+                    type: 'select',
+                    default: 'all',
+                    options: [{
+                        value: 'all',
+                        label: 'Any'
+                    }].concat(labels.map(function(label){
+                        return {
+                            value: label.label,
+                            label: label.label
+                        }
+                    }))
+                });
+
+                return data
+            },
+
+            search: function(e){
+                this.searchMode = true;
+                this.selectedTask = null;
+                this.async(function(){
+                    this.$.list.search(e.detail);
+                })
+            },
+
+            cancelSearch: function() {
+                this.searchMode = false;
+                this.$.searchFilter.empty();
+                page.redirect('/'+this.projectId+'/task-manager/');
             }
         })
     </script>

@@ -259,20 +259,20 @@
              */
             goToParent: function (e) {
                 const folder = this.findFolderById(e.model.crumb._id);
-                page.redirect('/'+this.projectId+this.getFullPath(folder));
+                page.redirect('/'+this.projectId+'/fs'+this.getFullPath(folder));
             },
             goBack: function(){
-                if(this.breadcrumbs.length-2<0) return  page.redirect('/'+this.projectId);
+                if(this.breadcrumbs.length-2<0) return  page.redirect('/'+this.projectId+'/fs');
                 const crumb = this.breadcrumbs[this.breadcrumbs.length-2];
                 const folder = this.findFolderById(crumb._id);
-                page.redirect('/'+this.projectId+this.getFullPath(folder));
+                page.redirect('/'+this.projectId+'/fs'+this.getFullPath(folder));
             },
             /**
              * Go on top
              * @param e
              */
             goOnTop: function (e) {
-                page.redirect('/'+this.projectId);
+                page.redirect('/'+this.projectId+'/fs');
             },
             /**
              * Compute class if it is first crumb

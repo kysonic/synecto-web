@@ -9,7 +9,7 @@
             getTasks: function (query) {
                 return function (dispatch) {
                     var state = ReduxStore.getState();
-                    query.scope = state.project._id;
+                    query.scope = this.projectId;
                     var promise = xhr.get(Designmap.config.apiURL + 'task/' + this.objectToQueryString(query));
                     promise.then(function (response) {
                         if (!response.success) return;
@@ -65,7 +65,7 @@
                     var promise = xhr.post(Designmap.config.apiURL + 'task/', {
                         path: task.path,
                         data: task,
-                        projectID: state.project._id
+                        projectID: this.projectId
                     });
                     promise.then(function (response) {
                         if (!response.success) throw new Error(response.errors.message);
@@ -116,7 +116,7 @@
                     var promise = xhr.put(Designmap.config.apiURL + 'task/', {
                         path: id,
                         data: data,
-                        projectID: state.project._id
+                        projectID: this.projectId
                     });
                     promise.then(function (response) {
                         if (!response.success) throw new Error(response.errors.message);
@@ -173,7 +173,7 @@
                     dispatch({type: 'REMOVE_TASK', index: index});
                     var promise = xhr.delete(Designmap.config.apiURL + 'task/', {
                         path: id,
-                        projectID: state.project._id
+                        projectID:  this.projectId
                     });
                     promise.then(function (response) {
                         if (!response.success) throw new Error();

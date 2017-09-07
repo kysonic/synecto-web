@@ -9,6 +9,7 @@
 <link rel="import" href="../designmap-avatar/designmap-avatar-projector.html">
 <link rel="import" href="../designmap-ui/designmap-context-menu.html">
 <link rel="import" href="../designmap-ui/designmap-invk-textarea.html">
+<link rel="import" href="../designmap-ui/designmap-dashboard.html">
 <link rel="import" href="../designmap-fs/designmap-file-uploader.html">
 <link rel="import" href="../designmap-task-manager/designmap-task-creator.html">
 <link rel="import" href="../designmap-fs/designmap-file-preview.html">
@@ -39,12 +40,14 @@
             :host {
                 display: flex;
                 flex-direction: column;
-                height: calc(100% - 55px);
+                height:calc(100% - 10px);
                 flex-wrap: wrap;
                 flex-grow: 1;
                 overflow: hidden;
               /*  background: url('/assets/images/bkg/collage.jpg');*/
 /*                background-size: 320%;*/
+
+                --breadcrumbs-selected-color: var(--blue-darkest-color);
 
                 --plastic-textarea-mixin: {
                     font-family: var(--font-family);
@@ -80,7 +83,40 @@
                     border-top: none;
                     border-bottom: 1px dashed var(--gray-color);
                     font-size: 14px;
-                }
+                };
+
+
+                --paper-input-container-color: var(--blue-darkest-color);
+                --paper-input-container-focus-color: var(--blue-darkest-color);
+                --paper-input-container: {
+                    padding: 0;
+                };
+                --paper-input-container-input: {
+                    color: var(--blue-darkest-color);
+                    font-family: var(--font-family);
+                    font-size: 16px;
+                    font-weight: 300 !important;
+                    padding: 0;
+                };
+                --paper-input-container-label: {
+                    font-size: 16px;
+                    font-weight: 300 !important;
+                };
+                --paper-input-container-label-floating: {
+                    font-weight: 300 !important;
+                };
+                --paper-input-container-invalid-color: var(--error-color);
+                --iron-icon-fill-color: var(--blue-darkest-color);
+                --paper-icon-button: {
+                    padding: 0;
+                    width: 24px;
+                    height: 24px;
+                    position: relative;
+                    bottom: 2px;
+                };
+                --paper-font-caption: {
+                    height: 10px;
+                };
             }
 
             *[hidden] {
@@ -258,6 +294,10 @@
                 position: relative;
             }
 
+            .anothers .menu iron-icon {
+                --iron-icon-fill-color: var(--white-color);
+            }
+
             .own .menu {
                 float: right;
             }
@@ -406,6 +446,75 @@
                 padding: 5px 20px;
             }
 
+            /** DASHBOARD **/
+
+            .dashboard {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .left > .title {
+                font-size: 26px;
+                font-weight: 100;
+                display: inline-block;
+                cursor: pointer;
+                white-space: nowrap;
+                vertical-align: middle;
+                color: var(--blue-darkest-color);
+                margin-left: 23px;
+            }
+
+            .breadcrumbs {
+                display: inline-block;
+            }
+
+            .crumb {
+                display: inline-block;
+                margin-left: 25px;
+                font-weight: 100;
+                flex: 1;
+                position: relative;
+            }
+            .crumb .title{
+                cursor: pointer;
+                display: inline-block;
+                vertical-align: top;
+                font-size: 17px !important;
+                padding: 3px 10px;
+                position: relative;
+                top: 3px;
+                white-space: nowrap;
+                max-width: 150px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                color: var(--breadcrumbs-selected-color);
+            }
+            .crumb .title.selected {
+                border-radius: 3px;
+                background: var(--breadcrumbs-selected-color);
+                color: var(--white-color);
+            }
+
+            .crumb .line {
+                position: absolute;
+                top: 3px;
+                margin-left: -27px;
+                width: 30px;
+                height: 30px;
+                left: 0;
+                --iron-icon-components-mixin: {
+                    stroke-width: 1px;
+                    stroke: var(--white-color);
+                    fill: var(--blue-darkest-color);
+                };
+            }
+
+            .dashboard .right {
+                min-width: 230px;
+                margin-right: 30px;
+            }
+
 
             @media (min-width: 320px) and (max-width: 768px) {
                 .scroll {
@@ -425,6 +534,25 @@
                 }
             }
         </style>
+
+        <designmap-dashboard class="dashboard">
+            <div class="left">
+                <div class="title">
+                    [[project.name]]
+                </div>
+                <div class="breadcrumbs">
+                    <div class="crumb">
+                        <div class="title" on-click="goOnTop"><i18-n msgid="Chat">Chat</i18-n></div>
+                        <iron-icon class="line" icon="icons:chevron-left"></iron-icon>
+                    </div>
+                </div>
+            </div>
+            <div class="right">
+                <paper-input id="search"  on-input="_search" label="[[translate('Search...',language,i18Loaded)]]">
+                    <paper-icon-button suffix icon="search" class="search-btn" on-click="_search"></paper-icon-button>
+                </paper-input>
+            </div>
+        </designmap-dashboard>
 
         <!-- File explorer -->
         <paper-dialog class="explorer-dialog" on-down="refitFsExplorer" id="fsExplorerDialog"
@@ -471,7 +599,7 @@
                         </template>
                         <div class="text">
                             <span>
-                                <plastic-html msg="[[processLinksInText(message.text)]]"></plastic-html>
+                                <plastic-html class="html" msg="[[processLinksInText(message.text)]]"></plastic-html>
                             </span>
                             <div class="balloon-tick"></div>
                             <!-- Attaches -->
@@ -989,8 +1117,23 @@
             scrollToMessage: function(message){
                 const currentMsg = this.$.messages.querySelector('[data-id="' + message._id + '"]');
                 const bound = currentMsg.getBoundingClientRect();
-                const top = Math.abs(bound.top) > 0 ?  Math.abs(bound.top) : 0;
-                this.$.scroll.setScroll(top + bound.height);
+                const top = this.$.scroll.$.content.scrollHeight-bound.top;
+                this.$.scroll.setScroll(currentMsg.offsetTop);
+            },
+
+            highlightText: function(message,search){
+                this.clearHighLights();
+                const currentMsg = this.$.messages.querySelector('[data-id="' + message._id + '"]');
+                currentMsg.classList.add('highlighted');
+                currentMsg.querySelector('.html').highlight=search;
+            },
+
+            clearHighLights: function(){
+                const elements = this.$.messages.querySelectorAll('.highlighted');
+                [].forEach.call(elements,function(msg){
+                    msg.classList.remove('highlighted');
+                    msg.querySelector('.html').highlight=null;
+                },this);
             },
 
             openFileExplorer: function(){
@@ -1090,6 +1233,16 @@
 
             _isAuthChanged: function(isAuth){
                 if(isAuth) this._setUserLastReview();
+            },
+
+            _search: function(e){
+                const value = this.$.search.value;
+                const found = this.messages.find(function(message){
+                    return new RegExp(value.toLowerCase()).test(message.text.toLowerCase());
+                });
+                if(!found) return this.clearHighLights();
+                this.scrollToMessage(found);
+                this.highlightText(found,value);
             }
         });
     </script>

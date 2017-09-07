@@ -1,0 +1,192 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/google-chart/google-chart.html">
+
+<dom-module id="designmap-tasks-overview">
+    <template>
+        <style>
+            :host {
+                display: block;
+                overflow: hidden;
+            }
+            :host .title {
+                font-size: 22px;
+                color: var(--blue-darkest-color);
+                text-align: center;
+                padding: 5px 0;
+                border-bottom: 1px solid var(--gray-color);
+            }
+            .info {
+                padding: 10px 0;
+            }
+            .info .item {
+                color: var(--gray-darkend-color);
+                font-size: 18px;
+                margin-left: 20px;
+                text-align: center;
+            }
+            .info .chart google-chart {
+                height: 200px;
+            }
+            .info .item > * {
+                display: inline-block;
+            }
+            .info .item .value {
+                font-weight: bold;
+            }
+            .dashed {
+                border-bottom: 1px dashed var(--gray-saturated-color);
+                cursor: help;
+            }
+        </style>
+        <div class="title">
+            <i18-n msgid="Tasks overview">Tasks overview</i18-n>
+        </div>
+        <div class="info">
+            <div class="item overall">
+                <div class="name dashed" id="overallTasks"><i18-n msgid="Overall Tasks">Overall Tasks</i18-n>:</div>
+                <div class="value">[[tasks.length]]</div>
+            </div>
+            <paper-tooltip for="overallTasks">
+                <i18-n msgid="OverallTasksMsg">OverallTasksMsg</i18-n>
+            </paper-tooltip>
+            <div class="chart">
+                <google-chart
+                        type='pie'
+                        options='{"legend": { "position": "none" }, "colors": ["#989898","#b7d66b", "#f9a606", "#e46b54"]}'
+                        data='[[_statusChartData(tasks,language,i18Loaded)]]'
+                ></google-chart>
+            </div>
+            <div class="item">
+                <div class="name dashed" id="completedTasks"><i18-n msgid="Completed Tasks">Completed Tasks</i18-n>:</div>
+                <div class="value">[[_getByStatus(tasks,'completed')]]</div>
+            </div>
+            <paper-tooltip for="completedTasks">
+                <i18-n msgid="CompletedTasksMsg">CompletedTasksMsg</i18-n>
+            </paper-tooltip>
+            <div class="chart">
+                <google-chart
+                        type='line'
+                        options='{"legend": { "position": "none" },  "hAxis": { "format": "#,###" }, "vAxis": { "format": "#,###" },"colors": ["#62a6ef"]}'
+                        data='[[_getCompletedData(tasks,language,i18Loaded)]]'
+                ></google-chart>
+            </div>
+            <div class="item">
+                <div class="name dashed" id="SpentTimeMsg"><i18-n msgid="Spent time">Spent time</i18-n>:</div>
+                <div class="value">[[_getFormattedSpentTime(tasks)]]</div>
+            </div>
+            <paper-tooltip for="SpentTimeMsg">
+                <i18-n msgid="SpentTimeMsg">SpentTimeMsg</i18-n>
+            </paper-tooltip>
+            <div class="chart">
+                <google-chart
+                        type='column'
+                        options='{"bars": "horizontal","legend": { "position": "none" },  "hAxis": { "format": "#,###" }, "vAxis": { "format": "#,###" },"colors": ["#62a6ef","#FC4D3E","#b7d66b","#989898","#dda898"]}'
+                        data='[[_getSpentTimeData(tasks,projectUsers,language,i18Loaded)]]'
+                ></google-chart>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-tasks-overview',
+            behaviors: [
+                ReduxBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapMessagesBehavior
+            ],
+            properties: {
+                tasks: {
+                    type: Array,
+                    statePath: 'tasks'
+                },
+                projectUsers: {
+                    type: Array,
+                    statePath: "projectUsers"
+                },
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    value: false
+                }
+            },
+            _getByStatus: function(tasks,status){
+                return tasks.filter(function(task){
+                    if(this.isExpired(task.expired,task.status) && status=='expired') return true;
+                    return task.status==status;
+                }.bind(this)).length;
+            },
+            isExpired: function (expired, status) {
+                if(!expired) return false;
+                var diff = moment.duration(moment(expired).diff(moment()));
+                return diff._milliseconds < 0 && status != 'completed';
+            },
+            _getSpentTime: function(tasks,who){
+                const spentMS = tasks.filter(function(task){
+                    if(who) return task.assignee==who;
+                    return true;
+                }).reduce(function(a,b){
+                    const as = a&&a.time?a.time.spent:a;
+                    const bs = b&&b.time?b.time.spent:b;
+                    return as+bs;
+                },0);
+                return spentMS;
+            },
+            _getFormattedSpentTime: function(tasks,who){
+                return moment(this._getSpentTime(tasks,who)).subtract('hours',3).format('HH:mm:ss')
+            },
+            _statusChartData: function(tasks){
+                const data = [
+                    [this.translate("Status"), this.translate("Amount")],
+                    [this.translate("incomplete"), this._getByStatus(tasks,'incomplete')],
+                    [this.translate("in_progress"), this._getByStatus(tasks,'in_progress')],
+                    [this.translate("completed"), this._getByStatus(tasks,'completed')],
+                    [this.translate("expired"), this._getByStatus(tasks,'expired')]];
+                return data;
+            },
+            _getCompletedData: function(tasks){
+                const completed = tasks.filter(function(task){
+                    return task.status=='completed';
+                });
+                const data = [[this.translate("Days"), this.translate("Tasks")]];
+                const dates = {};
+                completed.forEach(function(task){
+                    const date = task.completed || task.modified;
+                    dates[this._getDateAxisAlias(date)] = dates[this._getDateAxisAlias(date)] || [];
+                    dates[this._getDateAxisAlias(date)].push(task);
+                },this);
+                const dateKeys = Object.keys(dates);
+                if(!dateKeys.length) data.push(["0",0]);
+                Object.keys(dates).forEach(function(dateKey){
+                    data.push([dateKey,dates[dateKey].length]);
+                });
+
+                return data;
+            },
+            _getDateAxisAlias: function(completedDate){
+                const d = new Date(completedDate);
+                const month = d.getMonth();
+                const day = d.getDate();
+                return (month<10?'0'+month:month) + '.'+(day<10?'0'+day:day);
+            },
+            _getSpentTimeData: function(tasks,projectUsers){
+                if(!projectUsers) return [[this.translate("Who"),this.translate("How much")], [this.translate("I am"), 0]];
+                const data = [[this.translate("Who"),this.translate("How much")]];
+                projectUsers.forEach(function(user){
+                    const spentTime = this._getSpentTime(tasks,user._id);
+                    const date = moment(spentTime).subtract('hours',3);
+                    const minutes = date.minutes()
+                    const hours = date.hours()
+                    data.push([this.computeOwnerName(user),hours+(minutes/60)])
+                },this);
+                return  data;
+            }
+        })
+    </script>
+</dom-module>

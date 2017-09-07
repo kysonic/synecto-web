@@ -57,10 +57,10 @@
             }
         </style>
         <div class="wrap">
-            <paper-input id="search" on-change="_changeSearchInput" label="[[label]]" on-click="openDropdown">
-                <paper-icon-button suffix icon="search" on-click="search"></paper-icon-button>
+            <paper-input id="search"  on-input="_changeSearchInput" label="[[label]]" on-click="openDropdown">
+                <paper-icon-button suffix icon="search" class="search-btn" on-click="search"></paper-icon-button>
             </paper-input>
-            <designmap-dropdown id="dropdown" previous vertical-offset="40" horizontal-offset="0">
+            <designmap-dropdown no-cancel-on-outside-click="[[noCancelOnOutsideClick]]" id="dropdown" previous vertical-offset="40" horizontal-offset="0">
                 <template is="dom-repeat" items="[[items]]" as="item">
                     <div class="item">
                         <template is="dom-if" if="[[_isSelect(item)]]">
@@ -87,14 +87,30 @@
                 },
                 values: {
                     type: Object,
-                    value: {}
+                    value: null
+                },
+                noCancelOnOutsideClick: {
+                    type: Boolean,
+                    value: false
                 }
+            },
+            observers: [
+                '_itemsChanged(items)'
+            ],
+            _itemsChanged: function(items){
+                if(this.values) return;
+                items.forEach(function(item){
+                    this.values = this.values || {};
+                    this.values[item.name]= this.values[item.name] || {};
+                    this.values[item.name].value = item.default;
+                }.bind(this));
             },
             _isSelect: function(item){
                 return item.type=='select';
             },
             _change: function(e){
                 if(!e.model.item || !e.model.item.name) return;
+                if(this.values[e.model.item.name] && this.values[e.model.item.name].value==e.detail) return;
                 this.values[e.model.item.name] = {
                     type: e.model.item.type,
                     value: e.detail
@@ -108,10 +124,14 @@
                 };
                 this.fire('search',this.values);
             },
-            openDropdown: function(){
+            openDropdown: function(e){
+                if(e.target.classList.contains('search-btn')) return;
+                this.noCancelOnOutsideClick = true;
+                this.async(function(){this.noCancelOnOutsideClick = false;},100);
                 this.$.dropdown.open();
             },
             search: function(){
+                this.noCancelOnOutsideClick = false;
                 this.async(this.$.dropdown.close);
                 this.fire('search',this.values);
             },

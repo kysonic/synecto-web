@@ -14,6 +14,7 @@
     "watch": "browser-sync start --proxy localhost:5000 --files 'src/*.html, src/*.js, images/*'",
     "build": "polymer build && cd build/unbundled && bower install",
     "build:serve": "polymer build && cd build/unbundled && bower install && cd ../../ && polymer serve build/unbundled -o -p 8081",
+    "serve": "polymer serve build/unbundled -o -p 8081",
     "test": "npm run lint && polymer test",
     "lint": "eslint . --ext js,html --ignore-path .gitignore"
   },

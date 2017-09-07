@@ -1924,5 +1924,71 @@
   },
   "Search...": {
     "message": "Поиск..."
+  },
+  "All": {
+    "message": "Все"
+  },
+  "Any": {
+    "message": "Любой"
+  },
+  "Folder": {
+    "message": "Папка"
+  },
+  "File": {
+    "message": "Файл"
+  },
+  "see more": {
+    "message": "еще"
+  },
+  "label": {
+    "message": "метка"
+  },
+  "assignee": {
+    "message": "ответственный"
+  },
+  "status": {
+    "message": "статус"
+  },
+  "Attach has been removed": {
+    "message": "Прикрепленный элемент был удален"
+  },
+  "There is not found elements...": {
+    "message": "Не удалось найти элементы..."
+  },
+  "Cancel search": {
+    "message": "Отменить поиск"
+  },
+  "my": {
+    "message": "мои"
+  },
+  "Tasks overview": {
+    "message": "Обзор задач"
+  },
+  "Overall Tasks": {
+    "message": "Все задачи"
+  },
+  "Completed Tasks": {
+    "message": "Завершенные задачи"
+  },
+  "CompletedTasksMsg": {
+    "message": "Это завершенные задачи сгрупированные по дате завершения."
+  },
+  "OverallTasksMsg": {
+    "message": "Все задачи сгрупированные по статусам"
+  },
+  "SpentTimeMsg": {
+    "message": "Общее потраченое время на проект. На гарфике - потраченое время каждого пользователя."
+  },
+  "Spent time": {
+    "message": "Потраченное время"
+  },
+  "Collapse panel": {
+    "message": "Свернуть панель"
+  },
+  "Who": {
+    "message": "Кто"
+  },
+  "How much": {
+    "message": "Сколько"
   }
 }

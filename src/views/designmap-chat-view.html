@@ -5,98 +5,12 @@
 <link rel="import" href="../redux/redux-store.html">
 
 <dom-module id="designmap-chat-view">
-    <style>
-        :host {
-            display: block;
-            height: 100%;
-            --designmap-dashboard-title-mixin: {
-                margin-left: 25px;
-            };
-            --breadcrumbs-selected-color: var(--blue-darky-color);
-        }
-        .content {
-            height: 100%;
-        }
-        .breadcrumbs {
-            display: inline-block;
-        }
-
-        .crumb {
-            display: inline-block;
-            margin-left: 25px;
-            font-weight: 100;
-            flex: 1;
-            position: relative;
-        }
-        .crumb .title{
-            cursor: pointer;
-            display: inline-block;
-            vertical-align: top;
-            font-size: 17px !important;
-            padding: 3px 10px;
-            position: relative;
-            top: 3px;
-            white-space: nowrap;
-            max-width: 150px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            color: var(--breadcrumbs-selected-color);
-        }
-        .crumb .title.selected {
-            border-radius: 3px;
-            background: var(--breadcrumbs-selected-color);
-            color: var(--white-color);
-        }
-
-        .crumb .line {
-            position: absolute;
-            top: 3px;
-            margin-left: -27px;
-            width: 30px;
-            height: 30px;
-            left: 0;
-            --iron-icon-components-mixin: {
-                stroke-width: 1px;
-                stroke: var(--white-color);
-                fill: var(--blue-darkest-color);
-            };
-        }
-
-        .title.arrowmq {
-            margin-left: 5px !important;
-        }
-        designmap-dashboard .title {
-            flex: none !important;
-        }
-    </style>
     <template>
-        <div class="content">
-            <designmap-dashboard>
-                <div class="title">
-                    [[project.name]]
-                </div>
-                <div class="breadcrumbs">
-                    <div class="crumb">
-                        <div class="title" on-click="goOnTop"><i18-n msgid="Chat">Chat</i18-n></div>
-                        <iron-icon class="line" icon="icons:chevron-left"></iron-icon>
-                    </div>
-                </div>
-            </designmap-dashboard>
-            <designmap-chat id="chat" opened="true" dashboard></designmap-chat>
-        </div>
+        <designmap-chat id="chat" opened="true" dashboard></designmap-chat>
     </template>
     <script>
         Polymer({
-            is: 'designmap-chat-view',
-            behaviors: [
-                ReduxBehavior
-            ],
-            properties: {
-                project: {
-                    type: Object,
-                    statePath: 'project'
-                }
-            }
+            is: 'designmap-chat-view'
         });
     </script>
 </dom-module>

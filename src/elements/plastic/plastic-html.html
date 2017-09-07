@@ -14,6 +14,10 @@
             #content a {
                 color: var(--blue-darkest-color);
             }
+            .marked {
+                padding: 0 3px;
+                background: #e7dad1;
+            }
         </style>
         <div id="content"></div>
     </template>
@@ -25,11 +29,20 @@
                     type:String,
                     value: '',
                     observer: '_msgChanged'
+                },
+                highlight: {
+                    type: String,
+                    value: '',
+                    observer: 'highlightChanged'
                 }
             },
             _msgChanged: function(msg){
                 // Escape stuff;
                 this.$.content.innerHTML = msg;
+            },
+            highlightChanged: function(highlight){
+                if(!highlight) return  this.$.content.innerHTML = this.msg;
+                this.$.content.innerHTML = this.msg.replace(new RegExp(highlight,'ig'),'<span class="marked">'+highlight+'</span>');
             }
         })
     </script>

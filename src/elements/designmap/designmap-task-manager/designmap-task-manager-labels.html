@@ -214,6 +214,7 @@
                 this.$.label.value = '';
                 this.$.label.invalid = false;
                 this.project.settings = this.project.settings || {taskManager:{labels:[]}};
+                //this.project.settings.taskManager.labels = this.project.settings.taskManager.labels || [];
                 this.project.settings.taskManager.labels.push(label);
                 // Upd
                 this._updateProject(this.project);

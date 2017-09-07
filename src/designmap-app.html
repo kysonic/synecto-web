@@ -112,7 +112,7 @@
                 color: var(--white-color);
                 font-size: 10px;
                 left: 100%;
-                margin-left: -54px;
+                margin-left: -44px;
                 top: 2px;
             }
 
@@ -183,12 +183,13 @@
         </paper-dialog>
 
 
-        <app-drawer-layout fullbleed responsive-width="770px">
+        <app-drawer-layout fullbleed responsive-width="[[resWidth]]">
             <!-- Drawer content -->
             <app-drawer id="drawer">
                 <app-toolbar>
                     <a class="logo-wrap" style="text-decoration: none" tabindex="-1" >
                         <iron-icon class="designmap-logo" tabindex="-1" icon="designmap-logo:logo"></iron-icon>
+                        <span class="beta">beta v4.1</span>
                     </a>
                 </app-toolbar>
                 <designmap-advanced-menu id="advancedMenu" path="[[path]]" page="[[page]]"></designmap-advanced-menu>
@@ -199,7 +200,7 @@
 
                 <app-header id="header" condenses reveals effects="waterfall">
                     <app-toolbar>
-                        <designmap-header id="dmHeader"></designmap-header>
+                        <designmap-header mobile-mode="{{mobileMode}}" id="dmHeader"></designmap-header>
                     </app-toolbar>
                 </app-header>
 
@@ -383,6 +384,15 @@
                     type: String,
                     value: null,
                     observer: 'approveTokenChanged'
+                },
+                resWidth: {
+                    type: String,
+                    value: '770px'
+                },
+                mobileMode: {
+                    type: Boolean,
+                    value: false,
+                    observer: '_mobileModeChanged'
                 }
             },
 
@@ -772,8 +782,13 @@
             changeAppLoading: function(e){
                 this.loading = e.detail;
             },
+
             changeAppError: function(e){
                 this.error = e.detail;
+            },
+
+            _mobileModeChanged: function(mobileMode){
+                this.resWidth = mobileMode ? '1960px' : '770px';
             }
 
         });

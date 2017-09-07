@@ -80,7 +80,14 @@
          * Find task index by full path
          */
         findSubtasksLength: function (tsk) {
-            return this.findSubtasks(tsk).length;
+            const length = this.findSubtasks(tsk).length;
+            return length>99?99:length;
+        },
+        /**
+         * Find task index by full path
+         */
+        _subtskCls: function (tsk) {
+            return this.findSubtasks(tsk).length>10?'dec':'';
         },
         /**
          * Find task by id
@@ -132,7 +139,7 @@
             return (parent.path || Designmap.config.separator) + (parent.name) + Designmap.config.separator;
         },
         canUpdateTask: function(task){
-            if(!this.user) return false;
+            if(!this.user || !task) return false;
             return this.user._id==task.owner || (this.project && this.user._id==this.project.owner) || (task.assignee && this.user._id==task.assignee._id);
         },
         canRemoveTask: function(task){
@@ -140,7 +147,7 @@
             return  this.user._id==task.owner || this.user._id==this.project.owner;
         },
         isAssignee: function(task){
-            if(!this.user) return false;
+            if(!this.user || !task) return false;
             return this.user._id==task.assignee || (task.assignee && this.user._id==task.assignee._id);
         },
         _spentAndAssignee: function(spent, task){
