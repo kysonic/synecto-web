@@ -1990,5 +1990,23 @@
   },
   "How much": {
     "message": "Сколько"
+  },
+  "Only assignee can track time": {
+    "message": "Только ответственный может отсеживать время"
+  },
+  "Only project or task owner can assign somebody": {
+    "message": "Только владелец проекта или задачи может назначать отвественного"
+  },
+  "Only project or task owner can changed due date": {
+    "message": "Только владелец проекта или задачи может изменить срок"
+  },
+  "Only project or task or assignee can change task status": {
+    "message": "Только владелец проекта или задачи или ответственный может изменить статус задачи"
+  },
+  "Show overview": {
+    "message": "Показать обзор задач"
+  },
+  "GoogleDocsIntegration": {
+    "message": "Интегрируйтесь с Google Office чтобы добавлять документы, таблицы и презентации"
   }
 }

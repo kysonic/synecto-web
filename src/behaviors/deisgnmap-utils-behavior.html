@@ -52,7 +52,7 @@
          * Extra function allowing parse query.
          * @returns {{}}
          */
-        parseQuery: function () {
+        parseQuery: function (string) {
             if (!/\?/.test(window.location.href)) return {};
             var query = window.location.href.split('?')[1].split('&');
             var o = {};

@@ -522,6 +522,12 @@
                     // 2. first project
                     // 3. There is no project
                     if (this.projectId) return false;
+                    const redirect = localStorage.getItem('synecto:redirect');
+                    if(redirect) {
+                        console.log(window.location.query);
+                        localStorage.setItem('synecto:redirect','');
+                        return page.redirect(redirect);
+                    }
                     // If path=='/' that means we are in home - we have to find a prohect
                     if(this.path!=='/') return;
                     const projectId = response.projects[0] && response.projects[0]._id || null;

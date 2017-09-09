@@ -1975,5 +1975,23 @@
   },
   "How much": {
     "message": "How much"
+  },
+  "Only assignee can track time": {
+    "message": "Only assignee can track time"
+  },
+  "Only project or task owner can assign somebody": {
+    "message": "Only project or task owner can assign somebody"
+  },
+  "Only project or task owner can changed due date": {
+    "message": "Only project or task owner can changed due date"
+  },
+  "Only project or task or assignee can change task status": {
+    "message": "Only project or task or assignee can change task status"
+  },
+  "Show overview": {
+    "message": "Show tasks overview"
+  },
+  "GoogleDocsIntegration": {
+    "message": "Integrate with Google Office to add docs, spreadsheets and presentations"
   }
 }

@@ -42,6 +42,13 @@
                 transition: stroke-dashoffset .4s ease-in;
             }
 
+            :host([disabled]) circle, :host(.hovered) circle{
+                stroke-dashoffset: 1002;
+            }
+            :host([disabled]) {
+                opacity: 0.6;
+            }
+
         </style>
         <svg viewBox="0 0 40 40" preserveAspectRatio="xMidYMid meet"
              style="pointer-events: none; display: block; width: 100%; height: 100%;">

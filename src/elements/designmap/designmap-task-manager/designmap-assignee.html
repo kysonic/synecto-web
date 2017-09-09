@@ -315,7 +315,7 @@
                 this.resolveDropDown(this.$.dropdown);
             },
             openDialog: function () {
-                if (this.disabled) return;
+                if (this.disabled) return this.showErrorMessage('Only project or task owner can assign somebody');
                 console.log(this.assigneeUser);
                 this.$.select.text = this.assigneeUser ? this.assigneeUser.local.email : '';
                 this.$.dropdown.open();

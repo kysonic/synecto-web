@@ -867,6 +867,9 @@
             .track-time .button {
                 cursor: pointer;
             }
+            .track-time .button[disabled] {
+                opacity: 0.5;
+            }
 
             .track-time .button iron-icon {
                 --iron-icon-components-mixin: {
@@ -1204,7 +1207,7 @@
                             [[_computeTime(task.time,spentTime)]]
                             <i18-n msgid="spent">spent</i18-n>
                         </div>
-                        <div class="button" on-tap="trackTime" hidden$="[[!isAssignee(task)]]">
+                        <div class="button" on-tap="trackTime" disabled$="[[!isAssignee(task)]]">
                             <iron-icon id="trackButton" icon="[[_computeTimeIcon(task.time)]]"></iron-icon>
                         </div>
                         <div class="button" hidden$="[[!_spentAndAssignee(task.time.spent,task)]]" on-tap="openClearTimeDialog">
@@ -1822,12 +1825,12 @@
              * Change status of current task
              */
             changeStatus: function () {
-                if (!this.canUpdateTask(this.task)) return ;
+                if (!this.canUpdateTask(this.task)) return this.showErrorMessage('Only project or task or assignee can change task status');
                 //if (this.isExpired(this.task.expired)) return;
                 var status = STATUSES[STATUSES.indexOf(this.task.status) + 1] || STATUSES[0];
                 const data = {status: status};
                 if(status=='completed') data.completed = new Date();
-                this.dispatch('updateTask', e.model.task._id, data);
+                this.dispatch('updateTask', this.task._id, data);
                 // Notify
                 this.sendTaskStatusNotification(this.task);
                 this.doneHint('status','tm');
@@ -1893,7 +1896,7 @@
              * Open date picker
              */
             openDatePicker: function () {
-                if(!this.canRemoveTask(this.task)) return;
+                if(!this.canRemoveTask(this.task)) return this.showErrorMessage('Only project or task owner can changed due date');
                 this.$.datePickerDialog.open();
                 this.async(function () {
                     this.$.datePicker.$.calendar._resizeHandler();
@@ -2245,7 +2248,8 @@
                 return time && time.run ? 'av:stop' : 'av:play-arrow';
             },
 
-            trackTime: function () {
+            trackTime: function (e) {
+                if(e.currentTarget.hasAttribute('disabled')) return this.showErrorMessage('Only assignee can track time');
                 this.task.time = this.task.time || {};
 
                 this.task.time.run ? this.stopTrack() : this.startTrack();
@@ -2365,7 +2369,7 @@
                 this.dispatch('unfollowTask',this.task,this.user._id);
             },
             _labelChanged: function(e){
-                if(e.detail.sourceEvent) return;
+                if(e.detail.sourceEvent && !this.task) return;
                 this.task.label = e.detail;
                 this.dispatch('updateTask', this.task._id, this.task).then(function (response) {
                     if (!response.success) return;

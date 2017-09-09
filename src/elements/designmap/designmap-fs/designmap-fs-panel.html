@@ -6,6 +6,7 @@
 <link rel="import" href="../designmap-tutorial/designmap-hint.html">
 <link rel="import" href="../designmap-buttons/designmap-circle-button.html">
 <link rel="import" href="../designmap-buttons/designmap-round-button.html">
+<link rel="import" href="./designmap-google-docs.html">
 <!-- Services -->
 <link rel="import" href="./designmap-fs-service.html">
 
@@ -93,6 +94,12 @@
                 min-width: 230px;
             }
 
+            designmap-google-docs {
+                width: 50px;
+                height: 50px;
+                margin-left: 10px;
+            }
+
             @media (min-width: 320px) and (max-width: 768px) {
                 #createFolderButton ,#uploadFileButton, #sortButton, #infoButton, #restoreButton,#removeButton {
                     display: none;
@@ -169,6 +176,8 @@
                 </designmap-hint>
                 <!-- Hint -->
                 <paper-tooltip for="uploadFileButton"><i18-n msgid="Upload file">Upload file</i18-n></paper-tooltip>
+                <!-- Google -->
+                <designmap-google-docs  hidden$="[[_hideFsButtons(trashMode,searchMode)]]"></designmap-google-docs>
                 <!-- Trash mode -->
                 <designmap-circle-button id="restoreButton" plastic-tooltip$="[[translate('Restore all',language,i18Loaded)]]" data-cls="blue"
                                          hidden$="[[!_hideTrashButtons(trashMode,searchMode)]]" class="trash" on-click="restoreAll">

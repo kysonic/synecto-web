@@ -12,9 +12,9 @@
             _setPreviousPagePath = _setPreviousPagePath.bind(this);
 
             page('*', function(ctx, next) {
-                this.firstHash = this.firstHash || ctx.hash;
-                this.hash = ctx.hash;
-
+                Designmap.firstQuery = Designmap.firstQuery || ctx.querystring;
+                Designmap.firstHash = Designmap.firstHash || ctx.hash;
+                Designmap.currentHash = ctx.hash;
                 Designmap.previousPath = Designmap.currentPath;
                 Designmap.currentPath = ctx.path;
 

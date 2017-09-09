@@ -26,6 +26,7 @@
 <dom-module id="designmap-task-manager">
     <template>
         <style include="loading-shared-styles"></style>
+        <style include="tooltip-shared-styles"></style>
         <style>
             :host {
                 --title-color: var(--blue-darky-color);
@@ -182,12 +183,13 @@
 
             .right {
                 float: right;
-                margin-right: 20px;
+                margin-right: 2px;
                 min-width: 230px;
             }
 
             designmap-search-filter {
                 min-width: 230px;
+                display: inline-block;
             }
 
             .cancel-search {
@@ -258,10 +260,6 @@
                     </div>
                     <div class="breadcrumbs search" hidden$="[[!searchMode]]">
                         <div class="crumb">
-                            <div class="title" ><i18-n msgid="Tasks">Tasks</i18-n></div>
-                            <iron-icon class="line" icon="icons:chevron-left"></iron-icon>
-                        </div>
-                        <div class="crumb">
                             <div class="title"><i18-n msgid="Search">Search</i18-n></div>
                             <iron-icon class="line" icon="icons:chevron-left"></iron-icon>
                         </div>
@@ -270,6 +268,10 @@
                 </div>
                 <div class="right">
                     <designmap-search-filter id="searchFilter" label="[[translate('Search...',language,i18Loaded)]]" items="[[filterItems]]"></designmap-search-filter>
+                    <paper-icon-button id="cancelTask" icon="subject" on-click="cancelTask"></paper-icon-button>
+                    <paper-tooltip for="cancelTask" position="left">
+                        <i18-n msgid="Show overview">Show overview</i18-n>
+                    </paper-tooltip>
                 </div>
             </designmap-dashboard>
             <div class$="content [[mode]]">
@@ -684,6 +686,10 @@
                 this.searchMode = false;
                 this.$.searchFilter.empty();
                 page.redirect('/'+this.projectId+'/task-manager/');
+            },
+
+            cancelTask: function(){
+                this.selectedTask = null;
             }
         })
     </script>

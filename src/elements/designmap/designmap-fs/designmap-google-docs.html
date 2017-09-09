@@ -1,0 +1,142 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../designmap-buttons/designmap-circle-button.html">
+
+<dom-module id="designmap-google-docs">
+    <template>
+        <style>
+            :host {
+                --designmap-circle-button-mixin: {
+                    width: 50px;
+                    height: 50px;
+                };
+                --designmap-circle-button-circle-mixin: {
+                    width: 30px;
+                    height: 30px;
+                };
+                --designmap-circle-button-content-icon-mixin: {
+                    width: 24px;
+                    height: 24px;
+                    padding: 13px 13px;
+
+                }
+            }
+            designmap-circle-button {
+                width: 50px;
+                height: 50px;
+            }
+
+
+        </style>
+        <designmap-circle-button on-tap="action" disabled$="[[!googleInt]]">
+            <iron-icon class="icon" icon="designmap:google-drive-blue"></iron-icon>
+        </designmap-circle-button>
+        <paper-tooltip>
+            <i18-n msgid="GoogleDocsIntegration">GoogleDocsIntegration</i18-n>
+        </paper-tooltip>
+    </template>
+    <script>
+        const env = location.href.indexOf('localhost')!=-1 ? 'local' : 'remote';
+        const apiURL = env=='local'?'http://127.0.0.1:4000/':'https://server.synecto.io/';
+        Polymer({
+            is: 'designmap-google-docs',
+            behaviors: [
+                ReduxBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.UserActions
+            ],
+            properties: {
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                googleInt: {
+                    type: Boolean,
+                    computed: '_computeGoogleInt(user.system.integrations.google)',
+                    value:false
+                },
+                credentials: {
+                    type: Object,
+                    value: {
+                        auth: 'https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=*CLIENT_ID*&redirect_uri=*REDIRECT_URI*&scope=https://www.googleapis.com/auth/drive.file&access_type=offline&prompt=consent',
+                        token: apiURL+'user/google-account'
+                    }
+                },
+                code: {
+                    type: String,
+                    value: '',
+                    observer: '_codeChanged'
+                }
+            },
+            attached: function(){
+                if(Designmap.firstQuery) this.async(function(){
+                    this.parseQuery(Designmap.firstQuery)
+                },1000)
+            },
+            parseQuery: function(query){
+                if(!/code/.test(query)) return;
+                this.code = query.split('=')[1];
+            },
+            /**
+             * If code will be changed we have to
+             * make a request to obtain access_token nor refresh_token
+             */
+            _codeChanged: function (code) {
+                // Standard for major part of services token request.
+                //this[this.platform+'Token']();
+                if(!code) return;
+                xhr.contentType = 'application/x-www-form-urlencoded';
+                // Dropbox token endpoint supports CORS. Nice! Google - nope... Shit. We will use proxy instead.
+                xhr.post(this.googleDriveLink('token'), {
+                    code: this.code,
+                    grant_type: 'authorization_code',
+                    client_id: Designmap.oauth.googleDrive.clientID,
+                    client_secret: Designmap.oauth.googleDrive.clientSecret,
+                    redirect_uri: Designmap.config.appURL
+                }).then(function (res) {
+                    // Drop it back
+                    xhr.contentType = 'application/json';
+                    //Setup data
+                     this.user.system.integrations = this.user.system.integrations || {};
+                     this.user.system.integrations.google = {
+                        id: res.uid || this.generateUid(),
+                        token: res.access_token,
+                        refresh: res.refresh_token || 'unknown'
+                     };
+                    if (res.expires_in) this.user.system.integrations.google.expires = Date.now() + res.expires_in;
+                    // Update user. Put into it tokens (refresh?!)
+                    this.dispatch('userUpdate',this.user).then(function(){
+                        this.showMessage("You've successfully connected your account!", {"#ACCOUNT#": 'Google Office'});
+                        // Update stores immediately
+                        //if(this[this.platform+'PostHook']) this[this.platform+'PostHook']();
+                    }.bind(this));
+                }.bind(this), this.manageErrorResponse.bind(this));
+            },
+            _computeGoogleInt: function (googleInt) {
+                return !!googleInt;
+            },
+            action: function(){
+                if(!this.googleInt) return this.authorize();
+                // Open dropdown to add doc, spreadsheet or presentation
+            },
+            authorize: function () {
+                // Forbid if user has same store
+                if (this.doesUserHaveIntegration('google')) return;
+                // Save data
+                window.localStorage.setItem('synecto:redirect', Designmap.currentPath);
+                const link = this.googleDriveLink('auth', {
+                    "*CLIENT_ID*": Designmap.oauth.googleDrive.clientID,
+                    "*REDIRECT_URI*": Designmap.config.appURL
+                });
+                window.location.href = link;
+            },
+            googleDriveLink: function (action, replacement) {
+                return this.replacer(this.credentials[action], replacement)
+            },
+            doesUserHaveIntegration: function (storageName) {
+                if (!this.user || !this.user.system.integrations) return false;
+                return this.user.system.integrations[storageName] && this.user.system.integrations[storageName].token;
+            }
+        })
+    </script>
+</dom-module>

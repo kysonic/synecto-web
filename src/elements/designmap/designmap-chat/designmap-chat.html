@@ -168,6 +168,7 @@
                 display: inline-block;
                 width: 100%;
                 position: relative;
+                font-weight: 500;
             }
 
             .date-delimiter {
@@ -208,11 +209,12 @@
             }
 
             .anothers .text {
-                background: var(--blue-color);
-                color: var(--white-color);
+                background: var(--white-color);
+                color: var(--gray-darkend-color);
                 float: left;
                 margin-left: 5px;
                 text-align: left;
+                border: 1px solid var(--gray-color);
             }
 
             .projector {
@@ -225,7 +227,7 @@
                 height: 0;
                 border-style: solid;
                 border-width: 10px 10px 10px 0;
-                border-color: transparent #007bff transparent transparent;
+                border-color: transparent var(--white-color) transparent transparent;
                 position: absolute;
             }
 
@@ -236,9 +238,9 @@
             .anothers.first .balloon-tick {
                 display: block;
                 border-width: 10px 10px 0 0;
-                border-color: var(--blue-color) transparent transparent transparent;
+                border-color: var(--gray-color) transparent transparent transparent;
                 top: 100%;
-                left: 0;
+                left: -1px;
                 margin-top: 0;
             }
 
@@ -294,8 +296,8 @@
                 position: relative;
             }
 
-            .anothers .menu iron-icon {
-                --iron-icon-fill-color: var(--white-color);
+            .menu iron-icon {
+                --iron-icon-fill-color: var(--gray-saturate-color);
             }
 
             .own .menu {
