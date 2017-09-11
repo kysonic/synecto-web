@@ -1992,6 +1992,30 @@
     "message": "Show tasks overview"
   },
   "GoogleDocsIntegration": {
-    "message": "Integrate with Google Office to add docs, spreadsheets and presentations"
+    "message": "Integrate with Google Docs to add docs, spreadsheets and presentations"
+  },
+  "Create Doc": {
+    "message": "Create Google Doc"
+  },
+  "Create Sheet": {
+    "message": "Create Google Sheet"
+  },
+  "Create Slide": {
+    "message": "Create Google Slide"
+  },
+  "docName": {
+    "message": "Document name"
+  },
+  "sheetName": {
+    "message": "Sheet name"
+  },
+  "slideName": {
+    "message": "Slide name"
+  },
+  "Google doc has been added successfully!": {
+    "message": "Google doc has been added successfully!"
+  },
+  "Only project owner can integrate with Google Docs.": {
+    "message": "Only project owner can integrate with Google Docs."
   }
 }

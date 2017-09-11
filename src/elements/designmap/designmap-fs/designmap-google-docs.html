@@ -1,9 +1,10 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="../designmap-buttons/designmap-circle-button.html">
+<link rel="import" href="../designmap-ui/designmap-context-menu.html">
 
 <dom-module id="designmap-google-docs">
     <template>
-        <style>
+        <style include="context-menu-shared-styles">
             :host {
                 --designmap-circle-button-mixin: {
                     width: 50px;
@@ -20,19 +21,54 @@
 
                 }
             }
+            *[hidden] {
+                display: none !important;
+            }
             designmap-circle-button {
+                position: relative;
                 width: 50px;
                 height: 50px;
             }
 
+            .circle-loading {
+                width: 50px;
+                height: 50px;
+                background: url(/assets/images/loading/gdloading.gif) center no-repeat;
+                background-size: 100%;
+            }
+
 
         </style>
-        <designmap-circle-button on-tap="action" disabled$="[[!googleInt]]">
+        <designmap-circle-button hidden$="[[loading]]" id="googleButton" on-click="action" disabled$="[[!googleInt]]">
             <iron-icon class="icon" icon="designmap:google-drive-blue"></iron-icon>
         </designmap-circle-button>
-        <paper-tooltip>
+        <div hidden$="[[!loading]]" class="circle-loading"></div>
+        <designmap-context-menu id="contextMenu" previous>
+            <ul class="menu">
+                <li on-click="openNameContext" data-type="doc"><i18-n msgid="Create Doc">Create Doc</i18-n></li>
+                <li on-click="openNameContext" data-type="sheet"><i18-n msgid="Create Sheet" data-type="sheet">Create Sheet</i18-n></li>
+                <li on-click="openNameContext" data-type="slide"><i18-n msgid="Create Slide" data-type="slide">Create Slide</i18-n></li>
+            </ul>
+        </designmap-context-menu>
+        <paper-tooltip for="googleButton">
             <i18-n msgid="GoogleDocsIntegration">GoogleDocsIntegration</i18-n>
         </paper-tooltip>
+        <designmap-context-menu bound darker id="nameContext">
+            <div class="context-content">
+                <iron-a11y-keys id="a11yAddFolder" keys="ctrl+enter meta+enter"
+                                on-keys-pressed="renameFolder"></iron-a11y-keys>
+                <paper-input label="[[inputLabel]]" auto-validate
+                             pattern="[\w\dа-яА-ЯёЁ -]+"
+                             required
+                             error-message="[[translate('NameError',language,i18Loaded)]]"
+                             id="docName"></paper-input>
+                <div class="button-container">
+                    <button is="designmap-round-button" on-click="createDoc">
+                        <iron-icon icon="icons:arrow-forward"></iron-icon>
+                    </button>
+                </div>
+            </div>
+        </designmap-context-menu>
     </template>
     <script>
         const env = location.href.indexOf('localhost')!=-1 ? 'local' : 'remote';
@@ -43,16 +79,28 @@
                 ReduxBehavior,
                 Polymer.DesignMapUtilsBehavior,
                 Polymer.DesignMapMessagesBehavior,
-                Polymer.UserActions
+                Polymer.CombineActions(Polymer.UserActions,Polymer.FilesActions)
             ],
             properties: {
                 user: {
                     type: Object,
                     statePath: 'user'
                 },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    value: false
+                },
+                project: {
+                    type: Object,
+                    statePath: 'project'
+                },
                 googleInt: {
                     type: Boolean,
-                    computed: '_computeGoogleInt(user.system.integrations.google)',
+                    computed: '_computeGoogleInt(project.ownerData.system.integrations.google)',
                     value:false
                 },
                 credentials: {
@@ -66,6 +114,14 @@
                     type: String,
                     value: '',
                     observer: '_codeChanged'
+                },
+                folder: {
+                    type: String,
+                    value: ''
+                },
+                loading: {
+                    type: Boolean,
+                    value: false
                 }
             },
             attached: function(){
@@ -108,16 +164,18 @@
                     this.dispatch('userUpdate',this.user).then(function(){
                         this.showMessage("You've successfully connected your account!", {"#ACCOUNT#": 'Google Office'});
                         // Update stores immediately
-                        //if(this[this.platform+'PostHook']) this[this.platform+'PostHook']();
+                        this.googleDrivePostHook();
                     }.bind(this));
                 }.bind(this), this.manageErrorResponse.bind(this));
             },
             _computeGoogleInt: function (googleInt) {
                 return !!googleInt;
             },
-            action: function(){
-                if(!this.googleInt) return this.authorize();
+            action: function(e){
+                if(!this.googleInt && this.project.owner!=this.user._id) return this.showErrorMessage('Only project owner can integrate with Google Docs.');
+                if(!this.googleInt && this.project.owner==this.user._id) return this.authorize();
                 // Open dropdown to add doc, spreadsheet or presentation
+                this.$.contextMenu.toggle(e);
             },
             authorize: function () {
                 // Forbid if user has same store
@@ -134,8 +192,29 @@
                 return this.replacer(this.credentials[action], replacement)
             },
             doesUserHaveIntegration: function (storageName) {
-                if (!this.user || !this.user.system.integrations) return false;
-                return this.user.system.integrations[storageName] && this.user.system.integrations[storageName].token;
+                if (!this.project || !this.project.ownerData.system.integrations) return false;
+                return this.project.ownerData.system.integrations[storageName];
+            },
+            openNameContext: function(e){
+                this.$.nameContext.target = e.currentTarget;
+                this.type = e.currentTarget.dataset.type;
+                this.inputLabel = this.translate(this.type+'Name')
+                this.$.nameContext.toggle(e);
+            },
+            createDoc: function(){
+                if(!this.$.docName.validate()) return this.showErrorMessage('Name is not valid');
+                this.loading = true;
+                this.$.nameContext.close();
+                this.async(function(){this.$.contextMenu.close()},200);
+                this.dispatch('createDoc',{name:this.$.docName.value,type:this.type,folder:this.folder}).then(function(response){
+                    this.loading = false;
+                    this.$.docName.value = '';
+                    this.$.docName.invalid = false;
+                    this.showMessage('Google doc has been added successfully!');
+                }.bind(this));
+            },
+            googleDrivePostHook: function(){
+                xhr.post(Designmap.config.apiURL+'user/google-synecto-folder').then(function (res) {}.bind(this), this.manageErrorResponse.bind(this));
             }
         })
     </script>

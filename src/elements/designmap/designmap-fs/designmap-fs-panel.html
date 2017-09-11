@@ -177,7 +177,7 @@
                 <!-- Hint -->
                 <paper-tooltip for="uploadFileButton"><i18-n msgid="Upload file">Upload file</i18-n></paper-tooltip>
                 <!-- Google -->
-                <designmap-google-docs  hidden$="[[_hideFsButtons(trashMode,searchMode)]]"></designmap-google-docs>
+                <designmap-google-docs folder="[[currentFolderId]]" hidden$="[[_hideFsButtons(trashMode,searchMode)]]"></designmap-google-docs>
                 <!-- Trash mode -->
                 <designmap-circle-button id="restoreButton" plastic-tooltip$="[[translate('Restore all',language,i18Loaded)]]" data-cls="blue"
                                          hidden$="[[!_hideTrashButtons(trashMode,searchMode)]]" class="trash" on-click="restoreAll">

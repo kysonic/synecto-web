@@ -202,6 +202,13 @@
                     flex: 0 1 calc(100% / 2);
                 }
             }
+            .borders .type {
+                position: absolute;
+            }
+            .border .type iron-icon {
+                width: 40px;
+                height: 40px;
+            }
             @media (min-width: 320px) and (max-width: 655px) {
                 :host {
                     height: 45vw;
@@ -296,8 +303,11 @@
                     </template>
                     <template is="dom-if" if="[[!shouldViewImage(item)]]">
                         <div class="borders" >
-                            <iron-icon icon="designmap-workspace:filer"></iron-icon>
-                            <span class="extension">[[getExtensionWithoutDot(item.data.name)]]</span>
+                            <iron-icon hidden$="[[_isGoogleDoc(item)]]" icon="designmap-workspace:filer"></iron-icon>
+                            <span class="extension">[[getFilePreview(item)]]</span>
+                            <div hidden$="[[!_isGoogleDoc(item)]]" class="type">
+                                <iron-icon class="gdoc" icon$="designgdoc:[[item.data.type]]"></iron-icon>
+                            </div>
                         </div>
                     </template>
                 </template>
@@ -435,6 +445,14 @@
             },
             loaded: function(e){
                 e.target.parentNode.classList.add('loaded');
+            },
+            getFilePreview: function(element){
+                if(element.type=='folder') return '';
+                if(element && element.data.storage=='google') return '';
+                return this.getExtensionWithoutDot(element.data.name);
+            },
+            _isGoogleDoc: function(element){
+                return element && element.type=='file' && element.data.storage=='google' && element.data.type;
             }
         })
     </script>

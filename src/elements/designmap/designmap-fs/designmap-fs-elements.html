@@ -580,15 +580,7 @@
              * @param element
              */
             executeFileAction: function (file) {
-                const tutorial = document.querySelector('designmap-app').$.fsTutorial;
-                // Hint
-                this.doneHint('openFile','fs',function(){
-                    this.async(function(){
-                        const gallery = this._findElement('galleryView.gallery');
-                        gallery.showHint = true;
-                    },500);
-                }.bind(this), true);
-                // Git
+                if(file.data.storage=='google') return window.open(file.data.url,'_blank');
                 page.redirect('/'+this.projectId+'/gallery/'+file._id);
             },
             /**

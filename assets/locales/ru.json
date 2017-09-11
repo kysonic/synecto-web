@@ -2007,6 +2007,30 @@
     "message": "Показать обзор задач"
   },
   "GoogleDocsIntegration": {
-    "message": "Интегрируйтесь с Google Office чтобы добавлять документы, таблицы и презентации"
+    "message": "Интегрируйтесь с Google Docs чтобы добавлять документы, таблицы и презентации"
+  },
+  "Create Doc": {
+    "message": "Создать Google Документ"
+  },
+  "Create Sheet": {
+    "message": "Создать Google Таблицу"
+  },
+  "Create Slide": {
+    "message": "Создать Google Слайды"
+  },
+  "docName": {
+    "message": "Имя документа"
+  },
+  "sheetName": {
+    "message": "Имя таблицы"
+  },
+  "slideName": {
+    "message": "Имя слайдов"
+  },
+  "Google doc has been added successfully!": {
+    "message": "Google документ был успешно добавлен!"
+  },
+  "Only project owner can integrate with Google Docs.": {
+    "message": "Только владелец проекта может интегрироваться с Google Docs."
   }
 }

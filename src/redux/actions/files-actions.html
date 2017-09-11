@@ -126,6 +126,19 @@
                     return promise;
                 }.bind(this);
             },
+            createDoc: function(data){
+                return function(dispatch){
+                    var state = ReduxStore.getState();
+                    // Create request
+                    var promise = xhr.post(Designmap.config.apiURL+'file/doc?project='+state.projectId+'&'+'folder='+data.folder,data);
+                    promise.then(function(response){
+                        if(!response.success) return;
+                        dispatch({type:'SET_FILES',files:[response.file]});
+                        Designmap.projectSocket.emit('action',{type:'SET_FILES',files: [response.file],uid:Designmap.uid});
+                    }.bind(this));
+                    return promise;
+                }.bind(this);
+            },
             /**
              * Update file with undo\redo
              */
