@@ -162,6 +162,7 @@
                     if (res.expires_in) this.user.system.integrations.google.expires = Date.now() + res.expires_in;
                     // Update user. Put into it tokens (refresh?!)
                     this.dispatch('userUpdate',this.user).then(function(){
+                        this.set('project.ownerData.system.integrations.google',true);
                         this.showMessage("You've successfully connected your account!", {"#ACCOUNT#": 'Google Office'});
                         // Update stores immediately
                         this.googleDrivePostHook();

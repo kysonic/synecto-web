@@ -119,7 +119,8 @@
                 border-radius: 50%;
                 color: var(--white-color);
                 background: var(--blue-color);
-                font-family: 'Open Sans';
+                border: 2px solid var(--blue-color);
+                font-family: var(--font-family);
                 font-weight: 300;
                 font-size: 20px;
                 text-transform: uppercase;
@@ -131,15 +132,19 @@
 
             :host(.completed) .assignee {
                 background: var(--completed);
+                border-color: var(--completed);
             }
             :host(.incomplete) .assignee {
                 background: var(--incomplete);
+                border-color: var(--incomplete);
             }
             :host(.in_progress) .assignee {
                 background: var(--inprogress);
+                border-color: var(--inprogress);
             }
             :host(.expired) .assignee {
                 background: var(--expired);
+                border-color: var(--expired);
             }
 
             .assignee img {
@@ -316,7 +321,6 @@
             },
             openDialog: function () {
                 if (this.disabled) return this.showErrorMessage('Only project or task owner can assign somebody');
-                console.log(this.assigneeUser);
                 this.$.select.text = this.assigneeUser ? this.assigneeUser.local.email : '';
                 this.$.dropdown.open();
                 this.$.select.$.dropdown.close();

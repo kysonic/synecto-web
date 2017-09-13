@@ -48,7 +48,7 @@
 
             :host > .wrapper > .content {
                 display: flex;
-                height: calc(100vh - 130px);
+                height: calc(100vh - 120px);
             }
 
             .dashboard {
@@ -358,7 +358,8 @@
                 },
                 projectId: {
                     type: String,
-                    statePath: 'projectId'
+                    statePath: 'projectId',
+                    observer: '_projectIdChanged'
                 },
                 project: {
                     type: Object,
@@ -481,9 +482,9 @@
                 if(this.MQ=='sm') this.mobileGoBack();
             },
             selectTask: function (e) {
-                if(this.selectedTask && this.selectedTask.parent!=e.detail.parent) this.$.list.limit = this.$.list.defaultLimit;
-                if(this.selectedTask && this.selectedTask.parent==e.detail.parent) this.$.details.$.list.limit = this.$.list.defaultLimit;
-                this.cancelSearch();
+                //if(this.selectedTask && this.selectedTask.parent!=e.detail.parent) this.$.list.limit = this.$.list.defaultLimit;
+                //if(this.selectedTask && this.selectedTask.parent==e.detail.parent) this.$.details.$.list.limit = this.$.list.defaultLimit;
+                //this.cancelSearch();
                 page.redirect('/' + this.projectId + '/task-manager' + this.getFullPath(e.detail));
             },
             focusInput: function () {
@@ -542,7 +543,7 @@
                 return !!user;
             },
             _isAuthChanged: function (isAuth) {
-                if (!isAuth) return;
+                if (!isAuth) return this.selectedTask = null;
                 // Start FileSystem tutorial
                 if(this.tasks && this.tasks.length) return;
                 const MQ = ReduxStore.getState().MQ;
@@ -553,6 +554,9 @@
                     this.dispatch('userUpdate',user);
                     this.async(function(){tutorial.start();},1000);
                 }*/
+            },
+            _projectIdChanged: function(){
+                this.selectedTask = null;
             },
             /**
              * Breadcrumbs will be calculated

@@ -2032,5 +2032,8 @@
   },
   "Only project owner can integrate with Google Docs.": {
     "message": "Только владелец проекта может интегрироваться с Google Docs."
+  },
+  "complete a task": {
+    "message": "завершить задачу"
   }
 }

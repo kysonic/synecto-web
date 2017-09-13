@@ -13,6 +13,8 @@
 <link rel="import" href="../designmap-fs/designmap-fs-explorer.html">
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
 <link rel="import" href="./designmap-task-estimate.html">
+<link rel="import" href="./designmap-task-comments.html">
+<link rel="import" href="./designmap-task-info.html">
 
 <link rel="import" href="../../../styles/tooltip-shared-styles.html">
 
@@ -38,12 +40,6 @@
                 flex-direction: column;
                 overflow: hidden;
 
-                --designmap-invk-textarea-mixin: {
-                    border: none;
-                    padding: 0 0 0 10px;
-                    max-height: none;
-                };
-
                 --details-color: var(--gray-saturated-color);
 
                 --details-incomplete: var(--incomplete);
@@ -56,51 +52,32 @@
                 display: none !important;
             }
 
-            plastic-custom-scroll {
-                flex: 11;
-            }
-
             /** DETAILS **/
             .details {
                 width: 100%;
                 height: 100%;
             }
 
-            .details .header {
-                height: 60px;
+            /** Panel **/
+
+            .details .panel {
                 display: flex;
             }
 
-            .details .header > .title {
-                width: 50%;
-            }
-
-            .details .content {
-                display: flex;
-            }
-
-            .details .content .left {
+            .details .panel .left {
                 flex: 1;
                 display: flex;
                 justify-content: center;
                 align-items: flex-start;
             }
 
-            .details .content .center {
+            .details .panel .center {
                 flex: 11;
-                align-items: flex-start;
-            }
-
-            /** PANEL **/
-            .panel {
-                flex: 1;
                 display: flex;
-                justify-content: flex-end;
-                align-items: flex-start;
-                margin-top: 3px;
+                align-items: center;
             }
 
-            .panel designmap-circle-button, designmap-assignee {
+            .right designmap-circle-button, designmap-assignee {
                 width: 55px;
                 height: 55px;
                 --designmap-circle-button-circle-mixin: {
@@ -109,17 +86,13 @@
                 };
             }
 
+            /** Assignee **/
             designmap-assignee {
                 width: 60px;
                 height: 60px;
-                margin-left: 5px;
+                margin-left: 10px;
                 --iron-icon-stroke-color: var(--gray-color);
                 --iron-icon-fill-color: var(--gray-color);
-            }
-
-            /** ASSIGNEE **/
-
-            designmap-assignee {
                 --designmap-assignee-assigned-mixin: {
                     width: 45px;
                     height: 45px;
@@ -128,1415 +101,197 @@
                 };
             }
 
-            .panel .panel-icon {
-                padding: 18px;
-            }
+            /** Title -input **/
 
-            .panel-icon.remove {
-                width: 25px;
-                height: 25px;
-                padding: 17px !important;
-            }
-
-            /** CUSTOM SCROLL **/
-            :host {
-                --plastic-custom-scroll-bar-mixin: {
-                    margin-left: -10px;
-                };
-                --plastic-custom-scroll-bar-hover-mixin: {
-                    margin-left: -12px;
-                };
-                --plastic-custom-scroll-bar-grabbed-mixin: {
-                    margin-left: -12px;
-                };
-            }
-
-            /** DATE PICKER **/
-            :host {
-                --paper-date-picker: {
-                    margin-top: 0px !important;
-                    padding: 0;
-                }
-            }
-
-            /** FILE ATTACH **/
-
-            /** Paper Dialog **/
-            paper-dialog#addFileForm {
-                color: #fff;
-                z-index: 103 !important;
-            }
-
-            paper-dialog#addFileForm .content .message {
-                padding: 10px;
-                font-size: 16px;
-            }
-
-            /** ATTACHED FILE LIST **/
-            .files {
-                font-weight: 300;
-                display: flex;
-                margin-left: 20px;
-            }
-
-            .files .wrapper {
-                margin-top: 1px;
-            }
-
-            .remove-file iron-icon {
-                width: 18px;
-                height: 18px;
-                margin-left: 3px;
-                position: relative;
-                bottom: 1px;
-            }
-
-            .files-title {
-                font-size: 18px;
-            }
-
-            .file {
-                font-size: 14px;
-            }
-
-            .file-name {
-                color: var(--gray-darkend-color);
-            }
-
-            .download-file {
-                margin-left: 5px;
-            }
-
-            .file-name, .remove-file, .download-file {
-                display: inline-block;
-                cursor: pointer;
-            }
-
-            .download-file iron-icon {
-                width: 22px;
-                height: 22px;
-                --iron-icon-components-mixin: {
-                    fill: var(--gray-darkend-color)
-                };
-            }
-
-            .paper-clip {
-                width: 45px;
-                height: 40px;
-                --iron-icon-components-mixin: {
-                    stroke: var(--gray-darkend-color) !important;
-                };
-            }
-
-            /** ASSIGNED **/
-            .assignee {
-                display: flex;
-                align-items: center;
-            }
-
-            /** BREAD CRUMBS **/
-            .breadcrumbs {
-                position: absolute;
-                display: block;
-                color: var(--gray-darkend-color);
-                font-weight: 100;
-                top: 4px;
-                width: 100%;
-            }
-
-            .crumb {
-                display: inline-block;
-                margin-left: 2px;
-                max-width: 33%;
-                vertical-align: top;
-            }
-
-            .crumb .title {
-                cursor: pointer;
-                display: inline-block;
-                vertical-align: middle;
-                font-size: 17px;
-                overflow: hidden;
-                max-width: 100%;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-
-            .crumb .title.selected {
-                border-radius: 40px;
-                background: var(--blue-color);
-                color: var(--white-color);
-                padding: 5px 14px;
-                max-width: 120px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
-            paper-dialog {
-                z-index: 2001;
-                background: var(--blue-darkest-color) !important;
-            }
-
-            paper-dialog .dialog-content {
-                color: var(--white-color);
-            }
-
-            paper-dialog .dialog-content .name {
-                text-align: center;
-                font-size: 22px;
-                font-family: "Open Sans";
-                font-weight: 700;
-                padding: 10px 0;
-                color: #fff;
-            }
-
-            paper-dialog .dialog-content .circle {
-                width: 75px;
-                height: 75px;
-                background: #fff;
-                border-radius: 50%;
-                display: block;
-                margin: 10px auto;
-            }
-
-            paper-dialog .dialog-content .circle .folder-wrapper {
-                height: 30px;
-                width: 50px;
-                padding: 24px 13px;
-            }
-
-            paper-dialog .dialog-content .circle .folder-wrapper .label {
-                height: 2px;
-                width: 18px;
-                background: #6EBAF9;
-            }
-
-            paper-dialog .dialog-content .circle .folder-wrapper .folder {
-                height: 28px;
-                width: 50px;
-                background: #8ECCFF;
-            }
-
-            paper-dialog .dialog-content .circle .ext {
-                color: #6EBAF9;
-                text-align: center;
-                font-size: 22px;
-                text-transform: uppercase;
-                padding: 29px 0;
-            }
-
-            paper-dialog .dialog-content .info {
-                padding: 10px;
-                text-align: center;
-            }
-
-            paper-dialog .dialog-content button {
-                margin-left: 20px;
-            }
-
-            paper-dialog .dialog-content button:first-child {
-                margin-left: 0px;
-            }
-
-            /** CONFIRMS **/
-            paper-dialog .content {
-                max-width: 320px;
-                margin: 0 !important;
-                color: var(--white-color);
-                padding: 20px;
-                font-size: 16px;
-                text-align: center;
-                background: var(--blue-color);
-            }
-
-            paper-dialog .content button {
-                display: inline-block;
-                width: 150px;
-            }
-
-            /** File explorer **/
-
-            paper-dialog.explorer-dialog {
-                background: var(--white-color) !important;
-            }
-
-            /** DATE POPUP **/
-            #date-button {
-                position: relative;
-            }
-
-            #date-button:hover .date-popup {
-                display: block;
-                animation: appearance .3s forwards .3s;
-                transition: opacity .3s 1s
-            }
-
-            .date-popup {
-                z-index: 120;
-                opacity: 0;
-                display: none;
-                position: absolute;
-                padding: 20px;
-                background: var(--blue-color);
-                color: var(--white-color);
-                top: 70px;
-                width: 76px;
-                margin-left: -25px;
-                border-radius: 5px;
-                transition: opacity .2s
-            }
-
-
-            /** TRI **/
-            .triangle {
-                position: absolute;
-                left: 50%;
-                margin-left: -10px;
-                top: -10px;
-                width: 0;
-                height: 0;
-                border-style: solid;
-                border-width: 0 10px 10px 10px;
-                border-color: transparent transparent var(--primary-color) transparent;
-            }
-
-            .panel-mobile {
-                position: relative;
-            }
-
-            .mobile-panel-icon {
-                width: 64px;
-                height: 64px;
-                padding: 0;
-            }
-
-            .mobile-panel-icon {
-                --iron-icon-components-mixin: {
-                    stroke: #69b3f2;
-                    stroke-width: 6;
-                }
-            }
-
-            designmap-context-menu .menu {
-                margin: 0;
-                padding: 0;
-                list-style: none;
-                width: 200px;
-            }
-
-            designmap-context-menu .menu li {
-                padding: 10px;
-                text-align: center;
-                cursor: pointer;
-                font-size: 14px;
-                transition: background .2s ease-out;
-                color: #fff;
-            }
-
-            designmap-context-menu .menu li:hover {
-                background: var(--blue-darkest-color);
-                transition: background .2s ease-in;
-            }
-
-            designmap-context-menu .menu li.disabled {
-                opacity: 0.3;
-            }
-
-            #datePickerDialog paper-button {
-                color: var(--white-color);
-            }
-
-            /** SUB TASK **/
-            designmap-task-list {
-                display: block;
-                margin-top: 0px;
-                --designmap-task-list-add-task-wrapper-mixin: {
-                    padding: 0 20px;
-                    margin-top: 5px;
-                };
-                --designmap-task-list-status-button-mixin: {
-                    margin-left: 0px;
-                };
-                --designmap-task-list-list-mixin: {
-                    padding-left: 5px;
-                };
-                --designmap-task-list-title-mixin: {
-                    margin-left: 6px;
-                };
-                --designmap-task-list-add-input-mixin: {
-                    margin-top: 0px;
-                    margin-left: 0px;
-                }
-            }
-
-            /** INPUTS **/
-
-            .pure-input, .task-title {
+            .task-title-input, .task-title {
                 font-family: var(--font-family);
                 font-weight: 100;
                 font-size: 34px;
                 color: var(--gray-darky-color);
                 border: none;
                 outline: none;
-                margin-top: 5px;
                 width: 100%;
             }
 
+            .task-title-input.edit {
+                border-bottom: 1px solid var(--gray-saturate-color);
+            }
 
-            .pure-input.bread {
-                font-size: 26px;
+            .task-title {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .title-edit-arrow {
+                width: 50px;
+                height: 50px;
                 position: relative;
-                top: 19px;
+                top: 2px;
+                --iron-icon-fill-color: var(--gray-saturate-color);
             }
 
-            .pure-textarea {
-                --plastic-textarea-mixin: {
-                    margin-left: 20px;
-                    font-family: var(--font-family);
-                    color: var(--gray-darky-color);
-                    max-width: calc(100% - 30px);
-                    font-weight: 100;
-                    font-size: 18px;
-                    padding-bottom: 5px;
-                    height: 40px;
-                }
+            /** PANEL **/
+            .right {
+                flex: 1;
+                display: flex;
+                justify-content: flex-end;
+                align-items: flex-start;
+                margin-top: 3px;
             }
 
-            .task-desc {
-                margin-left: 20px;
-                font-family: var(--font-family);
-                color: var(--gray-saturated-color);
-                max-width: calc(100% - 30px);
-                font-weight: 100;
-                font-size: 18px;
-                padding-bottom: 12px;
-                --plastic-html-mixin: {
-                    color: var(--gray-saturated-color);
-                }
-            }
-            .task-desc.can-edit {
-                cursor: pointer;
-            }
-
-                /** Sub tasks **/
-            .sub-tasks {
-                border-top: 1px solid var(--gray-color);
+            .panel-icon.remove {
+                width: 25px !important;
+                height: 25px !important;
+                padding: 15px !important;
             }
 
             /** STATUSES **/
-            .details.completed .pure-input, .details.completed .task-title {
+            .details.completed .task-title-input, .details.completed .task-title {
                 color: var(--details-completed)
             }
+            .details.completed .task-title-input.edit {
+                border-bottom: 2px solid var(--details-completed);
+            }
+            .details.completed .title-edit-arrow {
+                --iron-icon-fill-color: var(--details-completed);
+            }
 
-            .details.expired .pure-input, .details.expired .task-title {
+            .details.expired .task-title-input, .details.expired .task-title {
                 color: var(--details-expired)
             }
-
-            .details.incomplete .pure-input, .details.incomplete .task-title {
-                color: var(--details-incomplete)
+            .details.expired .task-title-input.edit {
+                border-bottom: 2px solid var(--details-expired);
+            }
+            .details.expired .title-edit-arrow {
+                --iron-icon-fill-color: var(--details-expired);
             }
 
-            .details.in_progress .pure-input, .details.in_progress .task-title {
+            .details.incomplete .task-title-input, .details.incomplete .task-title {
+                color: var(--details-incomplete)
+            }
+            .details.incomplete .task-title-input.edit {
+                border-bottom: 2px solid var(--details-incomplete);
+            }
+            .details.incomplete .title-edit-arrow {
+                --iron-icon-fill-color: var(--details-incomplete);
+            }
+
+            .details.in_progress .task-title-input, .details.in_progress .task-title {
                 color: var(--details-inprogress)
+            }
+            .details.in_progress .task-title-input.edit {
+                border-bottom: 2px solid var(--details-inprogress);
+            }
+            .details.in_progress .title-edit-arrow {
+                --iron-icon-fill-color: var(--details-inprogress);
             }
 
             #datePickerDialog paper-button {
                 color: var(--white-color);
             }
 
-            @keyframes appearance {
-                from {
-                    opacity: 0;
-                }
-                to {
-                    opacity: 1;
-                }
-            }
-
-            designmap-assignee.mobile {
-                --designmap-assignee-assigned-mixin: {
-                    width: 40px;
-                    height: 40px;
-                };
-                --designmap-assignee-empty-mixin: {
-                    width: 60px;
-                    height: 60px;
-                    position: relative;
-                    right: 13px;
-                    bottom: 12px;
-                }
-            }
-
-            .hidden-lg {
-                display: none;
-            }
-
-            designmap-task-manager-labels {
-                margin-left: 20px;
-                cursor: pointer;
-            }
-
-            /** Comments **/
-
-            .comments, .save-mobile {
-                position: relative;
-                flex: 1;
-                border-top: 1px dashed var(--gray-darkend-color);
-                min-height: 60px;
-                display: flex;
-                padding: 10px 0 0 20px;
-            }
-
-            .field {
-                width: 100%;
-            }
-
-            .comments .add-comment {
-                margin-left: 15px;
-                width: calc(100% - 40px);
-                --plastic-textarea-mixin: {
-                    font-family: var(--font-family);
-                    color: var(--gray-darky-color);
-                    font-weight: 100;
-                    font-size: 16px;
-                }
-            }
-
-            .comment-arrow, .desc-arrow {
-                position: absolute;
-                left: 100%;
-                margin-left: -40px;
-                top: 5px;
-                cursor: pointer;
-            }
-
-            .comment-arrow iron-icon {
-                --iron-icon-stroke-color: var(--gray-super-dark);
-                --iron-icon-fill-color: var(--gray-super-dark);
-            }
-
-            .comments-list {
-                margin: 20px 0 0 0;
-                padding: 0 0 0 20px;
-                list-style: none;
-                color: var(--gray-darkend-color);
-                border-top: 1px solid var(--gray-color);
-            }
-
-            .comments-list li {
-                padding: 5px 0;
-                display: flex;
-            }
-
-            .comments-list li designmap-avatar-projector {
-                min-width: 30px;
-            }
-
-            .comments-list li .text {
-                margin-left: 10px;
-                padding-right: 20px;
-                width: 100%;
-            }
-            .comments-list li .text .head {
-                padding: 2px 0 8px 0;
-                font-size: 18px;
-            }
-
-            .comments-list li .text .content {
-                position: relative;
-                width: 100%;
-               /* white-space: pre-line;
-                position: relative;
-                width: 100%;*/
-            }
-
-            .comments-list li .text .content .comment-arrow {
-                margin-left: 22px;
-                cursor: pointer;
-                z-index: 999;
-            }
-            .comments-list li .text .content .comment-arrow:hover {
-                background: var(--gray-lightern-color);
-                border-radius: 50%;
-            }
-
-            .second-line {
-                position: relative;
-            }
-
-            .desc-arrow {
-                cursor: pointer;
-                z-index: 999;
-            }
-            .desc-arrow:hover {
-                background: var(--gray-lightern-color);
-                border-radius: 50%;
-            }
-
-            .comments-list .panel {
-                margin-right: 15px;
-            }
-
-            .comments-list .panel .like {
-                display: inline-block;
-                cursor: pointer;
-            }
-
-            .comments-list .panel iron-icon {
-                cursor: pointer;
-            }
-
-            .comments-list .panel .heart {
-                width: 17px;
-                height: 17px;
-                position: relative;
-                bottom: 1px;
-                margin-right: 2px;
-            }
-
-            .comments-list .panel .likesCount {
-                font-size: 10px;
-                position: absolute;
-                margin-left: 2px;
-            }
-
-            .more {
-                position: relative;
-                width: 18px;
-                height: 18px;
-                top: 3px;
-            }
-
-            .reply {
-                width: 18px;
-                height: 18px;
-                margin-right: 2px;
-                position: relative;
-                top: 2px;
-            }
-
-            .comment-edit {
-                border: none;
-                font-size: 16px;
-                padding: 0;
-                width: 100%;
-                color: var(--gray-darkend-color);
-                resize: none;
-                font-weight: 100;
-                outline: none;
-                line-height: 24px;
-                font-family: 'Open Sans', 'Noto', sans-serif;
-            }
-
-            /** INVOCATION **/
-            .invocation {
-                display: none;
-                position: absolute;
-                top: 0;
-                left: 0;
-                z-index: 9999;
-                width: 230px;
-                color: var(--gray-darkend-color);
-            }
-
-            designmap-users-select {
-                height: 0;
-            }
-
-            /** MENU DROPDOWN **/
-            designmap-dropdown {
-                z-index: 1001;
-                --designmap-dropdown-triangle-mixin: {
-                    margin-left: 32px;
-                };
-                --designmap-dropdown-triangle-border-mixin: {
-                    border-color: transparent transparent var(--gray-color) transparent;
-                    margin-left: 30px;
-                    top: -12px;
-                }
-            }
-
-            designmap-dropdown .menu {
-                margin: 0;
-                padding: 0;
-                list-style: none;
-                color: var(--gray-darky-hovered-color);
-                text-align: center;
-                font-size: 12px;
-                font-weight: 100;
-            }
-
-            designmap-dropdown .menu li {
-                padding: 6px 0;
-                cursor: pointer;
-                transition: .2s background;
-            }
-
-            designmap-dropdown .menu li:hover {
-                background: var(--gray-lightern-color);
-                transition: .2s background;
-            }
-
-            .invoked {
-                color: var(--gray-darkend-color);
-                padding-left: 20px;
-                font-size: 14px;
-                border-top: 1px dashed var(--gray-darkend-color);
-            }
-
-            .invoked-count {
-                text-decoration: underline;
-                cursor: pointer;
-            }
-
-            /** Date and Estimate **/
-
-            .date-and-estimate {
-                /*margin-left: 20px;*/
-                padding: 10px 0;
-                position: relative;
-            }
-
-            .date-and-estimate .date {
-                display: inline-block;
-                color: var(--gray-super-dark);
-                cursor: pointer;
-            }
-
-            .date-icon {
-                display: inline-block;
-                margin-left: 17px;
-                vertical-align: bottom;
-                --iron-icon-fill-color: var(--gray-saturated-color);
-            }
-
-            .date-remove-icon {
-                display: inline-block;
-                vertical-align: bottom;
-                margin-left: 0px;
-                --iron-icon-fill-color: var(--gray-saturated-color);
-            }
-
-            .date-text {
-                display: inline-block;
-                vertical-align: bottom;
-                margin-left: 5px;
-                text-decoration: underline;
-            }
-
-            .date-and-estimate .estimate {
-                display: inline-block;
-                color: var(--white-color);
-                padding: 10px;
-                margin-left: 20px;
-                background: var(--gray-darkend-color);
-                cursor: pointer;
-            }
-
-            /** STATUSES **/
-            .date-and-estimate .estimate.completed {
-                background: var(--details-completed);
-            }
-
-            .date-and-estimate .estimate.expired {
-                background: var(--details-expired);
-            }
-
-            .date-and-estimate .estimate.in_progress {
-                background: var(--details-inprogress);
-            }
-
-            .date-and-estimate .estimate.incomplete {
-                background: var(--details-incomplete);
-            }
-
-            /** Time tracker **/
-
-            .date-and-estimate .track-time {
-                display: inline-block;
-                color: var(--gray-darkend-color);
-                margin-left: 15px;
-            }
-
-            .track-time .button, .track-time .time {
-                display: inline-block;
-                vertical-align: middle;
-            }
-
-            .track-time .button {
-                cursor: pointer;
-            }
-            .track-time .button[disabled] {
-                opacity: 0.5;
-            }
-
-            .track-time .button iron-icon {
-                --iron-icon-components-mixin: {
-                    fill: var(--gray-darkend-color);
-                };
-            }
-
-            /** Grades **/
-
-            .estimate {
-                position: relative;
-            }
-
-            .grade-dropdown {
-                display: none;
-                min-width: 200px;
-                position: absolute;
-                padding: 10px;
-                z-index: 1005;
-                background: var(--white-color);
-                margin-top: 10px;
-                border: 1px solid var(--gray-color);
-                box-shadow: var(--box-shadow);
-                right: 0;
-                left: 0px;
-                top: 50px;
-                color: var(--gray-darkend-color);
-            }
-
-            .grade-dropdown .grd {
-                padding-left: 10px;
-            }
-
-            .grade-dropdown .message {
-                padding-left: 10px;
-            }
-
-            .grade-dropdown ul {
-                list-style: none;
-                margin: 0;
-                padding: 10px;
-            }
-
-            .grade-dropdown ul li > * {
-                display: inline-block;
-                color: var(--gray-darkend-color);
-                font-size: 14px;
-                vertical-align: top;
-            }
-
-            .grade-dropdown ul li .grade {
-                font-weight: bold;
-                margin-left: 5px;
-            }
-
-            .grade-dropdown ul li .user {
-                max-width: 150px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
-            /** TRI **/
-            .triangle, .triangle-border {
-                z-index: 10;
-                position: absolute;
-                left: 0;
-                margin-left: 12px;
-                top: -10px;
-                width: 0;
-                height: 0;
-
-                border-style: solid;
-                border-width: 0 10px 10px 10px;
-                border-color: transparent transparent var(--white-color) transparent;
-            }
-
-            .triangle-border {
-                display: block;
-                left: 0;
-                margin-left: 10px;
-                top: -12px;
-                z-index: 9;
-                border-style: solid;
-                border-width: 0 12px 12px 12px;
-                border-color: transparent transparent var(--gray-color) transparent;
-            }
-            .comment-text {
-                width: 100%;
-                height: 100%;
-            }
-            .comment-text.my-comment:hover {
-                cursor: pointer;
-            }
-            /** followers **/
-            .followers {
-                display: flex;
-                justify-content: flex-end;
-                align-items: center;
-                min-height: 40px;
-                border-top: 1px dashed var(--gray-special-color);
-            }
-            .followers .txt {
-                font-size: 14px;
-                vertical-align: middle;
-                border-bottom: 1px dashed var(--gray-darkend-color);
-                cursor: help;
-            }
-            .followers designmap-followers {
-                vertical-align: middle;
-                margin-right: 20px;
-            }
-
-            @media (min-width: 320px) and (max-width: 768px) {
-                .hidden-xs {
-                    display: none;
-                }
-
-                .hidden-lg {
-                    display: block;
-                }
-
-                designmap-assignee {
-                    width: 42px;
-                    height: 42px;
-                    margin-left: 18px;
-                    margin-top: 14px;
-                }
-
-                .pure-input {
-                    margin-left: 5px;
-                    max-width: calc(100% - 10px);
-                }
-
-                iron-icon.more-icon {
-                    width: 50px;
-                    height: 50px;
-                    padding: 13px !important;
-                }
-
-                paper-dialog {
-                    max-width: 300px !important;
-                    max-height: 475px !important;
-                    top: 52px !important;
-                }
-                .date-and-estimate {
-                    padding: 0;
-                }
-                .date-and-estimate .estimate {
-                    margin-left: 10px;
-                    font-size: 14px;
-                }
-                .date-and-estimate .track-time {
-                    margin-left: 0;
-                    display: block;
-                }
-                .panel {
-                    top: 0;
-                }
-                .save-mobile {
-                    padding: 10px;
-                    min-height: 60px;
-                }
-                .save-mobile button {
-                    margin: 0;
-                    height: 50px;
-                    padding: 5px 0;
-                }
-                .comment-date {
-                    display: none;
-                }
-                .pure-input.bread {
-                    top: 0;
-                    position: inherit;
-                    font-size: 32px;
-                }
-                .pure-textarea {
-                    margin-top: 15px;
-                }
-            }
 
         </style>
-        <plastic-custom-scroll id="scroller" fit small-bar max-height="[[maxHeight]]">
-            <div id="details" class$="details [[computeAssigneeStatus(task)]]" hidden$="{{!computeSelected(task)}}">
-                <!-- Title and panel -->
-                <div class="content">
-                    <div class="left">
-                        <designmap-assignee id="assignee" horizontal-offset="-165" vertical-offset="65"
-                                            class$="[[computeAssigneeStatus(task)]] [[_isMobileClass(MQ)]]"
-                                            task="[[task]]"
-                                            disabled="[[!canRemoveTask(task)]]"
-                                            assignee="[[task.assignee]]" on-assign="selectAssignee"
-                                            on-remove="removeAssignee"></designmap-assignee>
-                        <!-- Hint -->
-                        <designmap-hint id="assigneeHint" tri-left previous name="assignee" vertical-offset="20"
-                                        horizontal-offset="70">
-                            <div class="title">
-                                <i18-n msgid="Assign responsible">Assign responsible</i18-n>
-                            </div>
-                            <div class="desc">
-                                <i18-n msgid="assigneeMsg">assigneeMsg</i18-n>
-                            </div>
-                        </designmap-hint>
-                        <!-- Hint-->
-                        <paper-tooltip for="assignee" position="right">
-                            <i18-n msgid="Assign responsible">Assign responsible</i18-n>
-                        </paper-tooltip>
-                    </div>
-                    <div class="center" id="center">
-                        <!-- BREADCRUMBS -->
-                        <!--<div class="breadcrumbs hidden-xs" hidden$="[[!breadcrumbs.length]]">
-                            <template is="dom-repeat" items="[[breadcrumbs]]" as="crumb">
-                                <div class="crumb" title="[[crumb.title]]">
-                                    <div class="title" on-click="goToParent">[[crumb.title]]</div>
-                                    <iron-icon class="arrow" icon="designmap:arrow"></iron-icon>
-                                </div>
-                            </template>
-                        </div>-->
-                        <!-- TITLE -->
-                        <input id="title" is="iron-input"
-                               on-blur="saveTitle"
-                               on-focus="hideCommentsOnMobile"
-                               class="pure-input"
-                               placeholder="[[translate('Enter title',language,i18Loaded)]]"
-                               hidden$="[[!canRemoveTask(task)]]"
-                               value="[[task.name]]"/>
-                        <!-- Hint -->
-                        <designmap-hint id="changeTaskTitleHint" previous name="changeTaskTitle" vertical-offset="60"
-                                        horizontal-offset="-40">
-                            <div class="title">
-                                <i18-n msgid="Change task title">Change task title</i18-n>
-                            </div>
-                            <div class="desc">
-                                <i18-n msgid="changeTaskTitleMsg">changeTaskTitleMsg</i18-n>
-                            </div>
-                        </designmap-hint>
-                        <div hidden$="[[canRemoveTask(task)]]" class="task-title">[[task.name]]</div>
-                        <!-- Hint-->
-                        <iron-a11y-keys keys="enter" on-keys-pressed="saveTitle"></iron-a11y-keys>
-                    </div>
-                    <div class="panel">
-                        <designmap-circle-button id="statusButton" class="status-button hidden-xs"
-                                                 on-click="changeStatus">
-                            <iron-icon class="status-icon" icon="[[computeIcon(task.status,task.expired)]]"></iron-icon>
-                        </designmap-circle-button>
-                        <!-- Hint -->
-                        <designmap-hint id="statusHint" tri-right previous name="status" vertical-offset="10"
-                                        horizontal-offset="-280">
-                            <div class="title">
-                                <i18-n msgid="Change status">Change status</i18-n>
-                            </div>
-                            <div class="desc">
-                                <i18-n msgid="changeStatusMsg">changeStatusMsg</i18-n>
-                            </div>
-                        </designmap-hint>
-                        <!-- Hint-->
-                        <paper-tooltip for="statusButton">
-                            <i18-n msgid="Change status">Change status</i18-n>
-                        </paper-tooltip>
-                        <designmap-circle-button id="fileExplorerButton" class="hidden-xs"
-                                                 on-click="openFsExplorer">
-                            <iron-icon class="panel-icon" icon="designmap-task-manager:attach_file"></iron-icon>
-                        </designmap-circle-button>
-                        <paper-tooltip for="fileExplorerButton">
-                            <i18-n msgid="Attach file">Attach file</i18-n>
-                        </paper-tooltip>
-                        <designmap-circle-button class="hidden-xs"
-                                                 id="removeButton"
-                                                 hidden$="[[!canRemoveTask(task)]]"
-                                                 on-click="openRemoveTaskConfirm">
-                            <iron-icon class="panel-icon remove" icon="designmap-task-manager:remove"></iron-icon>
-                        </designmap-circle-button>
-                        <paper-tooltip for="removeButton" position="left">
-                            <i18-n msgid="Remove task">Remove task</i18-n>
-                        </paper-tooltip>
-                        <iron-icon on-click="openContextMenu" class="panel-icon hidden-lg more-icon"
-                                   icon="designmap-workspace:more"></iron-icon>
-                        <!-- Mobile Context menu -->
-                        <designmap-context-menu id="contextMenu" previous width="200">
-                            <ul class="menu">
-                                <li on-tap="changeStatus">
-                                    [[_getTaskStatus(task.status)]]
-                                </li>
-                                <li on-tap="openFsExplorer">
-                                    <i18-n msgid="Attach file">Attach file</i18-n>
-                                </li>
-                                <li on-tap="openRemoveTaskConfirm" hidden$="[[!canRemoveTask(task)]]">
-                                    <i18-n msgid="Remove">Remove</i18-n>
-                                </li>
-                            </ul>
-                        </designmap-context-menu>
-                    </div>
-                </div>
-                <!-- Estimate due date tracking -->
-                <div class="date-and-estimate">
-                    <div id="date" class="date" >
-                        <iron-icon class="date-icon" on-tap="openDatePicker" icon="icons:date-range"></iron-icon>
-                        <div class="date-text" on-tap="openDatePicker">
-                            [[computeTimeLeft(task)]]
-                        </div>
-                        <iron-icon hidden$="[[_hideDiscard(task.expired,user)]]" class="date-remove-icon" on-tap="removeTaskDate" icon="icons:close"></iron-icon>
-                    </div>
-                    <paper-tooltip for="date">
-                        <i18-n msgid="up to">up to</i18-n>
-                        [[formatDate(date)]]
-                    </paper-tooltip>
-                    <!-- Estimate -->
-                    <div id="estimate" on-click="openEstimateDialog" on-mouseenter="showGradeDropdown"
-                         on-mouseleave="hideGradeDropdown" class$="estimate [[computeAssigneeStatus(task)]]">
-                        <div class="grade">[[_computeOverAllGrade(task.grade)]]</div>
-                        <!-- Estimate dropdown -->
-                        <div id="gradeDropdown" class="grade-dropdown">
-                            <div class="grd" hidden$="[[!_gradeLength(task.grade)]]">
-                                <i18-n msgid="Grades">Grades</i18-n>
-                            </div>
-                            <ul hidden$="[[!_gradeLength(task.grade)]]">
-                                <template is="dom-repeat" items="[[_getGradeItems(task.grade.*)]]" as="userId">
-                                    <li>
-                                        <div class="user">[[_getUser(userId,task.grade.*)]] -</div>
-                                        <div class="grade">[[_getGrade(userId,task.grade.*)]]</div>
-                                    </li>
-                                </template>
-                            </ul>
-                            <div class="message" hidden$="[[_gradeLength(task.grade)]]">
-                                <i18-n msgid="Estimate">Estimate</i18-n>
-                            </div>
-                            <!-- Tris-->
-                            <div class="triangle"></div>
-                            <div class="triangle-border"></div>
-                        </div>
-                    </div>
-                    <!-- Track time -->
-                    <div id="trackTime" hidden$="[[!canUpdateTask(task)]]" class="track-time">
-                        <div id="timeValue" class="time">
-                            [[_computeTime(task.time,spentTime)]]
-                            <i18-n msgid="spent">spent</i18-n>
-                        </div>
-                        <div class="button" on-tap="trackTime" disabled$="[[!isAssignee(task)]]">
-                            <iron-icon id="trackButton" icon="[[_computeTimeIcon(task.time)]]"></iron-icon>
-                        </div>
-                        <div class="button" hidden$="[[!_spentAndAssignee(task.time.spent,task)]]" on-tap="openClearTimeDialog">
-                            <iron-icon id="clearTimeButton" icon="icons:clear"></iron-icon>
-                        </div>
-                    </div>
-                    <!-- Labels -->
-                    <designmap-task-manager-labels hidden$="[[_hideLabels(user,project,labels)]]" label="[[task.label]]" on-change="_labelChanged" id="labels"></designmap-task-manager-labels>
-                    <!-- Tooltips -->
-                    <paper-tooltip for="timeValue">
-                        <i18-n msgid="Tack time">Track time spent on this task</i18-n>
-                    </paper-tooltip>
-                    <paper-tooltip for="trackButton">
-                        <i18-n msgid="Start/stop time tracking">Start/stop time tracking</i18-n>
-                    </paper-tooltip>
-                    <paper-tooltip for="labels">
-                        <i18-n msgid="Custom labels">Custom labels</i18-n>
-                    </paper-tooltip>
-                </div>
-                <!-- Hint -->
-                <designmap-hint id="endingHint" have-skip on-skip="endTutorial" previous name="ending"
-                                vertical-offset="80"
-                                horizontal-offset="0">
-                    <div class="title">
-                        <i18-n msgid="Other functions">Other functions</i18-n>
-                    </div>
-                    <div class="desc">
-                        <i18-n msgid="endingMsg">endingMsg</i18-n>
-                    </div>
-                </designmap-hint>
-                <!-- Hint-->
-                <!-- Description-->
-                <div class="second-line">
-                    <!-- DESC -->
-                    <iron-a11y-keys id="a11ySaveDesc" keys="ctrl+enter meta+enter"
-                                    on-keys-pressed="saveDesc"></iron-a11y-keys>
-                    <plastic-textarea id="desc" class="pure-textarea"
-                                      on-change="_descChange"
-                                      on-focus="hideCommentsOnMobile"
-                                      on-blur="saveDesc" value="[[task.description]]"
-                                      rows="1"
-                                      hidden$="[[!editDesc]]"
-                                      placeholder="[[translate('Enter description',language,i18Loaded)]]"></plastic-textarea>
+        <div id="details" class$="details [[_computeAssigneeStatus(task)]]" hidden$="{{!computeSelected(task)}}">
+            <!-- Panel -->
+            <div class="panel">
+                <div class="left">
+                    <designmap-assignee id="assignee" horizontal-offset="-165" vertical-offset="65"
+                                        class$="[[_computeAssigneeStatus(task)]] [[_isMobileClass(MQ)]]"
+                                        task="[[task]]"
+                                        disabled="[[!canRemoveTask(task)]]"
+                                        assignee="[[task.assignee]]" on-assign="_selectAssignee"
+                                        on-remove="_removeAssignee"></designmap-assignee>
                     <!-- Hint -->
-                    <designmap-hint id="changeTaskDescHint" previous name="changeTaskDesc" vertical-offset="60"
-                                    horizontal-offset="-40">
+                    <designmap-hint id="assigneeHint" tri-left previous name="assignee" vertical-offset="20"
+                                    horizontal-offset="70">
                         <div class="title">
-                            <i18-n msgid="Change task desc">Change task desc</i18-n>
+                            <i18-n msgid="Assign responsible">Assign responsible</i18-n>
                         </div>
                         <div class="desc">
-                            <i18-n msgid="changeTaskDescMsg">changeTaskDescMsg</i18-n>
+                            <i18-n msgid="assigneeMsg">assigneeMsg</i18-n>
                         </div>
                     </designmap-hint>
                     <!-- Hint-->
-                    <div hidden$="[[editDesc]]" on-tap="_tryToEdit" id="plasticDesc" class$="task-desc [[_canEditCls(task)]]">
-                        <plastic-html  msg="[[_generateDesc(task.description)]]"></plastic-html>
-                    </div>
-                    <!-- Arrow -->
-                    <div hidden$="[[!editDesc]]" class="desc-arrow hidden-xs" on-tap="saveDesc">
-                        <iron-icon icon="icons:arrow-forward"></iron-icon>
-                    </div>
+                    <paper-tooltip for="assignee" position="right">
+                        <i18-n msgid="Assign responsible">Assign responsible</i18-n>
+                    </paper-tooltip>
                 </div>
-                <!-- Files -->
-                <div class="third-line">
-                    <!-- FILES -->
-                    <div class="files" hidden$="[[!task.files.length]]">
-                        <iron-icon class="paper-clip" icon="designmap:paper-clip"></iron-icon>
-                        <div class="wrapper">
-                            <template is="dom-repeat" items="[[_computeTaskFiles(task.files)]]" as="file">
-                                <div class="file">
-                                    <a class="file-name" href="#" on-tap="openFile">[[cutFileName(file)]]</a>
-                                    <div class="download-file">
-                                        <a href="[[file.data.url]]" target="_blank">
-                                            <iron-icon icon="icons:file-download"></iron-icon>
-                                        </a>
-                                    </div>
-                                    <div class="remove-file" on-tap="removeFile">
-                                        <iron-icon icon="designmap-task-manager:remove"></iron-icon>
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-                    <!-- FILES -->
+                <div class="center" id="center">
+                    <input id="title" is="iron-input"
+                           on-focus="titleEdit"
+                           class$="task-title-input [[_isEditCls(titleEditMode)]]"
+                           placeholder="[[translate('Enter title',language,i18Loaded)]]"
+                           hidden$="[[!canRemoveTask(task)]]"
+                           value="[[task.name]]"/>
+                    <div hidden$="[[canRemoveTask(task)]]" class="task-title">[[task.name]]</div>
+                    <paper-icon-button class="title-edit-arrow" hidden$="[[!titleEditMode]]" icon="arrow-forward" on-click="saveTitle"></paper-icon-button>
+                    <iron-a11y-keys keys="enter" on-keys-pressed="saveTitle"></iron-a11y-keys>
                 </div>
-                <!-- SUB TASKS -->
-                <div class="sub-tasks">
-                    <designmap-task-list id="list"
-                                         on-add-task-focus="hideCommentsOnMobile"
-                                         on-add-task-blur="showCommentsOnMobile"
-                                         placeholder="Add subtask"
-                                         parent="[[task._id]]"
-                                         small-add-task
-                                         no-scroll="true"></designmap-task-list>
+                <div class="right">
+                    <designmap-circle-button class="hidden-xs"
+                                             id="removeButton"
+                                             hidden$="[[!canRemoveTask(task)]]"
+                                             on-click="openRemoveTaskConfirm">
+                        <iron-icon class="panel-icon remove" icon="designmap-task-manager:remove"></iron-icon>
+                    </designmap-circle-button>
+                    <paper-tooltip for="removeButton" position="left">
+                        <i18-n msgid="Archive task">Archive task</i18-n>
+                    </paper-tooltip>
                 </div>
-                <!-- Comments list -->
-                <ul class="comments-list" hidden$="[[!taskComments.length]]">
-                    <template is="dom-repeat" items="[[_getComments(task._id,comments.*)]]" as="comment">
-                        <li>
-                            <designmap-avatar-projector user="[[comment.owner]]"></designmap-avatar-projector>
-                            <div class="text">
-                                <div class="head">
-                                    <strong>[[computeOwnerName(comment.owner)]]</strong>
-                                    &nbsp;
-                                    <small class="comment-date"> ([[_getDate(comment.created)]])</small>
-                                </div>
-                                <div class="content">
-                                    <template is="dom-if" if="[[!comment.edit]]">
-                                        <div class$="comment-text [[_isMyCommentCls(user,comment)]]" on-tap="_editCommentThroughClick">
-                                            <plastic-html msg="[[processLinksInText(comment.text)]]"></plastic-html>
-                                        </div>
-                                    </template>
-                                    <template is="dom-if" if="[[comment.edit]]">
-                                        <textarea on-blur="_saveComment" on-focus="hideCommentsOnMobile" value="[[comment.text]]"
-                                                  class="comment-edit"></textarea>
-                                        <iron-a11y-keys id="a11ySave" keys="ctrl+enter meta+enter"
-                                                        on-keys-pressed="_saveComment"></iron-a11y-keys>
-                                        <div class="comment-arrow hidden-xs" on-tap="_saveComment">
-                                            <iron-icon icon="icons:arrow-forward"></iron-icon>
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
-                            <div class="panel">
-                                <iron-icon on-tap="_reply" hidden$="[[_hideForMySelf(user,comment)]]" class="reply"
-                                           icon="icons:reply"></iron-icon>
-                                <div class="like" on-tap="_like">
-                                    <iron-icon class="heart"
-                                               icon="icons:favorite-border"></iron-icon>
-                                    <span class="likesCount">[[_computeLikesCount(comment.likes.length)]]</span>
-                                </div>
-                                <iron-icon on-tap="_openDropdown" hidden$="[[!_hideForMySelf(user,comment)]]"
-                                           class="more"
-                                           icon="icons:more-vert"></iron-icon>
-                            </div>
-                        </li>
-                    </template>
-                </ul>
-                <!-- Comments list Dropdown-->
-                <designmap-dropdown id="dropdown" class="bound" vertical-offset="30" horizontal-offset="-100" previous
-                                    tri-border>
-                    <ul class="menu">
-                        <li on-tap="_editComment">
-                            <i18-n class="bound" msgid="Edit">Edit</i18-n>
-                        </li>
-                        <li on-tap="_removeComment">
-                            <i18-n class="bound" msgid="Remove">Remove</i18-n>
-                        </li>
-                    </ul>
-                </designmap-dropdown>
             </div>
-        </plastic-custom-scroll>
-        <div class="followers" hidden$="[[!task.followers.length]]">
-            <span class="txt" id="followTxt" ><i18-n msgid="Followers">Followers</i18-n>:</span>
-            <paper-tooltip for="followTxt"><i18-n msgid="FollowerTextHint">FollowerTextHint</i18-n></paper-tooltip>
-            <designmap-followers on-cancel="_cancelFollowing" followers="[[_getFollowers(task)]]"></designmap-followers>
-        </div>
-        <!-- Invoked -->
-        <div class="invoked" hidden$="[[!invokedUsers.length]]">
-                                <span id="invoked-count" class="invoked-count">
-                                    [[invokedUsers.length]]
-                                </span>
-            <paper-tooltip grayder for="invoked-count">[[_getInvokedUsersList(invokedUsers)]]</paper-tooltip>
-            <span>
-                                    <i18-n msgid="persons">persons</i18-n>
-                                </span>
-            <span>
-                                     <i18-n msgid="will be notified">will be notified</i18-n>
-                                </span>
-        </div>
-        <!-- Comments -->
-        <div id="comments" hidden$="[[mobileEdit]]" class="comments">
-            <designmap-avatar-projector user="[[user]]"></designmap-avatar-projector>
-            <div class="field">
-                <designmap-invk-textarea
-                        id="invkTextarea"
-                        value="{{commentText}}"
-                        users="[[projectUsers]]"
-                        invoked-users="{{invokedUsers}}"
-                        placeholder="[[translate('Write a comment',language,i18Loaded)]]"
-                        no-invoked
-                ></designmap-invk-textarea>
-                <iron-a11y-keys id="a11ySave" keys="ctrl+enter meta+enter"
-                                on-keys-pressed="_postComment"></iron-a11y-keys>
-            </div>
-            <div class="comment-arrow" hidden$="[[!commentText]]" on-tap="_postComment">
-                <iron-icon icon="icons:arrow-forward"></iron-icon>
+            <!-- Panel -->
+            <div class="grid">
+                <div class="left">
+                    <designmap-task-info task="[[task]]"></designmap-task-info>
+                    <!-- Desc-->
+                    <!-- Subtasks -->
+                    <!-- Comment-list-->
+                    <!-- History ?! -->
+                </div>
+                <div class="right">
+                    <!-- Action-menu -->
+                </div>
             </div>
         </div>
-        <div hidden$="[[!mobileEdit]]" class="save-mobile">
-            <button is="designmap-button" blue fit>
-                <i18-n msgid="Save">Save</i18-n>
-            </button>
+        <!--comments-->
+        <div class="comments">
+            <designmap-task-comments
+                    project-users="[[projectUsers]]"
+                    language="[[language]]"
+                    i-18-loaded="[[i18Loaded]]"
+                    project-id="[[projectId]]"
+                    task="[[task]]"
+                    user="[[user]]"></designmap-task-comments>
         </div>
-        <!-- Date Picker -->
-        <paper-dialog id="datePickerDialog"
-                      entry-animation="scale-up-animation"
-                      exit-animation="scale-down-animation">
-            <designmap-date-picker id="datePicker" locale="[[language]]" min-date="April 1, 1990"
-                                   max-date="April 1, 2030" force-narrow id="picker"
-                                   date="{{date}}"></designmap-date-picker>
-            <div class="buttons">
-                <paper-button hidden$="[[!task.expired]]" dialog-confirm on-tap="removeTaskDate">
-                    <i18-n msgid="Discard">Discard</i18-n>
-                </paper-button>
-                <paper-button dialog-confirm on-tap="saveDate">
-                    <i18-n msgid="Select" >Select</i18-n>
-                </paper-button>
-            </div>
-        </paper-dialog>
-        <!-- FS Explorer -->
-        <paper-dialog class="explorer-dialog" on-down="refitFsExplorer" id="fsExplorerDialog"
-                      entry-animation="scale-up-animation" exit-animation="scale-down-animation">
-            <designmap-fs-explorer id="fsExplorer" on-upload-in="openFileUploader"
-                                   on-file="attachFile"></designmap-fs-explorer>
-        </paper-dialog>
-        <!-- Uploader -->
-        <designmap-file-uploader id="uploader" on-done="selectFiles" parent="folder" _id="[[currentFolderId]]"></designmap-file-uploader>
-        <!-- Estimate popup -->
-        <paper-dialog id="estimateDialog" entry-animation="scale-up-animation" exit-animation="scale-down-animation">
-            <designmap-task-estimate on-estimate="estimateTask" task-name="[[task.name]]"
-                                     selected="[[_getUsersGrade(user,task)]]"></designmap-task-estimate>
-        </paper-dialog>
-        <!-- Confirm -->
-        <designmap-confirm id="removeFileConfirm"
-                           message="AreYouSureThatYouWannaRemoveFile" on-continue="removeFile"
-                           on-suspend="suspendRemoving"></designmap-confirm>
-        <!-- Confirm -->
-        <designmap-confirm id="removeTaskConfirm"
-                           message="AreYouSureThatYouWannaRemoveTask" on-continue="removeTask"
-                           on-suspend="suspendRemoving"></designmap-confirm>
-        <!-- Confirm -->
-        <designmap-confirm id="clearTimeConfirm"
-                           message="AreYouSureThatYouWantToClearTime" on-continue="clearTime"
-                           on-suspend="suspendClearing"></designmap-confirm>
     </template>
     <script>
-        const offset = 230;
-        const mobileOffset = 190;
-        const INVOCATION_REGEXP = /(^@([\w\S]*)$| @([\w\S]*)$|\n@([\w\S\s]*)$)/;
-        var STATUSES = ['incomplete', 'in_progress', 'completed'];
         Polymer({
             is: 'designmap-task-details',
-            behaviors: [ReduxBehavior,
-                Polymer.IronResizableBehavior,
+            behaviors: [
+                ReduxBehavior,
                 Polymer.DesignMapMessagesBehavior,
                 Polymer.DesignMapUtilsBehavior,
-                Polymer.DesignMapHintService,
                 Polymer.DesignMapTaskService,
                 Polymer.DesignMapFsService,
                 Polymer.CombineActions(Polymer.TasksActions, Polymer.FilesActions, Polymer.CommentsActions)],
             properties: {
-                /**
-                 * Task data
-                 */
                 task: {
                     type: Object,
-                    value: null,
-                    observer: 'taskChanged'
+                    value: null
                 },
-                /**
-                 * Date
-                 */
-                date: {
-                    type: Date,
-                    notify: true
+                user: {
+                    type: Object,
+                    statePath: 'user'
                 },
-                /**
-                 * User language
-                 */
                 language: {
                     type: String,
                     computed: '_computeLanguage(user.system.language)'
                 },
-                /**
-                 * i18Loaded
-                 */
                 i18Loaded: {
                     type: Boolean,
                     statePath: 'i18Loaded'
-                },
-                /**
-                 * All files of project bound
-                 * to current project
-                 */
-                files: {
-                    type: Array,
-                    statePath: 'files',
-                    observer: 'filesChanged'
-                },
-                /**
-                 * Files of current task
-                 */
-                /*tasksFiles: {
-                 type: Array,
-                 value: []
-                 },*/
-                /**
-                 * Breadcrumbs
-                 */
-                breadcrumbs: {
-                    type: Array,
-                    value: []
-                },
-                maxBreadcrumbs: {
-                    type: Number,
-                    value: 3
-                },
-                /**
-                 * Allowed exts to upload
-                 */
-                allowedExtensions: {
-                    type: Array,
-                    value: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr", ".ppm", ".pbm", ".ai", ".psd", ".eps", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx"]
-                },
-                /**
-                 * Designmap user
-                 */
-                user: {
-                    type: Object,
-                    statePath: 'user',
-                    observer: '_userChanged'
-                },
-                /**
-                 * Role of current user
-                 */
-                role: {
-                    type: Object,
-                    statePath: 'role'
                 },
                 project: {
                     type: Object,
@@ -1545,26 +300,6 @@
                 projectId: {
                     type: Object,
                     statePath: 'projectId'
-                },
-                wrapper: {
-                    type: Object,
-                    value: function () {
-                        return this.$.wrapper
-                    }
-                },
-                maxHeight: {
-                    type: Number,
-                    value: function () {
-                        return document.documentElement.clientHeight - offset;
-                    }
-                },
-                MQ: {
-                    type: String,
-                    statePath: 'MQ'
-                },
-                comments: {
-                    type: Array,
-                    statePath: 'comments'
                 },
                 projectUsers: {
                     type: Array,
@@ -1575,812 +310,86 @@
                         }.bind(this));
                     }
                 },
-                projectAllUsers: {
-                    type: Array,
-                    statePath: 'projectUsers'
-                },
-                invokedUsers: {
-                    type: Array,
-                    value: []
-                },
-                currentFolderId: {
-                    type: String,
-                    value: ''
-                },
-                spentTime: {
-                    type: Number,
-                    value: 0
-                },
-                commentText: {
-                    type: String,
-                    value: ''
-                },
-                mobileEdit: {
+                titleEditMode: {
                     type: Boolean,
                     value: false
-                },
-                editDesc: {
-                    type: Boolean,
-                    value:false
-                },
-                labels: {
-                    type: Array,
-                    computed: '_computeLabels(project.settings.taskManager.labels)'
                 }
+
             },
             listeners: {
-                'iron-resize': 'onIronResize'
+                'change-status': 'changeStatus'
             },
-            observers: [
-                '_watchRun(task.time.run)'
-            ],
-            ready: function () {
-                this.notifier = document.querySelector('designmap-notifier');
-                this.manager = document.querySelector('designmap-task-manager');
-                if (this.MQ == 'sm') this.$.assignee.classList.add('mobile');
-                this.INVOCATION_REGEXP = /(^@([\w\S]*)$| @([\w\S]*)$|\n@([\w\S]*)$)/;
-                this.SYMBOL_REGEXP = /[ ]*/;
-            },
-            _isMobileClass: function (MQ) {
-                this.async(function () {
-                    this.updateStyles();
-                });
-                return MQ == 'sm' ? 'mobile' : 'desktop';
-            },
-            _computeLabels: function (labels) {
-                return labels || [];
-            },
-            attached: function () {
-                this.$.scroller.calculate();
-                this.async(function () {
-                    this.onIronResize();
-                    this.$.scroller.calculate();
-                }, 500);
-            },
-            /**
-             * When task was changed we have to
-             * change some additional data
-             * @param task - new task
-             */
-            taskChanged: function (task) {
-                //this.tasksFiles = this.getTasksFiles();
-                if (this.$.datePicker && this.task && this.task.expired && new Date(this.task.expired)!=this.date) this.date = new Date(this.task.expired);
-                this.set('breadcrumbs', []);
-                this.calculateBreadCrumbs();
-            },
-            /**
-             * Breadcrumbs will be calculated
-             * using parent path of all tasks before
-             * basic
-             */
-            calculateBreadCrumbs: function () {
-                if (!this.task) return;
-                var task = this.task;
-                while (task.parent) {
-                    task = this.findTaskById(task.parent);
-                    this.unshift('breadcrumbs', {id: task._id, title: task.name});
-                }
-                if (this.breadcrumbs.length > this.maxBreadcrumbs) {
-                    this.set('breadcrumbs', this.breadcrumbs.slice(this.breadcrumbs.length - this.maxBreadcrumbs, this.breadcrumbs.length))
-                    //this.push('breadcrumbs', {id: this.task._id, title: this.task.name});
-                }
-            },
-            /**
-             * If there are breadcrumbs
-             * we should change styes of title input to fit it
-             */
-            calculateBCStyle: function (length) {
-                return length ? 'bread' : '';
-            },
-            /**
-             * When project's files was changed -
-             * update tasks files
-             */
-            filesChanged: function () {
-                this.tasksFiles = this.getTasksFiles();
-            },
-            /**
-             * Save title
-             * @param e
-             */
             saveTitle: function (e) {
                 if (!this.canUpdateTask(this.task)) {
-                    this.$.title.value = this.task.name;
+                    this.rollbackTitle();
                     return this.showErrorMessage('You do not have access to make it');
                 }
-                if (!this.$.title.value) {
-                    this.$.title.value = this.task.name;
+                if (!this.$.title.value.trim()) {
+                    this.rollbackTitle();
                     return this.showErrorMessage('Task title should be not empty');
                 }
                 if (!this.validate(this.$.title.value)) {
-                    this.$.title.value = this.task.name;
+                    this.rollbackTitle();
                     return this.showErrorMessage('Task title should be unique');
                 }
+                this.titleEditMode = false;
                 this.dispatch('updateTask', this.task._id, {name: this.$.title.value}).then(function (response) {
                     if (!response.success) return;
                     if (e.type == 'keys-pressed') this.showMessage('Task title was updated successful!');
                 }.bind(this));
-                this.doneHint('changeTaskTitle', 'tm');
-                this.showCommentsOnMobile();
             },
-            /**
-             * Validate name of future task
-             * @returns {boolean}
-             */
+
+            rollbackTitle: function () {
+                this.$.title.value = this.task.name;
+            },
+
             validate: function (title) {
-                var found = null;
+                let found = null;
                 if (this.task.name == title) return true;
                 this.findTaskOneLevel(this.task.path).forEach(function (task) {
                     if (task.name == title) found = task;
                 }.bind(this));
                 return !found;
             },
-            /**
-             * Save description
-             * @param e
-             */
-            saveDesc: function (e) {
-                var val = this.$.desc.$.textarea.value;
-                if (!this.canUpdateTask(this.task)) {
-                    this.$.desc.$.textarea.value = this.task.description;
-                    return this.showErrorMessage('You do not have access to make it');
-                }
-                this.dispatch('updateTask', this.task._id, {description: val}).then(function (response) {
-                    this.editDesc = false;
-                    if (!response.success) return this.showErrorMessage('Cannot save description');
-                    if (e.type == 'keys-pressed') this.showMessage('Description has been saved!');
-                }.bind(this));
-                // Hnts
-                this.doneHint('changeTaskDesc', 'tm');
-                this.showCommentsOnMobile();
+
+            _computeAssigneeStatus: function (task) {
+                return task ? this.isExpired(task.expired, task.status) ? 'expired' : task.status : '';
             },
-            /**
-             * Save date
-             * @param e
-             */
-            saveDate: function (e) {
-                if (this.$.contextMenu) this.$.contextMenu.close();
-                this.dispatch('updateTask', this.task._id, {expired: this.$.datePicker.dateFormat(this.date)});
+
+            titleEdit: function(){
+                this.async(this.updateStyles);
+                this.titleEditMode = true;
             },
-            removeTaskDate: function(){
-                this.dispatch('updateTask', this.task._id, {expired: null});
+
+            _isEditCls: function(titleEditMode){
+                return titleEditMode?'edit':'';
             },
-            /**
-             * Select new assignee to current task
-             * @param
-             */
-            selectAssignee: function (e) {
+
+            _selectAssignee: function (e) {
                 if (!e.detail || !e.detail._id) return;
                 if (!this.canUpdateTask(e.detail.task)) return this.showErrorMessage('canUpdateTask');
-                this.doneHint('assignee', 'tm');
+
                 this.dispatch('updateTask', this.task._id, {assignee: e.detail._id});
                 // Notify but do not do this if for itself
                 if (e.detail._id == this.user._id) return;
-                this.sendAssigneeNotification(e.detail.task, e.detail._id);
+                //this.sendAssigneeNotification(e.detail.task, e.detail._id);
             },
-            /**
-             * Send notification
-             */
-            sendAssigneeNotification: function (task, assigneeID) {
-                var pth = this.getFullPath(task);
-                this.notifier = this.notifier || document.querySelector('designmap-app').$.notifier;
-                this.notifier.create({
-                    sender: this.user._id,
-                    recipient: [assigneeID],
-                    type: 'new-assignee',
-                    text: {
-                        message: 'You was assigned to task', replacement: {"#TASK#": task.name},
-                        info: {
-                            xlink: this.getAppUrl() + this.project._id + '/task-manager' + pth,
-                            project: this.project.name
-                        }
-                    }
-                });
-            },
-            /**
-             * Remove assignee of curren task
-             * @param e
-             */
-            removeAssignee: function (e) {
+
+            _removeAssignee: function (e) {
                 if (!e.detail || !e.detail.task) return;
                 this.dispatch('updateTask', e.detail.task._id, {assignee: null});
             },
-            /**
-             * Remove task
-             * @param e
-             */
-            removeTask: function (e) {
-                var task = Object.assign({}, this.task);
-                this.dispatch('removeTask', this.task._id).then(function () {
-                    if (task.parent) return this.fire('select-task', this.findTaskById(task.parent));
-                    if (this.MQ != 'sm') {
-                        this.fire('reset');
-                    }
-                }.bind(this));
-                this.fire('task-normalize-positions');
-                if (this.$.removeTaskConfirm) this.$.removeTaskConfirm.close();
 
-                if (this.MQ != 'sm') {
-                    if (task.parent) return this.fire('select-task', this.findTaskById(task.parent));
-                    return this.fire('reset');
-                }
-                this.fire('mobile-go-back');
-            },
-            /**
-             * Download file
-             * @param e
-             */
-            downloadFile: function (e) {
-                this.quickUpload(e.model.file.data.url);
-            },
-            /**
-             * Remove file
-             * @param e
-             */
-            removeFile: function (e) {
-                this.task.files.splice(this.task.files.indexOf(e.model.file._id), 1);
-                this.dispatch('updateTask', this.task._id, this.task);
-            },
-            /**
-             * Change status of current task
-             */
-            changeStatus: function () {
+            changeStatus: function(e){
+                const status = e.detail;
                 if (!this.canUpdateTask(this.task)) return this.showErrorMessage('Only project or task or assignee can change task status');
                 //if (this.isExpired(this.task.expired)) return;
-                var status = STATUSES[STATUSES.indexOf(this.task.status) + 1] || STATUSES[0];
                 const data = {status: status};
                 if(status=='completed') data.completed = new Date();
                 this.dispatch('updateTask', this.task._id, data);
+                this.async(this.updateStyles);
                 // Notify
-                this.sendTaskStatusNotification(this.task);
-                this.doneHint('status','tm');
-            },
-
-            /**
-             * Send notification for status
-             * changing
-             */
-            sendTaskStatusNotification: function (task) {
-                if (!task.assignee) return;
-                if (this.user._id != task.assignee._id) return;
-                if (this.user._id == this.project.owner) return;
-                var pth = this.getFullPath(task);
-                this.notifier = this.notifier || document.querySelector('designmap-app').$.notifier;
-                this.notifier.create({
-                    sender: task.assignee._id,
-                    recipient: this.project.owner,
-                    type: 'new-status',
-                    text: {
-                        message: 'Status of task was changed on',
-                        replacement: {"#NAME#": task.name, '#STATUS#': this.translate(task.status)},
-                        info: {
-                            xlink: this.getAppUrl() + this.project._id + '/task-manager' + pth,
-                            project: this.project.name
-                        }
-                    }
-                });
-            },
-
-            /**
-             * Redirect parent task
-             * @param e
-             */
-            goToParent: function (e) {
-                this.fire('select-task', this.findTaskById(e.model.crumb.id))
-            },
-            computeSelected: function (task) {
-                return !!(task && task._id);
-            },
-            /**
-             * Compute icon
-             * @param type - task status
-             * @param expired - task expired time
-             * @returns {*}
-             */
-            computeIcon: function (type, expired) {
-                var diff = moment.duration(moment(expired || moment()).diff(moment()));
-                //if (diff._milliseconds < 0) return 'designmap-task-manager:expired';
-                return 'designmap-task-manager:' + type;
-            },
-            /**
-             * Checking of expired date
-             * @param expired - expired date
-             * @returns {boolean}
-             */
-            isExpired: function (expired, status) {
-                if(!expired) return false;
-                var diff = moment.duration(moment(expired).diff(moment()));
-                return diff._milliseconds < 0 && status != 'completed';
-            },
-            /**
-             * Open date picker
-             */
-            openDatePicker: function () {
-                if(!this.canRemoveTask(this.task)) return this.showErrorMessage('Only project or task owner can changed due date');
-                this.$.datePickerDialog.open();
-                this.async(function () {
-                    this.$.datePicker.$.calendar._resizeHandler();
-                }, 0);
-            },
-            /**
-             * Attach file form
-             */
-            openFsExplorer: function () {
-                this.$.fsExplorer.clearSelected();
-                this.$.fsExplorerDialog.open();
-            },
-            /**
-             * Files of current task
-             * @returns {*}
-             */
-            getTasksFiles: function () {
-                return this.files && this.task ? this.files.filter(function (file) {
-                        return file.task == this.task._id;
-                    }.bind(this)) : [];
-            },
-            hideLine: function (length, index) {
-                return (length - 1) == index;
-            },
-            calculateSelectedCrumb: function (length, index) {
-                return (length - 1) == index ? 'selected' : '';
-            },
-            focusInput: function () {
-                this.$.list.$$('#addTask').focus();
-            },
-            openRemoveFileConfirm: function (e) {
-                this.$.contextMenu.close();
-                this.fileToRemove = e.model.file;
-                this.$.removeFileConfirm.open();
-            },
-            openRemoveTaskConfirm: function (e) {
-                this.$.contextMenu.close();
-                this.$.removeTaskConfirm.open();
-            },
-            suspendRemoving: function () {
-                this.$.removeFileConfirm.close();
-                this.$.removeTaskConfirm.close();
-            },
-            openContextMenu: function (e) {
-                if (!this.canUpdateTask(this.task)) return;
-                this.$.contextMenu.toggle(e);
-            },
-            computeAssigneeStatus: function (task) {
-                return task ? this.isExpired(task.expired, task.status) ? 'expired' : task.status : '';
-            },
-            onIronResize: function () {
-                //this.$.center.style.width = this.$.center.getBoundingClientRect().width - 250 + 'px';
-                this.async(function () {
-                    const isMbile = this.isMobile() && this.MQ=='sm';
-                    this.maxHeight = document.documentElement.clientHeight - (isMbile?mobileOffset:offset);
-                    this.$.scroller.calculate();
-                });
-            },
-            _descChange: function () {
-                const isMbile = this.isMobile() && this.MQ=='sm';
-                this.maxHeight = document.documentElement.clientHeight - (isMbile?mobileOffset:offset);
-                this.$.scroller.calculate();
-            },
-            _commentChange: function (e) {
-                // Notify users
-                this._invocation(e.detail);
-                // Work further
-                const textarea = e.detail.target;
-                this.commentText = textarea.value;
-                const bound = textarea.getBoundingClientRect();
-                if (bound.height > 60) {
-                    return this.async(function () {
-                        this.$.comments.style.minHeight = bound.height + 10 + 'px';
-                        const isMbile = this.isMobile() && this.MQ=='sm';
-                        this.maxHeight = document.documentElement.clientHeight - (isMbile?mobileOffset:offset);
-                    }, 0);
-                }
-                this.async(function () {
-                    this.$.comments.style.minHeight = 45 + 'px';
-                    const isMbile = this.isMobile() && this.MQ=='sm';
-                    this.maxHeight = document.documentElement.clientHeight - (isMbile?mobileOffset:offset);
-                }, 0);
-            },
-            _postComment: function () {
-                if (!this.commentText.trim()) return false;
-                const comment = {
-                    text: this.commentText,
-                    owner: this.user,
-                    task: this.task._id,
-                    project: this.projectId
-                };
-                this.dispatch('addComment', comment);
-
-                //this.$.invkTextarea.$.textarea.value = '';
-                this.commentText = '';
-
-                this.async(function(){this.$.invkTextarea.blur();});
-
-                this._sendNotification(this.task, comment);
-            },
-
-            _sendNotification: function (task, comment) {
-                let emails = this.invokedUsers.slice(0).map(function(user){return user._id});
-                //if(!(!emails.length || this.user._id != file.owner)) return;
-                this.set('invokedUsers', []);
-                // Followers
-                const followers = task.followers&&task.followers.length ? task.followers : [];
-                if(followers.indexOf(this.user._id)===-1) this.dispatch('followTask',task,this.user._id);
-                // Send notification
-                const recipients = this.prepareFollowers(followers.concat(emails),this.user);
-                if(!recipients.length) return;
-
-                document.querySelector('designmap-app').$.notifier.create({
-                    sender: this.user,
-                    recipient: recipients,
-                    type: 'new-task-comment',
-                    text: {
-                        message: comment.text,
-                        replacement: {'#NAME#': task.title},
-                        info: {
-                            task: task.title,
-                            xlink: Designmap.config.appURL + this.projectId + '/task-manager' + this.getFullPath(task)
-                        }
-                    }
-                });
-            },
-
-            _getComments: function (id) {
-                return this.taskComments = this.comments.filter(function (comment) {
-                    return comment.task == id;
-                });
-            },
-            _hideForMySelf: function (user, comment) {
-                return user && user._id == comment.owner._id;
-            },
-            _computeLikesCount: function (length) {
-                return length ? '+' + length : '';
-            },
-            _like: function (e) {
-                let comment = e.model.comment;
-
-                comment.likes = comment.likes || [];
-                const isThereUser = comment.likes.indexOf(this.user._id) != -1;
-                const userLikesIndex = comment.likes.indexOf(this.user._id);
-                isThereUser ? comment.likes.splice(userLikesIndex, 1) : comment.likes.push(this.user._id);
-                this.dispatch('updateComment', comment._id, comment);
-            },
-            _openDropdown: function (e) {
-                this.commentNode = e.target.parentNode.previousElementSibling;
-                this.lastComment = e.model.comment;
-                this.canUpdateAndRemove = this._canUserManageComment(this.task, e.model.comment);
-
-                this.$.dropdown.target = e.target;
-                this.$.dropdown.open();
-            },
-
-            _canUserManageComment(task, comment){
-                return (comment.owner._id === this.user._id);
-            },
-
-            _removeComment(){
-                this.$.dropdown.close();
-                if (!this.lastComment) return this.showErrorMessage('Something went wrong!');
-                this.dispatch('removeComment', this.lastComment._id);
-            },
-
-            _editComment: function () {
-                let comment = Object.assign({}, this.lastComment);
-                const commentTextBound = this.commentNode.querySelector('.comment-text').getBoundingClientRect();
-                comment.edit = true;
-                this.dispatch('_updateComment', comment._id, comment);
-                this.$.dropdown.close();
-                // Dims of textarea
-                this.async(function () {
-                    const textarea = this.commentNode.querySelector('.comment-edit');
-                    textarea.style.height = commentTextBound.height + 'px';
-                    textarea.focus();
-                }.bind(this), 5);
-            },
-
-            _saveComment: function () {
-                this.showCommentsOnMobile();
-                let comment = Object.assign({}, this.lastComment);
-                const textarea = this.commentNode.querySelector('.comment-edit');
-                comment.edit = false;
-                comment.text = textarea.value;
-                this.dispatch('updateComment', comment._id, comment);
-            },
-
-            _getDate: function (date) {
-                moment.locale(this.language);
-                return moment(date).format('MM-DD-YYYY HH:mm:ss');
-            },
-
-            _getInvokedUsersList: function () {
-                return this.invokedUsers.map(function (user) {
-                    return user.profile && user.profile.name ? user.profile.name : user.local.email;
-                }).join('; ');
-            },
-
-            _closeInvocationDropDown: function () {
-                this.$.invocationDropDown.style.display = 'none';
-            },
-
-            _reply: function (e) {
-                const user = e.model.comment.owner;
-                const figure = user.profile && user.profile.name ? '@' + user.profile.name + ' ' : "+" + user.local.email + " ";
-                this.$.invkTextarea.$.textarea.value = figure + this.$.invkTextarea.$.textarea.value;
-                this.commentText = this.$.invkTextarea.$.textarea.value;
-                this.$.invkTextarea.$.textarea.focus();
-                this.$.invkTextarea.resolveInvokedUsers();
-            },
-
-            computeTimeLeft: function (task) {
-                if(task && task.status=='completed') return this.translate('completed');
-                if (task && !task.expired) return this.translate('due date');
-                var diff = moment.duration(moment(task?task.expired:0).diff(moment()));
-                if (diff._milliseconds < 0) return this.translate('expired');
-                return (diff.asDays() > 1 ? (Math.round(diff.asDays()) + ' ' + this.translate('days')) : Math.round(diff.asHours()) + ' ' + this.translate('hours')) + ' ' + this.translate('left');
-            },
-
-            refitFsExplorer: function () {
-            },
-
-            attachFile: function (e) {
-                const selected = e.detail;
-                selected.forEach(function (file) {
-                    if (this.task.files.indexOf(file._id) != -1) return;
-                    this.task.files.push(file._id);
-                }.bind(this));
-                this.$.fsExplorerDialog.close();
-                this.dispatch('updateTask', this.task._id, this.task).then(function (response) {
-                    if (!response.success) return;
-                    this.showMessage('File was attached successful!');
-                }.bind(this));
-            },
-
-            _computeTaskFiles: function (files) {
-                if (!files) return [];
-                return files.map(function (fileId) {
-                    return this.findFileById(fileId);
-                }.bind(this));
-            },
-
-            openFile: function (e) {
-                e.preventDefault();
-                page.redirect('/'+this.projectId+'/gallery/' + e.model.file._id);
-            },
-
-            openFileUploader: function (e) {
-                this.$.uploader._id = e.detail || null;
-                this.$.uploader.openForm();
-            },
-
-            selectFiles: function (e) {
-                this.$.fsExplorer.selectElements(e.detail);
-            },
-
-            openEstimateDialog: function () {
-                this.$.estimateDialog.open();
-            },
-
-            _getUsersGrade: function (user, task) {
-                return task && task.grade && task.grade[user._id] ? task.grade[user._id] : undefined;
-            },
-
-            _computeOverAllGrade: function (grade) {
-                return grade && grade[this.user._id] ? this._getOverAll(grade) : this.translate('Estimation required')
-            },
-
-            _getOverAll: function (grade) {
-                const users = Object.keys(grade);
-                const usersGrades = users.map(function (uid) {
-                    return grade[uid];
-                });
-                return (usersGrades.reduce(function (pv, nv) {
-                    return pv + nv;
-                }, 0) / users.length).toFixed(1);
-            },
-
-            estimateTask: function (e) {
-                this.task.grade = this.task.grade || {};
-                this.task.grade[this.user._id] = e.detail;
-                this.dispatch('updateTask', this.task._id, this.task).then(function (response) {
-                    if (!response.success) return;
-                    this.showMessage('Task was estimated successful!');
-                }.bind(this));
-            },
-
-
-            _gradeLength: function (grade) {
-                return grade && Object.keys(grade).length && grade[this.user._id];
-            },
-
-            _getGradeItems: function (grade) {
-                return Object.keys(this.task && this.task.grade ? this.task.grade : {});
-            },
-
-            _getUser: function (userId) {
-                const user = this.getProjectsUserById(userId);
-                if (!user) return 'XXX';
-                return this.computeOwnerName(user);
-            },
-
-            _getGrade: function (userId) {
-                return this.task.grade[userId];
-            },
-
-            showGradeDropdown: function () {
-                this.gradeHidden = false;
-                this.async(function () {
-                    if (this.gradeHidden) return;
-                    this.$.gradeDropdown.style.display = 'block';
-                    this.$.gradeDropdown.animate([{opacity: 0, transform: 'translateY(-50px)'}, {
-                        opacity: 1,
-                        transform: 'translateY(0)'
-                    }], {duration: 100, fill: 'forwards'});
-                }, 600);
-            },
-
-            hideGradeDropdown: function () {
-                this.gradeHidden = true;
-                this.$.gradeDropdown.style.display = 'none';
-                this.$.gradeDropdown.style.opacity = 0;
-            },
-
-            _computeTime: function (time, spentTime) {
-                if (!time) return '00:00';
-                if (spentTime) return this._buildTimeString(spentTime);
-                return (time.spent ? this._buildTimeString(time.spent) : '00:00');
-            },
-
-            _buildTimeString: function (spent) {
-                var sec_num = parseInt(spent / 1000, 10)
-                var hours = Math.floor(sec_num / 3600) % 24
-                var minutes = Math.floor(sec_num / 60) % 60
-                var seconds = sec_num % 60
-                return [hours, minutes, seconds]
-                    .map(v => v < 10 ? "0" + v : v)
-                    .filter((v, i) => v !== "00" || i > 0)
-                    .join(":")
-            },
-
-            _combineUnit: function (unit, def, noDelimeter) {
-                return (unit ? (unit < 9 ? '0' : '') + unit + (noDelimeter ? '' : ':') : def || '');
-            },
-
-            _computeTimeIcon: function (time) {
-                return time && time.run ? 'av:stop' : 'av:play-arrow';
-            },
-
-            trackTime: function (e) {
-                if(e.currentTarget.hasAttribute('disabled')) return this.showErrorMessage('Only assignee can track time');
-                this.task.time = this.task.time || {};
-
-                this.task.time.run ? this.stopTrack() : this.startTrack();
-            },
-
-            startImmediateTrack: function () {
-                if (this.i) return;
-                this.i = setInterval(function () {
-                    this.spentTime = this.task.time.spent + (new Date() - Date.parse(this.task.time.start));
-                }.bind(this), 1000);
-            },
-
-            stopImmediateTrack: function () {
-                clearInterval(this.i);
-                this.i = false;
-                this.spentTime = 0;
-            },
-
-            startTrack: function () {
-                this.task.time = this.task.time || {};
-
-                this.task.time.run = true;
-                this.task.time.start = new Date();
-
-                this.dispatch('updateTask', this.task._id, this.task);
-            },
-
-            stopTrack: function () {
-                this.task.time = this.task.time || {};
-
-                this.task.time.run = false;
-                this.task.time.spent = this.task.time.spent + (new Date() - Date.parse(this.task.time.start));
-                this.task.time.start = 0;
-
-                this.dispatch('updateTask', this.task._id, this.task);
-            },
-
-            _watchRun: function (run) {
-                run ? this.startImmediateTrack() : this.stopImmediateTrack();
-            },
-
-            clearTime: function () {
-                this.task.time = this.task.time || {};
-
-                this.task.time.run = false;
-                this.task.time.spent = 0;
-                this.task.time.start = 0;
-
-                this.dispatch('updateTask', this.task._id, this.task);
-
-                this.$.clearTimeConfirm.close();
-            },
-
-            openClearTimeDialog: function () {
-                this.$.clearTimeConfirm.open();
-            },
-
-            suspendClearing: function () {
-                this.$.clearTimeConfirm.close();
-            },
-
-            endTutorial: function () {
-                this.finishTutorial('tm');
-            },
-            hideCommentsOnMobile: function () {
-                if(this.MQ!='sm' || !this.isMobile()) return;
-                this.mobileEdit = true;
-            },
-            showCommentsOnMobile: function () {
-                if(this.MQ!='sm' || !this.isMobile()) return;
-                this.mobileEdit = false;
-            },
-            _getTaskStatus: function(status){
-                return this.translate('Status: ')+'"'+this.translate(status)+'"';
-            },
-            _generateDesc: function(desc){
-                return this.processLinksInText(desc) || (this.canUpdateTask(this.task) ? this.translate('Enter description') : this.translate('There is no description') )
-            },
-            _dateChanged: function(date){
-                //if (this.$.datePicker && this.task && this.task.expired) this.date = new Date(this.task.expired);
-            },
-            _editCls: function(){
-              return this.canRemoveTask(this.task)?'can-edit':''
-            },
-            _tryToEdit: function(){
-                if(!this.canRemoveTask(this.task)) return;
-                this.editDesc = true;
-                    this.$.desc.refit();
-                this.async(function(){this.$.desc.focus();},10);
-            },
-            _editCommentThroughClick: function(e){
-                if(this.user._id != e.model.comment.owner._id) return;
-                this.lastComment = e.model.comment;
-                this.commentNode = e.currentTarget.parentNode;
-                this._editComment();
-            },
-            _isMyCommentCls(user,comment) {
-                return this._isMyComment(user,comment) ? 'my-comment' : '';
-            },
-            _canEditCls(task) {
-                return this.canRemoveTask(task) ? 'can-edit' : '';
-            },
-            _userChanged: function(user){
-                if(!this.projectUsers) return;
-                const users = this.projectUsers.filter(function (user) {
-                    if (!this.user) return true;
-                    return user._id !== this.user._id;
-                }.bind(this));
-                this.set('projectUsers',users);
-            },
-            _getFollowers: function(task){
-                if(!task) return [];
-                const defaultFollowers = this.removeDuplicatesInArray([]);
-                return task.followers&&task.followers.length?task.followers:defaultFollowers;
-            },
-            _cancelFollowing: function(){
-                this.dispatch('unfollowTask',this.task,this.user._id);
-            },
-            _labelChanged: function(e){
-                if(e.detail.sourceEvent && !this.task) return;
-                this.task.label = e.detail;
-                this.dispatch('updateTask', this.task._id, this.task).then(function (response) {
-                    if (!response.success) return;
-                }.bind(this));
-            },
-            _hideLabels: function(user,project,labels){
-                if(!user || !project || !labels) return true;
-                return !labels.length && project.owner!=user._id;
-            },
-            _hideDiscard: function(expired,user){
-                return !expired || !this.project || this.project.owner!=user._id;
+                //this.sendTaskStatusNotification(this.task);
             }
         })
     </script>

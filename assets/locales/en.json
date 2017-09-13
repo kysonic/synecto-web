@@ -2017,5 +2017,8 @@
   },
   "Only project owner can integrate with Google Docs.": {
     "message": "Only project owner can integrate with Google Docs."
+  },
+  "complete a task": {
+    "message": "complete a task"
   }
 }

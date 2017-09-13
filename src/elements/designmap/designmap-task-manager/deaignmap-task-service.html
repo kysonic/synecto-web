@@ -156,8 +156,10 @@
         _isMyComment: function(user,comment){
             return user._id==comment.owner._id;
         },
-        findSortedIndex: function(){
-
+        isExpired: function (expired, status) {
+            if(!expired) return false;
+            var diff = moment.duration(moment(expired).diff(moment()));
+            return diff._milliseconds < 0 && status != 'completed';
         }
     }
 </script>

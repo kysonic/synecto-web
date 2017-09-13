@@ -1,0 +1,163 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../designmap-ui/designmap-dropdown.html">
+
+<dom-module id="designmap-task-status-selector">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+            /** status **/
+            .statuses {
+                height: 32px;
+                width: 100%;
+                display: flex;
+                align-items: center;
+                font-family: var(--font-family);
+                font-weight: 300;
+                font-size: 18px;
+                color: var(--gray-darkend-color);
+            }
+
+            .status-wrapper {
+                display: block;
+            }
+
+            .statuses .status {
+                margin-left: 4px;
+                height: 50px;
+                width: 100%;
+                display: flex;
+                align-items: center;
+                cursor: pointer;
+            }
+
+            .statuses .status iron-icon {
+                width: 20px;
+                height: 20px;
+            }
+
+            .statuses .status span {
+                line-height: 0;
+                margin-left: 5px;
+                position: relative;
+                bottom: 1px;
+            }
+
+            .statuses .status-title {
+                margin-left: 10px;
+                text-transform: lowercase;
+            }
+
+            .statuses .status-value {
+                color: var(--gray-darkend-color);
+            }
+            /** Statuses color **/
+            .statuses .status-value.incomplete {
+                color: var(--incomplete);
+            }
+            .statuses .status-value.in_progress {
+                color: var(--inprogress);
+            }
+            .statuses .status-value.completed {
+                color: var(--completed);
+            }
+            .statuses .status-value.expired {
+                color: var(--expired);
+            }
+
+
+            /** DROP DOWN **/
+            .statuses #statusesSelector {
+                --designmap-dropdown-mixin: {
+                    border: 1px solid var(--gray-lighty-color);
+                    box-shadow: 0px 4px 8px -1px rgba(0, 0, 0, 0.15);
+                    padding: 28px;
+                    max-width: 200px;
+                };
+                --designmap-dropdown-triangle-mixin: {
+                    left: 0px;
+                    margin-left: 19px;
+                };
+                --designmap-dropdown-triangle-border-mixin: {
+                    z-index: 9;
+                    margin-left: 17px;
+                    top: -12px;
+                };
+                --designmap-dropdown-triangle-border-color: var(--gray-lighty-color);
+                --designmap-dropdown-background: var(--white-color);
+                --designmap-dropdown-color: var(--gray-darkend-color);
+            }
+
+            #statusesSelector .row iron-icon, .desktop-statuses .row iron-icon {
+                width: 20px;
+                height: 20px;
+            }
+
+            #statusesSelector .row, .desktop-statuses .row {
+                cursor: pointer;
+            }
+
+            #statusesSelector .row span, .desktop-statuses .row span {
+                font-size: 15px;
+                margin-left: 18px;
+            }
+        </style>
+        <div class="statuses" hidden$="[[computestatusesState(status,selectedstatus,tasks)]]">
+            <div class="status-wrapper">
+                <div class$="current-status status [[status]]" on-tap="openStatusesSelector">
+                    <iron-icon class="status-icon" icon="[[_computeStatusIcon(status)]]"></iron-icon>
+                    <span class="status-title"><i18-n msgid="Status">Status</i18-n>:</span>
+                    <span class$="status-value [[status]]">[[_computeTitle(status)]]</span>
+                </div>
+               <!--Dropdown -->
+                <designmap-dropdown id="statusesSelector" tri-border vertical-offset="45" horizontal-offset="-20"
+                                    previous>
+                    <template is="dom-repeat" items="[[statuses]]" as="status">
+                        <div class$="row [[status.type]]" on-tap="selectStatus">
+                            <iron-icon class="status-icon" icon="[[_computeStatusIcon(status.type)]]"></iron-icon>
+                            <span><i18-n msgid="[[status.text]]">[[status.text]]</i18-n></span>
+                        </div>
+                    </template>
+                </designmap-dropdown>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-task-status-selector',
+            behaviors: [
+                Polymer.DesignMapMessagesBehavior
+            ],
+            properties: {
+                statuses: {
+                    type: Array,
+                    value: [
+                        {type: 'incomplete', text: 'incomplete'},
+                        {type: 'in_progress', text: 'in_progress'},
+                        {type: 'completed', text: 'completed'}
+                    ]
+                },
+                status: {
+                    type: String,
+                    value: ''
+                }
+            },
+            openStatusesSelector: function(){
+                this.$.statusesSelector.open();
+            },
+            _computeTitle: function(status){
+                if(!status) return this.translate('not_selected');
+                return this.translate(status);
+            },
+            _computeStatusIcon: function (type) {
+                return 'designmap-task-manager:' + type;
+            },
+            selectStatus: function(e){
+                this.$.statusesSelector.close();
+                this.fire('change-status',e.model.status.type)
+            }
+
+        })
+    </script>
+</dom-module>

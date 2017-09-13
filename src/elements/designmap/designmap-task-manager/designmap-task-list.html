@@ -572,26 +572,7 @@
             }
 
         </style>
-        <!--<div class="filters" hidden$="[[computeFiltersState(filter,selectedFilter,tasks)]]">
-            <div class="filter-wrapper">
-                <div class$="current-filter filter [[selectedFilter.type]]" on-tap="openFilterSelector">
-                    <iron-icon class="filter-icon" icon="[[computeFilterIcon(selectedFilter.type)]]"></iron-icon>
-                    <span>[[computeMsg(selectedFilter.type)]]</span>
-                </div>
-                &lt;!&ndash; Dropdown &ndash;&gt;
-                <designmap-dropdown id="filterSelector" tri-border vertical-offset="45" horizontal-offset="-20"
-                                    previous>
-                    <template is="dom-repeat" items="[[filters]]" as="filter">
-                        <div class$="row [[filter.type]]" on-tap="selectFilter">
-                            <iron-icon class="filter-icon" icon="[[computeFilterIcon(filter.type)]]"></iron-icon>
-                            <span><i18-n msgid="[[filter.text]]">[[filter.text]]</i18-n></span>
-                        </div>
-                    </template>
-                </designmap-dropdown>
-            </div>
-
-        </div>-->
-        <div class="desktop-filters filters" hidden$="[[!tasks.length]]">
+        <div id="filter" class="desktop-filters filters" hidden$="[[!tasks.length]]">
             <template is="dom-repeat" items="[[filters]]" as="filter">
                 <div class$="row [[filter.type]] [[_computeSelectedFilterClass(filter,selectedFilter)]]" on-click="selectFilter">
                     <iron-icon class="filter-icon" icon="[[computeFilterIcon(filter.type)]]"></iron-icon>
@@ -599,6 +580,9 @@
                 </div>
             </template>
         </div>
+        <paper-tooltip for="filter">
+            <i18-n msgid="Quick filters">Quick filters</i18-n>
+        </paper-tooltip>
         <plastic-custom-scroll hidden$="[[!tasks.length]]" no-scroll="[[noScroll]]" id="scroller" fit small-bar
                                max-height="[[computeMaxHeight(maxHeight)]]">
             <ul class="list" id="list">

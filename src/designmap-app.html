@@ -568,6 +568,7 @@
              */
             updateProject: function (project) {
                 if (!project) return;
+                document.title = this.project.name+' | Synecto';
                 this.setupSocket(project._id,'project');
                 this.getProjectData();
             },

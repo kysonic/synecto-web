@@ -1,0 +1,55 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="./designmap-task-status-selector.html">
+
+<dom-module id="designmap-task-info">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+            .statuses {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+            designmap-task-status-selector {
+                margin-left: 65px;
+            }
+            .finish-task {
+                cursor: pointer;
+                margin-right: 20px;
+                text-decoration: underline;
+                color: var(--gray-darkend-color);
+            }
+            .finish-task:hover {
+                text-decoration: none;
+            }
+        </style>
+        <div class="statuses">
+            <designmap-task-status-selector id="statusSelector" status="[[task.status]]"></designmap-task-status-selector>
+            <paper-tooltip for="statusSelector"><i18-n msgid="Change status">Change status</i18-n></paper-tooltip>
+            <!--<div hidden$="[[_isComplete(task.status)]]" class="finish-task" on-click="finishTask"><i18-n msgid="complete a task">complete a task</i18-n></div>-->
+        </div>
+        <div class="info">
+
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-task-info',
+            behaviors: [],
+            properties: {
+                task: {
+                    type: Object,
+                    value: null
+                }
+            },
+            finishTask: function(){
+                this.fire('change-status','completed');
+            },
+            _isComplete: function(status){
+                return status=='completed';
+            }
+        })
+    </script>
+</dom-module>

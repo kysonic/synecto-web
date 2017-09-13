@@ -1,0 +1,218 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../designmap-ui/designmap-invk-textarea.html">
+<link rel="import" href="../designmap-ui/designmap-followers.html">
+
+<dom-module id="designmap-task-comments">
+    <template>
+        <style>
+            :host {
+                --designmap-invk-textarea-mixin: {
+                    border: none;
+                    padding: 0 0 0 10px;
+                    max-height: none;
+                };
+            }
+
+            *[hidden] {
+                display: none !important;
+            }
+
+            /** Followers **/
+            .followers {
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                min-height: 40px;
+                border-top: 1px dashed var(--gray-saturated-color);
+            }
+
+            .followers .txt {
+                font-size: 14px;
+                vertical-align: middle;
+                border-bottom: 1px dashed var(--gray-darkend-color);
+                cursor: help;
+            }
+
+            .followers designmap-followers {
+                vertical-align: middle;
+                margin-right: 20px;
+            }
+
+            /** Invoked **/
+            .invoked {
+                color: var(--gray-darkend-color);
+                padding-left: 20px;
+                font-size: 14px;
+                border-top: 1px dashed var(--gray-darkend-color);
+            }
+
+            .invoked-count {
+                text-decoration: underline;
+                cursor: pointer;
+            }
+
+            /** Comments **/
+
+            .comments {
+                display: flex;
+                align-items: flex-start;
+                border-top: 1px dashed var(--gray-darkend-color);
+                padding: 10px 15px 10px 10px;
+            }
+
+            .comments .field {
+                flex: 10;
+            }
+
+            .comments .send {
+                border: 1px solid var(--gray-color);
+                padding: 5px;
+                cursor: pointer;
+            }
+            .comments .send:hover {
+                background: var(--gray-lightern-color);
+            }
+
+            .comments .send iron-icon {
+                --iron-icon-stroke-color: var(--expired);
+                --iron-icon-fill-color: var(--expired);
+            }
+
+            .comments .send[disabled] {
+                opacity: 0.6;
+            }
+
+            /** INVK USERS **/
+            designmap-invk-textarea {
+                margin-left: 10px;
+                margin-right: 10px;
+                border: 1px solid var(--gray-color);
+            }
+
+        </style>
+        <div class="followers" hidden$="[[!task.followers.length]]">
+            <span class="txt" id="followTxt"><i18-n msgid="Followers">Followers</i18-n>:</span>
+            <paper-tooltip for="followTxt">
+                <i18-n msgid="FollowerTextHint">FollowerTextHint</i18-n>
+            </paper-tooltip>
+            <designmap-followers on-cancel="_cancelFollowing" followers="[[_getFollowers(task)]]"></designmap-followers>
+        </div>
+        <!-- Invoked -->
+        <div class="invoked" hidden$="[[!invokedUsers.length]]">
+                                <span id="invoked-count" class="invoked-count">
+                                    [[invokedUsers.length]]
+                                </span>
+            <paper-tooltip grayder for="invoked-count">[[_getInvokedUsersList(invokedUsers)]]</paper-tooltip>
+            <span>
+                                    <i18-n msgid="persons">persons</i18-n>
+                                </span>
+            <span>
+                                     <i18-n msgid="will be notified">will be notified</i18-n>
+                                </span>
+        </div>
+        <!-- Comments -->
+        <div id="comments" class="comments">
+            <designmap-avatar-projector user="[[user]]"></designmap-avatar-projector>
+            <div class="field">
+                <designmap-invk-textarea
+                        id="invkTextarea"
+                        value="{{commentText}}"
+                        users="[[projectUsers]]"
+                        invoked-users="{{invokedUsers}}"
+                        placeholder="[[translate('Write a comment',language,i18Loaded)]]"
+                        no-invoked
+                ></designmap-invk-textarea>
+                <iron-a11y-keys id="a11ySave" keys="ctrl+enter meta+enter"
+                                on-keys-pressed="_postComment"></iron-a11y-keys>
+            </div>
+            <div id="sendButton" class="send" disabled$="[[!commentText]]" on-tap="_postComment">
+                <iron-icon icon="icons:send"></iron-icon>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-task-comments',
+            behaviors: [
+                ReduxBehavior,
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapTaskService,
+                Polymer.CombineActions(Polymer.TasksActions, Polymer.CommentsActions)
+            ],
+            properties: {
+                task: {
+                    type: Object,
+                    value: null
+                },
+                commentText: {
+                    type: String,
+                    value: ''
+                },
+                invokedUsers: {
+                    type: Array,
+                    value: []
+                },
+                projectUsers: {
+                    type: Array,
+                    value: []
+                },
+                user: {
+                    type: Object,
+                    value: null
+                },
+                language: {
+                    type: String,
+                    value: 'en'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    value: false
+                },
+                projectId: {
+                    type: String,
+                    value: ''
+                }
+            },
+
+            _postComment: function () {
+                if(this.$.sendButton.disabled) return;
+                // Permanent validation
+                if (!this.commentText.trim()) return false;
+
+                const comment = {
+                    text: this.commentText,
+                    owner: this.user,
+                    task: this.task._id,
+                    project: this.projectId
+                };
+                this.dispatch('addComment', comment);
+
+                this.commentText = '';
+
+                this.async(function () {
+                    this.$.invkTextarea.blur();
+                });
+
+                //FIRE => this._sendNotification(this.task, comment);
+            },
+
+            _getFollowers: function (task) {
+                if (!task) return [];
+                const defaultFollowers = this.removeDuplicatesInArray([]);
+                return task.followers && task.followers.length ? task.followers : defaultFollowers;
+            },
+
+            _cancelFollowing: function () {
+                this.dispatch('unfollowTask', this.task, this.user._id);
+            },
+
+            _getInvokedUsersList: function () {
+                return this.invokedUsers.map(function (user) {
+                    return user.profile && user.profile.name ? user.profile.name : user.local.email;
+                }).join('; ');
+            }
+
+        })
+    </script>
+</dom-module>
