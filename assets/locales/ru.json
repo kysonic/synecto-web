@@ -2034,6 +2034,33 @@
     "message": "Только владелец проекта может интегрироваться с Google Docs."
   },
   "complete a task": {
-    "message": "завершить задачу"
+    "message": "завершить"
+  },
+  "Created by": {
+    "message": "Создано"
+  },
+  "days ago": {
+    "message": "дней назад"
+  },
+  "today": {
+    "message": "сегодня"
+  },
+  "yesterday": {
+    "message": "вчера"
+  },
+  "Task #ID has beem copied in clipboard": {
+    "message": "#ID задачи был скопирован в буфер обмена. Встаьте его в комментарий или сообщение чата, чтобы сослаться на эту задачу."
+  },
+  "Copy task #ID into clipboard": {
+    "message": "Скопировать #ID задачи в буфер обмена"
+  },
+  "difficulty": {
+    "message": "сложность"
+  },
+  "attach": {
+    "message": "прикрепить"
+  },
+  "select label...": {
+    "message": "метка..."
   }
 }

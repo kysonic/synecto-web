@@ -10,6 +10,7 @@
         IMAGE_REGEXP: /images/,
         shareRegexp: /share/,
         urlRegexp: /https?\:\/\/[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/ig,
+        spacesRegexp: /\s/,
         /**
          * Find parent node
          * @param node - DOM node
@@ -300,6 +301,19 @@
         goToLink: function(e){
             e.preventDefault();
             page.redirect(e.currentTarget.getAttribute('href'));
+        },
+
+        _computeTaskId: function(task){
+            if(!task) return 'XXX';
+            const date = new Date(task.created);
+            return date.getFullYear()+date.getMonth()+date.getDate()+task._id.substr(15,task._id.length);
+        },
+
+        _computeProjectUsersWithOutMe: function(projectUsers){
+            return projectUsers.filter(function (user) {
+                if (!this.user) return true;
+                return user._id !== this.user._id;
+            }.bind(this));
         }
     }
 </script>

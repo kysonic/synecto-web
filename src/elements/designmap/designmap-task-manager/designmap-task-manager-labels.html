@@ -14,6 +14,7 @@
                 color: var(--gray-darkend-color);
                 text-transform: lowercase;
                 vertical-align: middle;
+                position: relative;
                 /** PAPER_INPUT **/
                 --paper-input-container-color: var(--gray-darkend-color);
                 --paper-input-container-focus-color: var(--gray-darkend-color);
@@ -32,12 +33,38 @@
                 };
                 --paper-input-container-invalid-color: var(--error-color);
             }
+            #dropdown {
+                --designmap-dropdown-triangle-mixin: {
+                    left: 100%;
+                    margin-left: -60px;
+                };
+                --designmap-dropdown-triangle-border-mixin: {
+                    left: 100%;
+                    margin-left: -60px;
+                }
+            }
             *[hidden] {
                 display: none !important;
             }
-            .not-set {
-               text-decoration: underline;
+            .label {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                width: 100%;
             }
+            .gear-button {
+                position: absolute;
+                opacity: 0;
+                left: 0;
+                @applay(--designmap-task-manager-labels-gear-button-mixin)
+            }
+            :host(.show-settings) .gear-button{
+                opacity: 1;
+                left: -68px;
+                top: -8px;
+                transition: .2s opacity,.2s left;
+            }
+            /** Dropdown **/
             .label-editor {
                 padding: 20px;
             }
@@ -63,13 +90,7 @@
             }
             .select {
                 display: inline-block;
-                width: 150px;
-            }
-            .gear-icon {
-                display: inline-block;
-                width: 15px;
-                height: 15px;
-                margin-left: 5px;
+                width: auto;
             }
             .labels .label > * {
                 display: inline-block;
@@ -87,17 +108,20 @@
                 height: 20px;
             }
         </style>
-        <template is="dom-if" if="[[!labels.length]]" restamp>
-            <div class="not-set" on-tap="openDropdown">
-                <i18-n msgid="There is no lables...">There is no lables...</i18-n>
-            </div>
-        </template>
-        <template is="dom-if" if="[[labels.length]]" restamp>
-            <plastic-select class="select" value="[[label]]" options="[[_getLabels(labels)]]" default-label="[[translate('Label not set...',language,i18Loaded)]]"></plastic-select>
-            <iron-icon class="gear-icon" hidden$="[[!_isProjectOwner(project,user)]]" icon="icons:settings" on-tap="openDropdown"></iron-icon>
-        </template>
+        <div class="label" on-tap="openDropdown">[[_computeLabel(label)]]</div>
+        <paper-icon-button class="gear-button" hidden$="[[!_isProjectOwner(project,user)]]" icon="icons:settings" on-tap="openSettingsDropdown"></paper-icon-button>
+        <designmap-dropdown id="dropdown" tri-border vertical-offset="20" horizontal-offset="-150">
+            <ul class="labels">
+                <template is="dom-repeat" items="[[labels]]" as="label">
+                    <li class="label">
+                        <div class="color" style$="[[_getColorStyle(label.color)]]"></div>
+                        <div class="name" title="[[label.label]]">[[label.label]]</div>
+                    </li>
+                </template>
+            </ul>
+        </designmap-dropdown>
         <!-- Dropdown -->
-        <designmap-dropdown id="dropdown" tri-border vertical-offset="20" horizontal-offset="-60">
+        <designmap-dropdown id="settingsDropdown" on-close="settingsDropdownClose" tri-border vertical-offset="20" horizontal-offset="-183">
             <div class="label-editor">
                 <div class="labels">
                     <template is="dom-repeat" items="[[labels]]" as="label">
@@ -191,8 +215,11 @@
                 });
             },
             openDropdown: function(){
-                if(!this._isProjectOwner()) return false;
                 this.$.dropdown.toggle();
+            },
+            openSettingsDropdown: function(){
+                if(!this._isProjectOwner()) return false;
+                this.$.settingsDropdown.toggle();
             },
             _isProjectOwner: function(){
                 if(!this.project || !this.user) return false;
@@ -245,7 +272,7 @@
                     // Update
                     this.set('project.settings.taskManager.labels',response.project.settings.taskManager.labels);
                     this.async( this.$.dropdown.refit);
-                }.bind(this)).catch(this.manageErrorResponse)
+                }.bind(this));
             },
             _computeIcon: function (editMode) {
                 return !editMode ? 'icons:add' : 'icons:check';
@@ -256,6 +283,13 @@
                 this.editMode = true;
                 this.editedLabel = e.model.label;
                 this.$.label.focus();
+            },
+            _computeLabel: function(label){
+                if(!label || !this.labels[label]) return this.translate('select label...');
+                return label;
+            },
+            settingsDropdownClose: function () {
+                this.fire('settings-dropdown-close');
             }
         })
     </script>

@@ -1,5 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="./designmap-task-status-selector.html">
+<link rel="import" href="/bower_components/cbn-copy-clipboard/cbn-copy-clipboard.html">
 
 <dom-module id="designmap-task-info">
     <template>
@@ -13,7 +14,7 @@
                 justify-content: space-between;
             }
             designmap-task-status-selector {
-                margin-left: 65px;
+                margin-left: 24px;
             }
             .finish-task {
                 cursor: pointer;
@@ -24,6 +25,18 @@
             .finish-task:hover {
                 text-decoration: none;
             }
+            .info {
+                margin-left: 29px;
+            }
+            .marked {
+                color: var(--blue-darkest-color);
+            }
+            .info > * {
+                display: inline-block;
+            }
+            .identificator {
+                border-bottom: 1px dashed var(--gray-color);
+            }
         </style>
         <div class="statuses">
             <designmap-task-status-selector id="statusSelector" status="[[task.status]]"></designmap-task-status-selector>
@@ -31,17 +44,33 @@
             <!--<div hidden$="[[_isComplete(task.status)]]" class="finish-task" on-click="finishTask"><i18-n msgid="complete a task">complete a task</i18-n></div>-->
         </div>
         <div class="info">
-
+            <div class="created-by"><i18-n msgid="Created by">Created by</i18-n>: <span class="marked">[[_getOwner(task.owner,projectUsers)]]</span></div>
+            <div class="created-date"><i18-n msgid="Date">Date</i18-n>: <span class="marked">[[_formatDate(task.created)]]</span></div>
+            <div id="ident" class="identificator" on-tap="_copyToClipBoard">
+                <cbn-copy-clipboard  value="#[[_computeTaskId(task)]]">
+                    #ID: [[_computeTaskId(task)]]
+                </cbn-copy-clipboard>
+            </div>
+            <paper-tooltip for="ident">
+                <i18-n msgid="Copy task #ID into clipboard">Copy task #ID into clipboard</i18-n>
+            </paper-tooltip>
         </div>
     </template>
     <script>
         Polymer({
             is: 'designmap-task-info',
-            behaviors: [],
+            behaviors: [
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapMessagesBehavior
+            ],
             properties: {
                 task: {
                     type: Object,
                     value: null
+                },
+                projectUsers: {
+                    type: Array,
+                    value: []
                 }
             },
             finishTask: function(){
@@ -49,6 +78,24 @@
             },
             _isComplete: function(status){
                 return status=='completed';
+            },
+            _getOwner: function(id){
+                if(!this.projectUsers) return 'XXX';
+                const owner = this.projectUsers.find(function(user){
+                    return user._id==id;
+                });
+                if(!owner) return 'XXX';
+                return this.computeOwnerName(owner);
+            },
+            _formatDate: function(created){
+                const date = moment(created);
+                const diff = moment().diff(date, 'days');
+                if(diff==0) return this.translate('today');
+                if(diff==1) return this.translate('yesterday');
+                return diff>5?date.format('YYYY-MM-DD'):diff+' '+this.translate('days ago');
+            },
+            _copyToClipBoard: function(){
+                this.showMessage('Task #ID has beem copied in clipboard');
             }
         })
     </script>

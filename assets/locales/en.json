@@ -2019,6 +2019,33 @@
     "message": "Only project owner can integrate with Google Docs."
   },
   "complete a task": {
-    "message": "complete a task"
+    "message": "complete"
+  },
+  "Created by": {
+    "message": "Created by"
+  },
+  "days ago": {
+    "message": "days ago"
+  },
+  "today": {
+    "message": "today"
+  },
+  "yesterday": {
+    "message": "yesterday"
+  },
+  "Task #ID has beem copied in clipboard": {
+    "message": "Task #ID has been copied in clipboard. Put it in comment or chat message to create link on this task."
+  },
+  "Copy task #ID into clipboard": {
+    "message": "Copy task #ID into clipboard"
+  },
+  "difficulty": {
+    "message": "difficulty"
+  },
+  "attach": {
+    "message": "attach"
+  },
+  "select label...": {
+    "message": "label..."
   }
 }
