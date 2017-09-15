@@ -1,10 +1,12 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-form/iron-form.html">
+<link rel="import" href="/bower_components/iron-a11y-keys/iron-a11y-keys.html">
 <link rel="import" href="../../reworked/paper-color-picker/paper-color-picker.html">
 <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../plastic/plastic-select.html">
 <link rel="import" href="../designmap-ui/designmap-dropdown.html">
 <link rel="import" href="../designmap-fs/designmap-fs-service.html">
+<link rel="import" href="./deaignmap-task-service.html">
 
 <dom-module id="designmap-task-manager-labels">
     <template>
@@ -32,6 +34,9 @@
                     font-weight: 300 !important;
                 };
                 --paper-input-container-invalid-color: var(--error-color);
+                --paper-font-caption: {
+                    height: 0px;
+                };
             }
             #dropdown {
                 --designmap-dropdown-triangle-mixin: {
@@ -40,7 +45,9 @@
                 };
                 --designmap-dropdown-triangle-border-mixin: {
                     left: 100%;
-                    margin-left: -60px;
+                    margin-left: -62px;
+                    margin-top: -2px;
+                    border-color: transparent transparent var(--gray-color) transparent;
                 }
             }
             *[hidden] {
@@ -56,6 +63,7 @@
                 position: absolute;
                 opacity: 0;
                 left: 0;
+                top: -10px;
                 @applay(--designmap-task-manager-labels-gear-button-mixin)
             }
             :host(.show-settings) .gear-button{
@@ -97,27 +105,70 @@
                 vertical-align: middle;
                 text-transform: none;
             }
+            .labels .label {
+                padding: 5px 0;
+            }
             .labels .label .name {
-                max-width: 145px;
+                max-width: calc(100% - 110px);
+                margin-left: 10px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
             }
+            .labels .label .color {
+                vertical-align: top;
+            }
             .labels .label iron-icon {
                 width: 20px;
                 height: 20px;
+                margin-left: 5px;
+            }
+            .labels .label iron-icon:hover {
+                background: var(--gray-lightern-color);
+            }
+            ul.labels {
+                margin: 0;
+                padding: 10px;
+            }
+            ul.labels .label {
+                padding: 5px;
+            }
+            ul.labels .label:hover {
+                background: var(--gray-lightern-color);
+            }
+            ul.labels .label .name {
+                max-width: calc(100% - 40px);
+            }
+            .cross-tick {
+                position: absolute;
+                top: 10px;
+                left: -4px;
+                width: 29px;
+                height: 1px;
+                background: var(--black-color);
+                transform: rotate(45deg);
+            }
+            .cross-tick.v {
+                transform: rotate(135deg);
             }
         </style>
-        <div class="label" on-tap="openDropdown">[[_computeLabel(label)]]</div>
+        <div class="label" on-tap="openDropdown">[[_computeLabel(label,labels,task,project.settings.taskManager.labels)]]</div>
         <paper-icon-button class="gear-button" hidden$="[[!_isProjectOwner(project,user)]]" icon="icons:settings" on-tap="openSettingsDropdown"></paper-icon-button>
-        <designmap-dropdown id="dropdown" tri-border vertical-offset="20" horizontal-offset="-150">
+        <designmap-dropdown id="dropdown" tri-border vertical-offset="20" horizontal-offset="-200">
             <ul class="labels">
                 <template is="dom-repeat" items="[[labels]]" as="label">
-                    <li class="label">
+                    <li class="label" on-tap="selectLabel">
                         <div class="color" style$="[[_getColorStyle(label.color)]]"></div>
                         <div class="name" title="[[label.label]]">[[label.label]]</div>
                     </li>
                 </template>
+                <li hidden$="[[!label]]" class="label" on-tap="dropLabel">
+                    <div class="color" style="background: rgb(256,256,256);border-color:rgb(0,0,0);">
+                        <div class="cross-tick"></div>
+                        <div class="cross-tick v"></div>
+                    </div>
+                    <div class="name"><i18-n msgid="drop label">drop label</i18-n></div>
+                </li>
             </ul>
         </designmap-dropdown>
         <!-- Dropdown -->
@@ -136,6 +187,7 @@
                 <form id="form" is="iron-form" class="add-field">
                     <div class="color" on-click="openColorPicker" style$="[[_getColorStyle(color,color.*)]]"></div>
                     <paper-input id="label" auto-validate required label="[[translate('Add new label',language,i18Loaded)]]"></paper-input>
+                    <iron-a11y-keys id="a11yAddLabel" keys="enter" on-keys-pressed="addLabel"></iron-a11y-keys>
                     <paper-color-picker color="{{color}}" immediateColor="[[immediateColor]]" id="colorPicker"></paper-color-picker>
                     <paper-icon-button on-click="addLabel" class="add-icon" icon="[[_computeIcon(editMode)]]"></paper-icon-button>
                 </form>
@@ -150,6 +202,7 @@
                 Polymer.DesignMapUtilsBehavior,
                 Polymer.DesignMapMessagesBehavior,
                 Polymer.DesignMapFsService,
+                Polymer.DesignMapTaskService,
                 Polymer.CombineActions(Polymer.ProjectActions)
             ],
             properties: {
@@ -158,7 +211,9 @@
                     statePath:'project'
                 },
                 label: {
-                    type: String
+                    type: String,
+                    value: '',
+                    observer:'_labelChanged'
                 },
                 projects: {
                     type: Array,
@@ -178,7 +233,12 @@
                 },
                 labels: {
                     type: Array,
+                    value: [],
                     computed: '_computeLabels(project.settings.taskManager.labels)'
+                },
+                task: {
+                    type: Object,
+                    value: {}
                 },
                 color: {
                     type: Object,
@@ -215,6 +275,7 @@
                 });
             },
             openDropdown: function(){
+                if(!this.labels.length) return;
                 this.$.dropdown.toggle();
             },
             openSettingsDropdown: function(){
@@ -229,7 +290,8 @@
                 this.$.colorPicker.open();
             },
             _getColorStyle: function(color) {
-                return 'background:rgb('+color.red+','+color.green+','+color.blue+');';
+                const rgb = 'rgb('+color.red+','+color.green+','+color.blue+');';
+                return 'background:'+rgb+'border-color:'+rgb;
             },
             addLabel: function(){
                 if(this.editMode) return this.editLabel();
@@ -271,7 +333,7 @@
                     if(!response.success) return;
                     // Update
                     this.set('project.settings.taskManager.labels',response.project.settings.taskManager.labels);
-                    this.async( this.$.dropdown.refit);
+                    this.async( this.$.settingsDropdown.refit,100);
                 }.bind(this));
             },
             _computeIcon: function (editMode) {
@@ -285,11 +347,34 @@
                 this.$.label.focus();
             },
             _computeLabel: function(label){
-                if(!label || !this.labels[label]) return this.translate('select label...');
+                if(!label || !this._findLabel(label)) return this.translate('select label...');
                 return label;
+            },
+            _findLabel:function(l){
+                return this.labels.find(function(label){
+                    return label.label==l;
+                });
             },
             settingsDropdownClose: function () {
                 this.fire('settings-dropdown-close');
+            },
+            selectLabel: function(e){
+                if (!this.canUpdateTask(this.task)) return this.showErrorMessage('Only project or task or assignee can change label');
+                this.$.dropdown.close();
+                this.label = e.model.label.label;
+                this.fire('change',this.label);
+            },
+            dropLabel: function(e){
+                if (!this.canUpdateTask(this.task)) return this.showErrorMessage('Only project or task or assignee can change label');
+                this.$.dropdown.close();
+                this.label = '';
+                this.fire('change',this.label);
+            },
+            _labelChanged: function(label){
+                if(label==undefined) {
+                    this.fire('task-label-changed');
+                    this.label = '-';
+                }
             }
         })
     </script>

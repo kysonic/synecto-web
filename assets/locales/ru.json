@@ -1496,7 +1496,7 @@
   "up to": {
     "message": "до"
   },
-  "Estimate": {
+  "Estimate task tooltip": {
     "message": "Оценить сложность задачи в стори поинтах"
   },
   "Select folder to upload file in": {
@@ -2003,6 +2003,9 @@
   "Only project or task or assignee can change task status": {
     "message": "Только владелец проекта или задачи или ответственный может изменить статус задачи"
   },
+  "Only project or task or assignee can change label": {
+    "message": "Только владелец проекта или задачи или ответственный может изменить метку"
+  },
   "Show overview": {
     "message": "Показать обзор задач"
   },
@@ -2062,5 +2065,14 @@
   },
   "select label...": {
     "message": "метка..."
+  },
+  "drop label": {
+    "message": "удалить метку..."
+  },
+  "Set label": {
+    "message": "Установить метку"
+  },
+  "Datepicker tooltip": {
+    "message": "Установить дату окончания"
   }
 }

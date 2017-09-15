@@ -1493,7 +1493,7 @@
   "up to": {
     "message": "up to"
   },
-  "title": {
+  "Estimate task tooltip": {
     "message": "Estimate difficulty of task in story points"
   },
   "Select folder to upload file in": {
@@ -1988,6 +1988,9 @@
   "Only project or task or assignee can change task status": {
     "message": "Only project or task or assignee can change task status"
   },
+  "Only project or task or assignee can change label": {
+    "message": "Only project or task or assignee can change label"
+  },
   "Show overview": {
     "message": "Show tasks overview"
   },
@@ -2047,5 +2050,14 @@
   },
   "select label...": {
     "message": "label..."
+  },
+  "drop label": {
+    "message": "drop label..."
+  },
+  "Set label": {
+    "message": "Set label"
+  },
+  "Datepicker tooltip": {
+    "message": "Setup due date"
   }
 }

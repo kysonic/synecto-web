@@ -1,0 +1,148 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module id="designmap-task-estimate-dropdown">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+            }
+
+            *[hidden] {
+                display: none !important;
+            }
+
+            .grade-dropdown {
+                min-width: 200px;
+                position: absolute;
+                padding: 10px;
+                z-index: 1005;
+                background: var(--white-color);
+                margin-top: 10px;
+                border: 1px solid var(--gray-color);
+                box-shadow: var(--box-shadow);
+                right: 0;
+                left: -210px;
+                top: 20px;
+                color: var(--gray-darkend-color);
+            }
+
+            .grade-dropdown .grd {
+                padding-left: 10px;
+            }
+
+            .grade-dropdown .message {
+                padding-left: 10px;
+            }
+
+            .grade-dropdown ul {
+                list-style: none;
+                margin: 0;
+                padding: 10px;
+            }
+
+            .grade-dropdown ul li > * {
+                display: inline-block;
+                color: var(--gray-darkend-color);
+                font-size: 14px;
+                vertical-align: top;
+            }
+
+            .grade-dropdown ul li .grade {
+                font-weight: bold;
+                margin-left: 5px;
+            }
+
+            .grade-dropdown ul li .user {
+                max-width: 150px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            /** Triangles **/
+            .triangle, .triangle-border {
+                z-index: 10;
+                position: absolute;
+                left: 100%;
+                margin-left: -40px;
+                top: -10px;
+                width: 0;
+                height: 0;
+
+                border-style: solid;
+                border-width: 0 10px 10px 10px;
+                border-color: transparent transparent var(--white-color) transparent;
+            }
+
+            .triangle-border {
+                display: block;
+                left: 100%;
+                margin-left: -42px;
+                top: -12px;
+                z-index: 9;
+                border-style: solid;
+                border-width: 0 12px 12px 12px;
+                border-color: transparent transparent var(--gray-color) transparent;
+            }
+        </style>
+        <div id="gradeDropdown" class="grade-dropdown" hidden$="[[!opened]]">
+            <div class="grd" hidden$="[[!_gradeLength(task.grade)]]">
+                <i18-n msgid="Grades">Grades</i18-n>
+            </div>
+            <ul hidden$="[[!_gradeLength(task.grade)]]">
+                <template is="dom-repeat" items="[[_getGradeItems(task.grade.*)]]" as="userId">
+                    <li>
+                        <div class="user">[[_getUser(userId,task.grade.*)]] -</div>
+                        <div class="grade">[[_getGrade(userId,task.grade.*)]]</div>
+                    </li>
+                </template>
+            </ul>
+            <div class="message" hidden$="[[_gradeLength(task.grade)]]">
+                <i18-n msgid="Estimate task tooltip">Estimate task tooltip</i18-n>
+            </div>
+            <div class="triangle"></div>
+            <div class="triangle-border"></div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-task-estimate-dropdown',
+            behaviors: [
+                Polymer.DesignMapUtilsBehavior
+            ],
+            properties: {
+                opened: {
+                    type: Boolean,
+                    value: false
+                },
+                task: {
+                    type: Object,
+                    value: {}
+                },
+                projectUsers: {
+                    type: Array,
+                    value:[]
+                }
+            },
+            _getUser: function (userId) {
+                const user = this.getProjectsUserById(userId);
+                if (!user) return 'XXX';
+                return this.computeOwnerName(user);
+            },
+
+            _getGrade: function (userId) {
+                return this.task.grade[userId];
+            },
+
+            _gradeLength: function (grade) {
+                return grade && Object.keys(grade).length && grade[this.uid];
+            },
+
+            _getGradeItems: function (grade) {
+                return Object.keys(this.task && this.task.grade ? this.task.grade : {});
+            },
+
+        })
+    </script>
+</dom-module>

@@ -1,0 +1,65 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<script>
+    Polymer.DesignmapTaskTrackTimeService = {
+        trackTime: function (e) {
+            this.task.time = this.task.time || {};
+            this.task.time.run ? this.stopTrack() : this.startTrack();
+        },
+
+        startImmediateTrack: function () {
+            if (this.i) return;
+            this.i = setInterval(function () {
+                this.spentTime = this.task.time.spent + (new Date() - Date.parse(this.task.time.start));
+            }.bind(this), 1000);
+        },
+
+        stopImmediateTrack: function () {
+            clearInterval(this.i);
+            this.i = false;
+            this.spentTime = 0;
+        },
+
+        startTrack: function () {
+            this.task.time = this.task.time || {};
+
+            this.task.time.run = true;
+            this.task.time.start = new Date();
+            this.dispatch('updateTask', this.task._id, this.task);
+        },
+
+        stopTrack: function () {
+            this.task.time = this.task.time || {};
+
+            this.task.time.run = false;
+            this.task.time.spent = this.task.time.spent + (new Date() - Date.parse(this.task.time.start));
+            this.task.time.start = 0;
+
+            this.dispatch('updateTask', this.task._id, this.task);
+        },
+
+        _watchRun: function (run) {
+            run ? this.startImmediateTrack() : this.stopImmediateTrack();
+        },
+
+        clearTime: function () {
+            this.task.time = this.task.time || {};
+
+            this.task.time.run = false;
+            this.task.time.spent = 0;
+            this.task.time.start = 0;
+
+            this.dispatch('updateTask', this.task._id, this.task);
+
+            this.$.clearTimeConfirm.close();
+        },
+
+        openClearTimeDialog: function () {
+            this.$.clearTimeConfirm.open();
+        },
+
+        suspendClearing: function () {
+            this.$.clearTimeConfirm.close();
+        }
+    }
+</script>

@@ -151,7 +151,7 @@
             return this.user._id==task.assignee || (task.assignee && this.user._id==task.assignee);
         },
         _spentAndAssignee: function(spent, task){
-            return spent && this.isAssignee(task);
+            return spent && this.canRemoveTask(task);
         },
         _isMyComment: function(user,comment){
             return user._id==comment.owner._id;
