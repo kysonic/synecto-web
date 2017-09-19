@@ -488,7 +488,7 @@
                 page.redirect('/' + this.projectId + '/task-manager' + this.getFullPath(e.detail));
             },
             focusInput: function () {
-                this.$.details.focusInput();
+                if(this.$.details) this.$.details.focusInput();
             },
             _computedAuth: function (user) {
                 return !!user;
@@ -660,7 +660,7 @@
                         ]
                     }
                 ];
-                if(labels.length) data.push({
+                if(labels && labels.length) data.push({
                     name:'label',
                     type: 'select',
                     default: 'all',
@@ -694,6 +694,7 @@
 
             cancelTask: function(){
                 this.selectedTask = null;
+                page.redirect('/'+this.projectId+'/task-manager/');
             }
         })
     </script>

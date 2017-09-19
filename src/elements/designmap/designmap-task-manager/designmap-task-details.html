@@ -1,26 +1,22 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
+
 <link rel="import" href="../../plastic/plastic-custom-scroll.html">
 <link rel="import" href="../../plastic/plastic-textarea.html">
 <link rel="import" href="../../plastic/plastic-html.html">
+
 <link rel="import" href="./designmap-assignee.html">
 <link rel="import" href="./designmap-task-manager-labels.html">
-<link rel="import" href="../designmap-ui/designmap-date-picker.html">
-<link rel="import" href="../designmap-fs/designmap-file-uploader.html">
-<link rel="import" href="../designmap-ui/designmap-invk-textarea.html">
-<link rel="import" href="../designmap-ui/designmap-followers.html">
-<link rel="import" href="../designmap-accesses/designmap-users-select.html">
-<link rel="import" href="../designmap-fs/designmap-fs-explorer.html">
-<link rel="import" href="/bower_components/paper-button/paper-button.html">
 <link rel="import" href="./designmap-task-estimate.html">
 <link rel="import" href="./designmap-task-comments.html">
 <link rel="import" href="./designmap-task-info.html">
 <link rel="import" href="./designmap-task-menu.html">
+<link rel="import" href="./designmap-task-comment-list.html">
 
 <link rel="import" href="../../../styles/tooltip-shared-styles.html">
 
 <link rel="import" href="./deaignmap-task-service.html">
 <link rel="import" href="./designmap-task-track-time-service.html">
-<link rel="import" href="../designmap-tutorial/designmap-hint-service.html">
+<link rel="import" href="./designmap-task-notify-service.html">
 
 <link rel="import" href="../../../redux/redux-store.html">
 <link rel="import" href="../../../redux/actions/combine-actions.html">
@@ -47,6 +43,16 @@
                 --details-inprogress: var(--inprogress);
                 --details-completed: var(--completed);
                 --details-expired: var(--expired);
+
+                --plastic-custom-scroll-bar-mixin: {
+                    margin-left: -10px;
+                };
+                --plastic-custom-scroll-bar-hover-mixin: {
+                    margin-left: -12px;
+                };
+                --plastic-custom-scroll-bar-grabbed-mixin: {
+                    margin-left: -12px;
+                };
             }
 
             *[hidden] {
@@ -115,6 +121,8 @@
             }
 
             .task-title-input.edit {
+                position: relative;
+                top: 1px;
                 border-bottom: 1px solid var(--gray-saturate-color);
             }
 
@@ -159,6 +167,10 @@
                 max-width: 175px;
             }
 
+            designmap-task-menu {
+                margin-top: 10px;
+            }
+
             /** STATUSES **/
             .details.completed .task-title-input, .details.completed .task-title {
                 color: var(--details-completed)
@@ -201,11 +213,114 @@
             }
 
             designmap-task-info {
-                margin-top: 5px;
+                margin-top: 15px;
+            }
+
+            /** Description **/
+
+            .description {
+                margin-top: 19px;
+                display: flex;
+                padding-bottom: 1px;
+            }
+
+            .desc-textarea {
+                flex:1;
+                --plastic-textarea-mixin: {
+                    margin-left: 25px;
+                    font-family: var(--font-family);
+                    color: var(--gray-darky-color);
+                    max-width: calc(100% - 40px);
+                    font-weight: 100;
+                    font-size: 18px;
+                    padding: 5px ;
+                    height: 25px;
+                };
+            }
+            .desc-textarea.edit {
+                margin-top: -1px;
+                --plastic-textarea-mixin: {
+                    margin-left: 24px;
+                    font-family: var(--font-family);
+                    color: var(--gray-darky-color);
+                    max-width: calc(100% - 40px);
+                    font-weight: 100;
+                    font-size: 18px;
+                    padding: 5px ;
+                    height: 25px;
+                    border: 1px solid var(--gray-color);
+                };
+
+            }
+
+            .desc-arrow iron-icon{
+                border: 1px solid var(--gray-color);
+                padding: 5px;
+                cursor: pointer;
+            }
+            .desc-arrow iron-icon:hover {
+                background: var(--gray-lightern-color);
+            }
+
+            .task-desc {
+                width: 100%;
+                margin-left: 25px;
+                font-family: var(--font-family);
+                color: var(--gray-saturated-color);
+                max-width: calc(100% - 40px);
+                font-weight: 100;
+                font-size: 18px;
+                padding: 5px;
+                --plastic-html-mixin: {
+                    cursor: text;
+                    color: var(--gray-saturated-color);
+                }
+            }
+
+            /** SUB TASK **/
+            designmap-task-list {
+                display: block;
+                margin-top: 20px;
+                border-top: 1px solid var(--gray-color);
+                --designmap-task-list-add-task-wrapper-mixin: {
+                    padding: 0 20px 0 30px;
+                    margin-top: 5px;
+                };
+                --designmap-task-list-status-button-mixin: {
+                    margin-left: 0;
+                };
+                --designmap-task-list-list-mixin: {
+                    padding-left: 15px;
+                };
+                --designmap-task-list-title-mixin: {
+                    margin-left: 0;
+                };
+                --designmap-task-list-add-input-mixin: {
+                    margin-top: 0;
+                    margin-left: 0;
+                };
+                --designmap-tasl-list-filters: {
+
+                };
+                --designmap-tasl-list-filters-first-child: {
+                    margin-left: 32px;
+                }
+            }
+
+            plastic-custom-scroll {
+                --plastic-custom-scroll-content-mixin:{
+                    max-height: calc(100vh - 240px);
+                };
+            }
+
+            .followers plastic-custom-scroll {
+                --plastic-custom-scroll-content-mixin:{
+                    max-height: calc(100vh - 280px);
+                };
             }
 
         </style>
-        <div id="details" class$="details [[_computeAssigneeStatus(task)]]" >
+        <div id="details" class$="details [[_computeAssigneeStatus(task)]] [[_computeFollowersCls(followers)]]" >
             <!-- Panel -->
             <div class="panel">
                 <div class="left">
@@ -215,17 +330,6 @@
                                         disabled="[[!canRemoveTask(task)]]"
                                         assignee="[[task.assignee]]" on-assign="_selectAssignee"
                                         on-remove="_removeAssignee"></designmap-assignee>
-                    <!-- Hint -->
-                    <designmap-hint id="assigneeHint" tri-left previous name="assignee" vertical-offset="20"
-                                    horizontal-offset="70">
-                        <div class="title">
-                            <i18-n msgid="Assign responsible">Assign responsible</i18-n>
-                        </div>
-                        <div class="desc">
-                            <i18-n msgid="assigneeMsg">assigneeMsg</i18-n>
-                        </div>
-                    </designmap-hint>
-                    <!-- Hint-->
                     <paper-tooltip for="assignee" position="right">
                         <i18-n msgid="Assign responsible">Assign responsible</i18-n>
                     </paper-tooltip>
@@ -254,26 +358,57 @@
                 </div>
             </div>
             <!-- Panel -->
-            <div class="grid">
-                <div class="left">
-                    <designmap-task-info task="[[task]]" project-users="[[projectUsers]]"></designmap-task-info>
-                    <!-- Desc-->
-                    <!-- Subtasks -->
-                    <!-- Comment-list-->
-                    <!-- History ?! -->
+            <plastic-custom-scroll id="scroller" fit small-bar>
+                <div class="grid">
+                    <div class="left">
+                        <designmap-task-info task="[[task]]" project-users="[[projectUsers]]"></designmap-task-info>
+                        <!-- Description -->
+                        <div class="description">
+                            <iron-a11y-keys id="a11ySaveDesc" keys="ctrl+enter meta+enter"
+                                            on-keys-pressed="saveDesc"></iron-a11y-keys>
+                            <plastic-textarea id="desc"
+                                              class$="desc-textarea [[_descEditModeCls(descEditMode)]]"
+                                              value="[[task.description]]"
+                                              rows="1"
+                                              on-focus="descEditModeOn"
+                                              on-input="saveTempDesc"
+                                              hidden$="[[!descEditMode]]"
+                                              placeholder="[[translate('Enter description',language,i18Loaded)]]"></plastic-textarea>
+                            <div hidden$="[[descEditMode]]" on-tap="_tryToEdit" id="plasticDesc" class="task-desc">
+                                <plastic-html  msg="[[_generateDesc(task.description)]]"></plastic-html>
+                            </div>
+                            <div hidden$="[[!descEditMode]]" class="desc-arrow" on-tap="saveDesc">
+                                <iron-icon icon="icons:arrow-forward"></iron-icon>
+                            </div>
+                        </div>
+                        <!-- Comment-list-->
+                        <!-- History ?! -->
+                    </div>
+                    <div class="right">
+                        <designmap-task-menu language="[[language]]" i-18-loaded="[[i18Loaded]]" spent-time="[[spentTime]]" project-users="[[projectUsers]]" user="[[user]]" task="[[task]]" project="[[project]]"></designmap-task-menu>
+                    </div>
                 </div>
-                <div class="right">
-                    <designmap-task-menu spent-time="[[spentTime]]" project-users="[[projectUsers]]" user="[[user]]" task="[[task]]" project="[[project]]"></designmap-task-menu>
+                <div class="mid">
+                    <designmap-task-list id="list"
+                                         placeholder="Add subtask"
+                                         parent="[[task._id]]"
+                                         small-add-task
+                                         no-scroll="true"></designmap-task-list>
+                    <!-- Comment list -->
+                    <designmap-task-comment-list user="[[user]]" task="[[task]]" comments="[[comments]]"></designmap-task-comment-list>
                 </div>
-            </div>
+            </plastic-custom-scroll>
         </div>
         <!--comments-->
         <div class="comments">
             <designmap-task-comments
+                    id="comments"
                     project-users="[[projectUsersWithOutMe]]"
                     language="[[language]]"
+                    followers="{{followers}}"
                     i-18-loaded="[[i18Loaded]]"
                     project-id="[[projectId]]"
+                    project="[[project]]"
                     task="[[task]]"
                     user="[[user]]"></designmap-task-comments>
         </div>
@@ -287,6 +422,7 @@
                 Polymer.DesignMapUtilsBehavior,
                 Polymer.DesignMapTaskService,
                 Polymer.DesignmapTaskTrackTimeService,
+                Polymer.DesignMapTaskNotifyService,
                 Polymer.DesignMapFsService,
                 Polymer.CombineActions(Polymer.TasksActions, Polymer.FilesActions, Polymer.CommentsActions)],
             properties: {
@@ -326,21 +462,41 @@
                     type: Boolean,
                     value: false
                 },
-                spentTime: {
-                    type: Number,
-                    value: 0
+                descEditMode: {
+                    type: Boolean,
+                    value: false
+                },
+                comments: {
+                    type: Array,
+                    statePath: 'comments'
+                },
+                followers: {
+                    type: Array,
+                    value: []
                 }
-
             },
             listeners: {
                 'change-status': 'changeStatus',
                 'change-label': 'changeLabel',
                 'estimate-task': 'estimateTask',
                 'track-time': 'trackTime',
-                'save-date': 'saveDate'
+                'edit-time': 'editTime',
+                'request-time': 'requestTime',
+                'clear-time': 'clearTime',
+                'save-date': 'saveDate',
+                'attach-files': 'attachFiles',
+                'remove-file': 'removeFile',
+                'remove-comment': 'removeComment',
+                'edit-comment': 'editComment',
+                'like-comment': 'likeComment',
+                'reply-comment': 'replyComment',
+                'scroll-on-top': 'scrollOnTop',
+                'send-estimation-request': 'sendEstimationRequest',
+                'send-time-change-request': 'sendTimeChangeRequest',
             },
             observers: [
-                '_watchRun(task.time.run)'
+                '_watchRun(task.time.run)',
+                '_descChange(task.description)'
             ],
             saveTitle: function (e) {
                 if (!this.canUpdateTask(this.task)) {
@@ -358,7 +514,7 @@
                 this.titleEditMode = false;
                 this.dispatch('updateTask', this.task._id, {name: this.$.title.value}).then(function (response) {
                     if (!response.success) return;
-                    if (e.type == 'keys-pressed') this.showMessage('Task title was updated successful!');
+                    this.showMessage('Task title was updated successful!');
                 }.bind(this));
             },
 
@@ -395,7 +551,7 @@
                 this.dispatch('updateTask', this.task._id, {assignee: e.detail._id});
                 // Notify but do not do this if for itself
                 if (e.detail._id == this.user._id) return;
-                //this.sendAssigneeNotification(e.detail.task, e.detail._id);
+                this.sendAssigneeNotification(e.detail.task,e.detail._id);
             },
 
             _removeAssignee: function (e) {
@@ -412,7 +568,7 @@
                 this.dispatch('updateTask', this.task._id, data);
                 this.async(this.updateStyles);
                 // Notify
-                //this.sendTaskStatusNotification(this.task);
+                this.sendTaskStatusNotification(this.task);
             },
 
             changeLabel: function(e){
@@ -434,6 +590,112 @@
             saveDate: function(e){
                 this.dispatch('updateTask', this.task._id, {expired: e.detail});
             },
+
+            attachFiles: function(e){
+                const selected = e.detail;
+                selected.forEach(function (file) {
+                    if (this.task.files.indexOf(file._id) != -1) return;
+                    this.task.files.push(file._id);
+                }.bind(this));
+                this.dispatch('updateTask', this.task._id, this.task).then(function (response) {
+                    if (!response.success) return;
+                    this.showMessage('File was attached successful!');
+                }.bind(this));
+            },
+
+            removeFile: function (e) {
+                const file = e.detail;
+                this.task.files.splice(this.task.files.indexOf(file._id), 1);
+                this.dispatch('updateTask', this.task._id, this.task);
+            },
+
+            descEditModeOn: function(){
+                this.descEditMode = true;
+            },
+
+            _descEditModeCls: function(descEditMode){
+                this.async(this.updateStyles);
+                return descEditMode?'edit':'';
+            },
+
+            _tryToEdit: function(){
+                if(!this.canRemoveTask(this.task)) return;
+                this.descEditMode = true;
+                this.$.desc.refit();
+                this.async(function(){this.$.desc.focus();},10);
+            },
+
+            saveDesc: function (e) {
+                const val = this.$.desc.$.textarea.value;
+                if (!this.canUpdateTask(this.task)) {
+                    this.$.desc.$.textarea.value = this.task.description;
+                    return this.showErrorMessage('You do not have access to make it');
+                }
+                this.dispatch('updateTask', this.task._id, {description: val}).then(function (response) {
+                    this.descEditMode = false;
+                    if (!response.success) return this.showErrorMessage('Cannot save description');
+                    this.showMessage('Description has been saved!');
+                }.bind(this));
+
+            },
+
+            _generateDesc: function(desc){
+                return this.processLinksInText(desc) || (this.canUpdateTask(this.task) ? this.translate('Enter description') : this.translate('There is no description') )
+            },
+
+            saveTempDesc: function(v){
+                localStorage.setItem('synecto:desc:temp',this.$.desc.value);
+            },
+
+            _descChange: function(){
+                const tempDesc = localStorage.getItem('synecto:desc:temp');
+                if(this.descEditMode && tempDesc) {
+                    this.set('task.description',tempDesc);
+                    localStorage.setItem('synecto:desc:temp','');
+                }
+            },
+
+            likeComment: function(e){
+                let comment = e.detail;
+
+                comment.likes = comment.likes || [];
+                const isThereUser = comment.likes.indexOf(this.user._id) != -1;
+                const userLikesIndex = comment.likes.indexOf(this.user._id);
+                isThereUser ? comment.likes.splice(userLikesIndex, 1) : comment.likes.push(this.user._id);
+                this.dispatch('updateComment', comment._id, comment);
+            },
+
+            removeComment(e){
+                this.dispatch('removeComment', e.detail);
+            },
+
+            editComment: function(e){
+                this.$.comments.edit = e.detail._id;
+                this.$.comments.commentText = e.detail.text;
+            },
+
+            _computeFollowersCls: function(followers){
+                this.async(this.updateStyles);
+                return followers.length ? 'followers' : '';
+            },
+
+            scrollOnTop: function(){
+                this.$.scroller.setScroll(this.$.scroller.$.content.scrollHeight + 200);
+            },
+
+            replyComment: function(e){
+                const comment = e.detail;
+                this.$.comments.reply(comment);
+            },
+
+            sendEstimationRequest: function(e){
+                this.sendTaskEstimationRequestNotification(e.detail);
+                this.showMessage('Estimation request has been sent.')
+            },
+
+            sendTimeChangeRequest: function(e){
+                this.sendTaskTimeChangeRequestNotification(e.detail);
+            }
         })
     </script>
 </dom-module>

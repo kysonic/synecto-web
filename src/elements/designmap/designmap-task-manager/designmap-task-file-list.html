@@ -1,0 +1,164 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../designmap-fs/designmap-fs-explorer.html">
+<link rel="import" href="../designmap-fs/designmap-fs-service.html">
+<link rel="import" href="../designmap-fs/designmap-file-uploader.html">
+
+<dom-module id="designmap-task-file-list">
+    <template>
+        <style>
+            :host {
+
+            }
+
+            .attach-file:hover {
+                text-decoration: underline;
+            }
+
+            .files {
+                font-weight: 300;
+                display: flex;
+                margin-left: 20px;
+            }
+
+            .files .wrapper {
+                margin-top: 1px;
+            }
+
+            .remove-file iron-icon {
+                width: 18px;
+                height: 18px;
+                margin-left: 3px;
+                position: relative;
+                bottom: 1px;
+            }
+
+            .files-title {
+                font-size: 18px;
+            }
+
+            .file {
+                font-size: 14px;
+            }
+
+            .file-name {
+                color: var(--gray-darkend-color);
+                max-width: calc(100% - 30px);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                vertical-align: middle;
+            }
+            .file-name:hover {
+                text-decoration: none;
+            }
+
+            .download-file {
+                margin-left: 5px;
+            }
+
+            .file-name, .remove-file, .download-file {
+                display: inline-block;
+                cursor: pointer;
+            }
+
+            .download-file iron-icon {
+                width: 22px;
+                height: 22px;
+                --iron-icon-components-mixin: {
+                    fill: var(--gray-darkend-color)
+                };
+            }
+
+            .download-file iron-icon:hover, .remove-file iron-icon:hover {
+                background: var(--white-color);
+            }
+
+            .paper-clip {
+                width: 45px;
+                height: 40px;
+                --iron-icon-components-mixin: {
+                    stroke: var(--gray-darkend-color) !important;
+                };
+            }
+        </style>
+        <template is="dom-repeat" items="[[_computeTaskFiles(task.files)]]" as="file">
+            <div class="file">
+                <a class="file-name" title="[[cutFileName(file)]]" href="#" on-tap="openFile">[[cutFileName(file)]]</a>
+                <!--<div class="download-file">
+                    <a href="[[file.data.url]]" target="_blank">
+                        <iron-icon icon="icons:file-download"></iron-icon>
+                    </a>
+                </div>-->
+                <div class="remove-file" on-tap="removeFile">
+                    <iron-icon icon="designmap-task-manager:remove"></iron-icon>
+                </div>
+            </div>
+        </template>
+        <span class="attach-file" on-tap="openFsExplorerDialog"><i18-n msgid="attach">attach</i18-n></span>
+        <!-- FS Explorer -->
+        <paper-dialog class="explorer-dialog"  id="fsExplorerDialog"
+                      entry-animation="scale-up-animation" exit-animation="scale-down-animation">
+            <designmap-fs-explorer id="fsExplorer" button-text="Select file to attach" on-upload-in="_openFileUploader"
+                                   on-file="_attachFile"></designmap-fs-explorer>
+        </paper-dialog>
+        <!-- Uploader -->
+        <designmap-file-uploader id="uploader" on-done="_selectFiles" parent="folder"></designmap-file-uploader>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-task-file-list',
+            behaviors: [
+                Polymer.DesignMapFsService,
+                Polymer.DesignMapUtilsBehavior
+            ],
+            properties: {
+                task: {
+                    type: Object,
+                    value: null
+                },
+                projectId: {
+                    type:String,
+                    value: ''
+                }
+            },
+
+            _computeTaskFiles: function (files) {
+                if (!files) return [];
+                return files.map(function (fileId) {
+                    return this.findFileById(fileId);
+                }.bind(this));
+            },
+
+            _attachFile: function (e) {
+                this.$.fsExplorerDialog.close();
+                this.fire('attach-files',e.detail)
+            },
+
+            removeFile: function (e) {
+                this.fire('remove-file',e.model.file);
+            },
+
+            _openFileUploader: function (e) {
+                this.$.uploader._id = e.detail || null;
+                this.$.uploader.openOSDialog();
+            },
+
+            _selectFiles: function (e) {
+                this.$.fsExplorer.selectElements(e.detail);
+                this.fire('attach-files',e.detail);
+                this.$.uploader.closeForm();
+                this.$.fsExplorerDialog.close();
+            },
+
+            openFsExplorerDialog: function () {
+                this.$.fsExplorerDialog.open();
+            },
+
+            openFile: function (e) {
+                e.preventDefault();
+                if(e.model.file.data.storage=='google') return window.open(e.model.file.data.url,'_blank');
+                page.redirect('/'+this.projectId+'/gallery/' + e.model.file._id);
+            },
+        })
+    </script>
+</dom-module>

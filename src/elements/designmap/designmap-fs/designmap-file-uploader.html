@@ -35,7 +35,6 @@
                 text-align: center;
             }
 
-
             /** FILE LIST ITEMS **/
             .files-list-item {
                 text-align: center;
@@ -72,6 +71,7 @@
                 text-align: center;
                 margin: 5px;
             }
+
             .link {
                 cursor: pointer;
                 font-size: 16px;
@@ -79,6 +79,7 @@
                 text-align: center;
                 margin: 5px;
             }
+
             .link:hover {
                 text-decoration: underline;
             }
@@ -94,9 +95,11 @@
                     stroke-width: 0.5px;
                 };
             }
+
             #form.content {
                 min-width: 250px;
             }
+
             #form .content .title {
                 color: var(--gray-darkend-color);
                 text-align: center;
@@ -111,20 +114,25 @@
                 width: 190px;
                 margin-left: 10px;
             }
+
             paper-dialog .content button:first-child {
                 margin-left: 0px;
             }
+
             .file-title {
                 margin-bottom: 10px;
             }
+
             .msg {
-                font-weight:500;
+                font-weight: 500;
                 color: var(--gray-darky-hovered-color) !important;
             }
+
             .exts {
                 font-weight: 500;
                 color: var(--blue-darkest-color) !important;
             }
+
             .title-mini {
                 margin-top: 20px;
                 font-size: 16px;
@@ -139,6 +147,7 @@
             designmap-file-button {
                 margin-top: 0;
             }
+
             .inprgrs {
                 margin-bottom: 10px;
             }
@@ -154,7 +163,7 @@
                         <div class="title">
                             <i18-n msgid="Upload file">Upload file</i18-n>
                         </div>
-                        <iron-icon class="popup-icon" icon="designmap-workspace:file_circle"></iron-icon>
+                        <!--<iron-icon class="popup-icon" icon="designmap-workspace:file_circle"></iron-icon>-->
                     </div>
                     <template is="dom-if" if="[[storages.length]]">
                         <designmap-file-button thin gray hidden$="[[fileUploadLoading]]" name="files[]"
@@ -173,7 +182,8 @@
                             <i18-n msgid="Files loading in progress">Files loading in progress</i18-n>
                         </div>
                         <!-- Files here -->
-                        <div class="title-mini" style="margin-top: 8px" hidden$="[[_toUploadState(fileUploadLoading,buttonFiles.length)]]">
+                        <div class="title-mini" style="margin-top: 8px"
+                             hidden$="[[_toUploadState(fileUploadLoading,buttonFiles.length)]]">
                             <i18-n msgid="Files to upload">Files to upload:</i18-n>
                         </div>
                         <template is="dom-repeat" items="[[buttonFiles]]" as="file">
@@ -239,7 +249,7 @@
                 Polymer.DesignMapFsService,
                 Polymer.DesignMapUtilsBehavior,
                 Polymer.DesignMapHintService,
-                Polymer.CombineActions(Polymer.FilesActions,Polymer.UserActions)
+                Polymer.CombineActions(Polymer.FilesActions, Polymer.UserActions)
             ],
             storageNames: {
                 'dropBox': 'Dropbox',
@@ -297,11 +307,11 @@
                     type: Array,
                     statePath: function (state) {
                         /*var stores = Object.keys(state.stores).filter(function (store) {
-                            return state.stores[store];
-                        }).concat(['designmap']).map(function (store) {
-                            return {code: store, name: this.storageNames[store]}
-                        }.bind(this));
-                        this.selected = stores && stores[0] ? stores[0].code : null;*/
+                         return state.stores[store];
+                         }).concat(['designmap']).map(function (store) {
+                         return {code: store, name: this.storageNames[store]}
+                         }.bind(this));
+                         this.selected = stores && stores[0] ? stores[0].code : null;*/
                         return ['designmap'];
                     }
                 },
@@ -321,7 +331,7 @@
              * Show error.
              */
             showFilesNotAllowedError: function (e) {
-                this.showErrorMessage('Cannot upload file with #EXT# extension',{'#EXT#':e.detail.ext});
+                this.showErrorMessage('Cannot upload file with #EXT# extension', {'#EXT#': e.detail.ext});
             },
             /**
              * Open file form dialog
@@ -338,10 +348,10 @@
             /**
              * Change files count and consist
              */
-            buttonFilesChanged: function () {
-                this.async(function(){
-                    this.$.form.refit();
-                });
+            buttonFilesChanged: function (buttonFiles) {
+                if(!buttonFiles) return;
+                this.openForm();
+                this.uploadFiles();
             },
             /**
              * Cancel file uploading
@@ -357,7 +367,9 @@
              */
             __uploadFiles: function () {
                 this.fileUploadLoading = true;
-                this.async(function () {this.$.form.refit();});
+                this.async(function () {
+                    this.$.form.refit();
+                });
                 var counter = 0;
                 var length = this.buttonFiles.length;
                 var haveError = false;
@@ -395,19 +407,21 @@
                     }.bind(this));
                 }, this);
             },
-            uploadFiles: function(){
+            uploadFiles: function () {
                 this.fileUploadLoading = true;
-                this.async(function () {this.$.form.refit();});
+                this.async(function () {
+                    this.$.form.refit();
+                });
                 // Add files (one,two,three....)
                 this.dispatch('addFiles', this.buttonFiles, {
                     field: this.parent,
                     id: this._id
                 }).then(function (response) {
                     if (!response.success) return this.manageErrorResponse(response);
-                    console.log(response.upload/1024/1024);
                     this.user.plan.upload = response.upload;
-                    this.dispatch('_userUpdate',this.user);
+                    this.dispatch('_userUpdate', this.user);
                     this.fileUploadingIsEnded(response.files);
+                    this.resetFileButton();
                 }.bind(this)).catch(function (err) {
                     this.manageErrorResponse(err);
                 }.bind(this));
@@ -415,10 +429,10 @@
             /**
              * Count file sizes
              */
-            _countSize: function(files){
+            _countSize: function (files) {
                 let totalSize = 0;
-                files.forEach(function(file){
-                    totalSize+=file.size;
+                files.forEach(function (file) {
+                    totalSize += file.size;
                 });
                 return totalSize;
             },
@@ -430,13 +444,8 @@
                 this.async(function () {
                     this.$.form.refit();
                 }, 10);
-                this.fire('done',uploadedFiles);
+                this.fire('done', uploadedFiles);
                 this.closeForm();
-                // Hints
-                this.doneHint('addFile','fs',function(){
-                    const elements = this._findElement('fsView.fs.elements');
-                    elements.hintFileTarget = elements.$$('*[data-element-id="'+uploadedFiles[0]._id+'"]');
-                }.bind(this));
             },
             /**
              * Checkout all files in current folder regarding names matches.
@@ -519,11 +528,19 @@
             _computeWarning: function (storage, buttonFilesLength) {
                 return storage == 'designmap' && buttonFilesLength;
             },
-            _showAllowedExtension: function(){
+            _showAllowedExtension: function () {
                 return this.allowedExtension.join(', ');
             },
-            _toUploadState: function(loading,length){
+            _toUploadState: function (loading, length) {
                 return !(!loading && length);
+            },
+            openOSDialog: function () {
+                this.resetFileButton();
+                this.$$('#files').openOSDialog();
+            },
+            resetFileButton: function(){
+                this.$$('#files').reset();
+                this.set('buttonFiles',[]);
             }
         })
     </script>

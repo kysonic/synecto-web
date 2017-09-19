@@ -926,10 +926,10 @@
   "New sticker": {
     "message": "New file comment"
   },
-  "New Task Comment": {
+  "New task comment": {
     "message": "New task comment"
   },
-  "New Message": {
+  "New message": {
     "message": "New chat message"
   },
   "New access": {
@@ -2059,5 +2059,53 @@
   },
   "Datepicker tooltip": {
     "message": "Setup due date"
+  },
+  "You request to time changeing has been sent": {
+    "message": "Your request for change of spent time has been sent to project owner. If it will be approved - time will be changed."
+  },
+  "New request for change of spent time": {
+    "message": "New request for change of spent time"
+  },
+  "Approve": {
+    "message": "Approve"
+  },
+  "You cannot track time until new time will be approved": {
+    "message": "You cannot track time until new time will be approved"
+  },
+  "or select existed": {
+    "message": "or select existed"
+  },
+  "Hours": {
+    "message": "Hours"
+  },
+  "Minutes": {
+    "message": "Minutes"
+  },
+  "Seconds": {
+    "message": "Seconds"
+  },
+  "Send estimation request": {
+    "message": "Send estimation request to your team members. If somebody already estimated this task he won't receive this request."
+  },
+  "New task comment was added": {
+    "message": "New comment was added to #NAME# task."
+  },
+  "Request on estimation": {
+    "message": "Your project manager is asking you to estimate \"#NAME#\" task. Follow link and press appropriate button in right menu."
+  },
+  "Estimation request has been sent.": {
+    "message": "Estimation request has been sent. All users who did not estimate this task yet will be notified."
+  },
+  "Estimation request": {
+    "message": "Estimation request"
+  },
+  "Time change request": {
+    "message": "Time change request"
+  },
+  "Request on change of time": {
+    "message": "Please approve change of spent time for \"#NAME#\" task."
+  },
+  "see more project": {
+    "message": "see more project"
   }
 }

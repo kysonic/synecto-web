@@ -50,8 +50,26 @@
             this.task.time.start = 0;
 
             this.dispatch('updateTask', this.task._id, this.task);
+        },
 
-            this.$.clearTimeConfirm.close();
+        editTime: function (e) {
+            this.task.time = this.task.time || {};
+
+            this.task.time.run = false;
+            this.task.time.spent = e.detail.time;
+            this.task.time.start = e.detail.time;
+            this.task.time.request = 0;
+
+            this.dispatch('updateTask', this.task._id, this.task);
+        },
+
+        requestTime: function(e){
+            this.task.time = this.task.time || {};
+
+            this.task.time.request = e.detail.time;
+
+            this.dispatch('updateTask', this.task._id, this.task);
+            // Notification
         },
 
         openClearTimeDialog: function () {

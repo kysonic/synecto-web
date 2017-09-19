@@ -1,0 +1,276 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../designmap-avatar/designmap-avatar-projector.html">
+
+<dom-module id="designmap-task-comment-list">
+    <template>
+        <style>
+            :host {
+                display: block;
+                --designmap-dropdown-triangle-mixin: {
+                    margin-left: 32px;
+                };
+                --designmap-dropdown-triangle-border-mixin: {
+                    border-color: transparent transparent var(--gray-color) transparent;
+                    margin-left: 30px;
+                    top: -12px;
+                };
+                --designmap-dropdown-mixin: {
+                    max-width: 150px;
+                    border: 1px solid var(--gray-color);
+                    padding: 0;
+                    box-shadow: var(--box-shadow);
+                }
+            }
+            *[hidden] {
+                display: none !important;
+            }
+            .comments-list {
+                margin: 20px 0 0 0;
+                padding: 10px 0 0 20px;
+                list-style: none;
+                color: var(--gray-darkend-color);
+                border-top: 1px solid var(--gray-color);
+            }
+
+            .comments-list li {
+                padding: 5px 0;
+                display: flex;
+            }
+
+            .comments-list li designmap-avatar-projector {
+                min-width: 30px;
+            }
+
+            .comments-list li .text {
+                margin-left: 10px;
+                padding-right: 20px;
+                width: 100%;
+            }
+            .comments-list li .text .head {
+                padding: 2px 0 8px 0;
+                font-size: 18px;
+            }
+
+            .comments-list li .text .content {
+                position: relative;
+                width: 100%;
+                /* white-space: pre-line;
+                 position: relative;
+                 width: 100%;*/
+            }
+
+            .comments-list li .text .content .comment-arrow {
+                margin-left: 22px;
+                cursor: pointer;
+                z-index: 999;
+            }
+            .comments-list li .text .content .comment-arrow:hover {
+                background: var(--gray-lightern-color);
+                border-radius: 50%;
+            }
+            
+            /** Panel **/
+
+            .panel {
+                display: flex;
+                margin-right: 15px;
+            }
+
+            .panel .like {
+                display: inline-block;
+                cursor: pointer;
+            }
+
+            .panel iron-icon {
+                cursor: pointer;
+            }
+
+            .panel .heart {
+                width: 17px;
+                height: 17px;
+                position: relative;
+                bottom: 1px;
+                margin-right: 2px;
+            }
+
+            .panel .likesCount {
+                font-size: 10px;
+                position: absolute;
+                margin-left: 2px;
+            }
+
+            .more {
+                position: relative;
+                width: 18px;
+                height: 18px;
+                top: 3px;
+            }
+
+            .reply {
+                width: 18px;
+                height: 18px;
+                margin-right: 2px;
+                position: relative;
+                top: 2px;
+            }
+
+            .comment-edit {
+                border: none;
+                font-size: 16px;
+                padding: 0;
+                width: 100%;
+                color: var(--gray-darkend-color);
+                resize: none;
+                font-weight: 100;
+                outline: none;
+                line-height: 24px;
+                font-family: 'Open Sans', 'Noto', sans-serif;
+            }
+
+            /** MENU DROPDOWN **/
+            designmap-dropdown {
+                z-index: 1001;
+            }
+            /** MENU **/
+            designmap-dropdown .menu {
+                margin: 0;
+                padding: 0;
+                list-style: none;
+                color: var(--gray-darky-hovered-color);
+                text-align: center;
+                font-size: 12px;
+                font-weight: 100;
+            }
+
+            designmap-dropdown .menu li {
+                padding: 6px 0;
+                cursor: pointer;
+                transition: .2s background;
+            }
+
+            designmap-dropdown .menu li:hover {
+                background: var(--gray-lightern-color);
+                transition: .2s background;
+            }
+        </style>
+        <!-- Comments list -->
+        <ul class="comments-list" hidden$="[[!taskComments.length]]">
+            <template is="dom-repeat" items="[[_getComments(task._id,comments.*)]]" as="comment">
+                <li>
+                    <designmap-avatar-projector user="[[comment.owner]]"></designmap-avatar-projector>
+                    <div class="text">
+                        <div class="head">
+                            <strong>[[computeOwnerName(comment.owner)]]</strong>
+                            &nbsp;
+                            <small class="comment-date"> ([[_getDate(comment.created)]])</small>
+                        </div>
+                        <div class="content">
+                            <div class="comment-text">
+                                <plastic-html msg="[[processLinksInText(comment.text)]]"></plastic-html>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <iron-icon on-tap="_reply" hidden$="[[_hideReply(user,comment)]]" class="reply"
+                                   icon="icons:reply"></iron-icon>
+                        <div class="like" on-tap="_like">
+                            <iron-icon class="heart"
+                                       icon="icons:favorite-border"></iron-icon>
+                            <span class="likesCount">[[_computeLikesCount(comment.likes.length)]]</span>
+                        </div>
+                        <iron-icon on-tap="_openDropdown" hidden$="[[!_hideReply(user,comment)]]"
+                                   class="more"
+                                   icon="icons:more-vert"></iron-icon>
+                    </div>
+                </li>
+            </template>
+        </ul>
+        <!-- Comments list Dropdown-->
+        <designmap-dropdown id="dropdown" class="bound" vertical-offset="30" horizontal-offset="-100" previous
+                            tri-border>
+            <ul class="menu">
+                <li on-tap="_editComment">
+                    <i18-n class="bound" msgid="Edit">Edit</i18-n>
+                </li>
+                <li on-tap="_removeComment">
+                    <i18-n class="bound" msgid="Remove">Remove</i18-n>
+                </li>
+            </ul>
+        </designmap-dropdown>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-task-comment-list',
+            behaviors: [
+                Polymer.DesignMapUtilsBehavior
+            ],
+            properties: {
+                task: {
+                    type: Object,
+                    value: {}
+                },
+                user: {
+                    type: Object,
+                    value: {}
+                },
+                comments: {
+                    type: Array,
+                    value: []
+                },
+                taskComments: {
+                    type: Array,
+                    value: []
+                }
+            },
+            _getComments: function (id) {
+                return this.taskComments = this.comments.filter(function (comment) {
+                    return comment.task == id;
+                });
+            },
+
+            _getDate: function (date) {
+                moment.locale(this.language);
+                return moment(date).format('MM-DD-YYYY HH:mm:ss');
+            },
+
+            _computeLikesCount: function (length) {
+                return length ? '+' + length : '';
+            },
+
+            _hideReply: function (user, comment) {
+                return user && user._id == comment.owner._id;
+            },
+
+            _like: function (e) {
+                this.fire('like-comment',e.model.comment);
+            },
+
+            _canUserManageComment(task, comment){
+                return (comment.owner._id === this.user._id);
+            },
+
+            _openDropdown: function (e) {
+                this.commentNode = e.target.parentNode.previousElementSibling;
+                this.lastComment = e.model.comment;
+                this.canUpdateAndRemove = this._canUserManageComment(this.task, e.model.comment);
+
+                this.$.dropdown.target = e.target;
+                this.$.dropdown.open();
+            },
+
+            _removeComment: function(){
+                this.$.dropdown.close();
+                this.fire('remove-comment', this.lastComment._id);
+            },
+
+            _editComment: function () {
+                this.fire('edit-comment',this.lastComment);
+            },
+
+            _reply: function (e) {
+                const comment = e.model.comment;
+                this.fire('reply-comment',comment);
+            },
+        })
+    </script>
+</dom-module>

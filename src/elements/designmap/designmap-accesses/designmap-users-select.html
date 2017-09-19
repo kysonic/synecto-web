@@ -276,6 +276,8 @@
                 this.$.dropdown.open();
                 // Fit to wrapper
                 this.async(function(){
+                    var bound = this.getBoundingClientRect();
+                    if(bound.height+(bound.top+100)>window.innerHeight) this.verticalOffset = -bound.height;
                     this.$.dropdown.style.width = this.getBoundingClientRect().width+'px';
                     this.$.dropdown.refit();
                     //this.selectedOption = 0;

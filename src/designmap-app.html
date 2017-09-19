@@ -192,7 +192,7 @@
                         <span class="beta">beta v4.1</span>
                     </a>
                 </app-toolbar>
-                <designmap-advanced-menu id="advancedMenu" path="[[path]]" page="[[page]]"></designmap-advanced-menu>
+                <designmap-advanced-menu id="advancedMenu" mobile-mode="[[mobileMode]]" path="[[path]]" page="[[page]]"></designmap-advanced-menu>
             </app-drawer>
 
             <!-- Main content -->
@@ -405,6 +405,7 @@
                 'open-create-project-dialog': 'openCreateProjectDialog',
                 'open-select-project-dialog': 'openSelectProjectDialog',
                 'close-menu': 'closeMenu',
+                'close-menu-in-mobile-mode': 'closeMenuInMobileMode',
                 'open-sharing':'_openSharing',
                 'open-project-remove':'_openProjectRemoveConfirm',
                 'iron-resize': '_onResize',
@@ -524,13 +525,13 @@
                     if (this.projectId) return false;
                     const redirect = localStorage.getItem('synecto:redirect');
                     if(redirect) {
-                        console.log(window.location.query);
                         localStorage.setItem('synecto:redirect','');
                         return page.redirect(redirect);
                     }
-                    // If path=='/' that means we are in home - we have to find a prohect
+                    // If path=='/' that means we are in home - we have to find a project
                     if(this.path!=='/') return;
-                    const projectId = response.projects[0] && response.projects[0]._id || null;
+                    const lastOpenedProject = JSON.parse(localStorage.getItem('synecto:lop'));
+                    const projectId = lastOpenedProject || response.projects[0] && response.projects[0]._id || null;
                     if (!projectId) return false;
                     // Redirect to open new project
                     page.redirect('/'+projectId);
@@ -541,6 +542,7 @@
                 // Project manipulation
                 this.cleanProjectData();
                 if (!projectId) return ;
+                localStorage.setItem('synecto:lop',JSON.stringify(projectId));
                 this.dispatch('updateProjectId', projectId);
                 if(this.project) return this.getProjectData();
                 // Get project data
@@ -704,6 +706,10 @@
                 this.$.drawer.close();
             },
 
+            closeMenuInMobileMode: function () {
+                this.$.advancedMenu._closeMenu();
+            },
+
             goToHome: function(){
                 page.redirect('/'+(this.projectId?this.projectId:''))
             },
@@ -795,7 +801,7 @@
             },
 
             _mobileModeChanged: function(mobileMode){
-                this.resWidth = mobileMode ? '1960px' : '770px';
+                this.resWidth = mobileMode ? '1960px' : '1366px';
             }
 
         });

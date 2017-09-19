@@ -1,0 +1,293 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-icons/av-icons.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+<link rel="import" href="../designmap-ui/designmap-dropdown.html">
+<link rel="import" href="../designmap-ui/designmap-confirm.html">
+<link rel="import" href="../designmap-buttons/designmap-button.html">
+
+<dom-module id="designmap-task-track-time">
+    <template>
+        <style>
+            :host {
+                display: inline-block;
+
+                /** PAPER_INPUT **/
+                --paper-input-container-color: var(--gray-darkend-color);
+                --paper-input-container-focus-color: var(--gray-darkend-color);
+                --paper-input-container-input: {
+                    color: var(--gray-darkend-color);
+                    font-family: var(--font-family);
+                    font-size: 16px;
+                    font-weight: 300 !important;
+                };
+                --paper-input-container-label: {
+                    font-size: 16px;
+                    font-weight: 300 !important;
+                };
+                --paper-input-container-label-floating: {
+                    font-weight: 300 !important;
+                };
+                --paper-input-container-invalid-color: var(--error-color);
+                --paper-font-caption: {
+                    height: 0;
+                };
+
+                --designmap-dropdown-triangle-mixin: {
+                    left: 100%;
+                    margin-left: -25px;
+                };
+                --designmap-dropdown-triangle-border-mixin: {
+                    left: 100%;
+                    margin-left: -27px;
+                    margin-top: -2px;
+                    border-color: transparent transparent var(--gray-color) transparent;
+                }
+            }
+
+            *[hidden] {
+                display: none !important;
+            }
+
+            .item-text {
+                display: inline-block;
+                vertical-align: middle;
+                margin-left: 5px;
+            }
+
+            /** Time tracking **/
+            .time-track-buttons > .button {
+                position: relative;
+                display: inline-block;
+                vertical-align: top;
+                padding: 1px;
+            }
+
+            .time-track-buttons > .button:hover {
+                background: var(--white-color);
+            }
+
+            .time-track-buttons > .button[disabled] {
+                opacity: 0.6;
+            }
+
+            .time-track-buttons .play {
+                margin-left: 5px;
+            }
+
+            #editTimeButton {
+                width: 20px;
+                height: 20px;
+            }
+
+            /** Edit dropdown **/
+            .dropdown-content {
+                padding: 10px;
+            }
+
+            .time {
+                display: flex;
+                align-items: center;
+                margin-top: 10px;
+            }
+
+            .time > * {
+                padding: 0 5px;
+            }
+
+            .buttons {
+                padding: 0 5px;
+            }
+
+            .buttons > * {
+                width: 100%;
+                margin: 5px 0;
+            }
+            /** Message **/
+            .request-message {
+                padding: 5px;
+                font-size: 13px;
+            }
+            .marked {
+                color: var(--blue-darkest-color);
+            }
+            .mark {
+                position: absolute;
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background: var(--expired);
+                left: 100%;
+                top:0;
+            }
+        </style>
+        <span class="item-text">[[_computeTime(task.time,spentTime)]]</span>
+        <span class="time-track-buttons">
+
+            <div class="button play" on-tap="trackTime" disabled$="[[!_disablePlayButton(task.assignee,task.time.request)]]">
+                <iron-icon id="trackButton" icon="[[_computeTimeIcon(task.time)]]"></iron-icon>
+            </div>
+            <div class="button" hidden$="[[!_spentAndAssigneeOrOwner(task.time.spent,task)]]"
+                                disabled$="[[!_disableEditButton(task.assignee,task.time.request,project)]]"
+                 on-tap="openEditTimeDropdown">
+                <iron-icon id="editTimeButton" icon="icons:create"></iron-icon>
+                <div hidden$="[[!_showRequest(task.time.request)]]" class="mark"></div>
+            </div>
+        </span>
+        <designmap-dropdown id="editDropdown" tri-border vertical-offset="20" horizontal-offset="-150">
+            <div class="dropdown-content">
+                <div class="request-message" hidden$="[[!_showRequest(task.time.request)]]">
+                    <i18-n msgid="New request for change of spent time">New request for change of spent time</i18-n>
+                    <span><i18-n msgid="From">From</i18-n>: <span class="marked">[[_computeAssigneeName(task.assignee)]]</span></span>
+                </div>
+                <div class="time">
+                    <paper-input id="hours" label="[[translate('Hours',language,i18Loaded)]]" value="[[_getHours(task.time)]]"></paper-input>
+                    <paper-input id="minutes" label="[[translate('Minutes',language,i18Loaded)]]" value="[[_getMinutes(task.time)]]"></paper-input>
+                    <paper-input id="seconds" label="[[translate('Seconds',language,i18Loaded)]]" value="[[_getSeconds(task.time)]]"></paper-input>
+                </div>
+                <div class="buttons">
+                    <!--<button is="designmap-button" gray thin>
+                        <i18-n msgid="Clear">Clear</i18-n>
+                    </button>-->
+                    <button is="designmap-button" on-tap="editTime" gray thin>
+                        [[_getTimeButtonLabel(task.time,language,i18Loaded)]]
+                    </button>
+                </div>
+            </div>
+        </designmap-dropdown>
+        <designmap-confirm id="clearTimeConfirm"
+                           message="AreYouSureThatYouWantToClearTime" on-continue="clearTime"
+                           on-suspend="suspendClearing"></designmap-confirm>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-task-track-time',
+            behaviors: [
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapTaskService,
+            ],
+            properties: {
+                task: {
+                    type: Object,
+                    value: null
+                },
+                project: {
+                    type: Object,
+                    value: null
+                },
+                projectUsers: {
+                    type: Array,
+                    value: null
+                },
+                user: {
+                    type: Object,
+                    value: null
+                },
+                spentTime: {
+                    type: Number,
+                    value: 0
+                },
+                language: {
+                    type: String,
+                    value: 'en'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    value: false
+                }
+            },
+
+
+            _computeTime: function (time, spentTime) {
+                if (!time) return '00:00';
+                if (spentTime) return this._buildTimeString(spentTime);
+                return (time.spent ? this._buildTimeString(time.spent) : '00:00');
+            },
+
+            _getHMS: function (spent) {
+                const sec_num = parseInt(spent / 1000, 10);
+                const hours = Math.floor(sec_num / 3600) % 24;
+                const minutes = Math.floor(sec_num / 60) % 60;
+                const seconds = sec_num % 60;
+                return [hours, minutes, seconds];
+            },
+
+            _getHours: function (time) {
+                if(!time) return 0;
+                return this._getHMS(time.request||time.spent)[0];
+            },
+
+            _getMinutes: function (time) {
+                if(!time) return 0;
+                return this._getHMS(time.request||time.spent)[1];
+            },
+
+            _getSeconds: function (time) {
+                if(!time) return 0;
+                return this._getHMS(time.request||time.spent)[2];
+            },
+
+            _buildTimeString: function (spent) {
+                return this._getHMS(spent)
+                    .map(v => v < 10 ? "0" + v : v)
+                    .filter((v, i) => v !== "00" || i > 0)
+                    .join(":")
+            },
+
+            _computeTimeIcon: function (time) {
+                return time && time.run ? 'av:stop' : 'av:play-arrow';
+            },
+
+            trackTime: function (e) {
+                if (e.currentTarget.hasAttribute('disabled') && this.task.time.request && this._isAssignee(this.task.assignee)) return this.showErrorMessage('You cannot track time until new time will be approved');
+                if (e.currentTarget.hasAttribute('disabled')) return this.showErrorMessage('Only assignee can track time');
+                this.fire('track-time');
+            },
+
+            openEditTimeDropdown: function (e) {
+                if (e.currentTarget.hasAttribute('disabled') && this.task.time.request && this._isAssignee(this.task.assignee)) return this.showErrorMessage('You cannot track time until new time will be approved');
+                this.$.editDropdown.open();
+            },
+
+            suspendClearing: function () {
+                this.$.clearTimeConfirm.close();
+            },
+
+            clearTime: function () {
+                this.$.clearTimeConfirm.close();
+                this.fire('clear-time');
+            },
+
+            editTime: function () {
+                const time = this.$.hours.value * 60 * 60 * 1000 + this.$.minutes.value * 60 * 1000 + this.$.seconds.value * 1000;
+                this.$.editDropdown.close();
+                if (this._isOwner()) return this.fire('edit-time', {time: time});
+                this.fire('request-time', {time: time});
+                this.showMessage('You request to time changeing has been sent');
+                this.fire('send-time-change-request',this.task);
+            },
+
+            _computeAssigneeName: function (uid) {
+                return this.computeOwnerName(this.getProjectsUserById(uid));
+            },
+
+            _getTimeButtonLabel: function(time) {
+                if(!time) return this.translate('Edit');
+                return time.request ? this.translate('Approve') : this.translate('Edit');
+            },
+
+            _showRequest: function(request){
+                return request && this._isOwner();
+            },
+
+            _disablePlayButton: function(assignee,request){
+                return this._isAssignee(assignee) && !request;
+            },
+
+            _disableEditButton: function(assignee,request){
+                return (this._isAssignee(assignee) && !request) || this._isOwner();
+            }
+
+        })
+    </script>
+</dom-module>

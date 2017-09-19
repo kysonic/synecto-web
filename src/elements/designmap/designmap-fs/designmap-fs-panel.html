@@ -131,17 +131,6 @@
                                          on-click="openAddFolderContext">
                     <iron-icon icon="designmap-workspace:folder"></iron-icon>
                 </designmap-circle-button>
-                <!-- Hint -->
-                <designmap-hint id="createFolderHint" previous name="createFolder" vertical-offset="50"
-                                horizontal-offset="-107">
-                    <div class="title">
-                        <i18-n msgid="Creating sub-folder">Creating sub-folder</i18-n>
-                    </div>
-                    <div class="desc">
-                        <i18-n msgid="creatingSubFolderMsg">creatingSubFolderMsg</i18-n>
-                    </div>
-                </designmap-hint>
-                <!-- Hint -->
                 <paper-tooltip for="createFolderButton"><i18-n msgid="Add folder">Add folder</i18-n></paper-tooltip>
                 <!-- Add folder -->
                 <designmap-context-menu id="addFolderContext" previous>
@@ -193,28 +182,6 @@
             <!-- Right -->
             <div class="right">
                 <designmap-search-filter id="searchFilter" label="[[translate('Search...',language,i18Loaded)]]" items="[[filterItems]]"></designmap-search-filter>
-                <!--<designmap-circle-button id="sortButton" data-cls="blue"
-                                         on-click="openMoreContext">
-                    <iron-icon icon="designmap-workspace:sort"></iron-icon>
-                </designmap-circle-button>
-                <paper-tooltip for="sortButton"><i18-n msgid="Sort">Sort</i18-n></paper-tooltip>
-                <designmap-context-menu id="moreContext" previous>
-                    <ul class="menu">
-                        <li class="sort-button" on-click="changeSort" data-sort="name">
-                            <i18-n msgid="Sort by name">Sort by name</i18-n>
-                        </li>
-                        <li class="sort-button" on-click="changeSort" data-sort="modified">
-                            <i18-n msgid="Sort by date">Sort by date</i18-n>
-                        </li>
-                    </ul>
-                </designmap-context-menu>
-                <designmap-circle-button id="infoButton" data-cls="blue"
-                                         hidden$="[[infoOpened]]" on-click="openInfo" class="no-unselect">
-                    <iron-icon icon="designmap-workspace:info"></iron-icon>
-                </designmap-circle-button>
-                <paper-tooltip for="infoButton"><i18-n msgid="Info">Info</i18-n></paper-tooltip>
-                &lt;!&ndash;Mobile menu &ndash;&gt;
-                <iron-icon class="mobile-menu" icon="designmap-workspace:more" on-click="openMobileMenu"></iron-icon>-->
             </div>
         </div>
     </template>

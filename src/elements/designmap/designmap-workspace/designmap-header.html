@@ -5,10 +5,11 @@
 <link rel="import" href="../designmap-ui/designmap-dropdown.html">
 <link rel="import" href="../designmap-fs/designmap-fs-service.html">
 <link rel="import" href="../designmap-workspace/designmap-projects-list.html">
+<link rel="import" href="../../../styles/tooltip-shared-styles.html">
 
 <dom-module id="designmap-header">
     <template>
-        <style>
+        <style include="tooltip-shared-styles">
             :host {
                 display: flex;
                 justify-content: center;
@@ -187,6 +188,8 @@
             }
 
             .arrow-left {
+                position: relative;
+                right: 5px;
                 width: 45px;
                 height: 45px;
                 --iron-icon-stroke-color: var(--gray-darkend-color);
@@ -194,7 +197,9 @@
             }
 
 
-            @media (min-width: 320px) and (max-width: 768px) {
+
+
+            @media (min-width: 320px) and (max-width: 1366px) {
                 .left-content {
                     display: none;
                 }
@@ -204,6 +209,12 @@
                 paper-dialog {
                     max-width: 300px !important;
                 }
+                .arrow-left {
+                    display: none;
+                }
+            }
+
+            @media (min-width: 320px) and (max-width: 1366px) {
                 .arrow-left {
                     display: none;
                 }
@@ -246,7 +257,7 @@
             </designmap-dropdown>-->
             <paper-icon-button class$="burger [[_burgerCls(mobileMode)]]" icon="icons:menu" on-tap="openMenu"></paper-icon-button>
             <paper-icon-button id="collapseMenu" class="arrow-left" icon="[[_computeIcon(mobileMode)]]" on-tap="toggleMobileMode"></paper-icon-button>
-            <paper-tooltip for="collapseMenu">
+            <paper-tooltip for="collapseMenu" position="right">
                 <i18-n msgid="Collapse panel">Collapse panel</i18-n>
             </paper-tooltip>
         </div>
@@ -326,6 +337,9 @@
                 'close-showcase-dialog': 'closeShowCaseDialog'
             },
             attached: function () {
+                let mobileMode = JSON.parse(localStorage.getItem('synecto:menu:collapsed'));
+                if(window.innerWidth<1370) mobileMode = true;
+                this.mobileMode = mobileMode;
                 this.async(function () {
                     this.showLogin = true;
                 }, 1000);
@@ -357,6 +371,7 @@
             },
             toggleMobileMode: function(){
                 this.mobileMode = !this.mobileMode;
+                localStorage.setItem('synecto:menu:collapsed',JSON.stringify(this.mobileMode));
             },
             _computeMobileClass: function (MQ) {
                 this.async(function(){this.updateStyles()});

@@ -290,7 +290,7 @@
                 // Create notify
                 notifier.create({
                     sender: this.user,
-                    recipient: user._id,
+                    recipients: [user._id],
                     type: remove?'remove-access':'new-access',
                     text: {
                         message: remove?'You were removed from project':'You received an access to project',

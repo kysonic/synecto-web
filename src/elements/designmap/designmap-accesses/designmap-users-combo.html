@@ -18,6 +18,7 @@
               ReduxBehavior,
               Polymer.UserActions
             ],
+            emailRegexp: /[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*/,
             properties: {
                 options: {
                     type: Array,
@@ -43,6 +44,7 @@
             getUsers: function(q){
                 if(!q) return;
                 //var q = q==''?'.*':q;
+                if(!this.emailRegexp.test(q)) return;
                 this.dispatch('getUsers',q).catch(this.manageErrorResponse.bind(this));
             },
             searchChanged: function(){

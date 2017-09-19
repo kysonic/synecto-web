@@ -89,6 +89,7 @@
 
             .desktop-filters {
                 display: flex;
+                @apply(--designmap-tasl-list-filters);
             }
 
             .desktop-filters .row {
@@ -100,6 +101,7 @@
             .desktop-filters .row:first-child {
                 display: flex;
                 margin-left: 24px;
+                @apply(--designmap-tasl-list-filters-first-child);
             }
 
             .desktop-filters .row span {
@@ -553,6 +555,13 @@
                 text-decoration: underline;
             }
 
+            plastic-custom-scroll {
+                --plastic-custom-scroll-content-mixin:{
+                    max-height: calc(100vh - 220px);
+                };
+            }
+
+
             @media (min-width: 320px) and (max-width: 768px) {
                 .hidden-xs {
                     display: none;
@@ -580,11 +589,7 @@
                 </div>
             </template>
         </div>
-        <paper-tooltip for="filter">
-            <i18-n msgid="Quick filters">Quick filters</i18-n>
-        </paper-tooltip>
-        <plastic-custom-scroll hidden$="[[!tasks.length]]" no-scroll="[[noScroll]]" id="scroller" fit small-bar
-                               max-height="[[computeMaxHeight(maxHeight)]]">
+        <plastic-custom-scroll hidden$="[[!tasks.length]]" no-scroll="[[noScroll]]" id="scroller" fit small-bar>
             <ul class="list" id="list">
                 <template id="listRepeater" is="dom-repeat" items="[[tasks]]" as="task" filter="[[taskFilter(selectedFilter,limit,tasks.*)]]" observe="parent limit searchMode" sort="[[taskSort(parent,limit,tasks.*)]]">
                     <li draggable$="[[_computeDraggable(searchMode)]]" on-dragstart="dragStart" on-dragenter="dragEnter" on-dragover="dragOver" on-drop="dragDrop" class$="[[computeItemClass(task,selected)]]" data-task-id$="[[task._id]]">
@@ -781,23 +786,6 @@
                     type: Object,
                     statePath: 'role'
                 },
-                /**
-                 * Max height to plastic-custom-scroll
-                 */
-                maxHeight: {
-                    type: Number,
-                    value: function () {
-                        return window.innerHeight
-                    }
-                },
-                /**
-                 * Offset helping to understand
-                 * task list height
-                 */
-                maxHeightOffset: {
-                    type: Number,
-                    value: 180
-                },
                 projectId: {
                     type: String,
                     statePath: 'projectId'
@@ -856,9 +844,6 @@
                     type: Boolean,
                     value: false
                 }
-            },
-            listeners: {
-                'iron-resize': 'onIronResize'
             },
             observers: [
                 '_taskChanged(tasks)'
@@ -1046,16 +1031,6 @@
                 this.async(function () {
                     document.querySelector('designmap-task-details').openDatePicker();
                 })
-            },
-            /**
-             * Compute max height for x-custom scroll.
-             * It should be changed dinamically.
-             * @param maxHeight
-             * @returns {number}
-             */
-            computeMaxHeight: function (maxHeight) {
-                if (this.MQ == 'sm') return maxHeight - 230;
-                return maxHeight - this.maxHeightOffset;
             },
             /**
              * Filter state
@@ -1265,13 +1240,6 @@
                 this.dispatch('updateTask', e.detail.task._id, {assignee: null});
             },
             /**
-             * Change max height
-             */
-            onIronResize: function () {
-                if (this.noScroll) return;
-                this.maxHeight = window.innerHeight;
-            },
-            /**
              * Remove task using backspace
              */
             removeLastTask: function () {
@@ -1308,12 +1276,7 @@
                 this.updateStyles();
             },
             _taskChanged: function () {
-                this.updateScrollHeight();
-            },
-            updateScrollHeight: function () {
-                if (this.noScroll) return;
-                var offest = this.MQ == 'sm' ? 230 : this.maxHeightOffset;
-                this.$.scroller.$.content.style.maxHeight = window.innerHeight - offest + 'px';
+                //this.updateScrollHeight();
             },
             _computeSelectedFilterClass: function (filter, selectedFilter) {
                 return filter.type == selectedFilter.type ? 'selected' : '';

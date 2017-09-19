@@ -145,6 +145,16 @@
                 };
             }
 
+            .show-more {
+                cursor: pointer;
+                margin-left: 15px;
+                margin-bottom: 5px;
+                font-size: 14px;
+            }
+            .show-more:hover {
+                text-decoration: underline;
+            }
+
             :host([menu-mode]) .your-projects, :host([menu-mode]) .available-projects  {
                 margin: 0 !important;
             }
@@ -162,35 +172,36 @@
             </div>
         </div>-->
 
-        <plastic-custom-scroll class="scroller" hidden$="[[hideUnselected(selectedTab,0)]]" fit max-height="130" small-bar>
-            <ul class="list your-projects">
-                <template is="dom-repeat" items="[[overallProjects]]" as="project" sort="[[_sortProjects(sortWay,projectId)]]">
-                    <li class$="[[computeSelected(projectId,project)]]">
-                        <div class="project-name" on-click="selectProject">
-                            <span>[[project.name]]</span>
-                            <span class="author">[ [[_computeAuthorName(project)]] ]</span>
-                        </div>
-                        <iron-icon hidden$="[[project.user]]" icon="designmap-workspace:big_more" on-click="openContext"></iron-icon>
-                    </li>
-                </template>
-            </ul>
-        </plastic-custom-scroll>
+        <ul class="list your-projects" hidden$="[[hideUnselected(selectedTab,0)]]">
+            <template is="dom-repeat" items="[[overallProjects]]" as="project" filter="[[_filter(limit,projectId,overallProjects)]]" sort="[[_sortProjects(sortWay,projectId,overallProjects)]]">
+                <li class$="[[computeSelected(projectId,project)]]">
+                    <div class="project-name" on-click="selectProject">
+                        <span>[[project.name]]</span>
+                        <span class="author">[ [[_computeAuthorName(project)]] ]</span>
+                    </div>
+                    <iron-icon hidden$="[[project.user]]" icon="designmap-workspace:big_more" on-click="openContext"></iron-icon>
+                </li>
+            </template>
+        </ul>
 
-        <plastic-custom-scroll class="scroller" hidden$="[[hideUnselected(selectedTab,1)]]" fit max-height="205" small-bar>
-            <ul class="list available-projects">
-                <template is="dom-repeat" items="[[closedProjects]]" as="project">
-                    <li class$="[[computeSelected(projectId,project)]]">
-                        <div class="project-name" title="[[_computeAuthorName(project)]]">
-                            <span>[[project.name]]</span>
-                            <span class="author">[ [[_computeAuthorName(project)]] ]</span>
-                        </div>
-                        <iron-icon hidden$="[[project.user]]" icon="designmap-workspace:big_more" on-click="openClosedContext"></iron-icon>
-                        <!--<iron-icon class="closed-icon" icon="designmap-workspace:restore" on-click="removeClosed"></iron-icon>
-                        <iron-icon class="closed-icon" icon="designmap-workspace:remove" on-click="removeClosed"></iron-icon>-->
-                    </li>
-                </template>
-            </ul>
-        </plastic-custom-scroll>
+        <ul class="list available-projects" hidden$="[[hideUnselected(selectedTab,1)]]">
+            <template is="dom-repeat" items="[[closedProjects]]" as="project">
+                <li class$="[[computeSelected(projectId,project)]]">
+                    <div class="project-name" title="[[_computeAuthorName(project)]]">
+                        <span>[[project.name]]</span>
+                        <span class="author">[ [[_computeAuthorName(project)]] ]</span>
+                    </div>
+                    <iron-icon hidden$="[[project.user]]" icon="designmap-workspace:big_more" on-click="openClosedContext"></iron-icon>
+                    <!--<iron-icon class="closed-icon" icon="designmap-workspace:restore" on-click="removeClosed"></iron-icon>
+                    <iron-icon class="closed-icon" icon="designmap-workspace:remove" on-click="removeClosed"></iron-icon>-->
+                </li>
+            </template>
+        </ul>
+
+        <div class="show-more" hidden$="[[!_showMore(overallProjects,limit)]]" on-tap="showMore">
+            <i18-n msgid="see more project">see more project</i18-n>
+        </div>
+
         <!-- Remove confirm -->
         <designmap-confirm id="removeProjectConfirm" message="AreYouSureThatYouWannaRemoveProject"
                            on-continue="removeIt" on-suspend="suspendRemoving"></designmap-confirm>
@@ -324,6 +335,10 @@
                 sortWay: {
                     type: String,
                     value: 'abs'
+                },
+                limit: {
+                    type: Number,
+                    value: 4
                 }
 
             },
@@ -335,8 +350,9 @@
              * @param e
              */
             selectProject: function (e) {
+                this.limit = 4;
                 page.redirect('/' + e.model.project._id);
-                this.fire('close-project-list');
+                this.fire('close-menu-in-mobile-mode');
             },
             /**
              * Select certain shared project
@@ -501,11 +517,26 @@
                 //this.selectedTab = project.closed ? 1 : 0;
             },
 
-            _sortProjects: function(sortWay){
-                const projectId = this.projectId;
+            _sortProjects: function(sortWay,id,overallProjects){
                 return function(a,b) {
-                    return a._id == projectId ? 0 : 1;
+                    return b.views - a.views;
                 }
+            },
+
+            _filter: function(limit){
+                let i = 0;
+                return function (task) {
+                    i++;
+                    return i<limit;
+                }.bind(this)
+            },
+
+            _showMore: function (overallProjects,limit) {
+                return overallProjects.length > limit;
+            },
+
+            showMore: function (overallProjects,limit) {
+                this.limit = 10;
             }
         });
     </script>

@@ -20,7 +20,7 @@
         /**
          * Get full path of task
          */
-        getFullPath: function (task,name) {
+        getFullPath: function (task, name) {
             if (!task) return null;
             return (task.path || Designmap.config.separator) + (name || task.name) + Designmap.config.separator;
         },
@@ -81,13 +81,13 @@
          */
         findSubtasksLength: function (tsk) {
             const length = this.findSubtasks(tsk).length;
-            return length>99?99:length;
+            return length > 99 ? 99 : length;
         },
         /**
          * Find task index by full path
          */
         _subtskCls: function (tsk) {
-            return this.findSubtasks(tsk).length>10?'dec':'';
+            return this.findSubtasks(tsk).length > 10 ? 'dec' : '';
         },
         /**
          * Find task by id
@@ -138,26 +138,40 @@
             var parent = this.findTaskById(parentId);
             return (parent.path || Designmap.config.separator) + (parent.name) + Designmap.config.separator;
         },
-        canUpdateTask: function(task){
-            if(!this.user || !task) return false;
-            return this.user._id==task.owner || (this.project && this.user._id==this.project.owner) || (this.user._id==task.assignee);
+        canUpdateTask: function (task) {
+            if (!this.user || !task) return false;
+            return this.user._id == task.owner || (this.project && this.user._id == this.project.owner) || (this.user._id == task.assignee);
         },
-        canRemoveTask: function(task){
-            if(!this.user || !task || !this.project) return false;
-            return  this.user._id==task.owner || this.user._id==this.project.owner;
+        canRemoveTask: function (task) {
+            if (!this.user || !task || !this.project) return false;
+            return this.user._id == task.owner || this.user._id == this.project.owner;
         },
-        isAssignee: function(task){
-            if(!this.user || !task) return false;
-            return this.user._id==task.assignee || (task.assignee && this.user._id==task.assignee);
+        isAssignee: function (task) {
+            if (!this.user || !task) return false;
+            return this.user._id == task.assignee || (task.assignee && this.user._id == task.assignee);
         },
-        _spentAndAssignee: function(spent, task){
-            return spent && this.canRemoveTask(task);
+        _isAssignee: function (assignee) {
+            if (!this.user || !assignee) return false;
+            return this.user._id == assignee;
         },
-        _isMyComment: function(user,comment){
-            return user._id==comment.owner._id;
+        _isAssigneeAndNotOwner: function (assignee) {
+            if (!this.user || !assignee || !this.project) return false;
+            return this.user._id == assignee && (this.user._id != this.project.owner);
+        },
+        _spentAndOwner: function (spent, task) {
+            return spent && this.project && this.user && (this.user._id == this.project.owner);
+        },
+        _spentAndAssigneeOrOwner: function (spent, task) {
+            return spent && this.user && this.project && ((this.user._id == task.assignee) || (this.user._id == this.project.owner));
+        },
+        _isOwner: function () {
+            return this.user && this.project && (this.user._id == this.project.owner);
+        },
+        _isMyComment: function (user, comment) {
+            return user._id == comment.owner._id;
         },
         isExpired: function (expired, status) {
-            if(!expired) return false;
+            if (!expired) return false;
             var diff = moment.duration(moment(expired).diff(moment()));
             return diff._milliseconds < 0 && status != 'completed';
         }

@@ -155,6 +155,28 @@
                 border-color: var(--gray-super-dark);
                 color: var(--gray-super-dark);
             }
+            .or {
+                padding: 10px 0 3px 0;
+                text-align: center;
+                color: var(--gray-saturated-color);
+                height: 10px;
+                display: flex;
+                justify-content: center;
+            }
+            .or .line {
+                width: 100%;
+                background: var(--gray-color);
+                height: 1px;
+                position: absolute;
+                margin-top: 11px;
+                z-index: 8;
+            }
+            .or .text {
+                position: absolute;
+                z-index: 9;
+                background: var(--white-color);
+                white-space: nowrap;
+            }
             @media (min-width: 320px) and (max-width: 768px) {
                 .content {
                     min-width: 280px;
@@ -175,6 +197,10 @@
                 <i18-n msgid="Select folder to upload file in">Select folder to upload file in</i18-n>
                 &laquo;[[_getFolderName(currentFolderId,project)]]&raquo;
             </button>
+        </div>
+        <div class="or">
+            <i18-n class="text" msgid="or select existed">or select existed</i18-n>
+            <div class="line"></div>
         </div>
         <div class="content">
             <plastic-custom-scroll fit max-height="272" small-bar>
@@ -199,7 +225,7 @@
                 </div>
             </div>
             <button disabled$="[[!selected.length]]" class="button" is="designmap-button" blue fit on-tap="applyAction">
-                <i18-n msgid="Select file to attach">Select file to attach</i18-n>
+                [[_translateButtonLabel(buttonText,language,i18Loaded)]]
             </button>
         </div>
     </template>
@@ -209,6 +235,7 @@
             behaviors: [
                 ReduxBehavior,
                 Polymer.DesignMapFsService,
+                Polymer.DesignMapMessagesBehavior,
                 Polymer.DesignMapUtilsBehavior,
                 Polymer.CombineActions(Polymer.FoldersActions,Polymer.FilesActions)
             ],
@@ -218,6 +245,18 @@
                     statePath: function (state) {
                         return this._countElements(state);
                     }
+                },
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    value: false
                 },
                 project: {
                     type: Object,
@@ -230,6 +269,10 @@
                 selected: {
                     type: Array,
                     value: []
+                },
+                buttonText: {
+                    type: String,
+                    value: 'None'
                 }
             },
             _countElements: function (state) {
@@ -304,6 +347,9 @@
                     this.set('selected',files);
                     this.set('elements',this._countElements(ReduxStore.getState()));
                 });
+            },
+            _translateButtonLabel: function(label) {
+                return this.translate(label);
             }
         })
     </script>

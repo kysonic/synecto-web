@@ -185,20 +185,41 @@
                 color: var(--white-color)
             }
 
-            designmap-circle-button {
-                width: 100%;
-                height: 100%;
-                --designmap-circle-button-circle-mixin: {
-                    stroke-width: 1px;
-                    stroke: var( --gray-darkend-color) !important;
+
+            .no-assignee {
+                cursor: pointer;
+                border: 2px solid var(--gray-saturated-color);
+                border-radius: 50%;
+                width: 45px;
+                height: 45px;
+                margin: 5px 0 5px 5px;
+            }
+
+            :host(.completed) .no-assignee {
+                background: var(--completed);
+                border-color: var(--completed);
+            }
+            :host(.incomplete) .no-assignee {
+                background: var(--incomplete);
+                border-color: var(--incomplete);
+            }
+            :host(.in_progress) .no-assignee {
+                background: var(--inprogress);
+                border-color: var(--inprogress);
+            }
+            :host(.expired) .no-assignee {
+                background: var(--expired);
+                border-color: var(--expired);
+            }
+
+            .no-assignee iron-icon {
+                width: 30px;
+                height: 30px;
+                padding: 6px;
+                --iron-icon-components-mixin: {
+                    stroke: var(--white-color) !important;
+                    stroke-width: 1.5px;
                 };
-                --designmap-circle-button-content-icon-mixin: {
-                    width: 55%;
-                    height: 55%;
-                    padding: 21% 19%;
-                    @apply(--designmap-assignee-empty-cbc-mixin);
-                };
-                @apply(--designmap-assignee-empty-mixin);
             }
 
             @keyframes appearance {
@@ -221,10 +242,9 @@
             }
 
         </style>
-        <designmap-circle-button data-cls="blue" x-tooltip$="{{translate('Assign responsible',language,i18Loaded)}}"
-                                 on-click="openDialog" hidden$="[[assignee]]">
+        <div class='no-assignee' on-click="openDialog" hidden$="[[assignee]]">
             <iron-icon id="icon" icon="designmap-task-manager:assignee"></iron-icon>
-        </designmap-circle-button>
+        </div>
         <div class="assignee" on-click="openDialog" hidden$="[[!assignee]]">
             <template is="dom-if" if="[[assigneeUser.profile.avatar]]">
                 <img src="[[computeAvatarPath(assigneeUser.profile.avatar)]]" title="[[assigneeUser.local.email]]">

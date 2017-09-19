@@ -94,6 +94,9 @@
                     border-width: 0 5px 10px 5px;
                     border-color: transparent transparent var(--gray-darkend-color) transparent;
                 };
+                --designmap-invk-textarea-mixin: {
+
+                }
             }
 
             *[hidden] {
@@ -216,7 +219,7 @@
             .sticker .dropdown button {
                 cursor: pointer;
                 width: 100%;
-                height: 35px;
+                height: 40px;
                 font-size: 14px;
                 font-weight: 100;
                 background: var(--blue-color);
@@ -538,7 +541,7 @@
                                         invoked-users="{{invokedUsers}}"
                                         placeholder="[[translate('Write a comment',language,i18Loaded)]]"></designmap-invk-textarea>
                             </div>
-                            <button class="post-comment-buttton" on-click="_postComment" hidden$="[[!textAreaValue]]">
+                            <button class="post-comment-button" on-click="_postComment" hidden$="[[!textAreaValue]]">
                                 <i18-n msgid="Post a comment">Post a comment</i18-n>
                             </button>
                         </div>
@@ -694,12 +697,11 @@
                 },
                 projectUsers: {
                     type: Array,
-                    statePath: function (state) {
-                        return state.projectUsers.filter(function (user) {
-                            if (!this.user) return true;
-                            return user._id !== this.user._id;
-                        }.bind(this));
-                    }
+                    statePath: 'projectUsers'
+                },
+                projectUsersWithOutMe: {
+                    type: Array,
+                    computed: '_computeProjectUsersWithOutMe(projectUsers)'
                 },
                 search: {
                     type: String,

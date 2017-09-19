@@ -293,11 +293,21 @@
             }
             return ret_arr;
         },
-        prepareFollowers: function(arr,user){
+        prepareRecipients: function(arr,user){
             const pure = this.removeDuplicatesInArray(arr);
             const indx = pure.indexOf(user._id);
             if(indx!==-1) pure.splice(pure.indexOf(user._id),1);
+            this.spliceNotProjectUsers(pure);
             return pure;
+        },
+        spliceNotProjectUsers: function(pure){
+            const projectUsersIds = this.projectUsers.map(function(user){return user._id});
+            pure.forEach(function(uid,i){
+                if(projectUsersIds.indexOf(uid)==-1) {
+                    console.log(uid,projectUsersIds,pure,pure.indexOf(uid),12);
+                    pure.splice(pure.indexOf(uid),1);
+                }
+            },this);
         },
         goToLink: function(e){
             e.preventDefault();
@@ -305,7 +315,7 @@
         },
 
         _computeTaskId: function(task){
-            if(!task) return 'XXX';
+            if(!task || !task._id) return 'XXX';
             const date = new Date(task.created);
             return date.getFullYear()+date.getMonth()+date.getDate()+task._id.substr(15,task._id.length);
         },

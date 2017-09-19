@@ -1,6 +1,7 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="../designmap-ui/designmap-invk-textarea.html">
 <link rel="import" href="../designmap-ui/designmap-followers.html">
+<link rel="import" href="./designmap-task-notify-service.html">
 
 <dom-module id="designmap-task-comments">
     <template>
@@ -137,7 +138,10 @@
                 ReduxBehavior,
                 Polymer.DesignMapMessagesBehavior,
                 Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapFsService,
                 Polymer.DesignMapTaskService,
+                Polymer.DesignmapCommentService,
+                Polymer.DesignMapTaskNotifyService,
                 Polymer.CombineActions(Polymer.TasksActions, Polymer.CommentsActions)
             ],
             properties: {
@@ -169,14 +173,28 @@
                     type: Boolean,
                     value: false
                 },
+                project: {
+                    type: String,
+                    value: ''
+                },
                 projectId: {
                     type: String,
                     value: ''
+                },
+                edit: {
+                    type: String,
+                    value: ''
+                },
+                followers: {
+                    type: Array,
+                    notify: true,
+                    value: []
                 }
             },
 
             _postComment: function () {
                 if(this.$.sendButton.disabled) return;
+                if(this.edit) return this._editComment();
                 // Permanent validation
                 if (!this.commentText.trim()) return false;
 
@@ -190,17 +208,30 @@
 
                 this.commentText = '';
 
-                this.async(function () {
-                    this.$.invkTextarea.blur();
+                this.async(this.$.invkTextarea.blur);
+                this.async(function(){
+                    this.fire('scroll-on-top')
                 });
 
-                //FIRE => this._sendNotification(this.task, comment);
+                //Followers
+                console.log(this.followers,this.followers.indexOf(this.user._id));
+                if(this.followers.indexOf(this.user._id)===-1) this.dispatch('followTask',this.task,this.user._id);
+
+                this.sendTaskCommentNotification(comment);
+            },
+
+            _editComment: function(){
+                this.dispatch('updateComment', this.edit, {text:this.commentText});
+                this.commentText = '';
+                this.set('edit','');
+                this.async(this.$.invkTextarea.blur);
             },
 
             _getFollowers: function (task) {
                 if (!task) return [];
                 const defaultFollowers = this.removeDuplicatesInArray([]);
-                return task.followers && task.followers.length ? task.followers : defaultFollowers;
+                this.followers = task.followers && task.followers.length ? task.followers : defaultFollowers;
+                return this.followers;
             },
 
             _cancelFollowing: function () {
@@ -211,6 +242,19 @@
                 return this.invokedUsers.map(function (user) {
                     return user.profile && user.profile.name ? user.profile.name : user.local.email;
                 }).join('; ');
+            },
+
+            reply: function(comment) {
+                const user = comment.owner;
+                const figure = user.profile && user.profile.name ? '@' + user.profile.name + ' ' : "+" + user.local.email + " ";
+                const words = comment.text.split(' ');
+                this.$.invkTextarea.$.textarea.value = figure + this.$.invkTextarea.$.textarea.value+'\n'+
+                    '[' + this.computeOwnerName(comment.owner) + ']('+moment(comment.created).format('YYYY-MM-DD')+') > "' + (words.length > 10 ? words.slice(0, 10).join(' ') + '...' : words.join(' ')) + '"\n';
+                this.commentText = this.$.invkTextarea.$.textarea.value;
+                this.$.invkTextarea.resolveInvokedUsers();
+                this.async(function(){
+                    this.$.invkTextarea.$.textarea.$.textarea.focus()
+                },0);
             }
 
         })

@@ -1,5 +1,4 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
-<link rel="import" href="/bower_components/iron-icons/av-icons.html">
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
 <link rel="import" href="./designmap-task-manager-labels.html">
 <link rel="import" href="./designmap-task-estimate.html">
@@ -7,6 +6,8 @@
 <link rel="import" href="../../../styles/tooltip-shared-styles.html">
 <link rel="import" href="../designmap-ui/designmap-date-picker.html">
 <link rel="import" href="./deaignmap-task-service.html">
+<link rel="import" href="./designmap-task-track-time.html">
+<link rel="import" href="./designmap-task-file-list.html">
 
 
 <dom-module id="designmap-task-menu">
@@ -16,29 +17,40 @@
                 display: block;
                 padding-right: 10px;
             }
+
             *[hidden] {
                 display: none !important;
             }
+
             ul.menu {
                 margin: 0;
                 padding: 0;
                 list-style: none;
                 color: var(--gray-darkend-color);
             }
+
             li.item {
+                position: relative;
                 cursor: pointer;
                 display: flex;
                 align-items: center;
                 padding: 10px 5px;
                 transition: .2s background ease-in;
             }
+
+            li.item.start {
+                align-items: flex-start;
+            }
+
             li.item:hover {
                 background: var(--gray-lightern-color);
                 transition: .2s background ease-in;
             }
+
             li.item[disabled] {
                 opacity: 0.6;
             }
+
             .item-text {
                 white-space: nowrap;
                 overflow: hidden;
@@ -142,21 +154,25 @@
             paper-dialog paper-button {
                 color: var(--white-color);
             }
-            /** Time tracking **/
-            .time-track-buttons > .button  {
-                display: inline-block;
-                vertical-align: top;
-                padding: 1px;
-            }
-            .time-track-buttons > .button:hover {
-                background: var(--white-color);
-            }
-            .time-track-buttons > .button[disabled] {
-                opacity: 0.6;
-            }
-            .time-track-buttons .play{
+
+            designmap-task-file-list {
                 margin-left: 5px;
             }
+
+            .estimation-request {
+                position: absolute;
+                top: 3px;
+                left: -34px;
+                opacity: 0;
+                transform: translateX(50px);
+            }
+
+            #estimationItem:hover .estimation-request {
+                opacity: 1;
+                transform: translateX(0px);
+                transition: .2s opacity,.2s transform;
+            }
+
 
         </style>
         <!-- Estimate popup -->
@@ -177,7 +193,7 @@
                     <i18-n msgid="Discard">Discard</i18-n>
                 </paper-button>
                 <paper-button dialog-confirm on-tap="saveDate">
-                    <i18-n msgid="Select" >Select</i18-n>
+                    <i18-n msgid="Select">Select</i18-n>
                 </paper-button>
             </div>
         </paper-dialog>
@@ -196,18 +212,28 @@
                 on-mouseleave="_hideLabelsSettings"
                 class="item"
                 disabled$="[[!labels.length]]">
-                <iron-icon id="labelIcon" icon="designmap-task-menu:label"></iron-icon>
-                <designmap-task-manager-labels task="[[task]]" label="[[task.label]]" on-change="_labelChanged" id="labels"></designmap-task-manager-labels>
+                <iron-icon id="labelIcon"  on-click="openLabelsDropdown" icon="designmap-task-menu:label"></iron-icon>
+                <designmap-task-manager-labels task="[[task]]" label="[[task.label]]" on-change="_labelChanged"
+                                               id="labels"></designmap-task-manager-labels>
             </li>
             <!--<paper-tooltip for="labelsItem" position="top">
                 <i18-n msgid="Set label">Set label</i18-n>
             </paper-tooltip>-->
 
-            <li class="item" id="estimationItem" on-tap="openEstimateDialog" on-mouseover="edOpen" on-mouseleave="edClose">
-                <iron-icon icon="designmap-task-menu:difficulty"></iron-icon>
-                <i18-n class="item-text" msgid="difficulty">difficulty</i18-n>
-                <span class="grade">[[_computeOverAllGrade(task.grade)]]</span>
-                <designmap-task-estimate-dropdown task="[[task]]" project-users="[[projectUsers]]" uid="[[user._id]]" opened="{{edOpened}}"></designmap-task-estimate-dropdown>
+            <li class="item" id="estimationItem">
+                <iron-icon icon="designmap-task-menu:difficulty" on-tap="openEstimateDialog" on-mouseover="edOpen" on-mouseleave="edClose"></iron-icon>
+                <i18-n class="item-text" msgid="difficulty" on-tap="openEstimateDialog" on-mouseover="edOpen" on-mouseleave="edClose">difficulty</i18-n>
+
+
+                <span class="grade" on-tap="openEstimateDialog" on-mouseover="edOpen" on-mouseleave="edClose">[[_computeOverAllGrade(task.grade)]]</span>
+                <designmap-task-estimate-dropdown task="[[task]]" project-users="[[projectUsers]]" uid="[[user._id]]"
+                                                  opened="{{edOpened}}"></designmap-task-estimate-dropdown>
+
+                <paper-icon-button hidden$="[[!_showRequestEstimateButton(project,user,task.grade,projectUsers,task)]]"
+                                   id="estimationRequestButton" class="estimation-request"
+                                   icon="mail"
+                                   on-tap="sendEstimationRequest"></paper-icon-button>
+                <paper-tooltip for="estimationRequestButton"><i18-n msgid="Send estimation request">Send estimation request</i18-n></paper-tooltip>
             </li>
 
             <li class="item" id="dateItem" on-tap="openDatePickerDialog">
@@ -220,22 +246,13 @@
 
             <li class="item">
                 <iron-icon icon="designmap-task-menu:track"></iron-icon>
-                <span class="item-text">[[_computeTime(task.time,spentTime)]]</span>
-                <span class="time-track-buttons">
-                    <div class="button play" on-tap="trackTime" disabled$="[[!isAssignee(task)]]">
-                        <iron-icon id="trackButton" icon="[[_computeTimeIcon(task.time)]]"></iron-icon>
-                    </div>
-                    <div class="button" hidden$="[[!_spentAndAssignee(task.time.spent,task)]]" on-tap="openClearTimeDialog">
-                        <iron-icon id="clearTimeButton" icon="icons:clear"></iron-icon>
-                    </div>
-                </span>
+                <designmap-task-track-time project-users="[[projectUsers]]" project="[[project]]" task="[[task]]"
+                                           spent-time="[[spentTime]]" user="[[user]]"></designmap-task-track-time>
             </li>
 
-            <li class="item">
+            <li class="item start">
                 <iron-icon icon="designmap-task-menu:attach"></iron-icon>
-                <span class="item-text">
-                    <span class="attach-file"><i18-n msgid="attach">attach</i18-n></span>
-                </span>
+                <designmap-task-file-list project-id="[[project._id]]" task="[[task]]"></designmap-task-file-list>
             </li>
         </ul>
     </template>
@@ -245,12 +262,13 @@
             behaviors: [
                 Polymer.DesignMapMessagesBehavior,
                 Polymer.DesignMapTaskService,
+                Polymer.DesignMapFsService,
                 Polymer.DesignMapUtilsBehavior
             ],
             properties: {
                 task: {
                     type: Object,
-                    value:{}
+                    value: {}
                 },
                 user: {
                     type: Object,
@@ -284,12 +302,11 @@
                     type: Date,
                     value: new Date()
                 }
-
             },
 
             listeners: {
-                'settings-dropdown-close':'settingsDropdonwClose',
-                'task-label-changed':'_taskLabelChanged'
+                'settings-dropdown-close': 'settingsDropdonwClose',
+                'task-label-changed': '_taskLabelChanged'
             },
 
             observers: [
@@ -297,73 +314,57 @@
             ],
 
             _computeTimeLeft: function (task) {
-                if(task && task.status=='completed') return this.translate('completed');
+                if (task && task.status == 'completed') return this.translate('completed');
                 if (task && !task.expired) return this.translate('due date');
-                const diff = moment.duration(moment(task?task.expired:0).diff(moment()));
+                const diff = moment.duration(moment(task ? task.expired : 0).diff(moment()));
                 if (diff._milliseconds < 0) return this.translate('expired');
                 return (diff.asDays() > 1 ? (Math.round(diff.asDays()) + ' ' + this.translate('days')) : Math.round(diff.asHours()) + ' ' + this.translate('hours'));
             },
 
-            _computeTime: function (time, spentTime) {
-                if (!time) return '00:00';
-                if (spentTime) return this._buildTimeString(spentTime);
-                return (time.spent ? this._buildTimeString(time.spent) : '00:00');
-            },
-
-            _buildTimeString: function (spent) {
-                const sec_num = parseInt(spent / 1000, 10);
-                const hours = Math.floor(sec_num / 3600) % 24;
-                const minutes = Math.floor(sec_num / 60) % 60;
-                const seconds = sec_num % 60;
-                return [hours, minutes, seconds]
-                    .map(v => v < 10 ? "0" + v : v)
-                    .filter((v, i) => v !== "00" || i > 0)
-                    .join(":")
-            },
-
             _completeTask: function () {
-                this.fire('change-status','completed');
+                this.fire('change-status', 'completed');
             },
 
-            _isCompleted: function(task){
-                if(!task) return false;
-                return task.status=='completed';
+            _isCompleted: function (task) {
+                if (!task) return false;
+                return task.status == 'completed';
             },
 
-            _showLabelsSettings: function(){
+            _showLabelsSettings: function () {
                 this.$.labels.classList.add('show-settings');
             },
 
-            _hideLabelsSettings: function(){
-                if(this.$.labels.$.settingsDropdown.opened) return;
+            _hideLabelsSettings: function () {
+                if (this.$.labels.$.settingsDropdown.opened) return;
                 this.$.labels.classList.remove('show-settings');
             },
 
-            settingsDropdonwClose: function(){
+            settingsDropdonwClose: function () {
                 this.$.labels.classList.remove('show-settings');
             },
 
-            _labelChanged: function(e){
-                this.fire('change-label',e.detail)
+            _labelChanged: function (e) {
+                this.fire('change-label', e.detail)
             },
 
-            _computeLabels: function(labels){
+            _computeLabels: function (labels) {
                 return labels || [];
             },
 
-            _taskLabelChanged: function(l){
+            _taskLabelChanged: function (l) {
                 const labels = this.project && this.project.settings && this.project.settings.taskManager ? this.project.settings.taskManager.labels : [];
-                const label = labels.find(function(label){
-                    return label.label==l;
+                const label = labels.find(function (label) {
+                    return label.label == l;
                 });
+                if(!this.$.labelIcon.shadowRoot) return;
                 const labelIconPath = this.$.labelIcon.shadowRoot.querySelector('path');
-                if(!label) {
-                    if(!labelIconPath) return;
+                if (!label) {
+                    if (!labelIconPath) return;
                     return labelIconPath.style = 'fill:#fff;stroke:#464646;stroke-miterlimit:10;';
                 }
-                const rgb = 'rgba('+label.color.red+','+label.color.green+','+label.color.blue+','+label.color.alpha+')';
-                if(!labelIconPath) return;
-                labelIconPath.style = 'fill:'+rgb+';stroke:'+rgb+';stroke-miterlimit:10;' ;
+                const rgb = 'rgba(' + label.color.red + ',' + label.color.green + ',' + label.color.blue + ',' + label.color.alpha + ')';
+                if (!labelIconPath) return;
+                labelIconPath.style = 'fill:' + rgb + ';stroke:' + rgb + ';stroke-miterlimit:10;';
             },
 
             _computeOverAllGrade: function (grade) {
@@ -384,49 +385,68 @@
                 return task && task.grade && task.grade[user._id] ? task.grade[user._id] : undefined;
             },
 
-            openEstimateDialog: function(){
+            openEstimateDialog: function () {
                 this.$.estimateDialog.toggle();
             },
 
             estimateTask: function (e) {
-                this.fire('estimate-task',e.detail);
+                this.fire('estimate-task', e.detail);
             },
 
-            edOpen: function(){
-                if(this.st) return;
-                this.st = setTimeout(function(){
+            edOpen: function () {
+                if (this.st) return;
+                this.st = setTimeout(function () {
                     this.edOpened = true;
                 }.bind(this), 500);
             },
 
-            edClose: function(){
+            edClose: function () {
                 clearTimeout(this.st);
                 this.st = null;
                 this.edOpened = false;
             },
 
-            openDatePickerDialog: function(){
+            openDatePickerDialog: function () {
                 // Super junky hook
-                this.async(this.$.datePicker.$.calendar._resizeHandler.bind(this.$.datePicker.$.calendar),100);
+                this.async(this.$.datePicker.$.calendar._resizeHandler.bind(this.$.datePicker.$.calendar), 100);
                 this.$.datePickerDialog.toggle();
             },
 
             saveDate: function (e) {
-                this.fire('save-date',this.date);
+                this.fire('save-date', this.date);
             },
 
             dropDate: function (e) {
-                this.fire('save-date','');
+                this.fire('save-date', '');
             },
 
-            _computeTimeIcon: function (time) {
-                return time && time.run ? 'av:stop' : 'av:play-arrow';
+            openLabelsDropdown: function(e){
+                //if(!e.target.classList.contains('bound')) return;
+                this.$.labels.openDropdown();
             },
 
-            trackTime: function (e) {
-                if(e.currentTarget.hasAttribute('disabled')) return this.showErrorMessage('Only assignee can track time');
-                this.fire('track-time');
+            _showRequestEstimateButton: function(project,user,grade) {
+                if(!project || !user || !grade) return false;
+                return user._id==project.owner && this._getPossibleEstimators(grade).length;
             },
+
+            _getPossibleEstimators: function(grade){
+                const possibleEstimators = this.projectUsers.slice();
+                const estimators = grade?Object.keys(grade):[];
+                const notEstimated = [];
+                possibleEstimators.forEach(function(user,i){
+                    if(user._id==this.user._id || estimators.indexOf(user._id)!==-1) return;
+                    notEstimated.push(user);
+                },this);
+                return notEstimated;
+            },
+
+            sendEstimationRequest: function(){
+                const possibleEstimators = this._getPossibleEstimators(this.task.grade);
+                if(!possibleEstimators.length) return;
+                this.fire('send-estimation-request',possibleEstimators.map(function(user){return user._id}));
+            }
+
         })
     </script>
 </dom-module>

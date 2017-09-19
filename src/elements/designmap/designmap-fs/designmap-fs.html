@@ -335,7 +335,7 @@
              */
             openFileUploader: function (e) {
                 this.$$('#elements').$.uploader._id = e.detail.id;
-                this.$$('#elements').$.uploader.openForm();
+                this.$$('#elements').$.uploader.openOSDialog();
             },
             /**
              * Open context menu
@@ -380,7 +380,7 @@
              */
             openFileUploaderManually: function (e) {
                 this.$$('#elements').$.uploader._id = this.currentFolderId;
-                this.$$('#elements').$.uploader.openForm();
+                this.$$('#elements').$.uploader.openOSDialog();
             },
             /**
              * Change folder id

@@ -414,6 +414,7 @@
             observers: [
                 '_cutChanged(cut)'
             ],
+            dashRegexp: /-/g,
             goBack: function () {
                 return page.redirect('/'+(this.project._id||''));
             },
@@ -428,7 +429,7 @@
              * Resolve notification text. Make special replacement.
              */
             computeNotificationTypeText: function (text) {
-                return this.translate(text ? text.replace('-', ' ').capitalize() : 'Unknown');
+                return this.translate(text ? text.replace(this.dashRegexp, ' ').capitalize() : 'Unknown');
             },
             /**
              * Resolve notification text. Make special replacement.

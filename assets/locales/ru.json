@@ -929,10 +929,10 @@
   "New sticker": {
     "message": "Новый комментарий к файлу"
   },
-  "New Task Comment": {
+  "New task comment": {
     "message": "Новый комментарий к задаче"
   },
-  "New Message": {
+  "New message": {
     "message": "Новое сообщение чата"
   },
   "New access": {
@@ -2074,5 +2074,53 @@
   },
   "Datepicker tooltip": {
     "message": "Установить дату окончания"
+  },
+  "You request to time changeing has been sent": {
+    "message": "Ваш запрос на изменение времени был отправлен владельцу проекта. Если он будет подтвержден - время будет изменено."
+  },
+  "New request for change of spent time": {
+    "message": "Новый запрос на изменение потраченого времени"
+  },
+  "Approve": {
+    "message": "Подтвердить"
+  },
+  "You cannot track time until new time will be approved": {
+    "message": "Вы не можете отслеживать время до того как новое время будет подтверждено."
+  },
+  "or select existed": {
+    "message": "или выберите существующие"
+  },
+  "Hours": {
+    "message": "Часы"
+  },
+  "Minutes": {
+    "message": "Минуты"
+  },
+  "Seconds": {
+    "message": "Секунды"
+  },
+  "Send estimation request": {
+    "message": "Отослать запрос на оценку членам Вашей команды. Если кто-то уже оценил задачу, он не получит этот запрос."
+  },
+  "New task comment was added": {
+    "message": "Новый комментарий был добавлен к задаче #NAME#."
+  },
+  "Request on estimation": {
+    "message": "Ваш менеджер проекта просит оценить задачу \"#NAME#\". Перейдите по ссылке и нажмите на сооотвествующую кнопку в правом меню."
+  },
+  "Estimation request has been sent.": {
+    "message": "Запрос на оценку был успешно отослан. Все пользователи, которые еще не оценили задачу - будут уведомлены."
+  },
+  "Estimation request": {
+    "message": "Запрос на оценку"
+  },
+  "Time change request": {
+    "message": "Запрос на изменение времени"
+  },
+  "Request on change of time": {
+    "message": "Пожалуйста подтвердите изменение потраченого времени в задаче \"#NAME#\"."
+  },
+  "see more project": {
+    "message": "показать еще"
   }
 }

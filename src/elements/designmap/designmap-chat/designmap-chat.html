@@ -976,12 +976,12 @@
                 // Followers
                 const followers = !this.sent ? this._getFollowers() : [];
                 if(followers.length) this.sent = true;
-                const recipients = this.prepareFollowers(followers.concat(emails),this.user);
+                const recipients = this.prepareRecipients(followers.concat(emails),this.user);
                 if(!recipients.length) return;
                 // Send message
                 document.querySelector('designmap-app').$.notifier.create({
                     sender: this.user,
-                    recipient: this.removeDuplicatesInArray(followers.concat(emails)),
+                    recipients: recipients,
                     type: 'new-message',
                     text: {
                         message: message.text,

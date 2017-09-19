@@ -154,7 +154,7 @@
         </style>
         <div class="label" on-tap="openDropdown">[[_computeLabel(label,labels,task,project.settings.taskManager.labels)]]</div>
         <paper-icon-button class="gear-button" hidden$="[[!_isProjectOwner(project,user)]]" icon="icons:settings" on-tap="openSettingsDropdown"></paper-icon-button>
-        <designmap-dropdown id="dropdown" tri-border vertical-offset="20" horizontal-offset="-200">
+        <designmap-dropdown id="dropdown" tri-border vertical-offset="20" horizontal-offset="-150">
             <ul class="labels">
                 <template is="dom-repeat" items="[[labels]]" as="label">
                     <li class="label" on-tap="selectLabel">
@@ -263,6 +263,7 @@
                     value: false
                 }
             },
+
             _computeLabels: function(labels){
                 return labels || [];
             },

@@ -1,0 +1,74 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<script>
+    Polymer.DesignMapTaskNotifyService = {
+        NOTIFY_MESSAGES: {
+            'status-changed': 'Status of task was changed on',
+            'new-assignee': 'You was assigned to task',
+            'estimation-request': 'Request on estimation',
+            'time-change-request': 'Request on change of time'
+        },
+        replacements: {
+            'status-changed': function (task) {
+                return {"#NAME#": task.name, '#STATUS#': this.translate(task.status)}
+            },
+            'new-task-comment': function (task) {
+                return {"#NAME#": task.name}
+            },
+            'estimation-request': function (task) {
+                return {"#NAME#": task.name}
+            },
+            'time-change-request': function (task) {
+                return {"#NAME#": task.name}
+            },
+            'new-assignee': function (task) {
+                return {"#TASK#": task.name}
+            }
+        },
+
+        sendTaskStatusNotification: function(){
+            const recipients = this.prepareRecipients([this.project.owner,this.task.owner],this.user);
+            this.sendTaskNotification('status-changed',this.task,recipients);
+        },
+
+        sendTaskCommentNotification: function(comment){
+            const invoked = this.invokedUsers.slice(0).map(function(user){return user._id});
+            const recipients = this.prepareRecipients(this.followers.concat(invoked),this.user);
+            this.sendTaskNotification('new-task-comment',this.task,recipients,comment.text);
+        },
+
+        sendTaskEstimationRequestNotification: function(possibleEstimators){
+            const recipients = this.prepareRecipients(possibleEstimators,this.user);
+            this.sendTaskNotification('estimation-request',this.task,recipients);
+        },
+
+        sendTaskTimeChangeRequestNotification: function(task){
+            const recipients = this.prepareRecipients([this.project.owner],this.user);
+            this.sendTaskNotification('time-change-request',this.task,recipients);
+        },
+
+        sendAssigneeNotification: function(task,assigneeId){
+            const recipients = this.prepareRecipients([assigneeId],this.user);
+            this.sendTaskNotification('new-assignee',this.task,recipients);
+        },
+
+        sendTaskNotification: function(type,task,recipients,message){
+            if(!recipients.length) return;
+            const pth = this.getFullPath(task);
+            const rp = this.replacements[type].bind(this);
+            document.querySelector('designmap-app').$.notifier.create({
+                sender: this.user._id,
+                recipients: recipients,
+                type: type,
+                text: {
+                    message: message || this.NOTIFY_MESSAGES[type],
+                    replacement: rp(task),
+                    info: {
+                        xlink: this.getAppUrl() + this.projectId + '/task-manager' + pth,
+                        project: this.project.name
+                    }
+                }
+            });
+        }
+    }
+</script>

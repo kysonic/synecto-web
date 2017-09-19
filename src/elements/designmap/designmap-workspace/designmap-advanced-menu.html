@@ -498,6 +498,10 @@
                 projectTypeOptions: {
                     type: Array,
                     computed: '_computeOptions(language,closedProjects.length)'
+                },
+                mobileMode: {
+                    type: Boolean,
+                    value: false
                 }
             },
             listeners: {
@@ -508,9 +512,11 @@
                 this.$.projectList.toggle(e);
             },
             goToTheProject: function (e) {
+                this._closeMenu();
                 page.redirect('/'+(this.projectId+'/fs'));
             },
             goToTaskManager: function (e) {
+                this._closeMenu();
                 //if(!this.user.isPremium) return this.$.taskManagerShowCaseDialog.open();
                 page.redirect('/'+(this.projectId||'')+'/task-manager/');
             },
@@ -518,14 +524,17 @@
                this.fire('open-protocol-showcase')
             },
             goToTrashBox: function (e) {
+                this._closeMenu();
                 if (e.currentTarget.getAttribute('disabled') != undefined) return this.showErrorMessage('You do not have access to make it');
                 page.redirect('/'+this.projectId+'/trash');
             },
             openSharingDialog: function (e) {
+                this._closeMenu();
                 if(this.MQ=='sm') return page.redirect('/'+this.projectId+'/accesses');
                 this.fire('open-sharing');
             },
             openChat: function(){
+                this._closeMenu();
                 return page.redirect('/'+this.projectId+'/chat');
                 /*if(this.MQ=='sm') {
                     localStorage.setItem('designmap:lco',new Date());
@@ -595,18 +604,16 @@
                 target.querySelector('designmap-circle-button').classList.remove('hovered');
             },
             _closeMenu: function(){
+                if(this.mobileMode) this.fire('close-menu');
                 if(!this.isMobile() || this.MQ!='sm') return;
                 this.fire('close-menu');
-            },
-            openCreateProjectDialog: function(){
-                this.fire('close-menu');
-                this.fire('open-create-project-dialog');
             },
             openSelectProjectDialog: function(){
                 this.fire('close-menu');
                 this.fire('open-select-project-dialog');
             },
             openCreateProjectDialog: function(){
+                this.fire('close-menu-in-mobile-mode');
                 this.fire('open-create-project-dialog');
             },
             _projectStatusChanged: function(value){

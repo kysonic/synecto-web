@@ -1,5 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="/bower_components/iron-a11y-keys/iron-a11y-keys.html">
 
 <dom-module id="plastic-custom-scroll">
     <template>
@@ -18,11 +19,13 @@
                 flex: 1 0 0;
                 overflow: hidden;
                 position: relative;
+                outline: none;
                 @apply(--plastic-custom-scroll-content-mixin);
             }
 
             :host([no-scroll]) .content {
                 height: auto;
+                max-height: 100%;
                 overflow: inherit;
             }
 
@@ -98,7 +101,7 @@
             }
 
         </style>
-        <div class="content" id="content" on-scroll="scrollThat">
+        <div tabindex="1" class="content" id="content" on-scroll="scrollThat" on-tap="tap" on-keydown="keyDown">
             <content></content>
         </div>
         <div class="bar" id="bar"></div>
@@ -135,6 +138,12 @@
                 superDelta: {
                     type:Number,
                     value: 30
+                },
+                content: {
+                    type: Object,
+                    value: function(){
+                        this.$.content
+                    }
                 }
             },
             listeners: {
@@ -275,6 +284,16 @@
             },
             isMobileDevice: function(){
                 return /Mobi/.test(navigator.userAgent);
+            },
+            tap: function (e) {
+                //console.log(e.keyCode);
+                e.currentTarget.focus();
+            },
+            keyDown: function (e) {
+                if(e.keyCode!=40 && e.keyCode!=38) return;
+                if(e.keyCode==40) this.scrollDown();
+                if(e.keyCode==38) this.scrollUp();
+                this.calculate();
             }
         })
     </script>

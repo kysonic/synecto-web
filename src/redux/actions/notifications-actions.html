@@ -23,7 +23,6 @@
             addNotification: function (data) {
                 return function (dispatch) {
                     return xhr.post(Designmap.config.apiURL + 'notification/', data);
-                    return promise;
                 }.bind(this)
             },
             /**

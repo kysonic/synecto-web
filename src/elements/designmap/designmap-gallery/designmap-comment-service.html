@@ -22,19 +22,19 @@
                 this.async(function(){this.fire('check-file')});
             }.bind(this));
             // Send notification
-            const recipients = this.prepareFollowers(followers.concat(emails),this.user);
+            const recipients = this.prepareRecipients(followers.concat(emails),this.user);
             if(!recipients.length) return;
             // Notify
             document.querySelector('designmap-app').$.notifier.create({
                 sender: this.user,
-                recipient: recipients,
+                recipients: recipients,
                 type: 'new-sticker',
                 text: {
                     message: comment.text.replace(EMAILS_REGEXP,''),
                     replacement: {'#NAME#': this.cutFileName(file)},
                     info: {
                         file: this.cutFileName(file),
-                        xlink: Designmap.config.appURL+'gallery/'+ file._id+'/#/'+sticker._id
+                        xlink: Designmap.config.appURL+this.projectId+'/gallery/'+ file._id+'/#/'+sticker._id
                     }
                 }
             });

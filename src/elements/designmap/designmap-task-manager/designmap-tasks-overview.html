@@ -37,54 +37,70 @@
                 border-bottom: 1px dashed var(--gray-saturated-color);
                 cursor: help;
             }
+            plastic-custom-scroll {
+                --plastic-custom-scroll-content-mixin: {
+                    max-height: calc(100vh - 165px);
+                };
+                --plastic-custom-scroll-bar-mixin: {
+                    margin-left: -10px;
+                };
+                --plastic-custom-scroll-bar-hover-mixin: {
+                    margin-left: -12px;
+                };
+                --plastic-custom-scroll-bar-grabbed-mixin: {
+                    margin-left: -12px;
+                };
+            }
         </style>
         <div class="title">
             <i18-n msgid="Tasks overview">Tasks overview</i18-n>
         </div>
-        <div class="info">
-            <div class="item overall">
-                <div class="name dashed" id="overallTasks"><i18-n msgid="Overall Tasks">Overall Tasks</i18-n>:</div>
-                <div class="value">[[tasks.length]]</div>
+        <plastic-custom-scroll fit small-bar>
+            <div class="info">
+                <div class="item overall">
+                    <div class="name dashed" id="overallTasks"><i18-n msgid="Overall Tasks">Overall Tasks</i18-n>:</div>
+                    <div class="value">[[tasks.length]]</div>
+                </div>
+                <paper-tooltip for="overallTasks">
+                    <i18-n msgid="OverallTasksMsg">OverallTasksMsg</i18-n>
+                </paper-tooltip>
+                <div class="chart">
+                    <google-chart
+                            type='pie'
+                            options='{"legend": { "position": "none" }, "colors": ["#989898","#b7d66b", "#f9a606", "#e46b54"]}'
+                            data='[[_statusChartData(tasks,language,i18Loaded)]]'
+                    ></google-chart>
+                </div>
+                <div class="item">
+                    <div class="name dashed" id="completedTasks"><i18-n msgid="Completed Tasks">Completed Tasks</i18-n>:</div>
+                    <div class="value">[[_getByStatus(tasks,'completed')]]</div>
+                </div>
+                <paper-tooltip for="completedTasks">
+                    <i18-n msgid="CompletedTasksMsg">CompletedTasksMsg</i18-n>
+                </paper-tooltip>
+                <div class="chart">
+                    <google-chart
+                            type='line'
+                            options='{"legend": { "position": "none" },  "hAxis": { "format": "#,###" }, "vAxis": { "format": "#,###" },"colors": ["#62a6ef"]}'
+                            data='[[_getCompletedData(tasks,language,i18Loaded)]]'
+                    ></google-chart>
+                </div>
+                <div class="item">
+                    <div class="name dashed" id="SpentTimeMsg"><i18-n msgid="Spent time">Spent time</i18-n>:</div>
+                    <div class="value">[[_getFormattedSpentTime(tasks)]]</div>
+                </div>
+                <paper-tooltip for="SpentTimeMsg">
+                    <i18-n msgid="SpentTimeMsg">SpentTimeMsg</i18-n>
+                </paper-tooltip>
+                <div class="chart">
+                    <google-chart
+                            type='column'
+                            options='{"bars": "horizontal","legend": { "position": "none" },  "hAxis": { "format": "#,###" }, "vAxis": { "format": "#,###" },"colors": ["#62a6ef","#FC4D3E","#b7d66b","#989898","#dda898"]}'
+                            data='[[_getSpentTimeData(tasks,projectUsers,language,i18Loaded)]]'
+                    ></google-chart>
+                </div>
             </div>
-            <paper-tooltip for="overallTasks">
-                <i18-n msgid="OverallTasksMsg">OverallTasksMsg</i18-n>
-            </paper-tooltip>
-            <div class="chart">
-                <google-chart
-                        type='pie'
-                        options='{"legend": { "position": "none" }, "colors": ["#989898","#b7d66b", "#f9a606", "#e46b54"]}'
-                        data='[[_statusChartData(tasks,language,i18Loaded)]]'
-                ></google-chart>
-            </div>
-            <div class="item">
-                <div class="name dashed" id="completedTasks"><i18-n msgid="Completed Tasks">Completed Tasks</i18-n>:</div>
-                <div class="value">[[_getByStatus(tasks,'completed')]]</div>
-            </div>
-            <paper-tooltip for="completedTasks">
-                <i18-n msgid="CompletedTasksMsg">CompletedTasksMsg</i18-n>
-            </paper-tooltip>
-            <div class="chart">
-                <google-chart
-                        type='line'
-                        options='{"legend": { "position": "none" },  "hAxis": { "format": "#,###" }, "vAxis": { "format": "#,###" },"colors": ["#62a6ef"]}'
-                        data='[[_getCompletedData(tasks,language,i18Loaded)]]'
-                ></google-chart>
-            </div>
-            <div class="item">
-                <div class="name dashed" id="SpentTimeMsg"><i18-n msgid="Spent time">Spent time</i18-n>:</div>
-                <div class="value">[[_getFormattedSpentTime(tasks)]]</div>
-            </div>
-            <paper-tooltip for="SpentTimeMsg">
-                <i18-n msgid="SpentTimeMsg">SpentTimeMsg</i18-n>
-            </paper-tooltip>
-            <div class="chart">
-                <google-chart
-                        type='column'
-                        options='{"bars": "horizontal","legend": { "position": "none" },  "hAxis": { "format": "#,###" }, "vAxis": { "format": "#,###" },"colors": ["#62a6ef","#FC4D3E","#b7d66b","#989898","#dda898"]}'
-                        data='[[_getSpentTimeData(tasks,projectUsers,language,i18Loaded)]]'
-                ></google-chart>
-            </div>
-        </div>
+        </plastic-custom-scroll>
     </template>
     <script>
         Polymer({
