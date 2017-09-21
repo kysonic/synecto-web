@@ -51,6 +51,7 @@
                 };
                 font-family: var(--font-family);
                 font-weight: 100;
+                --iron-icon-fill-color: var(--gray-saturated-color);
             }
 
             /** MIDDLE ITEMS **/
@@ -196,7 +197,25 @@
                 --iron-icon-fill-color: var(--gray-darkend-color);
             }
 
+            .left .line {
+                display: none;
+                height: 100%;
+                width: 1px;
+                background: var(--gray-color);
+                margin-left: 17px;
+            }
 
+            .left .line.mobile-mode {
+                display: block;
+            }
+
+            .laptop-icon {
+                display: none;
+                width: 170px;
+                height: 30px;
+                position: relative;
+                top: 2px;
+            }
 
 
             @media (min-width: 320px) and (max-width: 1366px) {
@@ -211,6 +230,12 @@
                 }
                 .arrow-left {
                     display: none;
+                }
+            }
+
+            @media (min-width: 768px) and (max-width: 1366px) {
+                .laptop-icon {
+                    display: block;
                 }
             }
 
@@ -256,6 +281,8 @@
                 <designmap-projects-list></designmap-projects-list>
             </designmap-dropdown>-->
             <paper-icon-button class$="burger [[_burgerCls(mobileMode)]]" icon="icons:menu" on-tap="openMenu"></paper-icon-button>
+            <div class$="line [[_burgerCls(mobileMode)]]" ></div>
+            <iron-icon class="laptop-icon" icon="designmap-logo:logo-gray"></iron-icon>
             <paper-icon-button id="collapseMenu" class="arrow-left" icon="[[_computeIcon(mobileMode)]]" on-tap="toggleMobileMode"></paper-icon-button>
             <paper-tooltip for="collapseMenu" position="right">
                 <i18-n msgid="Collapse panel">Collapse panel</i18-n>

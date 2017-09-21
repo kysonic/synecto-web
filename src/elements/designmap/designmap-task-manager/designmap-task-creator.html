@@ -14,11 +14,14 @@
     <template>
         <style>
             :host {
-                --designmap-assignee-empty-cbc-mixin: {
-                    width: 65%;
-                    height: 65%;
-                    padding: 19% 14%;
+                --designmap-assignee-assigned-mixin: {
+                    width: 45px;
+                    height: 45px;
+                    margin: 5px 0 0 5px;
                 };
+                --designmap-assigne-arrow-overdrive-mixin: {
+                    top: 13px !important;
+                }
             }
             .pure-input {
                 font-family: var(--font-family);
@@ -33,7 +36,7 @@
             .pure-textarea {
                 width: 100%;
                 --plastic-textarea-mixin: {
-                    margin-left: 65px;
+                    margin-left: 67px;
                     width: calc(100% - 65px);
                     font-family: var(--font-family);
                     color: var(--gray-darky-color);
@@ -50,7 +53,7 @@
                 justify-content: flex-end;
             }
             .date {
-                margin-left: 65px;
+                margin-left: 67px;
                 cursor: pointer;
                 color: var(--gray-darkend-color);
             }
@@ -63,8 +66,8 @@
         </style>
         <form is="iron-form">
             <div class="line">
-                <designmap-assignee id="assignee" horizontal-offset="-165" vertical-offset="65"
-                                    assignee="[[assignee]]" on-assign="selectAssignee"></designmap-assignee>
+                <designmap-assignee id="assignee" class="incomplete" horizontal-offset="-165" vertical-offset="65"
+                                    assignee="[[assignee]]" on-assign="selectAssignee" on-remove="removeAssignee"></designmap-assignee>
                 <input id="title"
                        class="pure-input"
                        is="iron-input"
@@ -75,11 +78,9 @@
             </div>
             <div class="line">
                 <!-- DESC -->
-                <iron-a11y-keys id="a11ySaveDesc" keys="ctrl+enter meta+enter"
-                                on-keys-pressed="saveDesc"></iron-a11y-keys>
                 <plastic-textarea id="desc"
                                   class="pure-textarea"
-                                  on-blur="saveDesc" value="{{description}}"
+                                  value="{{description}}"
                                   rows="1"
                                   placeholder="[[translate('Enter description',language,i18Loaded)]]"></plastic-textarea>
             </div>
@@ -140,9 +141,7 @@
                 },
                 date: {
                     type: Date,
-                    value: function(){
-                        return new Date();
-                    }
+                    value: null
                 },
                 user: {
                     type: Object,
@@ -159,16 +158,26 @@
                 tasks: {
                     type: Array,
                     statePath: 'tasks'
+                },
+                projectId: {
+                    type: String,
+                    statePath: 'projectId'
                 }
             },
             selectAssignee: function(e){
                 this.assignee = e.detail._id;
             },
+            removeAssignee: function(e){
+                this.assignee = e.detail._id;
+            },
             computeTimeLeft: function (date) {
+                if(!date) return this.translate('due date');
                 var diff = moment.duration(moment(date).diff(moment()));
                 return (diff.asDays() > 1 ? (Math.round(diff.asDays()) + ' ' + this.translate('days')) : Math.round(diff.asHours()) + ' ' + this.translate('hours')) + ' ' + this.translate('left');
             },
             openDatePicker: function(e){
+                if(!this.date) this.date = new Date();
+                this.async(this.$.datePicker.$.calendar._resizeHandler.bind(this.$.datePicker.$.calendar), 100);
                 this.$.datePickerDialog.open();
             },
             _minDate: function(){
@@ -191,11 +200,10 @@
                     owner: this.user._id,
                     status: 'incomplete',
                     assignee: this.assignee,
-                    expired: moment(this.date)
+                    expired: this.date ? moment(this.date) : null
                 };
                 // Create task
                 this.dispatch('addTask', task).then(function (response) {
-                    console.log(response.task);
                     this.fire('done',[response.task]);
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));
                 this.name = '';

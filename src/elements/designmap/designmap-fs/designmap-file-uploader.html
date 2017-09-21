@@ -322,6 +322,10 @@
                 role: {
                     type: String,
                     statePath: 'role'
+                },
+                project: {
+                    type: Object,
+                    statePath: 'project'
                 }
             },
             observers: [
@@ -419,6 +423,7 @@
                 }).then(function (response) {
                     if (!response.success) return this.manageErrorResponse(response);
                     this.user.plan.upload = response.upload;
+                    this.sendNotification(response.files);
                     this.dispatch('_userUpdate', this.user);
                     this.fileUploadingIsEnded(response.files);
                     this.resetFileButton();
@@ -541,6 +546,23 @@
             resetFileButton: function(){
                 this.$$('#files').reset();
                 this.set('buttonFiles',[]);
+            },
+            sendNotification: function(files) {
+                if(this.project.owner==this.user_id) return;
+                const pth = this.getFullPath(this.findFolderById(this._id));
+                document.querySelector('designmap-app').$.notifier.create({
+                    sender: this.user._id,
+                    recipients: [this.project.owner],
+                    type: 'file-uploaded',
+                    text: {
+                        message: 'Some files were uploaded',
+                        replacement: {"#NAME#":'name'},
+                        info: {
+                            xlink: this.getAppUrl() + this.project._id + '/fs' + (pth || ''),
+                            project: this.project.name
+                        }
+                    }
+                });
             }
         })
     </script>

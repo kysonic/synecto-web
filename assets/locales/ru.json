@@ -204,7 +204,7 @@
     "message": "Ни один Проект еще не открыт."
   },
   "Folder #NAME# was removed.": {
-    "message": "Папка #NAME# была удалена в корзину."
+    "message": "Папка #NAME# была отправлена в архив."
   },
   "selected": {
     "message": "выбрано"
@@ -213,7 +213,7 @@
     "message": "Файл \"#FILE#\" был загружен."
   },
   "File was removed successfuly.": {
-    "message": "Файл \"#FILE#\" был удален в корзину."
+    "message": "Файл \"#FILE#\" был отправлен в архив."
   },
   "File was renamed successfuly.": {
     "message": "Файл \"#OLDNAME#\" был переименован в #NEWNAME#."
@@ -294,7 +294,7 @@
     "message": "Менеджер задач"
   },
   "Selected folders was removed.": {
-    "message": "Выбранные папки были удалены."
+    "message": "Выбранные папки были отправлены в архив."
   },
   "Objects were removed irretrievably.": {
     "message": "Объекты былы безвозвратно удалены."
@@ -1152,7 +1152,7 @@
     "message": "Открыть"
   },
   "Selected elements was removed successfully": {
-    "message": "Выбранные элемнты были успешно удалены."
+    "message": "Выбранные элемнты были успешно отправлены в архив."
   },
   "Information": {
     "message": "Информация"
@@ -1200,7 +1200,7 @@
     "message": "Создайте новый проект"
   },
   "Trash bin is empty...": {
-    "message": "В корзине ничего нет..."
+    "message": "В архиве ничего нет..."
   },
   "Sort": {
     "message": "Сортировка"
@@ -2122,5 +2122,41 @@
   },
   "see more project": {
     "message": "показать еще"
+  },
+  "File uploaded": {
+    "message": "Файлы загружены"
+  },
+  "Some files were uploaded": {
+    "message": "Перейдите по ссылке чтобы открыть папку с ними."
+  },
+  "Select file to chat": {
+    "message": "Прекрепить файл(ы) к сообщению"
+  },
+  "Status changed": {
+    "message": "Статус задачи изменен"
+  },
+  "You have tasks requiring your attention. Go to Synecto to find more information.": {
+    "message": "У вас есть задачи которые будут просрочены в течении 1-2 дней. Не забывайте проверять их."
+  },
+  "Archive task": {
+    "message": "Архивировать задачу"
+  },
+  "Archive": {
+    "message": "Архив"
+  },
+  "Archive action": {
+    "message": "Архивировать"
+  },
+  "Select task to chat": {
+    "message": "Прикрепить задачу к сообщению"
+  },
+  "Cannot archive task": {
+    "message": "Не могу заархивировать задачу..."
+  },
+  "Task has been archived.": {
+    "message": "Задача была отправлена в архив."
+  },
+  "Due date": {
+    "message": "Срок"
   }
 }

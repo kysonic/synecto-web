@@ -2,6 +2,7 @@
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="/bower_components/iron-image/iron-image.html">
 <link rel="import" href="./designmap-fs-service.html">
+<link rel="import" href="../designmap-task-manager/designmap-task-preview.html">
 
 <dom-module is="designmap-fs-element">
     <template>
@@ -57,7 +58,6 @@
                 background: var(--fs-folder-color);
                 cursor: pointer;
                 position: relative;
-                overflow: hidden;
                 display: flex;
                 align-items: center;
                 width: 100%;
@@ -70,6 +70,10 @@
 
             .element .content.file.loaded {
                 background: repeating-linear-gradient(-45deg, var(--fs-folder-color), var(--fs-folder-line-color) 5px, rgba(256, 256, 256, 0.3) 5px, rgba(256, 256, 256, 0.3) 10px);
+            }
+
+            .element .content.task {
+                background: var(--white-color);
             }
 
             .type {
@@ -85,7 +89,7 @@
                 background: var(--fs-folder-line-color);
             }
 
-            .element .label.file {
+            .element .label.file,  .element .label.task {
                 opacity: 0;
             }
 
@@ -298,18 +302,28 @@
             <div class$="label [[item.type]]"></div>
             <div class$="content [[item.type]]" on-tap="applyTouchAction" on-click="selectElement" on-contextmenu="openContextMenu" data-hint$="[[item.type]]" data-id$="[[item._id]]">
                 <template is="dom-if" if="[[isFile(item.type)]]">
-                    <template is="dom-if" if="[[shouldViewImage(item)]]">
-                        <iron-image class$="[[item.orientation]]" on-load="loaded" preload src="[[computeImageSource(item)]]" />
-                    </template>
-                    <template is="dom-if" if="[[!shouldViewImage(item)]]">
-                        <div class="borders" >
-                            <iron-icon hidden$="[[_isGoogleDoc(item)]]" icon="designmap-workspace:filer"></iron-icon>
-                            <span class="extension">[[getFilePreview(item)]]</span>
-                            <div hidden$="[[!_isGoogleDoc(item)]]" class="type">
-                                <iron-icon class="gdoc" icon$="designgdoc:[[item.data.type]]"></iron-icon>
+                    <template is="dom-if" if="[[_isFile(item)]]">
+                        <template is="dom-if" if="[[_canBeViewed(item)]]">
+                            <iron-image class$="[[item.orientation]]" on-load="loaded" preload src="[[computeImageSource(item)]]" />
+                        </template>
+                        <template is="dom-if" if="[[!_canBeViewed(item)]]">
+                            <div class="borders" >
+                                <iron-icon hidden$="[[_isGoogleDoc(item)]]" icon="designmap-workspace:filer"></iron-icon>
+                                <span class="extension">[[getFilePreview(item)]]</span>
+                                <div hidden$="[[!_isGoogleDoc(item)]]" class="type">
+                                    <iron-icon class="gdoc" icon$="designgdoc:[[item.data.type]]"></iron-icon>
+                                </div>
                             </div>
-                        </div>
+                        </template>
                     </template>
+                </template>
+                <template is="dom-if" if="[[_isFolder(item)]]">
+
+                </template>
+                <template is="dom-if" if="[[_isTask(item)]]">
+                    <div class="borders" >
+                        <designmap-task-preview no-border task="[[item]]"></designmap-task-preview>
+                    </div>
                 </template>
                 <div id="overlay" class="overlay">
                     <!--<div hidden$="[[!isFile(item.type)]]" class="open"><i18-n msgid="Open">Open</i18-n></div>-->
@@ -399,7 +413,7 @@
             /**
              * Is there necessity to show image?
              */
-            shouldViewImage: function (element) {
+            _canBeViewed: function (element) {
                 if(element.type=='folder') return false;
                 return element.type == 'file' && (this.canBeDisplayedExt.indexOf('.' + this.getExtensionWithoutDot(element.data.name).toLowerCase()) != -1);
             },
@@ -447,9 +461,18 @@
                 e.target.parentNode.classList.add('loaded');
             },
             getFilePreview: function(element){
-                if(element.type=='folder') return '';
+                if(element.type=='folder' || element.type=='task') return '';
                 if(element && element.data.storage=='google') return '';
                 return this.getExtensionWithoutDot(element.data.name);
+            },
+            _isFolder: function(element){
+                  return element.type=='folder';
+            },
+            _isFile: function(element){
+                  return element.type=='file';
+            },
+            _isTask: function(element){
+                  return element.type=='task';
             },
             _isGoogleDoc: function(element){
                 return element && element.type=='file' && element.data.storage=='google' && element.data.type;

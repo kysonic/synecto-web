@@ -27,7 +27,7 @@
                 --designmap-hidden-panel: {
                     height: var(--header-height);
                     background: var(--blue-color);
-                    z-index: 999;
+                    z-index: 9999;
                 };
                 --plastic-custom-scroll-content-mixin: {
                     display: flex;
@@ -234,7 +234,8 @@
                         <i18-n msgid="Information">Information</i18-n>
                     </li>
                     <li hidden$="[[!_canRemove(user.role,trashMode)]]" on-click="removeElement">
-                        <i18-n msgid="Remove">Remove</i18-n>
+                        <i18-n hidden$="[[trashMode]]" msgid="Archive action">Archive action</i18-n>
+                        <i18-n hidden$="[[!trashMode]]" msgid="Remove">Remove</i18-n>
                     </li>
                 </ul>
             </designmap-context-menu>
@@ -293,7 +294,7 @@
                         <i18-n msgid="Restore">Restore</i18-n>
                     </button>
                     <button is="designmap-button" class="no-unselect" on-click="removeSelectedElements" thin>
-                        <i18-n msgid="Remove">Remove</i18-n>
+                        <i18-n msgid="Archive action">Archive</i18-n>
                     </button>
                 </div>
             </div>
@@ -464,7 +465,10 @@
                 const files = state.files.filter(function (file) {
                     return this.trashMode ? file.removed : String(file.folder) == String(parent) && !file.removed && !(state.user && (state.user._id !== file.owner && file.locked));
                 }.bind(this));
-                return folders.concat(files);
+                const tasks = state.tasks.filter(function (task) {
+                    return this.trashMode ? task.removed : false;
+                }.bind(this));
+                return folders.concat(files).concat(tasks);
             },
 
             /**

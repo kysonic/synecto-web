@@ -668,6 +668,7 @@
                         value: 'all',
                         label: 'Any'
                     }].concat(labels.map(function(label){
+                        if(!label) return {label:'--',value:'--'}
                         return {
                             value: label.label,
                             label: label.label

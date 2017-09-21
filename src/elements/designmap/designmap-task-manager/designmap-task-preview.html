@@ -10,19 +10,24 @@
     <template>
         <style>
             :host {
+                display: block;
+                width: 100%;
                 --designmap-task-preview-color: var(--gray-darkend-color);
             }
             .task {
-                height: 50px;
                 font-family: var(--font-family);
                 font-weight: 300;
                 font-size: 20px;
                 color: var(--designmap-task-preview-color);
-                display: flex;
-                align-items: center;
                 transition: background .3s;
                 border: 1px solid var(--designmap-task-preview-color);
-                padding: 0 5px;
+                padding: 10px;
+                white-space: nowrap;
+            }
+
+            .task .row {
+                display: flex;
+                align-items: center;
             }
 
 
@@ -35,8 +40,7 @@
             .task .title {
                 width: 100%;
                 height: 100%;
-                line-height: 50px;
-                flex-grow: 8;
+                flex: 1;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 text-align: left;
@@ -65,6 +69,18 @@
                 };
             }
 
+            .expired {
+                font-size: 12px;
+            }
+
+            .desc {
+                font-size: 12px;
+            }
+
+            .left {
+                margin-left: 30px;
+            }
+
             /** Buttons **/
 
             .expired_row {
@@ -74,13 +90,27 @@
                 text-align: right;
             }
 
+            :host([no-border]) .task{
+                border: none;
+            }
+
         </style>
         <div class="task">
-            <div class="status-button">
-                <iron-icon class="status-icon" icon="[[computeIcon(task.status,task.expired,task.*)]]"></iron-icon>
+            <div class="row">
+                <div class="status-button">
+                    <iron-icon class="status-icon" icon="[[computeIcon(task.status,task.expired,task.*)]]"></iron-icon>
+                </div>
+                <div class="title">[[task.name]]</div>
             </div>
-            <div class="title">[[task.name]]</div>
-            <div class="expired_row">[[computeTimeLeftFormMobile(task,language,task.*)]]</div>
+            <div class="row left"  hidden$="[[!task.expired]]">
+                <span class="expired"><i18-n msgid="Due date">due date</i18-n>: &nbsp;</span>
+                <span class="expired">[[computeTimeLeftFormMobile(task,language,task.*)]]</span>
+            </div>
+            <div class="row left">
+                <div class="desc">
+                    [[_computeTaskDesc(task.description)]]
+                </div>
+            </div>
         </div>
     </template>
     <script>
@@ -121,6 +151,7 @@
             computeTimeLeftFormMobile: function (task) {
                 if(!task) return;
                 if(task.status=='completed') return this.translate('completed');
+                if(!task.expired) return this.translate('due date');
                 var diff = moment.duration(moment(task.expired).diff(moment()));
                 if (diff._milliseconds < 0) return this.translate('expired');
                 return (diff.asDays() > 1 ? (Math.round(diff.asDays()) + ' ' + this.translate('days').substr(0, 1)) : Math.round(diff.asHours()) + ' ' + this.translate('hours').substr(0, 1));
@@ -128,6 +159,11 @@
 
             _computeLanguage: function(language){
                 return language;
+            },
+
+            _computeTaskDesc: function(desc){
+                const words = desc.split(' ');
+                return words.slice(0, 10);
             }
         })
     </script>

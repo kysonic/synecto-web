@@ -210,8 +210,7 @@
             <li id="labelsItem"
                 on-mouseover="_showLabelsSettings"
                 on-mouseleave="_hideLabelsSettings"
-                class="item"
-                disabled$="[[!labels.length]]">
+                class="item">
                 <iron-icon id="labelIcon"  on-click="openLabelsDropdown" icon="designmap-task-menu:label"></iron-icon>
                 <designmap-task-manager-labels task="[[task]]" label="[[task.label]]" on-change="_labelChanged"
                                                id="labels"></designmap-task-manager-labels>
@@ -354,6 +353,7 @@
             _taskLabelChanged: function (l) {
                 const labels = this.project && this.project.settings && this.project.settings.taskManager ? this.project.settings.taskManager.labels : [];
                 const label = labels.find(function (label) {
+                    if(!label) return false;
                     return label.label == l;
                 });
                 if(!this.$.labelIcon.shadowRoot) return;

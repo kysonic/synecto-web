@@ -349,7 +349,7 @@
                     <designmap-circle-button class="hidden-xs"
                                              id="removeButton"
                                              hidden$="[[!canRemoveTask(task)]]"
-                                             on-click="openRemoveTaskConfirm">
+                                             on-click="removeTask">
                         <iron-icon class="panel-icon remove" icon="designmap-task-manager:remove"></iron-icon>
                     </designmap-circle-button>
                     <paper-tooltip for="removeButton" position="left">
@@ -695,6 +695,14 @@
 
             sendTimeChangeRequest: function(e){
                 this.sendTaskTimeChangeRequestNotification(e.detail);
+            },
+
+            removeTask: function(){
+                this.fire('reset');
+                this.dispatch('updateTask', this.task._id, {removed: true}).then(function (response) {
+                    if (!response.success) return this.showErrorMessage('Cannot archive task');
+                    this.showMessage('Task has been archived.');
+                }.bind(this));
             }
         })
     </script>

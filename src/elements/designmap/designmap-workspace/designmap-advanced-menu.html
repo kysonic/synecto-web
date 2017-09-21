@@ -385,7 +385,7 @@
                         <div class="trash-count">[[trashLength]]</div>
                     </designmap-circle-button>
                     <div class="text">
-                        <i18-n msgid="Trash">Trash</i18-n>
+                        <i18-n msgid="Archive">Archive</i18-n>
                     </div>
                     <div class="marker dot"></div>
                 </li>
@@ -623,6 +623,7 @@
             _isThereUnread: function(lastChatReview,messages){
                 if(!messages.length || !lastChatReview || !this.user) return false;
                 const onlyNotMine = messages.filter(function(message){
+                    if(!message.owner) return false;
                     return message.owner._id!=this.user._id;
                 }.bind(this));
                 const sortedMessages = onlyNotMine.sort(function(a,b){

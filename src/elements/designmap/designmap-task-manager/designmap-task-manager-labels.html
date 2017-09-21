@@ -152,7 +152,7 @@
                 transform: rotate(135deg);
             }
         </style>
-        <div class="label" on-tap="openDropdown">[[_computeLabel(label,labels,task,project.settings.taskManager.labels)]]</div>
+        <div class="label" on-tap="openDropdown">[[_computeLabel(label,labels)]]</div>
         <paper-icon-button class="gear-button" hidden$="[[!_isProjectOwner(project,user)]]" icon="icons:settings" on-tap="openSettingsDropdown"></paper-icon-button>
         <designmap-dropdown id="dropdown" tri-border vertical-offset="20" horizontal-offset="-150">
             <ul class="labels">
@@ -212,7 +212,7 @@
                 },
                 label: {
                     type: String,
-                    value: '',
+                    value: '-',
                     observer:'_labelChanged'
                 },
                 projects: {
@@ -264,11 +264,16 @@
                 }
             },
 
+            attached: function () {
+                this.label = this.label || '-';
+            },
+
             _computeLabels: function(labels){
                 return labels || [];
             },
             _getLabels: function(labels){
                 return labels.map(function(label){
+                    if(!label) return {value:'--',label:'--'}
                     return {
                         value: label.label,
                         label: label.label
@@ -349,6 +354,7 @@
             },
             _computeLabel: function(label){
                 if(!label || !this._findLabel(label)) return this.translate('select label...');
+                if(label=='-') return this.translate('select label...');
                 return label;
             },
             _findLabel:function(l){

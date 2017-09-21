@@ -106,7 +106,7 @@
                     font-weight: 500 !important;
                 };
                 --paper-input-container-invalid-color: var(--error-color);
-                --iron-icon-fill-color: var(--blue-darkest-color);
+                --iron-icon-fill-color: var(--gray-saturate-color);
                 --paper-icon-button: {
                     padding: 0;
                     width: 24px;
@@ -122,6 +122,200 @@
             *[hidden] {
                 display: none !important;
             }
+
+            /** Messages **/
+
+            .messages {
+                margin-top: 10px;
+                height: calc(100% - 10px);
+                color: var(--gray-darkend-color);
+            }
+
+            .message {
+                display: inline-block;
+                width: 100%;
+                position: relative;
+                font-weight: 300;
+                padding: 5px 0;
+            }
+
+            .message:hover {
+                background: var(--gray-lightern-color);
+            }
+
+            .message .gutter {
+                display: inline-block;
+                width: 40px;
+                min-height: 20px;
+                vertical-align: top;
+            }
+
+            .message .gutter .date {
+                opacity: 0;
+                font-size: 9px;
+                text-align: center;
+                margin-top: 5px;
+                width: 100%;
+            }
+
+            .message:hover .gutter .date {
+                opacity: 1;
+                transition: .2s opacity;
+            }
+
+            .message .body {
+                display: inline-block;
+                position: relative;
+                max-width: calc(100% - 130px);
+            }
+
+            .message .body .menu {
+                position: absolute;
+                left: 100%;
+                top: 0;
+                min-width: 100px;
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+
+            .message:hover .body .menu {
+                opacity: 1;
+                transform: translateX(0);
+                transition: .2s opacity, .2s transform;
+            }
+
+            .message .body .menu > * {
+                display: inline-block;
+            }
+
+            .message .body .menu paper-icon-button:first-child {
+                margin-left: 5px;
+            }
+
+            .menu .likes {
+                font-size: 10px;
+                vertical-align: middle;
+                margin-left: 0 !important;
+            }
+
+            .message .body .head {
+                margin-bottom: 5px;
+            }
+
+            .message .body .menu .button {
+                border-radius: 50%;
+            }
+
+            .message .body .menu .button:hover{
+                background: var(--white-color);
+                transition: .2s background;
+            }
+
+            .message .body .menu .like-button {
+                width: 20px;
+                height: 20px;
+            }
+
+            /** Attaches **/
+
+            .attaches {
+                padding: 0;
+            }
+
+            .attaches .paper-clip {
+                display: inline-block;
+                --iron-icon-components-mixin: {
+                    stroke: var(--gray-darkend-color) !important;
+                };
+            }
+            .attaches .wrap {
+                display: inline-block;
+                margin-left: 12px;
+            }
+
+            .attaches .wrap .attach {
+                font-size: 14px;
+            }
+
+            .attaches .wrap .attach > * {
+                display: inline-block;
+            }
+
+            .attaches .wrap .attach iron-image {
+                display: block;
+                max-height: 500px;
+            }
+
+            .attaches .wrap .attach iron-icon {
+                width: 14px;
+                height: 14px;
+                cursor: pointer;
+                --iron-icon-components-mixin: {
+                    stroke: var(--gray-darkend-color);
+                };
+            }
+
+            .attaches .image {
+                max-width: 100%;
+                max-height: 500px;
+                display: block;
+                --iron-image-mixin: {
+                    max-width: 100%;
+                    max-height: 500px;
+                }
+            }
+
+            .attach {
+                margin-top: 5px;
+            }
+
+            .attach a {
+                color: var(--gray-darkend-color);
+                text-decoration: none;
+            }
+
+            .attach label {
+                font-size: 12px;
+                margin-top: 5px;
+                color: var(--gray-darkend-color);
+                text-decoration: none;
+            }
+
+           /** Date delimeter **/
+
+            .date-delimiter {
+                display: block;
+                width: 100%;
+                margin: 5px 0;
+                text-align: center;
+                position: relative;
+            }
+
+            .date-delimiter span {
+                display: inline-block;
+                padding: 5px;
+                border-radius: 5px;
+                color: var(--gray-darkend-color);
+                background: var(--white-color);
+                position: relative;
+                z-index: 9;
+            }
+            .date-delimiter .line {
+                position: absolute;
+                width: 100%;
+                height: 0;
+                top: 16px;
+                border-bottom: 1px dashed var(--gray-color);
+                z-index: 8;
+            }
+
+            .loading {
+                width: 100%;
+                height: 40px;
+                background: url('/assets/images/svg/three-dots-gray.svg') no-repeat center;
+                background-size: 50px;
+            }
+            /** Write message area **/
 
             .scroll {
                 display: flex;
@@ -154,171 +348,6 @@
                 text-align: center;
             }
 
-            /** Messages **/
-            .messages {
-                margin-top: 10px;
-                height: calc(100% - 10px);
-            }
-
-            .messages.loading {
-                margin-top: 5px;
-            }
-
-            .message {
-                display: inline-block;
-                width: 100%;
-                position: relative;
-                font-weight: 500;
-            }
-
-            .date-delimiter {
-                display: block;
-                width: 100%;
-                margin: 5px 0;
-                text-align: center;
-            }
-
-            .date-delimiter span {
-                display: inline-block;
-                padding: 5px;
-                border-radius: 5px;
-                color: var(--white-color);
-                background: rgba(0, 0, 0, 0.3);
-            }
-
-            .message .text {
-                max-width: 50%;
-                padding: 5px 10px 2px 10px;
-                margin-top: 10px;
-                position: relative;
-            }
-
-            .own .text {
-                background: var(--gray-lightern-color);
-                color: var(--gray-darkend-color);
-                float: left;
-                margin-right: 10px;
-            }
-
-            .own .footer .date {
-                vertical-align: bottom;
-            }
-
-            .anothers .footer .date {
-                vertical-align: bottom;
-            }
-
-            .anothers .text {
-                background: var(--white-color);
-                color: var(--gray-darkend-color);
-                float: left;
-                margin-left: 5px;
-                text-align: left;
-                border: 1px solid var(--gray-color);
-            }
-
-            .projector {
-                display: inline-block;
-            }
-
-            .balloon-tick, .balloon-tick-border {
-                display: none;
-                width: 0;
-                height: 0;
-                border-style: solid;
-                border-width: 10px 10px 10px 0;
-                border-color: transparent var(--white-color) transparent transparent;
-                position: absolute;
-            }
-
-            .anothers.first .text, .own.first .text {
-                margin-bottom: 5px;
-            }
-
-            .anothers.first .balloon-tick {
-                display: block;
-                border-width: 10px 10px 0 0;
-                border-color: var(--gray-color) transparent transparent transparent;
-                top: 100%;
-                left: -1px;
-                margin-top: 0;
-            }
-
-            .own.first .balloon-tick {
-                display: block;
-                /*border-width: 0 10px 10px 0;*/
-                /*border-color: transparent var(--gray-color) transparent transparent;*/
-                border-width: 10px 10px 0 0;
-                border-color: var(--gray-lightern-color) transparent transparent transparent;
-                top: 100%;
-               /* left: 100%;*/
-                left: 0;
-                margin-top: 0;
-                /*margin-left: -10px;*/
-            }
-
-            .anothers .text, .own .text {
-                margin-left: 45px;
-            }
-
-            .anothers.first .projector, .own.first .projector {
-                display: inline-block;
-                float: left;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                margin-left: 5px;
-                margin-top: -25px;
-                cursor: default;
-            }
-
-            .text .footer {
-                display: block;
-                height: 20px;
-                width: 100%;
-            }
-
-            .text .footer .date {
-                display: inline-block;
-                vertical-align: middle;
-                font-size: 10px;
-            }
-
-            .menu {
-                cursor: pointer;
-                position: relative;
-                left: 3px;
-            }
-
-            .menu iron-icon {
-                height: 18px;
-                width: 18px;
-                position: relative;
-            }
-
-            .menu iron-icon {
-                --iron-icon-fill-color: var(--gray-saturate-color);
-            }
-
-            .own .menu {
-                float: right;
-            }
-
-            .anothers .menu {
-                float: right;
-            }
-
-            .text span {
-               /* white-space: pre-line;*/
-            }
-
-            .loading {
-                width: 100%;
-                height: 40px;
-                background: url('/assets/images/svg/three-dots-gray.svg') no-repeat center;
-                background-size: 50px;
-            }
-            /** Bottom **/
             .user-projector {
                 display: inline-block;
                 vertical-align: top;
@@ -381,65 +410,13 @@
                 margin-left: 10px;
             }
 
-
-            .attaches {
-                padding: 10px 20px;
+            .comment .attaches {
+                margin-left: 20px;
             }
 
-            .attaches .paper-clip {
-                display: inline-block;
-                --iron-icon-components-mixin: {
-                    stroke: var(--gray-darkend-color) !important;
-                };
-            }
-            .attaches .wrap {
-                display: inline-block;
-                margin-left: 12px;
-            }
-
-            .attaches .wrap .attach {
-                font-size: 14px;
-            }
-
-            .attaches .wrap .attach > * {
-                display: inline-block;
-            }
-
-            .attaches .wrap .attach iron-icon {
-                width: 14px;
-                height: 14px;
-                cursor: pointer;
-                --iron-icon-components-mixin: {
-                    stroke: var(--gray-darkend-color);
-                };
-            }
-
-            .attaches .image {
-                max-width: 100%;
-                max-height: 100%;
-                --iron-image-mixin: {
-                    max-width: 100%;
-                    max-height: 100%;
-                }
-            }
-
-            .attach {
-                margin-top: 5px;
-            }
-
-            .attach a {
-                color: var(--gray-darkend-color);
-                text-decoration: none;
-            }
-
-            .attach label {
-                font-size: 12px;
-                margin-top: 5px;
-                color: var(--gray-darkend-color);
-                text-decoration: none;
-            }
 
             /** Previews classes **/
+
             .message.anothers designmap-task-preview{
                 --designmap-task-preview-color: var(--white-color);
             }
@@ -559,14 +536,14 @@
         <!-- File explorer -->
         <paper-dialog class="explorer-dialog" on-down="refitFsExplorer" id="fsExplorerDialog"
                       entry-animation="scale-up-animation" exit-animation="scale-down-animation">
-            <designmap-fs-explorer id="fsExplorer" on-upload-in="openFileUploader"
+            <designmap-fs-explorer id="fsExplorer" button-text="Select file to chat" on-upload-in="openFileUploader"
                                    on-file="attachElement"></designmap-fs-explorer>
         </paper-dialog>
 
         <!-- Tasks explorer -->
         <paper-dialog class="explorer-dialog" on-down="refitTasksExplorer" id="tasksExplorerDialog"
                       entry-animation="scale-up-animation" exit-animation="scale-down-animation">
-            <designmap-tasks-explorer id="taskExplorer" current-task-id="{{currentTaskId}}" on-upload-in="openTaskCreator"
+            <designmap-tasks-explorer id="taskExplorer" button-text="Select task to chat" current-task-id="{{currentTaskId}}" on-upload-in="openTaskCreator"
                                    on-task="attachElement"></designmap-tasks-explorer>
         </paper-dialog>
 
@@ -595,15 +572,30 @@
                 </div>
                 <template is="dom-repeat" items="[[messages]]" as="message" sort="[[_sortMessages(sortWay)]]">
                     <div data-id$="[[message._id]]" class$="message [[_computeMessageClass(message,user)]]">
-                        <template is="dom-if" if="[[_isFirst(message)]]">
-                            <designmap-avatar-projector title="[[computeUserName(user)]]" user="[[message.owner]]"
-                                                        class="projector"></designmap-avatar-projector>
-                        </template>
-                        <div class="text">
-                            <span>
+                        <div class="gutter">
+                            <template is="dom-if" if="[[_isFirst(message)]]">
+                                <designmap-avatar-projector user="[[message.owner]]" class="projector"></designmap-avatar-projector>
+                            </template>
+                            <div hidden$="[[_isFirst(message)]]" title="[[_computeDate(message.created,'YYYY-MM-DD HH:mm:ss')]]" class="date">
+                                [[_computeDate(message.created,'HH:mm:ss')]]
+                            </div>
+                        </div>
+                        <div class="body">
+                            <template is="dom-if" if="[[_isFirst(message)]]">
+                                <div class="head">
+                                    <strong class="name">[[computeOwnerName(message.owner)]]</strong>
+                                    <small class="message-date"> ([[_computeDate(message.created,'HH:mm:ss')]])</small>
+                                </div>
+                            </template>
+                            <div class="text" hidden$="[[!message.text]]">
                                 <plastic-html class="html" msg="[[processLinksInText(message.text)]]"></plastic-html>
-                            </span>
-                            <div class="balloon-tick"></div>
+                            </div>
+                            <div class="menu">
+                                <!---->
+                                <paper-icon-button class="button like-button" on-click="likeMessage" icon="favorite"></paper-icon-button>
+                                <span hidden$="[[!message.likes.length]]" class="likes">+[[message.likes.length]]</span>
+                                <paper-icon-button class="button icon-button" on-click="openContextMenu" icon="[[_computeMenuIcon(message,user)]]"></paper-icon-button>
+                            </div>
                             <!-- Attaches -->
                             <div class="attaches" hidden$="[[!message.attaches.length]]">
                                 <template is="dom-repeat" items="[[_computeAttaches(message.attaches,files.*,tasks.*)]]" as="attach">
@@ -634,16 +626,8 @@
                                     </div>
                                 </template>
                             </div>
-                            <!-- Attaches -->
-                            <div class="footer">
-                                <div title="[[_computeDate(message.created,'YYYY-MM-DD HH:mm:ss')]]" class="date">
-                                    [[_computeDate(message.created,'HH:mm:ss')]]
-                                </div>
-                                <div class="menu" on-click="openContextMenu">
-                                    <iron-icon icon="[[_computeMenuIcon(message,user)]]"></iron-icon>
-                                </div>
-                            </div>
                         </div>
+
                     </div>
                 </template>
                 <!-- Menu dropdown -->
@@ -718,7 +702,6 @@
                 <i18-n hidden$="[[!editMode]]" msgid="Save">Save</i18-n>
             </button>-->
         </div>
-
     </template>
     <script>
         Polymer({
@@ -917,7 +900,7 @@
                     return new Date(a.created) - new Date(b.created);
                 });
                 const prevMessage = messages[messages.indexOf(message) - 1];
-                if(!prevMessage) return true;
+                if(!prevMessage || !prevMessage.owner || !message.owner) return true;
                 return prevMessage.owner._id!=message.owner._id;
             },
             _firstMessageDate: function () {
@@ -938,9 +921,14 @@
                 const span = document.createElement('span');
                 span.innerText = moment(message.created).format('YYYY-MM-DD');
                 div.appendChild(span);
+                const line = document.createElement('div');
+                line.classList.add('line');
+                div.appendChild(span);
+                div.appendChild(line);
                 msgNode.parentNode.insertBefore(div, msgNode);
             },
             _isAnothers: function (message, user) {
+                if(!message.owner) return null;
                 return message.owner._id == user._id;
             },
             /**
@@ -1028,10 +1016,11 @@
             },
             quote: function (message) {
                 const msg = message.detail ? this.msg : message;
+                if(!msg || !msg.text) return this.$.contextMenu.close();
                 this.$.contextMenu.close();
                 this.$.invkTextarea.focus();
                 const words = msg.text.split(' ');
-                this.message = '[' + this.computeOwnerName(msg.owner) + ']> "' + (words.length > 5 ? words.slice(0, 5).join(' ') + '...' : words.join(' ')) + '"\n';
+                this.message = '[' + this.computeOwnerName(msg.owner) + ']('+this._computeDate(msg.created,'HH:mm:ss')+')> "' + (words.length > 10 ? words.slice(0, 10).join(' ') + '...' : words.join(' ')) + '"\n';
             },
             editMessage: function () {
                 this.editMode = true;
@@ -1152,16 +1141,18 @@
 
             openFileUploader: function (e) {
                 this.$.uploader._id = e.detail || null;
-                this.$.uploader.openForm();
+                this.$.uploader.openOSDialog();
             },
 
             selectFiles: function (e) {
                 this.$.fsExplorer.selectElements(e.detail);
+                this.attachElement({detail:e.detail});
             },
 
             selectTasks: function (e) {
                 this.$.taskCreatorDialog.close();
                 this.$.taskExplorer.selectTasks(e.detail);
+                this.attachElement({detail:e.detail});
             },
 
             attachElement: function (e) {
@@ -1209,6 +1200,7 @@
 
             _getFileLink: function(file) {
                 if(!file) return '/';
+                if(file.data.storage=='google') return file.data.url;
                 return '/'+this.projectId+'/gallery/'+file._id;
             },
 
@@ -1245,6 +1237,16 @@
                 if(!found) return this.clearHighLights();
                 this.scrollToMessage(found);
                 this.highlightText(found,value);
+            },
+
+            likeMessage: function(e){
+                let message = e.model.message;
+
+                message.likes = message.likes || [];
+                const isThereUser = message.likes.indexOf(this.user._id) != -1;
+                const userLikesIndex = message.likes.indexOf(this.user._id);
+                isThereUser ? message.likes.splice(userLikesIndex, 1) : message.likes.push(this.user._id);
+                this.dispatch('updateMessage', message._id, {likes:message.likes});
             }
         });
     </script>

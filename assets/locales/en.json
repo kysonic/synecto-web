@@ -195,7 +195,7 @@
     "message": "There is no any opened project here."
   },
   "Folder #NAME# was removed.": {
-    "message": "Folder \"#NAME#\" was removed in trash."
+    "message": "Folder \"#NAME#\" was stored in archive."
   },
   "selected": {
     "message": "selected"
@@ -204,7 +204,7 @@
     "message": "File \"#FILE#\" was uploaded."
   },
   "File was removed successfuly.": {
-    "message": "File \"#FILE#\" was removed in trash."
+    "message": "File \"#FILE#\" was stored in archive."
   },
   "File was renamed successfuly.": {
     "message": "File \"#OLDNAME#\" was renamed to #NEWNAME#."
@@ -1146,7 +1146,7 @@
     "message": "Open"
   },
   "Selected elements was removed successfully": {
-    "message": "Selected elements was removed successfully."
+    "message": "Selected elements was archived successfully."
   },
   "Information": {
     "message": "Information"
@@ -1194,7 +1194,7 @@
     "message": "Create new project"
   },
   "Trash bin is empty...": {
-    "message": "Trash bin is empty..."
+    "message": "Archive is empty..."
   },
   "Sort": {
     "message": "Sort"
@@ -2107,5 +2107,47 @@
   },
   "see more project": {
     "message": "see more project"
+  },
+  "File uploaded": {
+    "message": "File are uploaded"
+  },
+  "Some files were uploaded": {
+    "message": "Follow the link to open folder with the files."
+  },
+  "Select file to chat": {
+    "message": "Attach file(s) to message"
+  },
+  "Status changed": {
+    "message": "Task status is changed"
+  },
+  "You have tasks requiring your attention. Go to Synecto to find more information.": {
+    "message": "You have tasks will be expired in 1-2 days. Don't forget to react on it."
+  },
+  "Archive task": {
+    "message": "Archive task"
+  },
+  "Archive file": {
+    "message": "Archive task"
+  },
+  "Archive folder": {
+    "message": "Archive task"
+  },
+  "Archive": {
+    "message": "Archive"
+  },
+  "Archive action": {
+    "message": "Archive"
+  },
+  "Select task to chat": {
+    "message": "Attach task to message"
+  },
+  "Cannot archive task": {
+    "message": "Cannot archive task"
+  },
+  "Task has been archived.": {
+    "message": "Task has been archived."
+  },
+  "Due date": {
+    "message": "Due date"
   }
 }

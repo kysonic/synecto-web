@@ -467,36 +467,39 @@
                 background: var(--white-color);
             }
 
-            .line.in_progress, .sub-line.in_progress {
+            .status-line {
+                width: 1px;
+                height: 100%;
+                margin-right: 8px;
+                background: var(--white-color);
+            }
+
+            .line.in_progress, .in_progress .status-line {
                 background: var(--filter-inprogress);
                 transition: background .2s;
             }
 
-            .line.incomplete, .sub-line.incomplete {
+            .line.incomplete, .incomplete .status-line {
                 background: var(--filter-incomplete);
                 transition: background .2s;
             }
 
-            .line.completed, .sub-line.completed {
+            .line.completed, .completed .status-line {
                 background: var(--filter-completed);
                 transition: background .2s;
             }
 
-            .line.expired, .sub-line.expired {
+            .line.expired, .expired .status-line {
                 background: var(--filter-expired);
                 transition: background .2s;
             }
 
             /** SUB-LINE **/
-            .sub-line {
-                width: 5px;
-                height: 100%;
-                background: var(--white-color);
-            }
 
             .hidden-lg {
                 display: none;
             }
+            /** Labels **/
             .label {
                 color: var(--white-color);
                 font-size: 12px;
@@ -621,13 +624,7 @@
                         <paper-tooltip for$="subtask[[index]]" position="left">
                             <i18-n msgid="Subtask count">Subtask count</i18-n>
                         </paper-tooltip>
-                        <!--<div id$="done[[index]]" class="done hidden-xs" on-click="completeTask">
-                            <div class="mark">
-                                <div class="checkmark_stem"></div>
-                                <div class="checkmark_kick"></div>
-                            </div>
-                        </div>
-                        <paper-tooltip for$="done[[index]]" position="left"><i18-n msgid="Complete task">Complete task</i18-n></paper-tooltip>-->
+                        <!--<div class="status-line"></div>-->
                     </li>
                 </template>
                 <div class="not-found-msg" hidden$="[[checkTaskFilter(filter,selectedFilter,tasks.*)]]">
@@ -642,7 +639,7 @@
             <div class="add-task">
                 <div class="add-task-wrapper">
                     <iron-a11y-keys id="a11yEditor" keys="enter" on-keys-pressed="addTask"></iron-a11y-keys>
-                    <iron-a11y-keys id="a11yEditor" keys="backspace" on-keys-pressed="removeLastTask"></iron-a11y-keys>
+                   <!-- <iron-a11y-keys id="a11yEditor" keys="backspace" on-keys-pressed="removeLastTask"></iron-a11y-keys>-->
                     <input is="iron-input" placeholder="[[translate(placeholder,language,i18Loaded)]]"
                            on-focus="addTaskFocus" on-blur="addTask"
                            value="{{taskName::keyup}}" auto-validate pattern="[\w\dа-яА-ЯёЁ ]+"
@@ -734,7 +731,7 @@
                  */
                 selectedFilter: {
                     type: Object,
-                    value: {type: 'all', text: 'all'}
+                    value: {type: 'not_completed', text: 'not_completed'}
                 },
                 /**
                  * Filter array to provide dinamic
@@ -1056,7 +1053,7 @@
              */
             _getTasks: function(state){
                 const tasks = state.tasks.filter(function (task) {
-                    return task.parent == this.parent;
+                    return !task.removed && task.parent == this.parent;
                 }.bind(this));
                 return tasks.map(function(task,i){
                     task.position = task.position || (i+1);
@@ -1132,6 +1129,7 @@
                 }.bind(this)
             },
             statusFilter: function(selectedFilter,task){
+                if (task.removed) return false;
                 if (selectedFilter.type == 'all') return true;
                 if (selectedFilter.type == 'not_completed') return task.status != 'completed';
                 if (selectedFilter.type == 'my' && this.user) {return task.assignee == this.user._id;}
@@ -1143,6 +1141,7 @@
             checkTaskFilter: function (filter, selectedFilter) {
                 if (!this.filter) return true;
                 return this.tasks ? !!this.tasks.filter(function (task) {
+                        if (task.removed) return false;
                         if (selectedFilter.type == 'all') return true;
                         if (selectedFilter.type == 'not_completed') return task.status != 'completed';
                         if (selectedFilter.type == 'expired') return this.isExpired(task.expired, task.status);
@@ -1287,6 +1286,7 @@
             _getLabel: function(task,labels){
                 if(!labels || !labels.find || !task) return false;
                 const label = labels.find(function(label){
+                    if(!label) return false;
                     return label.label == task.label;
                 });
                 return label;

@@ -149,10 +149,36 @@
                 border-color: var(--gray-darkend-color);
                 font-size: 15px;
                 margin: 0;
+                max-width: 300px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
             .btn-container button:hover {
                 border-color: var(--gray-super-dark);
                 color: var(--gray-super-dark);
+            }
+            .or {
+                padding: 10px 0 3px 0;
+                text-align: center;
+                color: var(--gray-saturated-color);
+                height: 10px;
+                display: flex;
+                justify-content: center;
+            }
+            .or .line {
+                width: 100%;
+                background: var(--gray-color);
+                height: 1px;
+                position: absolute;
+                margin-top: 11px;
+                z-index: 8;
+            }
+            .or .text {
+                position: absolute;
+                z-index: 9;
+                background: var(--white-color);
+                white-space: nowrap;
             }
             @media (min-width: 320px) and (max-width: 768px) {
                 .content {
@@ -174,6 +200,10 @@
                 <i18-n msgid="Create task in">Create task in</i18-n>
                 &laquo;[[_getTaskName(currentTaskId,project)]]&raquo;
             </button>
+        </div>
+        <div class="or">
+            <i18-n class="text" msgid="or select existed">or select existed</i18-n>
+            <div class="line"></div>
         </div>
         <div class="content">
             <plastic-custom-scroll fit max-height="272" small-bar>
@@ -198,7 +228,7 @@
                 </div>
             </div>
             <button disabled$="[[!selected.length]]" class="button" is="designmap-button" blue fit on-tap="applyAction">
-                <i18-n msgid="Select file to attach">Select file to attach</i18-n>
+                [[_translateButtonLabel(buttonText,language,i18Loaded)]]
             </button>
         </div>
     </template>
@@ -208,6 +238,7 @@
             behaviors: [
                 ReduxBehavior,
                 Polymer.DesignMapTaskService,
+                Polymer.DesignMapMessagesBehavior,
                 Polymer.DesignMapUtilsBehavior,
                 Polymer.CombineActions(Polymer.TasksActions)
             ],
@@ -232,6 +263,22 @@
                 selected: {
                     type: Array,
                     value: []
+                },
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    value: false
+                },
+                buttonText: {
+                    type: String,
+                    value: 'None'
                 }
             },
             _getName: function(el) {
@@ -304,6 +351,9 @@
                     this.set('selected',files);
                     this.set('tasks',this.tasks);
                 });
+            },
+            _translateButtonLabel: function(label) {
+                return this.translate(label);
             }
         })
     </script>
