@@ -142,7 +142,6 @@
                                               type$="[[item.type]]"
                                               index="[[index]]"
                                               class$="[[_computeElementClass(item.cutted)]]"
-                                              trash-mode="[[trashMode]]"
                                               data-element-id$="[[item._id]]"
                                               on-dblclick="applyAction"></designmap-fs-element>
                     </template>
@@ -151,91 +150,64 @@
             <!-- Context menu -->
             <designmap-context-menu id="contextMenu" previous open-top="true">
                 <ul class="menu">
-                    <template is="dom-if" if="[[!trashMode]]">
-                        <li on-click="applyAction">
-                            <i18-n msgid="Open">Open</i18-n>
+                    <li on-click="applyAction">
+                        <i18-n msgid="Open">Open</i18-n>
+                    </li>
+                    <template is="dom-if" if="[[isFolder(currentElement.type)]]">
+                        <li on-click="openRenameFolderContext">
+                            <i18-n msgid="Rename">Rename</i18-n>
                         </li>
-                        <template is="dom-if" if="[[isFolder(currentElement.type)]]">
-                            <!--<li on-click="openAddFolderContext">
-                                <i18-n msgid="AddSubFolder">AddSubFolder</i18-n>
-                            </li>
-                            &lt;!&ndash; Add folder &ndash;&gt;
-                            <designmap-context-menu darker id="addFolderContext" previous>
-                                <div class="context-content">
-                                    <iron-a11y-keys id="a11yAddFolder" keys="enter"
-                                                    on-keys-pressed="addFolderFromMenu"></iron-a11y-keys>
-                                    <paper-input label="[[translate('Folder Name',language,i18Loaded)]]" auto-validate
-                                                 pattern="[\w\dа-яА-ЯёЁ -]+"
-                                                 error-message="[[translate('FolderNameError',language,i18Loaded)]]"
-                                                 id="addFolder"></paper-input>
-                                    <div class="button-container">
-                                        <button is="designmap-round-button" on-click="addFolderFromMenu">
-                                            <iron-icon icon="icons:arrow-forward"></iron-icon>
-                                        </button>
-                                    </div>
+                        <!-- Rename Folder -->
+                        <designmap-context-menu bound darker id="renameFolderContext" previous>
+                            <div class="context-content">
+                                <iron-a11y-keys id="a11yAddFolder" keys="ctrl+enter meta+enter"
+                                                on-keys-pressed="renameFolder"></iron-a11y-keys>
+                                <paper-input label="[[translate('Folder Name',language,i18Loaded)]]" auto-validate
+                                             pattern="[\w\dа-яА-ЯёЁ -]+"
+                                             error-message="[[translate('FolderNameError',language,i18Loaded)]]"
+                                             id="renameFolder"></paper-input>
+                                <div class="button-container">
+                                    <button is="designmap-round-button" on-click="renameFolder">
+                                        <iron-icon icon="icons:arrow-forward"></iron-icon>
+                                    </button>
                                 </div>
-                            </designmap-context-menu>-->
-                            <li on-click="openRenameFolderContext">
-                                <i18-n msgid="Rename">Rename</i18-n>
-                            </li>
-                            <!-- Rename Folder -->
-                            <designmap-context-menu bound darker id="renameFolderContext" previous>
-                                <div class="context-content">
-                                    <iron-a11y-keys id="a11yAddFolder" keys="ctrl+enter meta+enter"
-                                                    on-keys-pressed="renameFolder"></iron-a11y-keys>
-                                    <paper-input label="[[translate('Folder Name',language,i18Loaded)]]" auto-validate
-                                                 pattern="[\w\dа-яА-ЯёЁ -]+"
-                                                 error-message="[[translate('FolderNameError',language,i18Loaded)]]"
-                                                 id="renameFolder"></paper-input>
-                                    <div class="button-container">
-                                        <button is="designmap-round-button" on-click="renameFolder">
-                                            <iron-icon icon="icons:arrow-forward"></iron-icon>
-                                        </button>
-                                    </div>
-                                </div>
-                            </designmap-context-menu>
-                            <!-- Open file uploader -->
-                            <!--<li on-click="openFileUploader">
-                                <i18-n msgid="Add file">Add file</i18-n>
-                            </li>-->
-                        </template>
-                        <template is="dom-if" if="[[isFile(currentElement.type)]]">
-                            <li on-click="download">
-                                <i18-n msgid="Download">Download</i18-n>
-                            </li>
-                            <li on-click="openRenameFileContext">
-                                <i18-n msgid="Rename">Rename</i18-n>
-                            </li>
-                            <!-- Rename Folder -->
-                            <designmap-context-menu bound darker id="renameFileContext" previous>
-                                <div class="context-content">
-                                    <iron-a11y-keys id="a11yAddFolder" keys="ctrl+enter meta+enter"
-                                                    on-keys-pressed="renameFile"></iron-a11y-keys>
-                                    <paper-input label="[[translate('File name',language,i18Loaded)]]"
-                                                 id="renameFile"></paper-input>
-                                    <div class="button-container">
-                                        <button is="designmap-round-button" on-click="renameFile">
-                                            <iron-icon icon="icons:arrow-forward"></iron-icon>
-                                        </button>
-                                    </div>
-                                </div>
-                            </designmap-context-menu>
-                        </template>
+                            </div>
+                        </designmap-context-menu>
+                        <!-- Open file uploader -->
+                        <!--<li on-click="openFileUploader">
+                            <i18-n msgid="Add file">Add file</i18-n>
+                        </li>-->
                     </template>
-                    <template is="dom-if" if="[[trashMode]]">
-                        <li on-click="restoreElement">
-                            <i18-n msgid="Restore">Restore</i18-n>
+                    <template is="dom-if" if="[[isFile(currentElement.type)]]">
+                        <li on-click="download">
+                            <i18-n msgid="Download">Download</i18-n>
                         </li>
+                        <li on-click="openRenameFileContext">
+                            <i18-n msgid="Rename">Rename</i18-n>
+                        </li>
+                        <!-- Rename Folder -->
+                        <designmap-context-menu bound darker id="renameFileContext" previous>
+                            <div class="context-content">
+                                <iron-a11y-keys id="a11yAddFolder" keys="ctrl+enter meta+enter"
+                                                on-keys-pressed="renameFile"></iron-a11y-keys>
+                                <paper-input label="[[translate('File name',language,i18Loaded)]]"
+                                             id="renameFile"></paper-input>
+                                <div class="button-container">
+                                    <button is="designmap-round-button" on-click="renameFile">
+                                        <iron-icon icon="icons:arrow-forward"></iron-icon>
+                                    </button>
+                                </div>
+                            </div>
+                        </designmap-context-menu>
                     </template>
-                    <li on-click="cutElement" hidden$="[[trashMode]]">
+                    <li on-click="cutElement">
                         <i18-n msgid="Cut">Cut</i18-n>
                     </li>
                     <li on-click="openInformation">
                         <i18-n msgid="Information">Information</i18-n>
                     </li>
-                    <li hidden$="[[!_canRemove(user.role,trashMode)]]" on-click="removeElement">
-                        <i18-n hidden$="[[trashMode]]" msgid="Archive action">Archive action</i18-n>
-                        <i18-n hidden$="[[!trashMode]]" msgid="Remove">Remove</i18-n>
+                    <li on-click="removeElement">
+                        <i18-n  msgid="Archive action">Archive action</i18-n>
                     </li>
                 </ul>
             </designmap-context-menu>
@@ -247,20 +219,14 @@
         <template is="dom-if" if="[[_isThereElements(elements.length,searchMode)]]">
             <div class="white-space">
                 <div class="wrapper">
-                    <div class="text" hidden$="[[trashMode]]">
+                    <div class="text">
                         <i18-n msgid="Drag files here"></i18-n>
                         <a href="#" on-click="openContextMenu">
                             <i18-n msgid="create"></i18-n>
                         </a>
                         <i18-n msgid="new folder"></i18-n>
                     </div>
-                    <div class="text" hidden$="[[!trashMode]]">
-                        <i18-n msgid="Trash bin is empty..."></i18-n>
-                    </div>
-                    <iron-icon icon="[[computeWhiteSpaceIcon(trashMode)]]"></iron-icon>
-                    <!--<div class="text" hidden$="[[!trashMode]]">
-                      <i18-n msgid="Your elements has been recycled"></i18-n>
-                    </div>-->
+                    <iron-icon icon="designmap-workspace-stub:empty-project"></iron-icon>
                 </div>
             </div>
         </template>
@@ -289,10 +255,6 @@
                     <i18-n msgid="selected">selected</i18-n>
                 </div>
                 <div class="button-set">
-                    <button is="designmap-button" class="no-unselect" hidden="[[!trashMode]]"
-                            on-click="restoreSelectedElements" thin>
-                        <i18-n msgid="Restore">Restore</i18-n>
-                    </button>
                     <button is="designmap-button" class="no-unselect" on-click="removeSelectedElements" thin>
                         <i18-n msgid="Archive action">Archive</i18-n>
                     </button>
@@ -300,27 +262,13 @@
             </div>
         </designmap-hidden-panel>
         <!-- Confirms -->
-        <designmap-confirm id="removingSelectedConfirm" message="AreYouSureThatYouWannaDeleteSelectedObjects"
-                           on-continue="removeSelectedElementsIrretrievably"
-                           on-suspend="suspendRemoving"></designmap-confirm>
-        <designmap-confirm id="removingConfirm" message="AreYouSureThatYouWannaDeleteObject"
-                           on-continue="removeElementIrretrievably" on-suspend="suspendRemoving"></designmap-confirm>
+
         <!-- Uploader -->
         <designmap-file-uploader id="uploader" parent="folder" _id="[[currentFolderId]]"
                                  files="[[getFiles(elements)]]" allowed-extension='[[allowedExtensions]]'></designmap-file-uploader>
-        <!-- Hints -->
-        <designmap-hint id="openContextMenuHint" target="[[hintFolderTarget]]" name="openContextMenu" vertical-offset="200" horizontal-offset="0">
-            <div class="title"><i18-n msgid="Rename folder">Rename folder</i18-n></div>
-            <div class="desc"><i18-n msgid="renameFolderMsg">renameFolderMsg</i18-n></div>
-        </designmap-hint>
-        <designmap-hint id="openFileHint" hide-got-it target="[[hintFileTarget]]" name="openFile" vertical-offset="200" horizontal-offset="0">
-            <div class="title"><i18-n msgid="Open Synecto Gallery">Open Synecto Gallery</i18-n></div>
-            <div class="desc"><i18-n msgid="openGalleryMsg">openGalleryMsg</i18-n></div>
-        </designmap-hint>
         <div class="cloud">
             <iron-icon icon="cloud-upload"></iron-icon>
         </div>
-        <designmap-confirm id="restoreConfirm" message="ElementIsRemovedDoYouWantToResroreIt" on-continue="restoreElement" on-suspend="closeRestoreConfirm"></designmap-confirm>
     </template>
     <script>
         Polymer({
@@ -364,13 +312,6 @@
                 cutted: {
                     type: Object,
                     value: null
-                },
-                /**
-                 * Trash mode
-                 */
-                trashMode: {
-                    type: Boolean,
-                    value: false
                 },
                 /**
                  * Define sort funciton
@@ -460,23 +401,23 @@
             _countElements: function (state) {
                 const parent = this.currentFolderId || null;
                 const folders = state.folders.filter(function (folder) {
-                    return this.trashMode ? folder.removed : String(folder.parent) == String(parent) && !folder.removed;
+                    return String(folder.parent) == String(parent) && !folder.removed;
                 }.bind(this));
                 const files = state.files.filter(function (file) {
-                    return this.trashMode ? file.removed : String(file.folder) == String(parent) && !file.removed && !(state.user && (state.user._id !== file.owner && file.locked));
+                    return String(file.folder) == String(parent) && !file.removed && !(state.user && (state.user._id !== file.owner));
                 }.bind(this));
-                const tasks = state.tasks.filter(function (task) {
-                    return this.trashMode ? task.removed : false;
-                }.bind(this));
-                return folders.concat(files).concat(tasks);
+                return folders.concat(files);
             },
 
             /**
              * Execute stagger animation
              */
             executeStaggerAnimation: function () {
-                this.$.elementsRepeater.items.forEach(function (item, index) {
-                    this.$$('#element-' + index).playStaggerAnimation();
+                if(!this.$$('#elementsRepeater')) return;
+                this.$$('#elementsRepeater').items.forEach(function (item, index) {
+                    const element = this.$$('*[data-element-id="'+item._id+'"]');
+                    if(!element) return;
+                    element.playStaggerAnimation();
                 }, this);
             },
             /**
@@ -566,7 +507,6 @@
                 this.cancelSearch();
                 this.limit = this.defaultLimit;
                 var element = e.model&&e.model.item ? e.model.item : this.currentElement;
-                if (this.trashMode) return this.openRestoreDialog(element);
                 if(e.detail && e.detail.item) element = e.detail.item;
                 var actionName = 'execute' + element.type.capitalize() + 'Action';
                 if (this[actionName] && typeof this[actionName] === 'function') this[actionName](element);
@@ -606,7 +546,6 @@
              * Remove selected elements
              */
             removeSelectedElements: function () {
-                if (this.trashMode) return this.$.removingSelectedConfirm.open();
                 this.selected.forEach(function (element) {
                     this.fire('remove-' + element.type, {element: element, skip: true});
                 }, this);
@@ -691,14 +630,6 @@
                 this.fire('open-context-menu', e);
             },
             /**
-             * Compute icon depending on trash mode
-             * @param trashMode
-             * @returns {string}
-             */
-            computeWhiteSpaceIcon: function (trashMode) {
-                return !trashMode ? 'designmap-workspace-stub:empty-project' : 'designmap-workspace-stub:empty-bin'
-            },
-            /**
              * ACL Accesses
              * @returns {*|boolean}
              */
@@ -714,8 +645,8 @@
                 this.currentElement = e.detail.item;
                 this.$$('#contextMenu').toggle(e.detail.e);
             },
-            _canRemove: function(role,trashMode) {
-                return trashMode ? this.topAccess(role) : true;
+            _canRemove: function(role) {
+                return this.topAccess(role);
             },
             download: function(e){
                 this.$$('#contextMenu').close();
@@ -781,10 +712,10 @@
             _countAllElements: function (state) {
                 const parent = this.currentFolderId || null;
                 const folders = state.folders.filter(function (folder) {
-                    return this.trashMode ? folder.removed : !folder.removed;
+                    return !folder.removed;
                 }.bind(this));
                 const files = state.files.filter(function (file) {
-                    return this.trashMode ? file.removed : !file.removed;
+                    return !file.removed;
                 }.bind(this));
                 return folders.concat(files);
             },

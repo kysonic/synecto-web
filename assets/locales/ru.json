@@ -102,7 +102,7 @@
     "message": "Добавьте файл"
   },
   "Folder removing had been successful.": {
-    "message": "Папка \"#NAME#\" была удалена в корзину."
+    "message": "Папка \"#NAME#\" была отправлена в архив."
   },
   "Folder renaming had been successful.": {
     "message": "Папка \"#NAME#\" была переименована на \"#NEWNAME#\"."
@@ -849,13 +849,16 @@
     "message": "Папка \"#NAME#\" была восстановлена."
   },
   "Folder has been removed from trash.": {
-    "message": "Папка \"#NAME#\" была удалена из корзины."
+    "message": "Папка \"#NAME#\" была удалена из архива."
   },
   "File has been removed from trash.": {
-    "message": "Файл \"#NAME#\" был удален из корзины."
+    "message": "Файл \"#NAME#\" был удален из архива."
   },
   "File has been restored.": {
     "message": "Файл \"#NAME#\" был восстановлен."
+  },
+  "Task has been removed from trash.": {
+    "message": "Задача \"#NAME#\" была удалена из архива."
   },
   "Status of task was changed on": {
     "message": "Статутс задачи \"#NAME#\" был изменен на \"#STATUS#\"."
@@ -1474,9 +1477,6 @@
   },
   "You cannot paste folder inside it's child": {
     "message": "Вы не можете встаить папку внутри ее потомка"
-  },
-  "Due date": {
-    "message": "Срок выполнения"
   },
   "ElementIsRemovedDoYouWantToResroreIt": {
     "message": "Элемент удален. Вы хотите восстановить его?"
@@ -2156,7 +2156,22 @@
   "Task has been archived.": {
     "message": "Задача была отправлена в архив."
   },
+  "Task has been restored.": {
+    "message": "Задача \"#NAME#\" была восстановлена."
+  },
   "Due date": {
     "message": "Срок"
+  },
+  "Element name": {
+    "message": "Имя элемента"
+  },
+  "Removed by": {
+    "message": "Кем удален"
+  },
+  "Removed date": {
+    "message": "Когда удален"
+  },
+  "removedBy": {
+    "message": "кем удален"
   }
 }

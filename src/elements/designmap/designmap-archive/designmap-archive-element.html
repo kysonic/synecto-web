@@ -1,0 +1,127 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../designmap-icons/designmap-archive-icons.html">
+
+<dom-module id="designmap-archive-element">
+    <template>
+        <style>
+            :host {
+                display: flex;
+                align-items: center;
+                height: 50px;
+                transition: .2s background ease-in;
+                cursor: pointer;
+            }
+            :host(:hover), :host(.selected) {
+                background: var(--gray-lightern-color);
+                transition: .2s background ease-in;
+            }
+            .icon {
+                margin-left: 15px;
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .name {
+                flex: 4;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .removed-by {
+                flex: 2;
+            }
+            .removed-date {
+                flex: 2;
+            }
+            .menu{
+                opacity: 0;
+                display: flex;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                align-items: center;
+                justify-content: center;
+                margin-right: 15px;
+            }
+            :host(:hover) .menu {
+                opacity: 1;
+            }
+            .menu:hover {
+                background: var(--white-color);
+                transition: .2s background ease-in;
+            }
+        </style>
+        <div class="icon">
+            <iron-icon icon$="designmap-archive:[[element.type]]"></iron-icon>
+        </div>
+        <div class="name">
+            [[_getName(element)]]
+        </div>
+        <div class="removed-by">
+            [[_computeRemovedByName(element.removedBy.user,project.owner,projectUsers)]]
+        </div>
+        <div class="removed-date">
+            [[_computeRemovedDate(element.removedBy.date)]]
+        </div>
+        <div class="menu" on-click="openContextMenu">
+            <iron-icon icon="designmap-workspace:big_more"></iron-icon>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-archive-element',
+            behaviors: [
+                ReduxBehavior,
+                Polymer.DesignMapUtilsBehavior
+            ],
+            properties: {
+                element: {
+                    type: Object,
+                    value: null
+                },
+                project: {
+                    type: Object,
+                    value: null
+                },
+                projectUsers: {
+                    type: Array,
+                    statePath:'projectUsers'
+                }
+            },
+
+            ready: function(){
+                this.addEventListener('contextmenu',this.openContextMenu);
+                this.addEventListener('click',this.selectElement);
+            },
+
+            _getName: function(element){
+                if(!element) return 'XXX';
+                return element.name || this.cutFileName(element);
+            },
+
+            _computeRemovedByName: function (userId,owner) {
+                const uid = userId || owner || null;
+                const user = this.getProjectsUserById(uid);
+                if(!user) return 'XXX';
+                return this.computeOwnerName(user);
+            },
+
+            _computeRemovedDate: function(date){
+                const d = date ? moment(date) : moment();
+                return moment().format('YYYY-MM-DD HH:mm:ss');
+            },
+
+            openContextMenu: function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.fire('open-element-context-menu',{e: e, element: this.element});
+            },
+
+            selectElement: function(e){
+                this.fire('select-element', {e: e, element: this.element});
+            }
+        })
+    </script>
+</dom-module>

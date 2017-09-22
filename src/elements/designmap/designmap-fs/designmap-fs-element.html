@@ -60,6 +60,7 @@
                 position: relative;
                 display: flex;
                 align-items: center;
+                overflow: hidden;
                 width: 100%;
                 height: 100%;
             }
@@ -320,11 +321,6 @@
                 <template is="dom-if" if="[[_isFolder(item)]]">
 
                 </template>
-                <template is="dom-if" if="[[_isTask(item)]]">
-                    <div class="borders" >
-                        <designmap-task-preview no-border task="[[item]]"></designmap-task-preview>
-                    </div>
-                </template>
                 <div id="overlay" class="overlay">
                     <!--<div hidden$="[[!isFile(item.type)]]" class="open"><i18-n msgid="Open">Open</i18-n></div>-->
                     <iron-icon id="menu" on-click="openContextMenu" icon="icons:more-vert"></iron-icon>
@@ -375,13 +371,6 @@
                 i18Loaded: {
                     type: String,
                     statePath: 'i18Loaded'
-                },
-                /**
-                 * Trash mode
-                 */
-                trashMode: {
-                    type: Boolean,
-                    value: false
                 },
                 /**
                  * ACL representation

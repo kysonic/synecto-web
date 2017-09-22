@@ -139,28 +139,21 @@
                 <iron-icon icon="designmap-workspace:open"></iron-icon>
             </div>-->
             <!-- Crumbs -->
-            <designmap-fs-breadcrumbs id="breadcrumbs" trash-mode="[[trashMode]]" project-name="[[project.name]]"
+            <designmap-fs-breadcrumbs id="breadcrumbs" project-name="[[project.name]]"
                                       current-folder-id="{{currentFolderId}}" search-mode="[[searchMode]]"></designmap-fs-breadcrumbs>
             <!-- Button panel -->
             <designmap-fs-panel hidden$="[[!project]]" id="panel" sort-way="{{sortWay}}"
-                                trash-mode="[[trashMode]]" search-mode="[[searchMode]]" current-folder-id="[[currentFolderId]]"></designmap-fs-panel>
+                                search-mode="[[searchMode]]" current-folder-id="[[currentFolderId]]"></designmap-fs-panel>
         </div>
         <div class="workarea" on-contextmenu="openContextMenu">
             <template is="dom-if" if="[[shouldWeShowElements(project)]]">
                 <designmap-fs-elements id="elements" acl="[[acl]]" role="[[role]]" id="elements" sort-way="[[sortWay]]"
-                                       trash-mode="[[trashMode]]"
                                        search-mode="{{searchMode}}"
                                        current-folder-id="{{currentFolderId}}"></designmap-fs-elements>
                 <!-- Context menu -->
                 <designmap-context-menu id="contextMenu" parent>
                     <ul class="menu">
-                        <li on-click="restoreAll" hidden$="[[drawEdits(trashMode)]]">
-                            <i18-n msgid="Restore all">Restore all</i18-n>
-                        </li>
-                        <li on-click="openRemoveAllConfirm" hidden$="[[drawEdits(trashMode)]]">
-                            <i18-n msgid="Remove all">Restore all</i18-n>
-                        </li>
-                        <li on-click="openAddFolderContext" hidden$="[[!drawEdits(trashMode)]]">
+                        <li on-click="openAddFolderContext">
                             <i18-n msgid="Add folder">Add folder</i18-n>
                         </li>
                         <!-- Add folder context -->
@@ -179,17 +172,10 @@
                                 </div>
                             </div>
                         </designmap-context-menu>
-                        <li on-click="openFileUploaderManually"
-                            hidden$="[[!drawEdits(trashMode)]]">
+                        <li on-click="openFileUploaderManually">
                             <i18-n msgid="Upload file">Upload file</i18-n>
                         </li>
-                        <li class="sort-button" on-click="changeSort" data-sort="name">
-                            <i18-n msgid="Sort by name">Sort by name</i18-n>
-                        </li>
-                        <li class="sort-button" on-click="changeSort" data-sort="modified">
-                            <i18-n msgid="Sort by date">Sort by date</i18-n>
-                        </li>
-                        <template is="dom-if" if="[[cutInTrash(cutted,trashMode)]]">
+                        <template is="dom-if" if="[[cutted]]">
                             <li class="sort-button" on-click="pasteElement">
                                 <i18-n msgid="Paste">Paste</i18-n>
                             </li>
@@ -277,14 +263,6 @@
                     value: undefined,
                     observer: '_currentFolderIdChanged'
                 },
-                /**
-                 * If trash mode is on -
-                 * we will show all removed elements
-                 */
-                trashMode: {
-                    type: Boolean,
-                    statePath: 'trashMode'
-                },
                 sortWay: {
                     type: String,
                     value: 'name'
@@ -326,9 +304,6 @@
                 'set-cutted': 'setCuttedElement',
                 'search': '_search',
                 'cancel-search':'cancelSearch'
-            },
-            drawEdits: function (trashMode) {
-                return !trashMode
             },
             /**
              * Open file uploader
@@ -472,10 +447,6 @@
                 folder.path = this.getFullPath(parentFolder);
                 folder.cutted = false;
                 this.dispatch('$updateFolder',this.getFullPath(this.cutted),folder);
-            },
-            cutInTrash: function(cutted,trashMode){
-                if(trashMode) return false;
-                return cutted;
             },
             openRemoveAllConfirm: function(){
                 this.$$('#contextMenu').close();

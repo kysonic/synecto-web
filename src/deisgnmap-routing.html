@@ -87,13 +87,12 @@
                 this.page = 'task-manager';
             }.bind(this));
 
-            page('/:id/trash', this._isAuth.bind(this), function(ctx,next){
+            page('/:id/archive', this._isAuth.bind(this), function(ctx,next){
                 if(!this.isObjectID(ctx.params.id)) return next();
                 this.projectId = ctx.params.id;
                 this.path = '/';
-                this.trashMode = true;
-                _setPreviousPagePath('fs');
-                this.page = 'fs';
+                _setPreviousPagePath('archive');
+                this.page = 'archive';
             }.bind(this));
 
             page('/:id/fs', this._isAuth.bind(this), function(ctx,next){

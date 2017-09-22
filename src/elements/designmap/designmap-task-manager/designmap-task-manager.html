@@ -279,21 +279,11 @@
                                      selected="{{selectedTask}}" can-be-null parent="[[selectedTask.parent]]" cannot-add="[[searchMode]]" search-mode="[[searchMode]]"  selecting></designmap-task-list>
                 <designmap-task-details class$="[[_isThereSelectedTaskClass(selectedTask)]]" hidden$="[[!computeDetailsState(tasks.length,selectedTask)]]"
                                         id="details" task="[[selectedTask]]" search-mode="[[searchMode]]"></designmap-task-details>
-                <designmap-tasks-overview hidden$="[[!computeOverviewState(tasks.length,selectedTask)]]"></designmap-tasks-overview>
-                <div class="no-task" hidden$="[[!computeNoTasksState(tasks.length,loading,error)]]">
+                <designmap-tasks-overview hidden$="[[!computeOverviewState(tasks,selectedTask)]]"></designmap-tasks-overview>
+                <div class="no-task" hidden$="[[!computeNoTasksState(tasks,loading,error)]]">
                     <designmap-stub id="slothStub" value="{{taskName}}" on-action="addTask"
                                     image="designmap-workspace-stub:sloth" message="You do not have tasks yet"
                                     input-text="Add task" input-error="AddTaskError"></designmap-stub>
-                    <!-- Hint -->
-                    <designmap-hint id="addTaskHint" target="[[addTaskStubBlock]]" name="addTask" vertical-offset="20"
-                                    horizontal-offset="-20">
-                        <div class="title">
-                            <i18-n msgid="Add a task">Add a task</i18-n>
-                        </div>
-                        <div class="desc">
-                            <i18-n msgid="addTaskMsg">addTaskMsg</i18-n>
-                        </div>
-                    </designmap-hint>
                 </div>
                <div id="projectLoading" hidden$="[[!loadingState(loading,error)]]" class="loading-overlay">
                     <div class="uil-reload-css">
@@ -425,7 +415,7 @@
             addTask: function () {
                 if (!this.taskName) return;
                 if (!this.validate()) return this.showErrorMessage('Task title is wrong!');
-                this.dispatch('addTask', {
+                const task = {
                     _id: this.generateUid(),
                     name: this.taskName,
                     path: null,
@@ -434,13 +424,12 @@
                     status: 'incomplete',
                     created: moment(),
                     expired: null
-                }).then(function (response) {
+                };
+                this.fire('app-loading',true);
+                this.dispatch('addTask', task).then(function (response) {
                     this.showMessage('Task was added successfully.');
+                    this.fire('app-loading',false);
                     this.selectTask({detail: response.task});
-                    //Hints
-                    this.doneHint('addTask','tm',function(){
-                        this.$.list.overviewTaskHintTarget = this.$.list.$$('*[data-task-id="'+response.task._id+'"]');
-                    }.bind(this));
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));
                 this.taskName = '';
             },
@@ -459,11 +448,17 @@
             computeDetailsState: function (length, selectedTask) {
                 return !!length && selectedTask;
             },
-            computeOverviewState: function (length, selectedTask) {
-                return length && !selectedTask;
+            computeOverviewState: function (tasks, selectedTask) {
+                const t = tasks.filter(function(task){
+                    return !task.removed
+                });
+                return t.length && !selectedTask;
             },
-            computeNoTasksState: function (length, loading, error) {
-                return !length && !loading && !error;
+            computeNoTasksState: function (tasks,loading,error) {
+                const t = tasks.filter(function(task){
+                    return !task.removed
+                });
+                return !t.length;
             },
             loadingState: function (loading, error) {
                 return !!loading && !error;
@@ -505,12 +500,8 @@
             },
             findDefaultTask: function () {
                 // Last on first level
-                const firstLevelTasks = this.tasks.filter(function (task) {
-                    return task.parent == null;
-                }.bind(this));
-                const task = firstLevelTasks[firstLevelTasks.length - 1];
-                if (!task) return page.redirect('/' + this.projectId + '/task-manager/');
-                page.redirect('/' + this.projectId + '/task-manager' + this.getFullPath(task));
+                this.selectedTask = null;
+                page.redirect('/' + this.projectId + '/task-manager/');
             },
             mobileGoBack: function(){
                 if(this.MQ!='sm') return;

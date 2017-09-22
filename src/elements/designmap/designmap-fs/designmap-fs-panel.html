@@ -127,7 +127,7 @@
             <div class="left">
                 <designmap-circle-button id="createFolderButton"
                                          plastic-tooltip$="[[translate('Add folder',language,i18Loaded)]]" data-cls="blue"
-                                         hidden$="[[_hideFsButtons(trashMode,searchMode)]]" id="addFolderButton"
+                                         id="addFolderButton"
                                          on-click="openAddFolderContext">
                     <iron-icon icon="designmap-workspace:folder"></iron-icon>
                 </designmap-circle-button>
@@ -150,34 +150,12 @@
                 <!-- Upload file -->
                 <designmap-circle-button id="uploadFileButton"
                                          plastic-tooltip$="[[translate('Upload file',language,i18Loaded)]]" data-cls="blue"
-                                         hidden$="[[_hideFsButtons(trashMode,searchMode)]]" on-click="openFileUploader" data-hint="add-file">
+                                         on-click="openFileUploader" data-hint="add-file">
                     <iron-icon icon="designmap-workspace:file"></iron-icon>
                 </designmap-circle-button>
-                <!-- Hint -->
-                <designmap-hint id="uploadFileHint" previous name="addFile" vertical-offset="50"
-                                horizontal-offset="-107">
-                    <div class="title">
-                        <i18-n msgid="Add file hint">Add file hint</i18-n>
-                    </div>
-                    <div class="desc">
-                        <i18-n msgid="addFileMsg">addFileMsg</i18-n>
-                    </div>
-                </designmap-hint>
-                <!-- Hint -->
                 <paper-tooltip for="uploadFileButton"><i18-n msgid="Upload file">Upload file</i18-n></paper-tooltip>
                 <!-- Google -->
-                <designmap-google-docs folder="[[currentFolderId]]" hidden$="[[_hideFsButtons(trashMode,searchMode)]]"></designmap-google-docs>
-                <!-- Trash mode -->
-                <designmap-circle-button id="restoreButton" plastic-tooltip$="[[translate('Restore all',language,i18Loaded)]]" data-cls="blue"
-                                         hidden$="[[!_hideTrashButtons(trashMode,searchMode)]]" class="trash" on-click="restoreAll">
-                    <iron-icon icon="designmap-workspace:restore"></iron-icon>
-                </designmap-circle-button>
-                <paper-tooltip for="restoreButton"><i18-n msgid="Restore all">Restore all</i18-n></paper-tooltip>
-                <designmap-circle-button id="removeButton" plastic-tooltip$="[[translate('Remove all',language,i18Loaded)]]" data-cls="blue"
-                                         hidden$="[[!_canRemoveAll(user.role,trashMode,searchMode)]]" class="trash" on-click="removeAll">
-                    <iron-icon icon="designmap-workspace:remove"></iron-icon>
-                </designmap-circle-button>
-                <paper-tooltip for="removeButton"><i18-n msgid="Remove all">Remove all</i18-n></paper-tooltip>
+                <designmap-google-docs folder="[[currentFolderId]]"></designmap-google-docs>
             </div>
             <!-- Right -->
             <div class="right">
@@ -245,9 +223,6 @@
                 acl: {
                     type: Array,
                     statePath: 'acl'
-                },
-                trashMode: {
-                    type: Boolean
                 },
                 thisNode: {
                     type: Object,
@@ -354,13 +329,6 @@
             openMoreContext: function (e) {
                 this.$.moreContext.toggle(e);
             },
-            /**
-             * Could user remove all ?
-             * @returns {boolean|*}
-             */
-            _canRemoveAll: function (role,trashMode,searchMode) {
-                return !searchMode && this.topAccess(role) && trashMode;
-            },
 
             openMobileMenu: function(e){
                this.fire('open-context-menu',e);
@@ -405,12 +373,6 @@
                         }.bind(this)))
                     }
                 ]
-            },
-            _hideFsButtons: function(trashMode,searchMode){
-                return searchMode || trashMode;
-            },
-            _hideTrashButtons: function(trashMode,searchMode){
-                return !searchMode && trashMode;
             },
             _searchModeChanged: function(searchMode) {
                 if(!searchMode) this.$.searchFilter.empty();

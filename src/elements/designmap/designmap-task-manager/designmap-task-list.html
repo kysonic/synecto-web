@@ -1043,7 +1043,7 @@
              */
             parentChanged: function () {
                 if (!this.parent && !this.canBeNull) return;
-                const filterStorage = JSON.parse(localStorage.getItem('designmap:filter'));
+                const filterStorage = JSON.parse(localStorage.getItem('synecto:filter'));
                 if(filterStorage && filterStorage[this.parent]) this.selectedFilter = filterStorage[this.parent];
                 this.tasks = this._getTasks(ReduxStore.getState());
                 this.async(this.updateStyles,100);
@@ -1053,6 +1053,7 @@
              */
             _getTasks: function(state){
                 const tasks = state.tasks.filter(function (task) {
+                    if(!task) return false;
                     return !task.removed && task.parent == this.parent;
                 }.bind(this));
                 return tasks.map(function(task,i){
@@ -1089,6 +1090,8 @@
                     parent: this.parent,
                     owner: this.user._id,
                     status: 'incomplete',
+                    removed: false,
+                    removedBy:{user:null},
                     expired: null
                 };
                 // Notify
@@ -1110,9 +1113,9 @@
              */
             selectFilter: function (e) {
                 this.selectedFilter = e.model.filter;
-                const filterStorage = JSON.parse(localStorage.getItem('designmap:filter')) || {};
-                filterStorage[this.parent] = this.selectedFilter;
-                localStorage.setItem('designmap:filter', JSON.stringify(filterStorage));
+                const filterStorage = JSON.parse(localStorage.getItem('synecto:filter')) || {};
+                filterStorage[this.parent||null] = this.selectedFilter;
+                localStorage.setItem('synecto:filter', JSON.stringify(filterStorage));
                 if(this.$.filterSelector) this.$.filterSelector.close();
                 this.async(this.updateStyles);
             },

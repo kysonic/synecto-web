@@ -165,21 +165,16 @@
              * @param path - full path
              * @returns {function(this:Polymer.TasksActions)}
              */
-            removeTask: function (id) {
+            removeTasks: function (tasks) {
                 return function (dispatch) {
+                    dispatch({type:'REMOVE_TASKS',tasks:tasks});
                     var state = ReduxStore.getState();
-                    var index = this.findTaskIndexById(id);
-                    var historyData = this.findTaskById(id);
-                    dispatch({type: 'REMOVE_TASK', index: index});
-                    var promise = xhr.delete(Designmap.config.apiURL + 'task/', {
-                        path: id,
-                        projectID:  this.projectId
-                    });
+                    var promise = xhr.delete(Designmap.config.apiURL+'task/', {tasks:tasks,project:state.project._id});
                     promise.then(function (response) {
                         if (!response.success) throw new Error();
-                        Designmap.projectSocket.emit('action', {type: 'REMOVE_TASK', index: index, uid: Designmap.uid});
+                        Designmap.projectSocket.emit('action', {type: 'REMOVE_TASKS', tasks:tasks, uid: Designmap.uid});
                     }.bind(this)).catch(function () {
-                        dispatch({type: 'ADD_TASK', data: historyData});
+                        dispatch({type:'SET_TASKS',tasks:tasks});
                     }.bind(this));
                     return promise;
                 }.bind(this);

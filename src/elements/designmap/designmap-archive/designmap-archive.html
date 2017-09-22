@@ -1,0 +1,413 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../designmap-ui/designmap-search-filter.html">
+<link rel="import" href="../designmap-ui/designmap-dashboard.html">
+<link rel="import" href="../designmap-buttons/designmap-circle-button.html">
+<link rel="import" href="../designmap-icons/designmap-workspace-icons.html">
+
+<link rel="import" href="./designmap-archive-elements.html">
+
+<link rel="import" href="../designmap-fs/designmap-fs-service.html">
+<link rel="import" href="../designmap-task-manager/deaignmap-task-service.html">
+
+<dom-module id="designmap-archive">
+    <template>
+        <style>
+            :host {
+                --designmap-circle-button-circle-mixin: {
+                    stroke-width: 2px !important;
+                    stroke: var(--blue-darky-color);
+                };
+
+                --designmap-circle-button-content-icon-mixin: {
+                    padding: 0;
+                    width: 100%;
+                    height: 100%;
+                };
+            }
+            *[hidden] {
+                display: none !important;
+            }
+
+            .dashborad {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .left {
+                display: flex;
+                align-items: center;
+            }
+
+            .left > .title {
+                font-size: 26px;
+                font-weight: 100;
+                display: inline-block;
+                cursor: pointer;
+                white-space: nowrap;
+                vertical-align: middle;
+                color: var(--blue-darkest-color);
+                margin-left: 23px;
+            }
+
+            .right {
+                float: right;
+                margin-right: 2px;
+                min-width: 230px;
+            }
+
+            /** Crumbs **/
+
+            .crumb {
+                display: inline-block;
+                margin-left: 25px;
+                font-weight: 100;
+                position: relative;
+            }
+            .crumb .title {
+                cursor: pointer;
+                display: inline-block;
+                vertical-align: middle;
+                font-size: 17px !important;
+                padding: 3px 10px;
+                position: relative;
+                top: 3px;
+                white-space: nowrap;
+                max-width: 150px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                color: var(--blue-darkest-color);
+            }
+
+            .crumb .line {
+                position: absolute;
+                top: 4px;
+                margin-left: -27px;
+                width: 30px;
+                height: 30px;
+                left: 0;
+                --iron-icon-components-mixin: {
+                    stroke-width: 1px;
+                    stroke: var(--white-color);
+                    fill: var(--blue-darkest-color);
+                };
+            }
+
+            /** Buttons **/
+
+            .left designmap-circle-button {
+                margin-left: 15px;
+            }
+
+            .buttons {
+                display: flex;
+                flex: 1;
+                position: relative;
+            }
+
+            .buttons designmap-circle-button {
+                position: relative;
+                width: 50px;
+                height: 50px;
+            }
+
+            /** Filter **/
+
+            designmap-search-filter {
+                min-width: 230px;
+                margin-right: 20px;
+                display: inline-block;
+            }
+
+            .cancel-search {
+                display: inline-block;
+                width: 24px;
+                height: 24px;
+                padding: 2px;
+                position: relative;
+                top: 5px;
+
+                --iron-icon-components-mixin: {
+                    fill: var(--blue-darkest-color) !important;
+                    stroke: var(--blue-darkest-color) !important;
+                };
+            }
+
+            .content {
+                height: calc(100% - 70px);
+            }
+        </style>
+        <designmap-dashboard class="dashborad">
+            <div class="left">
+                <div class="title" >
+                    [[project.name]]
+                </div>
+                <div class="crumb">
+                    <div class="title"><i18-n msgid="Archive">Archive</i18-n></div>
+                    <iron-icon class="line" icon="icons:chevron-left"></iron-icon>
+                </div>
+                <div class="crumb" hidden$="[[!searchMode]]">
+                    <div class="title"><i18-n msgid="Search">Search</i18-n></div>
+                    <iron-icon class="line" icon="icons:chevron-left"></iron-icon>
+                    <paper-icon-button class="cancel-search" on-click="cancelSearch" icon="icons:close"></paper-icon-button>
+                </div>
+                <div class="buttons">
+                    <!-- Trash mode -->
+                    <designmap-circle-button id="restoreButton" plastic-tooltip$="[[translate('Restore all',language,i18Loaded)]]" data-cls="blue"
+                                             hidden$="[[searchMode]]" class="trash" on-click="restoreAllTogether">
+                        <iron-icon icon="designmap-workspace:restore"></iron-icon>
+                    </designmap-circle-button>
+                    <paper-tooltip for="restoreButton"><i18-n msgid="Restore all">Restore all</i18-n></paper-tooltip>
+                    <designmap-circle-button id="removeButton" plastic-tooltip$="[[translate('Remove all',language,i18Loaded)]]" data-cls="blue"
+                                             hidden$="[[!_canRemoveAll(user,searchMode,project)]]" class="trash" on-click="openRemoveAllConfirm">
+                        <iron-icon icon="designmap-workspace:remove"></iron-icon>
+                    </designmap-circle-button>
+                    <paper-tooltip for="removeButton"><i18-n msgid="Remove all">Remove all</i18-n></paper-tooltip>
+                </div>
+
+            </div>
+            <div class="right">
+                <designmap-search-filter id="searchFilter" label="[[translate('Search...',language,i18Loaded)]]" items="[[filterItems]]"></designmap-search-filter>
+            </div>
+        </designmap-dashboard>
+        <div class="content">
+            <designmap-archive-elements id="elements" project="[[project]]" search-mode="[[searchMode]]" user="[[user]]"></designmap-archive-elements>
+        </div>
+        <designmap-confirm id="removeAllConfirm" message="AreYouSureThatYouWannaDeleteAllObjects"
+                           on-continue="removeAllTogether" on-suspend="suspendRemoving"></designmap-confirm>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-archive',
+            behaviors: [
+                ReduxBehavior,
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapFsService,
+                Polymer.DesignMapTaskService,
+                Polymer.CombineActions(Polymer.FoldersActions,Polymer.FilesActions,Polymer.TasksActions)
+            ],
+            listeners: {
+                'restore-folder':'restoreFolder',
+                'restore-file':'restoreFile',
+                'restore-task':'restoreTask',
+                'remove-folder':'removeFolder',
+                'remove-file':'removeFile',
+                'remove-task':'removeTask',
+                'search': '_search',
+                'cancel-search': 'cancelSearch',
+                'remove-selected':'removeSelected'
+            },
+            properties: {
+                project: {
+                    type: Object,
+                    statePath: 'project'
+                },
+                projectId: {
+                    type: Object,
+                    statePath: 'projectId'
+                },
+                projectUsers: {
+                    type: Object,
+                    statePath: 'projectUsers'
+                },
+                searchMode: {
+                    type: Boolean,
+                    value: false,
+                    observer: '_searchModeChanged'
+                },
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    value: false
+                },
+                filterItems: {
+                    type: Array,
+                    computed: '_computeFilterItems(project,language,i18Loaded,projectUsers)'
+                },
+            },
+
+            restoreFolder: function(e){
+                this.dispatch('$updateFolder', this.getFullPath(e.detail.element), {removed: false}).then(function (response) {
+                    if (!response.success) throw new Error(response.errors.message);
+                    if (!e.detail.skip) this.showUndoMessage('Folder has been restored.', {'#NAME#': e.detail.element.name});
+                }.bind(this)).catch(this.manageErrorResponse.bind(this));
+            },
+
+            restoreFile: function(e){
+                this.dispatch('$updateFile', e.detail.element._id, {removed: false}).then(function (response) {
+                    if (!response.success) throw new Error(response.errors.message);
+                    if (!e.detail.skip) this.showUndoMessage('File has been restored.', {"#NAME#": this.cutFileName(e.detail.element)});
+                }.bind(this)).catch(this.manageErrorResponse.bind(this));
+            },
+
+            restoreTask: function(e){
+                this.dispatch('updateTask', e.detail.element._id, {removed: false}).then(function (response) {
+                    if (!response.success) throw new Error(response.errors.message);
+                    if (!e.detail.skip) this.showUndoMessage('Task has been restored.', {"#NAME#": e.detail.element.name});
+                }.bind(this)).catch(this.manageErrorResponse.bind(this));
+            },
+
+            restoreAllTogether: function (e) {
+                const elements = this.$.elements.elements;
+                if (!elements.length) return;
+                elements.forEach(function (element) {
+                    this['restore' + element.type.capitalize()]({detail: {element: element, skip: true}});
+                }, this);
+                this.showMessage('All entities was restored');
+            },
+
+            removeFolder: function(e){
+               this.removeFolders([e.detail.element]);
+            },
+
+            removeFolders: function(folders,skip){
+                this.dispatch('removeFolders', folders).then(function (response) {
+                    if (!response.success) throw new Error(response.errors.message);
+                    const msg = folders.length>1 ? 'Objects were removed irretrievably.': 'Folder has been removed from trash.';
+                    if(!skip) this.showMessage(msg, {"#NAME#": folders[0].name});
+                    // Update user's plan upload params
+                }.bind(this)).catch(this.manageErrorResponse.bind(this));
+            },
+
+            removeFile: function(e){
+                this.removeFiles([e.detail.element]);
+            },
+
+            removeFiles: function(files,skip){
+                this.dispatch('removeFiles', files).then(function (response) {
+                    if (!response.success) throw new Error(response.errors.message);
+                    const msg = files.length>1 ? 'Objects were removed irretrievably.': 'File has been removed from trash.';
+                    if(!skip) this.showMessage(msg, {"#NAME#": files[0].name});
+                    // Update user's plan upload params
+                }.bind(this)).catch(this.manageErrorResponse.bind(this));
+            },
+
+            removeTask: function(e){
+                this.removeTasks([e.detail.element]);
+            },
+
+            removeTasks: function(tasks,skip){
+                this.dispatch('removeTasks', tasks).then(function (response) {
+                    if (!response.success) throw new Error(response.errors.message);
+                    const msg = tasks.length>1 ? 'Objects were removed irretrievably.': 'Task has been removed from trash.';
+                    if(!skip) this.showMessage(msg, {"#NAME#": files[0].name});
+                }.bind(this)).catch(this.manageErrorResponse.bind(this));
+            },
+
+            _separateElements: function(elements){
+                // Split files and folders and tasks
+                const files=[],folders=[],tasks=[];
+                elements.forEach(function (element,i) {
+                    if(element.type=='folder') folders.push(element);
+                    if(element.type=='file') files.push(element);
+                    if(element.type=='task') tasks.push(element);
+                }, this);
+                return {folders:folders,files:files,tasks:tasks};
+            },
+
+            removeAllTogether: function (e) {
+                const elements = this.$.elements.elements;
+                if (!elements.length) return;
+                const separated = this._separateElements(elements);
+                // Remove
+                if(separated.files.length) this.removeFiles(separated.files,true);
+                if(separated.folders.length) this.removeFolders(separated.folders,true);
+                if(separated.tasks.length) this.removeTasks(separated.tasks,true);
+                this.suspendRemoving();
+            },
+
+            removeSelected: function(e) {
+                const selected = e.detail;
+                if (!selected.length) return;
+                // Split files and folders
+                const separated = this._separateElements(selected);
+                // Remove
+                if(separated.files.length) this.removeFiles(separated.files,true);
+                if(separated.folders.length) this.removeFolders(separated.folders,true);
+                if(separated.tasks.length) this.removeTasks(separated.tasks,true);
+            },
+
+            openRemoveAllConfirm: function(){
+                if(!this.$.elements.elements.length) return;
+                this.$.removeAllConfirm.open();
+            },
+
+            suspendRemoving: function(){
+                this.$.removeAllConfirm.close();
+            },
+            _searchModeChanged: function(searchMode) {
+                if(!searchMode) this.$.searchFilter.empty();
+            },
+
+            _computeFilterItems: function(project,lang,i18Loaded) {
+                const users = this.projectUsers ? this.projectUsers : [];
+                return [
+                    {
+                        name:'type',
+                        type: 'select',
+                        default: 'all',
+                        options: [
+                            {
+                                value: 'all',
+                                label: this.translate('All')
+                            },
+                            {
+                                value: 'folder',
+                                label: this.translate('Folder')
+                            },
+                            {
+                                value: 'file',
+                                label: this.translate('File')
+                            },
+                            {
+                                value: 'task',
+                                label: this.translate('Task')
+                            }
+                        ]
+                    },
+                    {
+                        name:'removedBy',
+                        type: 'select',
+                        default: 'all',
+                        options: [
+                            {
+                                value: 'all',
+                                label: 'All'
+                            }
+                        ].concat(users.map(function(user){
+                            return {
+                                value: user._id,
+                                label: this.computeOwnerName(user)
+                            }
+                        }.bind(this)))
+                    }
+                ]
+            },
+
+            _search: function(e){
+                if(!this.$$('#elements')) return;
+                this.searchMode = true;
+                this.$$('#elements').search(e.detail);
+            },
+
+            cancelSearch: function() {
+                this.searchMode = false;
+                this.$$('#elements').clearFiltred();
+                this.$.searchFilter.empty();
+            },
+
+            _canRemoveAll: function(user,searchMode,project) {
+                return !searchMode && user._id == project.owner;
+            }
+        })
+    </script>
+</dom-module>

@@ -87,7 +87,7 @@
     "message": "Folder was created."
   },
   "Folder removing had been successful.": {
-    "message": "Folder \"#NAME#\" was removed."
+    "message": "Folder \"#NAME#\" was archived."
   },
   "Folder renaming had been successful.": {
     "message": "Folder \"#NAME#\" was renamed on \"#NEWNAME#\"."
@@ -840,10 +840,13 @@
     "message": "Folder \"#NAME#\" was restored."
   },
   "Folder has been removed from trash.": {
-    "message": "Folder \"#NAME#\" was removed from trash."
+    "message": "Folder \"#NAME#\" was removed from archive."
   },
   "File has been removed from trash.": {
-    "message": "File \"#NAME#\" was removed from trash."
+    "message": "File \"#NAME#\" was removed from archive."
+  },
+  "Task has been removed from trash.": {
+    "message": "Task \"#NAME#\" was removed from archive."
   },
   "File has been restored.": {
     "message": "File \"#NAME#\" was restored."
@@ -2147,7 +2150,22 @@
   "Task has been archived.": {
     "message": "Task has been archived."
   },
+  "Task has been restored.": {
+    "message": "Task \"#NAME#\" has been archived."
+  },
   "Due date": {
     "message": "Due date"
+  },
+  "Element name": {
+    "message": "Element name"
+  },
+  "Removed by": {
+    "message": "Removed by"
+  },
+  "Removed date": {
+    "message": "Removed date"
+  },
+  "removedBy": {
+    "message": "removed by"
   }
 }

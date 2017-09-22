@@ -278,10 +278,10 @@
             _countElements: function (state) {
                 const parent = this.currentFolderId || null;
                 const folders = state.folders.filter(function (folder) {
-                    return this.trashMode ? folder.removed : String(folder.parent) == String(parent) && !folder.removed;
+                    return String(folder.parent) == String(parent) && !folder.removed;
                 }.bind(this));
                 const files = state.files.filter(function (file) {
-                    return this.trashMode ? file.removed : String(file.folder) == String(parent) && !file.removed && !(state.user && (state.user._id !== file.owner && file.locked));
+                    return String(file.folder) == String(parent) && !file.removed && !(state.user && (state.user._id !== file.owner));
                 }.bind(this));
                 return folders.concat(files);
             },

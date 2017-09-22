@@ -348,7 +348,6 @@
                 <div class="right">
                     <designmap-circle-button class="hidden-xs"
                                              id="removeButton"
-                                             hidden$="[[!canRemoveTask(task)]]"
                                              on-click="removeTask">
                         <iron-icon class="panel-icon remove" icon="designmap-task-manager:remove"></iron-icon>
                     </designmap-circle-button>
@@ -698,8 +697,9 @@
             },
 
             removeTask: function(){
+                const id = this.task._id;
                 this.fire('reset');
-                this.dispatch('updateTask', this.task._id, {removed: true}).then(function (response) {
+                this.dispatch('updateTask', id, {removed: true,removedBy:{user:this.user._id,date:new Date()}}).then(function (response) {
                     if (!response.success) return this.showErrorMessage('Cannot archive task');
                     this.showMessage('Task has been archived.');
                 }.bind(this));

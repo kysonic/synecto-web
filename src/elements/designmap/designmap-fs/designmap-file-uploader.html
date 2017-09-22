@@ -312,7 +312,7 @@
                          return {code: store, name: this.storageNames[store]}
                          }.bind(this));
                          this.selected = stores && stores[0] ? stores[0].code : null;*/
-                        return ['designmap'];
+                        return ['gcs'];
                     }
                 },
                 user: {
@@ -548,7 +548,7 @@
                 this.set('buttonFiles',[]);
             },
             sendNotification: function(files) {
-                if(this.project.owner==this.user_id) return;
+                if(this.project.owner==this.user._id) return;
                 const pth = this.getFullPath(this.findFolderById(this._id));
                 document.querySelector('designmap-app').$.notifier.create({
                     sender: this.user._id,

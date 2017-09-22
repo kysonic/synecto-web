@@ -1,0 +1,408 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../designmap-icons/designmap-workspace-icons.html">
+<link rel="import" href="../../plastic/plastic-custom-scroll.html">
+<link rel="import" href="./designmap-archive-element.html">
+<link rel="import" href="../designmap-ui/designmap-confirm.html">
+<link rel="import" href="../designmap-ui/designmap-stub.html">
+<link rel="import" href="../designmap-ui/designmap-hidden-panel.html">
+<link rel="import" href="../../../styles/context-menu-shared-styles.html">
+
+<dom-module id="designmap-archive-elements">
+    <template>
+        <style include="context-menu-shared-styles">
+            :host {
+                color: var(--gray-darkend-color);
+                --designmap-hidden-panel: {
+                    height: var(--header-height);
+                    background: var(--blue-color);
+                    z-index: 9999;
+                };
+                --plastic-custom-scroll-content-mixin: {
+                    max-height: calc(100vh - 120px);
+                };
+                --plastic-custom-scroll-bar-mixin: {
+                    margin-left: -8px;
+                };
+                --plastic-custom-scroll-bar-hover-mixin: {
+                    margin-left: -10px;
+                };
+                --plastic-custom-scroll-bar-grabbed-mixin: {
+                    margin-left: -10px;
+                };
+            }
+            .content {
+                width: 100%;
+            }
+            .head {
+                display: flex;
+                height: 40px;
+                align-items: center;
+            }
+            .icon {
+                margin-left: 15px;
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .name {
+                flex: 4;
+            }
+            .removed-by {
+                flex: 2;
+            }
+            .removed-date {
+                flex: 2;
+            }
+            .head .menu {
+                margin-right: 15px;
+                width: 40px;
+                height: 40px;
+            }
+
+            /** WHITE SPACE **/
+            .white-space {
+                display: flex;
+                width: 100%;
+                height: 100%;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .white-space .wrapper {
+                width: 245px;
+                height: 270px;
+            }
+
+            .white-space .wrapper iron-icon {
+                width: 200px;
+                height: 100%;
+                position: relative;
+                left: 42px;
+            }
+
+            .white-space .wrapper .text {
+                font-weight: 100;
+                text-align: center;
+                color: var(--gray-saturated-color);
+            }
+
+            .white-space .wrapper .text a {
+                color: var(--blue-darkest-color);
+            }
+        </style>
+        <template is="dom-if" if="[[elements.length]]">
+            <div id="elementsWrapper" class="elements" hidden$="[[!elements.length]]">
+                <plastic-custom-scroll fit small-bar>
+                    <!-- Head -->
+                    <div class="head">
+                        <div class="icon">
+                           /
+                        </div>
+                        <div class="name">
+                            <i18-n msgid="Element name">Element name</i18-n>
+                        </div>
+                        <div class="removed-by">
+                            <i18-n msgid="Removed by">Removed by</i18-n>
+                        </div>
+                        <div class="removed-date">
+                            <i18-n msgid="Removed date">Removed date</i18-n>
+                        </div>
+                        <div class="menu">
+
+                        </div>
+                    </div>
+                    <template id="elementsRepeater" is="dom-repeat" items="[[elements]]" as="element" >
+                        <designmap-archive-element element="[[element]]"
+                                              project="[[project]]"
+                                              id="element-[[index]]"
+                                              type="[[element.type]]"
+                                              index="[[index]]"
+                                              class="element"
+                                              data-element-id$="[[element._id]]"
+                                              on-dblclick="openRestoreDialog"></designmap-archive-element>
+                    </template>
+                </plastic-custom-scroll>
+            </div>
+            <!-- Context menu -->
+            <designmap-context-menu id="contextMenu" previous open-top="true">
+                <ul class="menu">
+                    <li on-click="restoreElement">
+                        <i18-n msgid="Restore">Restore</i18-n>
+                    </li>
+                    <li on-click="openInformation">
+                        <i18-n msgid="Information">Information</i18-n>
+                    </li>
+                    <li hidden$="[[!_canRemove(user,searchMode,project)]]" on-click="openRemoveElementConfirm">
+                        <i18-n msgid="Remove">Remove</i18-n>
+                    </li>
+                </ul>
+            </designmap-context-menu>
+            <!-- Context menu -->
+        </template>
+        <template is="dom-if" if="[[_isThereElements(elements.length,searchMode)]]">
+            <div class="white-space">
+                <div class="wrapper">
+                    <div class="text" hidden$="[[!trashMode]]">
+                        <i18-n msgid="Trash bin is empty..."></i18-n>
+                    </div>
+                    <iron-icon icon="designmap-workspace-stub:empty-bin"></iron-icon>
+                </div>
+            </div>
+        </template>
+        <template is="dom-if" if="[[_notFound(elements.length,searchMode)]]">
+            <div class="white-space">
+                <div class="wrapper">
+                    <div class="text">
+                        <i18-n msgid="There is not found elements...">There is not found elements...</i18-n>
+                        <a href="#" on-click="cancelSearch">
+                            <i18-n msgid="Cancel search">Cancel search</i18-n>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </template>
+        <!-- Confirm -->
+        <designmap-confirm id="restoreConfirm" message="ElementIsRemovedDoYouWantToResroreIt" on-continue="restoreElement" on-suspend="closeRestoreConfirm"></designmap-confirm>
+        <!-- Associated components -->
+        <designmap-hidden-panel target="[[bodyNode]]" position="top"
+                                cancel-auto-closing
+                                opened="[[computeHiddenPanelState(selected.length)]]">
+            <div class="select-panel-content">
+                <designmap-circle-button class="cancel-selecting" on-click="cleanSelected">
+                    <iron-icon icon="designmap:add" style="transform: rotate(45deg)"></iron-icon>
+                </designmap-circle-button>
+                <div class="selected">
+                    [[selected.length]]
+                    <i18-n msgid="selected">selected</i18-n>
+                </div>
+                <div class="button-set">
+                    <button is="designmap-button" class="no-unselect" on-click="openRemoveSelectedConfirm" thin>
+                        <i18-n msgid="Remove">Remove</i18-n>
+                    </button>
+                </div>
+            </div>
+        </designmap-hidden-panel>
+        <!-- Confrims -->
+        <designmap-confirm id="removingSelectedConfirm" message="AreYouSureThatYouWannaDeleteSelectedObjects"
+                           on-continue="removeSelected"
+                           on-suspend="suspendRemoving"></designmap-confirm>
+        <designmap-confirm id="removingConfirm" message="AreYouSureThatYouWannaDeleteObject"
+                           on-continue="removeElement" on-suspend="suspendRemoving"></designmap-confirm>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-archive-elements',
+            behaviors: [
+                ReduxBehavior,
+                Polymer.DesignMapUtilsBehavior
+            ],
+            properties: {
+                searchMode: {
+                    type: Boolean,
+                    value: false
+                },
+                elements: {
+                    type: Array,
+                    statePath: function (state) {
+                        return this._countElements(state);
+                    }
+                },
+                project: {
+                    type: Object,
+                    value: null
+                },
+                user: {
+                    type: Object,
+                    value: null
+                },
+                serachMode: {
+                    type: Boolean,
+                    value: false
+                },
+                selected: {
+                    type: Array,
+                    value: []
+                },
+                bodyNode: {
+                    type: Object,
+                    value: function () {
+                        return document.body;
+                    }
+                },
+                searchMode: {
+                    type: Boolean,
+                    value: false
+                }
+            },
+            listeners: {
+                'open-restore-confirm': 'openRestoreConfirm',
+                'open-element-context-menu': 'openElementContextMenu',
+                'select-element': 'selectElement'
+            },
+            observers: [
+                'selectedChanged(selected.splices)'
+            ],
+
+            ready: function(){
+                window.addEventListener('click', this.clickOutside.bind(this));
+            },
+
+            _countElements: function (state) {
+                const folders = state.folders.filter(function (folder) {
+                    return folder.removed;
+                }.bind(this));
+                const files = state.files.filter(function (file) {
+                    return file.removed;
+                }.bind(this));
+                const tasks = state.tasks.filter(function (task) {
+                    return task.removed;
+                }.bind(this));
+                return folders.concat(files).concat(tasks);
+            },
+
+            _isThereElements: function(length,searchMode){
+                return !length && !searchMode;
+            },
+
+            _notFound: function(length,searchMode){
+                return !length && searchMode;
+            },
+
+            openRestoreDialog: function (e) {
+                this.currentElement = e.model.element;
+                this.$.restoreConfirm.open();
+            },
+
+            closeRestoreConfirm: function () {
+                this.$.restoreConfirm.close();
+            },
+
+            openElementContextMenu: function (e) {
+                const ev = e.detail.e;
+                ev.preventDefault();
+                ev.stopPropagation();
+                this.currentElement = e.detail.element;
+                this.$$('#contextMenu').toggle(e.detail.e);
+            },
+
+            openInformation: function () {
+                this.$$('#contextMenu').close();
+                document.querySelector('designmap-app').$.info.data = this.currentElement;
+                this.fire('open-info');
+            },
+
+            restoreElement: function (e) {
+                const element = this.currentElement;
+                this.$$('#contextMenu').close();
+                this.fire('restore-' + element.type, {element: element, skip: false});
+                this.$.restoreConfirm.close();
+            },
+
+            openRemoveElementConfirm: function(){
+                this.$.removingConfirm.open();
+            },
+
+            openRemoveSelectedConfirm: function(){
+                this.$.removingSelectedConfirm.open();
+            },
+
+            removeElement: function (e) {
+                this.suspendRemoving();
+                const element = this.currentElement;
+                this.$$('#contextMenu').close();
+                this.fire('remove-' + element.type, {element: element, skip: false});
+            },
+
+            computeHiddenPanelState: function (length) {
+                return length > 1;
+            },
+
+            selectedChanged: function () {
+                const repeater = this.$$('#elementsRepeater');
+                if (repeater) [].forEach.call(repeater.items, function (element) {
+                    var node = this.$$('*[data-element-id="' + element._id + '"]');
+                    if (node) node.classList.remove('selected');
+                }, this);
+
+                this.selected.forEach(function (element) {
+                    var node = this.$$('*[data-element-id="' + element._id + '"]');
+                    if (node) node.classList.add('selected');
+                }, this);
+
+                // Setup new information
+                if (document.querySelector('designmap-info')) {
+                    document.querySelector('designmap-info').data = this.selected.length ? this.selected[this.selected.length - 1] : null;
+                }
+            },
+
+            selectElement: function (event) {
+                const e = event.detail.e;
+                const element = event.detail.element;
+                e.stopPropagation();
+                const key = e.keyCode || e.charCode || 0;
+                const multiMode = !!(e.ctrlKey || e.metaKey);
+                if (!multiMode && this.selected.length) this.cleanSelected();
+                this.push('selected', element);
+            },
+
+            cleanSelected: function(){
+                this.set('selected',[]);
+            },
+
+            clickOutside: function (e) {
+                if(this.parents(e.target,'no-unselect')) return;
+                if (!this.parents(e.target, 'element')) this.cleanSelected();
+            },
+
+            removeSelected: function(){
+                this.fire('remove-selected',this.selected);
+                this.suspendRemoving();
+            },
+
+            suspendRemoving: function(){
+                this.$.removingSelectedConfirm.close();
+                this.$.removingConfirm.close();
+            },
+
+            search: function(filters){
+                this.searchMode = true;
+                const elements = this._countElements(ReduxStore.getState());
+                let filtred = elements.filter(function(element){
+                    let fit = true;
+                    Object.keys(filters).forEach(function(filterName){
+                        const filter = filters[filterName];
+                        switch(filter.type) {
+                            case 'select':
+                                if(filter.value=='all') return;
+                                if(element[filterName]!=filter.value) fit = false;
+                                if(filterName=='filterBy' && element.filterBy.user!=filter.value) fit = false;
+                                break;
+                            case 'search':
+                                const name = element.type=='folder' || element.type=='task' ? element.name : this.cutFileName(element);
+                                if(!new RegExp(filter.value.toLowerCase()).test(name.toLowerCase())) fit = false;
+                                break;
+                        }
+                    }.bind(this));
+                    return fit;
+                }.bind(this));
+
+                this.set('elements',filtred);
+            },
+
+            cancelSearch: function(){
+                this.fire('cancel-search');
+            },
+
+            clearFiltred: function(){
+                this.set('elements',this._countElements(ReduxStore.getState()));
+            },
+
+            _canRemove: function(user,searchMode,project) {
+                return !searchMode && user._id == project.owner;
+            }
+
+        })
+    </script>
+</dom-module>

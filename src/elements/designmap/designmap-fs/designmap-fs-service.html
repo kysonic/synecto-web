@@ -72,117 +72,19 @@
          * Remove folder
          */
         removeFolder: function (e) {
-            this.dispatch('$updateFolder', this.getFullPath(e.detail.element), {removed: true}).then(function (response) {
+            this.dispatch('$updateFolder', this.getFullPath(e.detail.element), {removed: true,removedBy:{user:this.user._id,date:new Date()}}).then(function (response) {
                 if (!response.success) throw new Error(response.errors.message);
                 if (!e.detail.skip) this.showUndoMessage('Folder removing had been successful.', {'#NAME#': e.detail.element.name});
-            }.bind(this)).catch(this.manageErrorResponse.bind(this));
-        },
-        /**
-         * Remove folder irretrievably
-         */
-        removeFolderIrretrievably: function (e) {
-            this.dispatch('removeFolders', [e.detail.element]).then(function (response) {
-                if (!response.success) throw new Error(response.errors.message);
-                if (!e.detail.skip) this.showMessage('Folder has been removed from trash.', {"#NAME#": e.detail.element.name});
-                this.user.plan.upload = response.upload;
-                this.dispatch('_userUpdate',this.user);
             }.bind(this)).catch(this.manageErrorResponse.bind(this));
         },
         /**
          * Remove folder
          */
         removeFile: function (e) {
-            this.dispatch('$updateFile', e.detail.element._id, {removed: true}).then(function (response) {
+            this.dispatch('$updateFile', e.detail.element._id, {removed: true,removedBy:{user:this.user._id,date:new Date()}}).then(function (response) {
                 if (!response.success) throw new Error(response.errors.message);
                 if (!e.detail.skip) this.showUndoMessage('File was removed successfuly.', {"#FILE#": this.cutFileName(e.detail.element)});
             }.bind(this)).catch(this.manageErrorResponse.bind(this));
-        },
-        /**
-         * Remove file irretrievably
-         */
-        removeFileIrretrievably: function (e) {
-            this.dispatch('removeFiles', [e.detail.element]).then(function (response) {
-                if (!response.success) throw new Error(response.errors.message);
-                if (!e.detail.skip) this.showMessage('File has been removed from trash.', {"#NAME#": this.cutFileName(e.detail.element)});
-                this.user.plan.upload = response.upload;
-                this.dispatch('_userUpdate',this.user);
-            }.bind(this)).catch(this.manageErrorResponse.bind(this));
-        },
-        /**
-         * Remove file irretrievably
-         */
-        removeFilesIrretrievably: function (files) {
-            this.dispatch('removeFiles', files).then(function (response) {
-                if (!response.success) throw new Error(response.errors.message);
-                this.user.plan.upload = response.upload;
-                this.dispatch('_userUpdate',this.user);
-            }.bind(this)).catch(this.manageErrorResponse.bind(this));
-        },
-        /**
-         * Remove folders irretrievably
-         */
-        removeFoldersIrretrievably: function (folders) {
-            this.dispatch('removeFolders', folders).then(function (response) {
-                if (!response.success) throw new Error(response.errors.message);
-            }.bind(this)).catch(this.manageErrorResponse.bind(this));
-        },
-        /**
-         * Remove folder
-         */
-        restoreFolder: function (e) {
-            this.dispatch('$updateFolder', this.getFullPath(e.detail.element), {removed: false}).then(function (response) {
-                if (!response.success) throw new Error(response.errors.message);
-                if (!e.detail.skip) this.showUndoMessage('Folder has been restored.', {'#NAME#': e.detail.element.name});
-            }.bind(this)).catch(this.manageErrorResponse.bind(this));
-        },
-        /**
-         * Restore file
-         */
-        restoreFile: function (e) {
-            this.dispatch('$updateFile', e.detail.element._id, {removed: false}).then(function (response) {
-                if (!response.success) throw new Error(response.errors.message);
-                if (!e.detail.skip) this.showUndoMessage('File has been restored.', {"#NAME#": this.cutFileName(e.detail.element)});
-            }.bind(this)).catch(this.manageErrorResponse.bind(this));
-        },
-        /**
-         * Restore file
-         */
-        restoreAll: function (e) {
-            if (!this.$$('#elements').elements.length) return;
-            this.$$('#elements').elements.forEach(function (element) {
-                this['restore' + element.type.capitalize()]({detail: {element: element, skip: true}});
-            }, this);
-            this.$$('#contextMenu').close();
-            this.showMessage('All entities was restored');
-        },
-        /**
-         * Remove file
-         */
-        removeAll: function (e) {
-            if (!this.$$('#elements').elements.length) return;
-            // Split files and folders
-            var files=[],folders=[];
-            this.$$('#elements').elements.forEach(function (element,i) {
-                element.type=='folder' ? folders.push(element) : files.push(element);
-            }, this);
-            // Remove
-            this.removeFilesIrretrievably(files);
-            this.removeFoldersIrretrievably(folders);
-            this.async(function(){this.showMessage('Objects were removed irretrievably.');},100);
-        },
-        /**
-         * Remove selected elements
-         */
-        removeSelected: function(selected) {
-            if (!selected.length) return;
-            // Split files and folders
-            var files=[],folders=[];
-            selected.forEach(function (element,i) {
-                element.type=='folder' ? folders.push(element) : files.push(element);
-            }, this);
-            // Remove
-            this.removeFilesIrretrievably(files);
-            this.removeFoldersIrretrievably(folders);
         },
         /**
          * Find file by ID
@@ -625,7 +527,6 @@
          */
         removeElement: function () {
             this.$$('#contextMenu').close();
-            if (this.trashMode) return this.$.removingConfirm.open();
             this.fire('remove-' + this.currentElement.type, {element: this.currentElement, skip: false});
         },
         /**

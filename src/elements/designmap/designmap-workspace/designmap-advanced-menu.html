@@ -359,15 +359,6 @@
                     <div id="chatMarker" hidden$="[[!_isThereUnread(user.system.lastChatReview,messages,messages.length)]]" class="chat marker"></div>
                 </li>
 
-                <!--<li id="accessesItem" on-touchend="_closeMenu" on-click="openSharingDialog" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave">
-                    <designmap-circle-button>
-                        <iron-icon icon="designmap-workspace:link"></iron-icon>
-                    </designmap-circle-button>
-                    &lt;!&ndash;<iron-icon hidden$="[[user.isPremium]]" class="locked-icon" icon="icons:lock-outline"></iron-icon>&ndash;&gt;
-                    <div class="text">
-                        <i18-n msgid="Team">Team</i18-n>
-                    </div>
-                </li>-->
 
                 <!--<li id="protocolItem" on-click="goToProtocol" on-touchend="_closeMenu"  on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class="locked">
                     <designmap-circle-button>
@@ -379,7 +370,7 @@
                     </div>
                 </li>-->
 
-                <li id="trashItem" on-click="goToTrashBox" on-touchend="_closeMenu" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class$="[[_computeSelectedItem(page,trashMode,'trash')]]">
+                <li id="trashItem" on-click="goToTrashBox" on-touchend="_closeMenu" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class$="[[_computeSelectedItem(page,trashMode,'archive')]]">
                     <designmap-circle-button>
                         <iron-icon icon="designmap-workspace:bin"></iron-icon>
                         <div class="trash-count">[[trashLength]]</div>
@@ -402,16 +393,6 @@
             <div class="down"></div>
         </plastic-custom-scroll>
 
-        <!--<ul class="mobile-project-menu">
-            <li on-click="openCreateProjectDialog"><i18-n msgid="Create Project">Create Project</i18-n></li>
-            <li on-click="openSelectProjectDialog"><i18-n msgid="Open Project">Open Project</i18-n></li>
-        </ul>-->
-
-        <!--<div class="upgrade-set">
-            <a href="/activate" class="upgrade">
-                <i18-n msgid="Upgrade">Upgrade</i18-n>
-            </a>
-        </div>-->
 
         <!-- Showcase dialog -->
         <!--<paper-dialog no-cancel-on-outside-click id="taskManagerShowCaseDialog" entry-animation="scale-up-animation"
@@ -472,14 +453,16 @@
                 trashLength: {
                     type: Number,
                     statePath: function (state) {
-                        const parent = this.currentFolderId || null;
                         const folders = state.folders.filter(function (folder) {
                             return folder.removed;
                         }.bind(this));
                         const files = state.files.filter(function (file) {
                             return file.removed;
                         }.bind(this));
-                        return folders.concat(files).length;
+                        const tasks = state.tasks.filter(function (task) {
+                            return task.removed;
+                        }.bind(this));
+                        return folders.concat(files).concat(tasks).length;
                     }
                 },
                 MQ: {
@@ -526,7 +509,7 @@
             goToTrashBox: function (e) {
                 this._closeMenu();
                 if (e.currentTarget.getAttribute('disabled') != undefined) return this.showErrorMessage('You do not have access to make it');
-                page.redirect('/'+this.projectId+'/trash');
+                page.redirect('/'+this.projectId+'/archive');
             },
             openSharingDialog: function (e) {
                 this._closeMenu();

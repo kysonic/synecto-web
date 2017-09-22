@@ -157,16 +157,10 @@
         <div class="project-name">
             [[project.name]]
         </div>
-        <div class$="crumb [[breadCrumbs(breadcrumbs.length)]]" hidden$="[[trashMode]]" on-click="goOnTop">
+        <div class$="crumb [[breadCrumbs(breadcrumbs.length)]]"  on-click="goOnTop">
             <iron-icon class$="line [[isFirst(index,breadcrumbs)]] " icon="icons:chevron-left"></iron-icon>
             <div class$="title [[calculateSelectedCrumb(breadcrumbs.length,index)]]">
                 <i18-n msgid="Files">Files</i18-n>
-            </div>
-        </div>
-        <div class="crumb" hidden$="[[!trashMode]]">
-            <iron-icon class$="line [[isFirst(index,breadcrumbs)]] " icon="icons:chevron-left"></iron-icon>
-            <div class$="title [[calculateSelectedCrumb(breadcrumbs.length,index)]]">
-                <i18-n msgid="Archive">Archive</i18-n>
             </div>
         </div>
         <div class$="arrow-back [[breadCrumbs(breadcrumbs.length)]]" on-click="goBack">
@@ -216,13 +210,6 @@
                     type: Array,
                     value: [],
                     computed: 'calculateCrumbs(currentFolderId)'
-                },
-                /**
-                 * Trash mode
-                 */
-                trashMode: {
-                    type: Boolean,
-                    value: false
                 },
                 searchMode: {
                     type: Boolean,
