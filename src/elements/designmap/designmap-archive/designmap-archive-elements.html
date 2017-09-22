@@ -376,8 +376,8 @@
                         switch(filter.type) {
                             case 'select':
                                 if(filter.value=='all') return;
+                                if(filterName=='removedBy' && element.removedBy.user==filter.value) return;
                                 if(element[filterName]!=filter.value) fit = false;
-                                if(filterName=='filterBy' && element.filterBy.user!=filter.value) fit = false;
                                 break;
                             case 'search':
                                 const name = element.type=='folder' || element.type=='task' ? element.name : this.cutFileName(element);

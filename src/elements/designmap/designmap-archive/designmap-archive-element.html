@@ -102,15 +102,14 @@
             },
 
             _computeRemovedByName: function (userId,owner) {
-                const uid = userId || owner || null;
+                const uid = userId || null;
                 const user = this.getProjectsUserById(uid);
-                if(!user) return 'XXX';
+                if(!user) return '---';
                 return this.computeOwnerName(user);
             },
 
             _computeRemovedDate: function(date){
-                const d = date ? moment(date) : moment();
-                return moment().format('YYYY-MM-DD HH:mm:ss');
+                return moment(new Date(date)).format('YYYY-MM-DD HH:mm:ss');
             },
 
             openContextMenu: function (e) {

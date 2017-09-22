@@ -2173,5 +2173,8 @@
   },
   "removedBy": {
     "message": "кем удален"
+  },
+  "Task": {
+    "message": "Задача"
   }
 }
