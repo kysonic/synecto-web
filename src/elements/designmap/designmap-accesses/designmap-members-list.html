@@ -1,0 +1,302 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../designmap-avatar/designmap-avatar-projector.html">
+<link rel="import" href="./designmap-users-combo.html">
+<link rel="import" href="../designmap-ui/designmap-confirm.html">
+<link rel="import" href="../designmap-buttons/designmap-button.html">
+<link rel="import" href="../../../behaviors/designmap-messages-behavior.html">
+<link rel="import" href="../../../behaviors/designmap-messages-behavior.html">
+<link rel="import" href="../designmap-fs/designmap-fs-service.html">
+
+<dom-module id="designmap-members-list">
+    <template>
+        <style>
+            :host {
+                --paper-input-container-color: var(--gray-darkend-color);
+                --paper-input-container-focus-color: var(--gray-darkend-color);
+                --paper-input-container-input: {
+                    color: var(--gray-darkend-color);
+                    font-family: var(--font-family);
+                    font-size: 16px;
+                    font-weight: 500 !important;
+                };
+                --paper-input-container-label: {
+                    font-size: 16px;
+                    font-weight: 500 !important;
+                };
+                --paper-input-container-label-floating: {
+                    font-weight: 500 !important;
+                };
+                --designmap-users-select-dropdown-content-mixin: {
+                    max-width: 400px;
+                };
+                --paper-input-container-invalid-color: var(--error-color);
+                --designmap-users-combo-paper-button: {
+                    --iron-icon-stroke-color: var(--gray-color);
+                }
+                --iron-icon-components-mixin: {
+                    stroke: var(--gray-saturated-color) !important;
+                };
+            }
+            *[hidden] {
+                display: none !important;
+            }
+            .title {
+                color:var(--gray-darkend-color);
+                padding: 5px 0 0 10px;
+            }
+            .members {
+                display: block;
+                padding: 5px 0 0 10px;
+            }
+            .member {
+                display: flex;
+                align-items: center;
+                color:var(--gray-darkend-color);
+                padding: 5px 0;
+            }
+            designmap-avatar-projector {
+                width: 30px;
+                height: 30px;
+                line-height: 30px;
+            }
+            paper-icon-button {
+                width: 40px;
+            }
+            .name {
+                margin-left: 10px;
+                max-width: calc(100% - 80px);
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+            designmap-users-combo {
+                padding: 0 10px;
+            }
+            .message {
+                color: var(--expired);
+                width: auto;
+                font-size: 14px;
+                text-align: left;
+                padding: 0 10px;
+            }
+            .message button {
+
+            }
+        </style>
+        <div class="title">
+            <i18-n msgid="Project's team members:">Project's team members</i18-n>:
+        </div>
+        <div class="members">
+            <template is="dom-repeat" items="[[members]]" as="member">
+                <div class="member">
+                    <designmap-avatar-projector user="[[member]]"></designmap-avatar-projector>
+                    <div class$="mark [[_isOnline(member)]]"></div>
+                    <div class="name" title="[[computeOwnerName(member)]]">[[computeOwnerName(member)]]</div>
+                    <paper-icon-button on-click="openRemoveConfirm" id$="button[[index]]" hidden$="[[!_canRemove(user,member,project)]]" icon="close"></paper-icon-button>
+                    <paper-tooltip for$="button[[index]]">
+                        <i18-n msgid="Remove team member">Remove team member</i18-n>
+                    </paper-tooltip>
+                </div>
+            </template>
+        </div>
+        <template is="dom-if" if="[[_notExceed(user.plan,members.length)]]">
+            <designmap-users-combo id="userCombo" label="[[translate('User email',language,iLoaded)]]"  on-selected="select"></designmap-users-combo>
+        </template>
+        <template is="dom-if" if="[[!_notExceed(user.plan,members.length)]]">
+            <div class="message">
+                [[_getPlanMsg('accessPremiumMsg',user,language,iLoaded)]]
+                <button is="designmap-button" blue fit thin>
+                    <i18-n msgid="Upgrade">Upgrade</i18-n>
+                </button>
+            </div>
+        </template>
+
+        <!-- Confirm -->
+        <designmap-confirm id="invitationConfirm" message="AreYouSureYouWantToSendInvitationToThisEmail" replace="[[repl]]"
+                           on-continue="inviteUser" on-suspend="suspendRemoving"></designmap-confirm>
+
+        <!-- Confirm -->
+        <designmap-confirm id="removingConfirm" message="AreYouSureYouWantToRemoveUser"
+                           on-continue="remove" on-suspend="suspendRemoving"></designmap-confirm>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-members-list',
+            behaviors: [
+                ReduxBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapFsService,
+                Polymer.ProjectActions
+            ],
+            properties: {
+                members:{
+                    type: Array,
+                    value: []
+                },
+                user:{
+                    type: Object,
+                    value: null
+                },
+                project:{
+                    type: Object,
+                    value: null
+                },
+                projects:{
+                    type: Object,
+                    statePath: 'projects'
+                },
+                language:{
+                    type: String,
+                    value: 'en'
+                },
+                iLoaded: {
+                    type: Boolean,
+                    value: false
+                },
+                repl: {
+                    type: Object,
+                    value: {}
+                }
+            },
+            listeners: {
+                'invite': 'invite',
+                'not-found-click': 'invite'
+            },
+            emailRegexp: /[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*/,
+            _isOnline: function(user){
+                if(user._id==this.user._id) return 'online';
+                return user.online ? 'online' : '';
+            },
+            invite: function(e){
+                this.email = e.detail;
+                if(!this.email.trim()) return;
+                if(!this.emailRegexp.test(this.email)) return;
+                this.repl = {'#EMAIL#':this.email};
+                this.$.invitationConfirm.open();
+            },
+            inviteUser: function(){
+                this.$.invitationConfirm.close();
+                if(this.project.invited.indexOf(this.email)!=-1) return this.showErrorMessage('Already invited');
+                xhr.post(Designmap.config.apiURL+'token/invite',{
+                    email: this.email,
+                    inviter: this.computeOwnerName(this.user),
+                    projectName: this.project.name,
+                    ownerEmail: this.user.local.email,
+                    projectId: this.project._id,
+                    language: this.language
+                }).then(function(response){
+                    if(!response.success) return this.manageErrorResponse(response);
+                    this.showMessage('Invitation has been sent.',{'#EMAIL#':this.email});
+                    this.$$('#userCombo').$.select.$.input.value='';
+                    this.$$('#userCombo').cancelInvt();
+                    this.$$('#userCombo').blur();
+                    // Add user's email into list
+                    if(!this.project.invited) this.set('project.invited',[]);
+                    if(this.project.invited && this.project.invited.indexOf(this.email)!=-1) this.project.invited.splice(this.project.invited.indexOf(this.email),1);
+                    this.push('project.invited',this.email);
+                    // Push
+                    this.dispatch('updateProject', this.project._id, this.project).then(function (response) {
+                        if(!response.success) return this.manageErrorResponse(response);
+                        //
+                        this.fire('update-invited',this.project.invited)
+                    }.bind(this));
+
+                }.bind(this)).catch(this.manageErrorResponse.bind(this))
+            },
+            _canRemove: function(user,member){
+                if(!user || !member) return false;
+                return this._isOwner(user) && user._id!=member._id;
+            },
+            _isOwner: function(member){
+                if(!this.project) return;
+                return this.project.owner == member._id;
+            },
+            _notExceed: function(plan,length){
+                return plan.teamMembers>=length;
+            },
+            select: function (e) {
+                const user = e.detail;
+                // Drop the select value
+                this.$$('#userCombo').$.select.value = '';
+                // Prevent repeats
+                if (this.checkUsers(e.detail.local.email)) return this.showErrorMessage('This user already added');
+                if (e.detail.local.email == this.user.local.email) return this.showErrorMessage('You cannot add yourself. You are already there!');
+                if (this.project.users && (this.project.users.length+1)>this.user.plan.teamMembers) {
+                    this.$$('#userCombo').blur();
+                    return this.showErrorMessage('According your current plan you cannot add more users...')
+                }
+                // Dispatch event
+                if(!this.project.users) this.set('project.users',[]);
+                this.push('project.users',e.detail);
+                //
+                this.dispatch('updateProject', this.project._id, this.project).then(function (response) {
+                    if(!response.success) return this.manageErrorResponse(response);
+                    // Notify
+                    this.sendNotification(user);
+                    this.showMessage('Share was updated successful');
+                }.bind(this));
+            },
+            /**
+             * Check users if they can be repeted
+             */
+            checkUsers: function (email) {
+                if (!this.project || !this.project.users) return;
+                let found = null;
+                this.project.users.forEach(function (user) {
+                    if ((user && user.local && user.local.email === email) || (user.email === email) || (user.label === email)) found = user;
+                }, this);
+                return found;
+            },
+
+            /**
+             * Send notifications using
+             * designmap-notifier
+             */
+            sendNotification: function (user,remove) {
+                const notifier = document.querySelector('designmap-app').$.notifier;
+                if(!notifier || !user ||  !user._id) return;
+                // Create notify
+                notifier.create({
+                    sender: this.user,
+                    recipients: [user._id],
+                    type: remove?'remove-access':'new-access',
+                    text: {
+                        message: remove?'You were removed from project':'You received an access to project',
+                        replacement: { "#PROJECT#": this.project.name},
+                        projectID: this.project._id,
+                        info: {
+                            xlink: Designmap.config.appURL+this.project._id
+                        }
+                    }
+                });
+            },
+            openRemoveConfirm: function(e){
+                this.tempUser = e.model.member;
+                this.$.removingConfirm.open();
+            },
+            suspendRemoving: function(){
+                this.$.invitationConfirm.close();
+                this.$.removingConfirm.close();
+            },
+            remove: function(){
+                this.$.removingConfirm.close();
+                const index = this.project.users.indexOf(this.tempUser);
+                this.project.users.splice(index,1);
+                this.set('project.users', this.project.users);
+                //
+                this.suspendRemoving();
+                this.dispatch('updateProject', this.project._id, this.project).then(function (response) {
+                    if(!response.success) return this.manageErrorResponse(response);
+                    // Notify
+                    this.sendNotification(this.tempUser,true);
+                    this.showMessage('Share was updated successful');
+                }.bind(this));
+            },
+            _getPlanMsg: function(msg,user,plan){
+                if(!this.user || !this.user.plan) return 'xxx';
+                return this.replaceExpressions(this.translate(msg),{'#COUNT#':this.user.plan.teamMembers});
+            }
+        })
+    </script>
+</dom-module>

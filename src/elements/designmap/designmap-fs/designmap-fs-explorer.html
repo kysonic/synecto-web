@@ -281,7 +281,7 @@
                     return String(folder.parent) == String(parent) && !folder.removed;
                 }.bind(this));
                 const files = state.files.filter(function (file) {
-                    return String(file.folder) == String(parent) && !file.removed && !(state.user && (state.user._id !== file.owner));
+                    return String(file.folder) == String(parent) && !file.removed;
                 }.bind(this));
                 return folders.concat(files);
             },

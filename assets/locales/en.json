@@ -2170,5 +2170,23 @@
   },
   "Task": {
     "message": "Task"
+  },
+  "User with such email is not found in Synecto. You can invite him clicking on button at right": {
+    "message": "There is no user with such email in Synecto. <a href=\"#\">Invite him.</a>"
+  },
+  "AreYouSureYouWantToSendInvitationToThisEmail": {
+    "message": "Are you sure you want to send invitation on #EMAIL#?"
+  },
+  "Invitation has been sent.": {
+    "message": "Invitation has been sent on #EMAIL#. Recipient will receive email with link to reach this project."
+  },
+  "Already invited": {
+    "message": "This user already invited."
+  },
+  "Project's team members:": {
+    "message": "Project's team members:"
+  },
+  "Remove team member": {
+    "message": "Remove team member"
   }
 }

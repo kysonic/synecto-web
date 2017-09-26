@@ -128,17 +128,17 @@
              * Login signup
              * @returns {function(this:Polymer.UserActions)}
              */
-            userSignup: function (email, password) {
+            userSignup: function (email, password, invtkn) {
                 return function (dispatch) {
                     var language = (window.navigator.browserLanguage || window.navigator.language || window.navigator.userLanguage).substr(0, 2) || 'en';
                     var promise = xhr.post(Designmap.config.apiURL + 'user/registration', {
                         email: email,
                         password: password,
+                        invtkn: invtkn,
                         lang: language
                     });
                     promise.then(function (response) {
                         if (!response.success) return;
-                        console.log(response);
                         dispatch({type: "UPDATE_USER", user: response.user});
                     })
                     return promise;
@@ -148,11 +148,11 @@
              * User signup
              * @returns {function(this:Polymer.UserActions)}
              */
-            userGoogleSignup: function (googleUser) {
+            userGoogleSignup: function (googleUser,invtkn) {
                 return function (dispatch) {
                     var language = (window.navigator.browserLanguage || window.navigator.language || window.navigator.userLanguage).substr(0, 2) || 'en';
                     googleUser.lang = language;
-                    var promise = xhr.post(Designmap.config.apiURL + 'user/google-registration', {user: googleUser});
+                    var promise = xhr.post(Designmap.config.apiURL + 'user/google-registration', {user: googleUser,invtkn:invtkn});
                     promise.then(function (response) {
                         if (!response.success) return;
                         dispatch({type: "UPDATE_USER", user: response.user});

@@ -37,12 +37,12 @@
                 @apply(--designmap-circle-button-content-icon-mixin);
             }
 
-            :host(:hover) circle,:host(.hovered) circle {
+            :host(:hover) circle, :host(.hovered) circle {
                 stroke-dashoffset: 0;
                 transition: stroke-dashoffset .4s ease-in;
             }
 
-            :host([disabled]) circle, :host(.hovered) circle{
+            :host([disabled]) circle {
                 stroke-dashoffset: 1002;
             }
             :host([disabled]) {

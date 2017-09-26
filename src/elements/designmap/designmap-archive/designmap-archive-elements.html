@@ -400,6 +400,7 @@
             },
 
             _canRemove: function(user,searchMode,project) {
+                if(!project || !user) return;
                 return !searchMode && user._id == project.owner;
             }
 

@@ -176,7 +176,7 @@
             .wrapper > .content .msg:hover {
                 text-decoration: underline;
             }
-            .wrapper > .content .forgot-msg {
+            .wrapper > .content .forgot-msg, .phantom {
                 display: inline-block;
                 cursor: pointer;
                 margin: 15px 0 9px 0;
@@ -412,15 +412,18 @@
                         <paper-input id="passwordSignup" required name="passwordSignup" on-input="checkoutPassword"
                                      pattern=".{4,}" error-message="[[translate('PasswordError',language,i18Loaded)]]"
                                      label="[[translate('Password',language,i18Loaded)]]" type="password"></paper-input>
-                        <a class="forgot-msg" on-click="openPanel" data-panel="approvingForm">
+                        <a hidden$="[[inviteMode]]" class="forgot-msg" on-click="openPanel" data-panel="approvingForm">
                             <i18-n msgid="Send me approving link">Send me approving link</i18-n>
                         </a>
+                        <div class="phantom" hidden$="[[!inviteMode]]">
+
+                        </div>
                         <div class="button-set">
                             <button is="designmap-loading-button" id="registerButton" thin on-click="register">
                                 <i18-n msgid="SignUp">Sign Up</i18-n>
                             </button>
                         </div>
-                        <a class="msg" on-click="goToTheSignin">
+                        <a hidden$="[[inviteMode]]" class="msg" on-click="goToTheSignin">
                             <i18-n msgid="ReturnToTheLogin"></i18-n>
                             <i18-n class="sign-up" msgid="Authorization"></i18-n>
                             <i18-n msgid="frm"></i18-n>
@@ -508,6 +511,10 @@
                 fakeSupport: {
                     type: Boolean,
                     value: false
+                },
+                inviteMode: {
+                    type: Boolean,
+                    value: false
                 }
             },
             ready: function () {
@@ -520,6 +527,13 @@
 
                 if(location.hash=='#register') {
                     this.selected = 1;
+                }
+                const query = this.parseQuery(Designmap.firstQuery);
+                if(query.invtkn) {
+                    this.selected = 1;
+                    this.inviteMode = true;
+                    this.invtkn = query.invtkn;
+                    this.$.emailSignup.value = query.email;
                 }
             },
 
@@ -556,11 +570,17 @@
                 if (!(this.$.emailSignup.validate() && this.$.passwordSignup.validate())) return this.showErrorMessage('AuthorizationFormWasFilledNotCorrectly');
                 this.$.registerButton.loading=true;
                 const email = this.$.emailSignup.value;
-                this.dispatch('userSignup', this.$.emailSignup.value, this.$.passwordSignup.value).then(function (response) {
+                this.dispatch('userSignup', this.$.emailSignup.value, this.$.passwordSignup.value,this.invtkn).then(function (response) {
+                    this.$.registerButton.loading=false;
                     if (!response.success) return this.manageErrorResponse(response);
                     this.$.emailSignup.value = null;
                     this.$.passwordSignup.value = null;
-                    this.$.registerButton.loading=false;
+                    if(response.projectId) {
+                        this.inviteMode = false;
+                        this.ivktkn = null;
+                        return page.redirect('/'+response.projectId);
+                    }
+                    this.showMessage('Welcome to the Synecto!');
                     // Analytics
                     this.reachGoal('auth','register',email);
                 }.bind(this)).catch(function(err){
@@ -688,9 +708,16 @@
              */
             signInWithGoogle: function (googleUser) {
                 this.$.registerGoogleButton.loading = true;
-                this.dispatch('userGoogleSignup', googleUser.w3).then(function (response) {
+                this.dispatch('userGoogleSignup', googleUser.w3, this.invtkn).then(function (response) {
                     this.$.registerGoogleButton.loading = false;
                     if (!response.success) return this.showErrorMessage(response.errors.message);
+                    if(response.projectId) {
+                        this.inviteMode = false;
+                        this.ivktkn = null;
+                        return this.async(function(){
+                            page.redirect('/'+response.projectId)
+                        },5000);
+                    }
                     this.showMessage(response.message, {}, 10000);
                 }.bind(this)).catch(function (err) {
                     this.$.registerGoogleButton.loading = false;

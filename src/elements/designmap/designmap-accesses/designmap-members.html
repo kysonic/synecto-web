@@ -3,10 +3,12 @@
 <link rel="import" href="../designmap-avatar/designmap-avatar-projector.html">
 <link rel="import" href="../designmap-ui/designmap-dropdown.html">
 <link rel="import" href="../designmap-ui/designmap-confirm.html">
+<link rel="import" href="../designmap-ui/designmap-hidden-panel.html">
 <link rel="import" href="./designmap-users-combo.html">
 <link rel="import" href="../designmap-fs/designmap-fs-service.html">
 <link rel="import" href="../../../redux/actions/project-actions.html">
 <link rel="import" href="../../../styles/tooltip-shared-styles.html">
+<link rel="import" href="./designmap-members-list.html">
 
 <dom-module id="designmap-members">
     <template>
@@ -20,36 +22,7 @@
                     line-height: 40px;
                     font-size: 26px;
                 };
-                --designmap-avatar-projector-text-mixin: {
-                    font-size: 18px;
-                };
-                --designmap-users-select-dropdown-content-mixin: {
-                    max-width: 400px;
-                };
-                --paper-input-container-color: var(--gray-darkend-color);
-                --paper-input-container-focus-color: var(--gray-darkend-color);
-                --paper-input-container-input: {
-                    color: var(--gray-darkend-color);
-                    font-family: var(--font-family);
-                    font-size: 16px;
-                    font-weight: 500 !important;
-                };
-                --paper-input-container-label: {
-                    font-size: 16px;
-                    font-weight: 500 !important;
-                };
-                --paper-input-container-label-floating: {
-                    font-weight: 500 !important;
-                };
-                --paper-input-container-invalid-color: var(--error-color);
-                --designmap-dropdown-triangle-mixin: {
-                    top: 50% !important;
-                    margin-top: -10px !important;
-                };
-                --designmap-dropdown-triangle-border-mixin: {
-                    top: 50% !important;
-                    margin-top: -10px!important;
-                }
+
             }
             *[hidden] {
                 display: none!important;
@@ -80,6 +53,10 @@
             }
             designmap-avatar-projector.owner {
                 border: 2px solid var(--blue-darkest-color);
+            }
+
+            designmap-avatar-projector.invited {
+                border: 2px solid var(--expired);
             }
             .add {
                 display: inline-block;
@@ -149,18 +126,26 @@
                     </div>
                 </div>
             </template>
-        </div>
-        <div id="addMember" class="add" hidden$="[[!_isOwner(user,project)]]" on-click="openContext">
-            <iron-icon icon="icons:add"></iron-icon>
+            <template is="dom-repeat" items="[[invited]]" as="member">
+                <div class="member">
+                    <designmap-avatar-projector class="invited" user="[[member]]"></designmap-avatar-projector>
+                    <div class="remove" on-click="openRemoveConfirm" hidden$="[[!_canRemove(user,member,project)]]">
+                        <iron-icon icon="icons:close"></iron-icon>
+                    </div>
+                </div>
+            </template>
+            <div id="addMember" class="add" hidden$="[[!_isOwner(user,project)]]" on-click="openHidden">
+                <iron-icon icon="icons:add"></iron-icon>
+            </div>
         </div>
         <!-- Context -->
-        <designmap-dropdown left id="context" tri-left tri-border vertical-offset="-10" horizontal-offset="60" previous>
-            <div class="content">
-                <designmap-users-combo id="userCombo" label="[[translate('User email',language,i18Loaded)]]"  on-selected="select"></designmap-users-combo>
-            </div>
-        </designmap-dropdown>
+        <!---->
 
-        <paper-tooltip position="right" for="addMember"><i18-n msgid="Add team member">Add team member</i18-n></paper-tooltip>
+        <designmap-hidden-panel id="hiddenList" class="member-hidden" target="[[bodyNode]]" position="left">
+            <div class="select-panel-content">
+                <designmap-members-list project="[[project]]" user="[[user]]" members="[[members]]" language="[[language]]" i-loaded="[[i18Loaded]]"></designmap-members-list>
+            </div>
+        </designmap-hidden-panel>
     </template>
     <script>
         Polymer({
@@ -200,15 +185,37 @@
                 members: {
                     type: Array,
                     computed: '_computeMembers(project.ownerData,project.users)'
+                },
+                invited: {
+                    type: Array,
+                    computed: '_computeInvited(project.invited)'
+                },
+                bodyNode:{
+                    type: Object,
+                    value: function () {
+                        return document.body;
+                    }
                 }
             },
-            ready: function(){
-                  /*setInterval(function(){
-                      if(this.projectId) this.dispatch('getProject',this.projectId)
-                  }.bind(this),60000);*/
+            listeners: {
+                'update-invited':'updateInvited'
             },
             _computeMembers: function(ownerData,users){
                 return [ownerData].concat(users);
+            },
+            _computeInvited: function(invited){
+                if(!invited) return;
+                return invited.map(function(e){
+                    return {
+                        invited: true,
+                        profile: {
+                            name: ''
+                        },
+                        local: {
+                            email:e
+                        }
+                    }
+                });
             },
             _ownerCls: function(member){
                 return  this._isOwner(member) ? 'owner' : '';
@@ -221,33 +228,11 @@
                 if(user._id==this.user._id) return 'online';
                 return user.online ? 'online' : '';
             },
-            openContext: function(e){
-                this.$.context.open();
-            },
-            select: function (e) {
-                const user = e.detail;
-                // Drop the select value
-                this.$.userCombo.$.select.value = '';
-                // Prevent repeats
-                if (this.checkUsers(e.detail.local.email)) return this.showErrorMessage('This user already added');
-                if (e.detail.local.email == this.user.local.email) return this.showErrorMessage('You cannot add yourself. You are already there!');
-                if (this.project.users && (this.project.users.length+1)>this.user.plan.teamMembers) {
-                    this.$.userCombo.blur();
-                    return this.showPremiumMessage = true;
-                }
-                this.$.context.close();
-                // Dispatch event
-                if(!this.project.users) this.set('project.users',[]);
-                this.push('project.users',e.detail);
-                //
-                this.dispatch('updateProject', this.project._id, this.project).then(function (response) {
-                    if(!response.success) return this.manageErrorResponse(response);
-                    // Notify
-                    this.sendNotification(user);
-                    this.showMessage('Share was updated successful');
-                }.bind(this));
+            openHidden: function(e){
+                this.$.hiddenList.open();
             },
             remove: function(){
+                if(this.tempUser.invited) return this.removeInvited();
                 const index = this.project.users.indexOf(this.tempUser);
                 this.project.users.splice(index,1);
                 this.set('project.users', this.project.users);
@@ -260,16 +245,16 @@
                     this.showMessage('Share was updated successful');
                 }.bind(this));
             },
-            /**
-             * Check users if they can be repeted
-             */
-            checkUsers: function (email) {
-                if (!this.project || !this.project.users) return;
-                let found = null;
-                this.project.users.forEach(function (user) {
-                    if ((user && user.local && user.local.email === email) || (user.email === email) || (user.label === email)) found = user;
-                }, this);
-                return found;
+            removeInvited: function(){
+                const index = this.project.invited.indexOf(this.tempUser.local.email);
+                this.project.invited.splice(index,1);
+                this.set('project.invited', this.project.invited);
+                //
+                this.suspendRemoving();
+                this.dispatch('updateProject', this.project._id, this.project).then(function (response) {
+                    if(!response.success) return this.manageErrorResponse(response);
+                    this.showMessage('Share was updated successful');
+                }.bind(this));
             },
             _canRemove: function(user,member){
                 if(!user || !member) return false;
@@ -282,6 +267,11 @@
             suspendRemoving: function(){
                 this.$.removingConfirm.close();
             },
+
+            updateInvited: function(e){
+                this.set('project.invited',e.detail);
+            },
+
             /**
              * Send notifications using
              * designmap-notifier
@@ -303,7 +293,7 @@
                         }
                     }
                 });
-            }
+            },
         })
     </script>
 </dom-module>

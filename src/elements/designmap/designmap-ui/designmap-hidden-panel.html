@@ -6,9 +6,9 @@
             :host {
                 display: none;
                 position: fixed;
-                left: 0px;
+                left: 0;
                 background: rgba(0,0,0,0.4);
-                z-index: 999;
+                z-index: 2500;
                 @apply(--designmap-hidden-panel);
 
             }
@@ -32,7 +32,9 @@
         Polymer({
             is: 'designmap-hidden-panel',
             isAnimating: false,
-            behaviors: [Polymer.DesignMapUtilsBehavior],
+            behaviors: [
+                Polymer.DesignMapUtilsBehavior
+            ],
             animations: {
                 open: {
                     left: function(computedStyles) {
@@ -65,7 +67,7 @@
                     }
                 }
             },
-            animationProperties: {duration:200,fill:'forwards'},
+            animationProperties: {duration:150,fill:'forwards',easing:'cubic-bezier(0.4, 0.0, 1, 1)'},
             properties: {
                 opened: {
                     type: Boolean,
@@ -93,6 +95,7 @@
             ready: function(){
                 if(this.target) this.async(function(){this.target.appendChild(this)},1000);
                 this.classList.add(this.position);
+                document.body.addEventListener('click',this.clickOutta.bind(this));
             },
             attached: function(){
                 this.openedChanged();
@@ -107,8 +110,8 @@
                 if(this.animationOn) this.animate(this.animations.open[this.position](computedStyles),this.animationProperties);
                 this.isAnimating = true;
                 this.style.display = 'block';
+                this.opened = true;
                 if(this.animationOn) this.async(function(){this.isAnimating=false},this.animationProperties.duration);
-                document.body.addEventListener('click',this.clickOutta.bind(this));
             },
             close: function(){
                 if(!this.position) return;
@@ -118,16 +121,17 @@
                 }else {
                   this.style.display = 'none';
                 }
+                this.opened = false;
                 this.isAnimating = true;
                 if(this.animationOn) this.async(function(){this.isAnimating=false;this.style.display = 'none';},this.animationProperties.duration);
-                document.body.removeEventListener('click',this.clickOutta.bind(this));
             },
             toggle: function(){
                 this.opened = !this.opened;
             },
             clickOutta: function(e){
                 if(this.cancelAutoClosing) return;
-                if(this.opened && !this.isAnimating && !this.parents(e.target,'designmap-hidden-panel-0')) this.opened = false;
+                if(this.parents(e.target,'designmap-hidden-panel')) return;
+                if(this.opened && !this.isAnimating) this.opened = false;
             }
         })
     </script>

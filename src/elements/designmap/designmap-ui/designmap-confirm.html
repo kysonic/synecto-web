@@ -10,6 +10,9 @@
                 font-family: var(--font-family);
                 font-weight: 100;
             }
+            *[hidden] {
+                display: none !important;
+            }
             /** CONFIRMS **/
             paper-dialog {
                 z-index: 202 !important;
@@ -82,13 +85,16 @@
         </style>
         <paper-dialog id="dialog" entry-animation="scale-up-animation"
                       exit-animation="scale-down-animation">
-            <div class="content" щт->
+            <div class="content">
                 <!--<div class="title">
                     <i18-n msgid="[[computeTitle(title,language)]]">Confirm</i18-n>
                 </div>-->
                 <!--<iron-icon class="popup-icon" icon="designmap-workspace:project"></iron-icon>-->
                 <div class="message">
-                    <i18-n msgid="[[message]]">[[message]]</i18-n>
+                    <i18-n hidden$="[[_isThereReplacer(replace)]]" msgid="[[message]]">[[message]]</i18-n>
+                    <span hidden$="[[!_isThereReplacer(replace)]]">
+                        [[_getMsg(message,language,i18Loaded,replace)]]
+                    </span>
                 </div>
                 <div class="button-set">
                     <button is="designmap-button" gray class$="[[computeAlertClass(alertYes)]]" thin on-tap="forward">
@@ -123,9 +129,17 @@
                     type: String,
                     computed: '_computeLanguage(user.system.language)'
                 },
+                i18Loaded: {
+                    type: String,
+                    statePath: 'i18Loaded'
+                },
                 alertYes: Boolean,
                 icon: {
                     type: String,
+                    value: null
+                },
+                replace: {
+                    type: Object,
                     value: null
                 }
             },
@@ -152,6 +166,12 @@
             },
             computeTitle: function (title) {
                 return title || 'Confirm';
+            },
+            _isThereReplacer: function(replace){
+                return !!replace;
+            },
+            _getMsg: function(message,language,i18Loaded,replace){
+                return this.replaceExpressions(this.translate(message),replace) || message;
             }
         })
     </script>
