@@ -177,7 +177,7 @@
             },
             inviteUser: function(){
                 this.$.invitationConfirm.close();
-                if(this.project.invited.indexOf(this.email)!=-1) return this.showErrorMessage('Already invited');
+                if(this.project.invited && this.project.invited.indexOf(this.email)!=-1) return this.showErrorMessage('Already invited');
                 xhr.post(Designmap.config.apiURL+'token/invite',{
                     email: this.email,
                     inviter: this.computeOwnerName(this.user),
@@ -228,7 +228,7 @@
                 }
                 // Dispatch event
                 if(!this.project.users) this.set('project.users',[]);
-                this.push('project.users',e.detail);
+                this.push('project.users',e.detail._id);
                 //
                 this.dispatch('updateProject', this.project._id, this.project).then(function (response) {
                     if(!response.success) return this.manageErrorResponse(response);
@@ -281,7 +281,7 @@
             },
             remove: function(){
                 this.$.removingConfirm.close();
-                const index = this.project.users.indexOf(this.tempUser);
+                const index = this.project.users.indexOf(this.tempUser._id);
                 this.project.users.splice(index,1);
                 this.set('project.users', this.project.users);
                 //

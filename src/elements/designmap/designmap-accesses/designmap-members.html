@@ -233,7 +233,7 @@
             },
             remove: function(){
                 if(this.tempUser.invited) return this.removeInvited();
-                const index = this.project.users.indexOf(this.tempUser);
+                const index = this.project.users.indexOf(this.tempUser._id);
                 this.project.users.splice(index,1);
                 this.set('project.users', this.project.users);
                 //
@@ -246,6 +246,7 @@
                 }.bind(this));
             },
             removeInvited: function(){
+                if(!this.project.invited) return;
                 const index = this.project.invited.indexOf(this.tempUser.local.email);
                 this.project.invited.splice(index,1);
                 this.set('project.invited', this.project.invited);
