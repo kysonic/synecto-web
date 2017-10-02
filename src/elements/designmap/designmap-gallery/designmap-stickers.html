@@ -499,7 +499,7 @@
                                               as="comment">
                                         <div class="comment">
                                             <div hidden$="[[comment.edit]]" class="text">
-                                                <plastic-html msg="[[processLinksInText(comment.text)]]"></plastic-html>
+                                                <plastic-html msg="[[commentTextProcess(comment.text)]]"></plastic-html>
                                             </div>
                                             <div class="ta" hidden$="[[!comment.edit]]">
                                             <textarea class="textarea"
@@ -579,21 +579,6 @@
                 <designmap-login-form fake-support></designmap-login-form>
             </div>-->
         </div>
-        <!-- Hint -->
-        <designmap-hint id="addCommentHint"
-                        target="[[hintTarget]]"
-                        name="addComment"
-                        tri-right
-                        vertical-offset="-2"
-                        horizontal-offset="-300">
-            <div class="title">
-                <i18-n msgid="Add comment hint">Add comment</i18-n>
-            </div>
-            <div class="desc">
-                <i18-n msgid="addCommentMsg">addCommentMsg</i18-n>
-            </div>
-
-        </designmap-hint>
     </template>
     <script>
 

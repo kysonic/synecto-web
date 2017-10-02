@@ -381,14 +381,6 @@
              */
             _isAuthChanged: function (isAuth) {
                 if (!isAuth) return;
-                // Start FileSystem tutorial
-                /*if(this.user && this.user.system && this.user.system.tutorials && !this.user.system.tutorials.fs && this.MQ!='sm') {
-                    const user = Object.assign({},this.user);
-                    const tutorial = document.querySelector('designmap-app').$.fsTutorial;
-                    user.system.tutorials.fs = true;
-                    this.dispatch('userUpdate',user);
-                    this.async(function(){tutorial.start();},2000);
-                }*/
             },
 
             /**

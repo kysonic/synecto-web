@@ -7,6 +7,7 @@
 <link rel="import" href="../designmap-accesses/designmap-accesses.html">
 <link rel="import" href="../../plastic/plastic-select.html">
 <link rel="import" href="../../plastic/plastic-custom-scroll.html">
+<link rel="import" href="../designmap-tutorial/designmap-hint.html">
 <!-- Redux -->
 <link rel="import" href="../../../redux/actions/combine-actions.html">
 <link rel="import" href="../../../redux/actions/user-actions.html">
@@ -285,6 +286,13 @@
             height: 40px;
         }
 
+        .tri-down {
+            --designmap-dropdown-triangle-left-mixin: {
+                top: 100%;
+                margin-top: -30px;
+            }
+        }
+
 
         @media (min-width: 320px) and (max-width: 768px) {
             .mobile-project-menu {
@@ -311,6 +319,24 @@
                 </plastic-select>
             </div>
 
+            <!-- Hint -->
+            <designmap-hint id="projectSectionHint"
+                            previous
+                            have-skip
+                            name="projectSection"
+                            tri-left
+                            on-pre-hook="menuHintPreHook"
+                            vertical-offset="0"
+                            horizontal-offset="220">
+                <div class="title">
+                    <i18-n msgid="Projects section">Projects section</i18-n>
+                </div>
+                <div class="desc">
+                    <i18-n msgid="projectSectionHintDesc">projectSectionHintDesc</i18-n>
+                </div>
+            </designmap-hint>
+            <!-- Hint -->
+
             <designmap-projects-list id="projectList" closed-projects="{{closedProjects}}"></designmap-projects-list>
 
             <div class="create-project" on-click="openCreateProjectDialog">
@@ -322,6 +348,25 @@
             <div class="menu-title" hidden$="[[!project._id]]" style="margin-top: 5px;">
                 <i18-n msgid="Blocks">Blocks</i18-n>
             </div>
+
+            <!-- Hint -->
+            <designmap-hint id="blocksHint"
+                            previous
+                            have-skip
+                            name="blocks"
+                            tri-left
+                            on-pre-hook="menuHintPreHook"
+                            vertical-offset="0"
+                            horizontal-offset="220">
+                <div class="title">
+                    <i18-n msgid="Blocks">Blocks</i18-n>
+                </div>
+                <div class="desc">
+                    <i18-n msgid="blocksHintDesc">blocksHintDesc</i18-n>
+                </div>
+            </designmap-hint>
+            <!-- Hint -->
+
             <ul class="indented" hidden$="[[!project._id]]">
 
 
@@ -387,6 +432,25 @@
             <div class="menu-title" hidden$="[[!project._id]]" style="margin-top: 5px;">
                 <i18-n msgid="Members">Members</i18-n>
             </div>
+
+            <!-- Hint -->
+            <designmap-hint id="membersHint"
+                            class="tri-down"
+                            previous
+                            have-skip
+                            name="blocks"
+                            tri-left
+                            on-pre-hook="menuHintPreHook"
+                            vertical-offset="-200"
+                            horizontal-offset="220">
+                <div class="title">
+                    <i18-n msgid="Members">Members</i18-n>
+                </div>
+                <div class="desc">
+                    <i18-n msgid="membersHintDesc">membersHintDesc</i18-n>
+                </div>
+            </designmap-hint>
+            <!-- Hint -->
 
             <designmap-members></designmap-members>
 
@@ -628,6 +692,11 @@
                         disabled: length==0
                     }
                 ]
+            },
+            menuHintPreHook: function(){
+                if(!this.mobileMode) return;
+                const app = document.querySelector('designmap-app');
+                app.$.drawer.opened = true;
             }
         });
     </script>

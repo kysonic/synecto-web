@@ -313,10 +313,44 @@
                 };
             }
 
-            .followers plastic-custom-scroll {
-                --plastic-custom-scroll-content-mixin:{
-                    max-height: calc(100vh - 280px);
-                };
+
+            @media (min-width: 320px) and (max-width: 768px) {
+                .grid {
+                    flex-direction: column;
+                }
+                .grid .right {
+                    max-width: 100%;
+                }
+                .task-desc {
+                    margin-left: 15px;
+                }
+                .desc-textarea.edit {
+                    margin-top: -1px;
+                    --plastic-textarea-mixin: {
+                        margin-left: 14px;
+                        font-family: var(--font-family);
+                        color: var(--gray-darky-color);
+                        max-width: calc(100% - 40px);
+                        font-weight: 100;
+                        font-size: 18px;
+                        padding: 5px ;
+                        height: 25px;
+                        border: 1px solid var(--gray-color);
+                    };
+                }
+                .desc-arrow {
+                    margin-right: 15px;
+                }
+                designmap-task-list {
+                    padding-bottom: 10px;
+                }
+
+
+                plastic-custom-scroll {
+                    --plastic-custom-scroll-content-mixin:{
+                        max-height: calc(100vh - 295px);
+                    };
+                }
             }
 
         </style>
@@ -330,6 +364,22 @@
                                         disabled="[[!canRemoveTask(task)]]"
                                         assignee="[[task.assignee]]" on-assign="_selectAssignee"
                                         on-remove="_removeAssignee"></designmap-assignee>
+                    <!-- Hint -->
+                    <designmap-hint id="assigneeHint"
+                                    previous
+                                    have-skip
+                                    tri-left
+                                    name="assginee"
+                                    vertical-offset="20"
+                                    horizontal-offset="70">
+                        <div class="title">
+                            <i18-n msgid="Assignee">Assignee</i18-n>
+                        </div>
+                        <div class="desc">
+                            <i18-n msgid="assigneeHintDesc">assigneeHintDesc</i18-n>
+                        </div>
+                    </designmap-hint>
+                    <!-- Hint -->
                     <paper-tooltip for="assignee" position="right">
                         <i18-n msgid="Assign responsible">Assign responsible</i18-n>
                     </paper-tooltip>
@@ -360,7 +410,7 @@
             <plastic-custom-scroll id="scroller" fit small-bar>
                 <div class="grid">
                     <div class="left">
-                        <designmap-task-info task="[[task]]" project-users="[[projectUsers]]"></designmap-task-info>
+                        <designmap-task-info id="info" task="[[task]]" project-users="[[projectUsers]]"></designmap-task-info>
                         <!-- Description -->
                         <div class="description">
                             <iron-a11y-keys id="a11ySaveDesc" keys="ctrl+enter meta+enter"
@@ -380,11 +430,25 @@
                                 <iron-icon icon="icons:arrow-forward"></iron-icon>
                             </div>
                         </div>
-                        <!-- Comment-list-->
-                        <!-- History ?! -->
                     </div>
                     <div class="right">
                         <designmap-task-menu language="[[language]]" i-18-loaded="[[i18Loaded]]" spent-time="[[spentTime]]" project-users="[[projectUsers]]" user="[[user]]" task="[[task]]" project="[[project]]"></designmap-task-menu>
+                        <!-- Hint -->
+                        <designmap-hint id="actionsHint"
+                                        previous
+                                        have-skip
+                                        tri-right
+                                        name="actions"
+                                        vertical-offset="0"
+                                        horizontal-offset="-300">
+                            <div class="title">
+                                <i18-n msgid="Task actions">Task actions</i18-n>
+                            </div>
+                            <div class="desc">
+                                <i18-n msgid="taskActionsDesc">taskActionsDesc</i18-n>
+                            </div>
+                        </designmap-hint>
+                        <!-- Hint -->
                     </div>
                 </div>
                 <div class="mid">
@@ -393,8 +457,24 @@
                                          parent="[[task._id]]"
                                          small-add-task
                                          no-scroll="true"></designmap-task-list>
+                    <!-- Hint -->
+                    <designmap-hint id="subtasksHint"
+                                    previous
+                                    have-skip
+                                    name="subtasks"
+                                    tri-bottom
+                                    vertical-offset="-280"
+                                    horizontal-offset="20">
+                        <div class="title">
+                            <i18-n msgid="Subtasks">Subtasks</i18-n>
+                        </div>
+                        <div class="desc">
+                            <i18-n msgid="subtasksHintDesc">subtasksHintDesc</i18-n>
+                        </div>
+                    </designmap-hint>
+                    <!-- Hint -->
                     <!-- Comment list -->
-                    <designmap-task-comment-list user="[[user]]" task="[[task]]" comments="[[comments]]"></designmap-task-comment-list>
+                    <designmap-task-comment-list  project-id="[[projectId]]" user="[[user]]" task="[[task]]" comments="[[comments]]"></designmap-task-comment-list>
                 </div>
             </plastic-custom-scroll>
         </div>
@@ -639,7 +719,7 @@
             },
 
             _generateDesc: function(desc){
-                return this.processLinksInText(desc) || (this.canUpdateTask(this.task) ? this.translate('Enter description') : this.translate('There is no description') )
+                return this.commentTextProcess(desc) || (this.canUpdateTask(this.task) ? this.translate('Enter description') : this.translate('There is no description') )
             },
 
             saveTempDesc: function(v){

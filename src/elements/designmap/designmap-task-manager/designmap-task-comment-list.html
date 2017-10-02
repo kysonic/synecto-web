@@ -166,7 +166,7 @@
                         </div>
                         <div class="content">
                             <div class="comment-text">
-                                <plastic-html msg="[[processLinksInText(comment.text)]]"></plastic-html>
+                                <plastic-html msg="[[commentTextProcess(comment.text)]]"></plastic-html>
                             </div>
                         </div>
                     </div>
@@ -220,6 +220,10 @@
                 taskComments: {
                     type: Array,
                     value: []
+                },
+                projectId: {
+                    type: String,
+                    value: ''
                 }
             },
             _getComments: function (id) {

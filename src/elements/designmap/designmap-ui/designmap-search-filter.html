@@ -55,12 +55,67 @@
             .item {
                 padding: 5px 0;
             }
+            .search-button {
+                display: none;
+            }
+            .mobile-dropdown {
+                display: none;
+            }
+            @media (min-width: 320px) and (max-width: 768px) {
+                :host {
+                    --designmap-dropdown-mixin: {
+                        max-width: calc(100vw - 30px);
+                        width: calc(100vw - 30px);
+                        padding: 10px;
+                        border: 1px solid var(--gray-color);
+                        box-shadow: var(--box-shadow);
+                    }
+                }
+                .search-button {
+                    display: block;
+                    position: relative;
+                    top: 3px;
+                }
+                .search-input {
+                    display: none;
+                }
+                .mobile-dropdown {
+                    position: absolute;
+                    width: 100vw;
+                    height: 55px;
+                    background: var(--white-color);
+                    left: 0;
+                    top: 0;
+                    z-index: 999;
+                    padding: 0 15px;
+                    border-bottom: 1px solid var(--gray-color);
+                }
+                .mobile-search-input {
+                    margin-top: 7px;
+                    width: calc(100% - 33px);
+                }
+                .mobile-dropdown.opened {
+                    display: block;
+                }
+                .item {
+                    overflow: initial !important;
+                }
+            }
         </style>
         <div class="wrap">
-            <paper-input id="search"  on-input="_changeSearchInput" label="[[label]]" on-click="openDropdown">
+            <paper-input id="search" class="search-input" on-input="_changeSearchInput" label="[[label]]" on-click="openDropdown">
                 <paper-icon-button suffix icon="search" class="search-btn" on-click="search"></paper-icon-button>
             </paper-input>
-            <designmap-dropdown no-cancel-on-outside-click="[[noCancelOnOutsideClick]]" id="dropdown" previous vertical-offset="40" horizontal-offset="0">
+            <!-- Mobile -->
+            <div class$="mobile-dropdown [[_mobileDropDownCls(mobileDropdownOpened)]]">
+                <paper-input id="mobileSearch" class="mobile-search-input" on-input="_changeSearchInput" label="[[label]]" on-click="openDropdown">
+                    <paper-icon-button suffix icon="search" class="search-btn" on-click="search"></paper-icon-button>
+                </paper-input>
+            </div>
+            <!-- Mobile -->
+            <paper-icon-button class="search-button" suffix icon="search" class="search-btn" on-click="openMobileSearch"></paper-icon-button>
+            <!-- Filters -->
+            <designmap-dropdown no-cancel-on-outside-click="[[noCancelOnOutsideClick]]" id="dropdown" target="[[_getInput(MQ)]]" vertical-offset="40" horizontal-offset="0">
                 <template is="dom-repeat" items="[[items]]" as="item">
                     <div class="item">
                         <template is="dom-if" if="[[_isSelect(item)]]">
@@ -92,11 +147,23 @@
                 noCancelOnOutsideClick: {
                     type: Boolean,
                     value: false
+                },
+                mobileDropdownOpened: {
+                    type: Boolean,
+                    value: false
+                },
+                MQ: {
+                    type: String,
+                    statePath: 'MQ',
+                    value: ''
                 }
             },
             observers: [
                 '_itemsChanged(items)'
             ],
+            ready: function () {
+                this.MQ = ReduxStore.getState().MQ;
+            },
             _itemsChanged: function(items){
                 if(this.values) return;
                 items.forEach(function(item){
@@ -118,9 +185,10 @@
                 this.fire('search',this.values);
             },
             _changeSearchInput: function(){
+                const inpt = this._getInput(this.MQ);
                 this.values.searchInpt = {
                     type: 'search',
-                    value: this.$.search.value
+                    value: inpt.value
                 };
                 this.fire('search',this.values);
             },
@@ -137,6 +205,17 @@
             },
             empty: function(){
                 this.$.search.value = '';
+                this.$.mobileSearch.value = '';
+                this.mobileDropdownOpened = false;
+            },
+            _mobileDropDownCls: function(mobileDropdownOpened){
+                return mobileDropdownOpened ? 'opened' : '';
+            },
+            openMobileSearch: function(){
+                this.mobileDropdownOpened = true;
+            },
+            _getInput: function(MQ) {
+                return MQ=='sm' ? this.$.mobileSearch : this.$.search;
             }
         })
     </script>

@@ -106,7 +106,6 @@
                     font-weight: 500 !important;
                 };
                 --paper-input-container-invalid-color: var(--error-color);
-                --iron-icon-fill-color: var(--gray-saturate-color);
                 --paper-icon-button: {
                     padding: 0;
                     width: 24px;
@@ -117,6 +116,8 @@
                 --paper-font-caption: {
                     height: 10px;
                 };
+
+                --iron-icon-fill-color: var(--blue-darkest-color);
             }
 
             *[hidden] {
@@ -137,7 +138,9 @@
                 position: relative;
                 font-weight: 300;
                 padding: 5px 0;
+
             }
+
 
             .message:hover {
                 background: var(--gray-lightern-color);
@@ -186,6 +189,10 @@
 
             .message .body .menu > * {
                 display: inline-block;
+            }
+
+            .message .body .menu paper-icon-button {
+                --iron-icon-fill-color: var(--gray-saturate-color);
             }
 
             .message .body .menu paper-icon-button:first-child {
@@ -494,6 +501,17 @@
                 margin-right: 30px;
             }
 
+            .right paper-input {
+                --iron-icon-fill-color: var(--blue-darkest-color);
+            }
+
+            .attach-task {
+                --designmap-dropdown-triangle-bottom-mixin: {
+                    left: 100%;
+                    margin-left: -90px;
+                }
+            }
+
 
             @media (min-width: 320px) and (max-width: 768px) {
                 .scroll {
@@ -588,7 +606,7 @@
                                 </div>
                             </template>
                             <div class="text" hidden$="[[!message.text]]">
-                                <plastic-html class="html" msg="[[processLinksInText(message.text)]]"></plastic-html>
+                                <plastic-html class="html" msg="[[commentTextProcess(message.text)]]"></plastic-html>
                             </div>
                             <div class="menu">
                                 <!---->
@@ -669,11 +687,44 @@
                     <div id="addFileButton" class="button add-file" on-click="openFileExplorer">
                         <iron-icon class="bigicon" icon="designmap24:file"></iron-icon>
                     </div>
+                    <!-- Hint -->
+                    <designmap-hint id="attachFileChatHint"
+                                    previous
+                                    have-skip
+                                    tri-bottom
+                                    name="attachFileChat"
+                                    vertical-offset="-280"
+                                    horizontal-offset="-120">
+                        <div class="title">
+                            <i18-n msgid="Attach file">Attach file</i18-n>
+                        </div>
+                        <div class="desc">
+                            <i18-n msgid="attachFileChatDesc">attachFileChatDesc</i18-n>
+                        </div>
+                    </designmap-hint>
+                    <!-- Hint -->
                     <paper-tooltip position="top" for="addFileButton"><i18-n msgid="Attach file">Attach file</i18-n></paper-tooltip>
                     <!-- -->
                     <div id="addTaskButton" on-click="openTasksExplorer" class="button add-task">
                         <iron-icon class="bigicon" icon="designmap24:task"></iron-icon>
                     </div>
+                    <!-- Hint -->
+                    <designmap-hint id="attachTaskChatHint"
+                                    class="attach-task"
+                                    previous
+                                    have-skip
+                                    tri-bottom
+                                    name="attachTaskChat"
+                                    vertical-offset="-280"
+                                    horizontal-offset="-170">
+                        <div class="title">
+                            <i18-n msgid="Attach task">Attach task</i18-n>
+                        </div>
+                        <div class="desc">
+                            <i18-n msgid="attachTaskChatHintDesc">attachTaskChatHintDesc</i18-n>
+                        </div>
+                    </designmap-hint>
+                    <!-- Hint -->
                     <paper-tooltip position="top" for="addTaskButton"><i18-n msgid="Attach task">Attach task</i18-n></paper-tooltip>
                     <!-- -->
                     <div id="sendMessage" class="button send-msg" on-tap="postMessage" disabled$="[[!_sendButtonState(message,attaches.length)]]">
@@ -983,10 +1034,11 @@
 
             _getFollowers: function(){
                 return this.project.users.filter(function(user){
-                    const defaultDate = new Date();
+                    /*const defaultDate = new Date();
                     const date = new Date(user.system.lastChatReview || defaultDate.setMinutes(defaultDate.getMinutes() - 130));
                     date.setMinutes(date.getMinutes() + 120);
-                    return date < new Date();
+                    return date < new Date();*/
+                    return !user.online;
                 }).map(function(user){
                     return user._id;
                 });

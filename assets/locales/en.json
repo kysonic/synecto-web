@@ -246,22 +246,22 @@
     "message": "Restore"
   },
   "Files": {
-    "message": "Files"
+    "message": "files"
   },
   "Children": {
-    "message": "Children"
+    "message": "сhildren"
   },
   "Path": {
-    "message": "Path"
+    "message": "path"
   },
   "Mime type": {
-    "message": "Mime type"
+    "message": "mime type"
   },
   "Size": {
-    "message": "Size"
+    "message": "size"
   },
   "Storage": {
-    "message": "Storage"
+    "message": "storage"
   },
   "User will be able to see your project and manage stickers on it.": {
     "message": "User will be able to see your project and manage stickers on it."
@@ -657,7 +657,7 @@
     "message": "Notifications"
   },
   "Account menu": {
-    "message": "User menu"
+    "message": "Settings menu"
   },
   "Creating sub-folder": {
     "message": "Create folder"
@@ -684,7 +684,10 @@
     "message": "Copy to clipboard"
   },
   "Link was copied to your clipboard.": {
-    "message": "Link was copied to your clipboard"
+    "message": "File #ID has been copied in clipboard. Put it in comment or chat message to create link on this file."
+  },
+  "Element id was copied.": {
+    "message": "Element #ID has been copied in clipboard. Put it in comment or chat message to create link on this element."
   },
   "accountSettingsMsg": {
     "message": "Connect your cloud drive to keep your files in one place. \n\n Open \"User's menu\", select \"Account settings\". Attention! Synecto data space is in beta now!"
@@ -955,9 +958,6 @@
   },
   "project": {
     "message": "Project"
-  },
-  "file": {
-    "message": "File name"
   },
   "There is no any notifications": {
     "message": "There is no any notifications..."
@@ -1574,9 +1574,6 @@
   "Task list": {
     "message": "Task list"
   },
-  "taskListMsg": {
-    "message": "On top of the list you can see filters. Under the list located field allowing to add new task."
-  },
   "Change task title": {
     "message": "Change task title"
   },
@@ -2184,9 +2181,96 @@
     "message": "This user already invited."
   },
   "Project's team members:": {
-    "message": "Project's team members:"
+    "message": "Team members:"
   },
   "Remove team member": {
     "message": "Remove team member"
+  },
+  "folder": {
+    "message": "folder"
+  },
+  "file": {
+    "message": "file"
+  },
+  "task": {
+    "message": "task"
+  },
+  "created": {
+    "message": "created"
+  },
+  "stickers": {
+    "message": "comments"
+  },
+  "files": {
+    "message": "files"
+  },
+  "spent time": {
+    "message": "spent time"
+  },
+  "Corresponding tasks": {
+    "message": "Corresponding tasks"
+  },
+  "File id share": {
+    "message": "Copy file #ID into clipboard"
+  },
+  "Copy id": {
+    "message": "Copy #ID"
+  },
+  "Projects section": {
+    "message": "Projects section"
+  },
+  "projectSectionHintDesc": {
+    "message": "Here you can find all required for your projects management. You can <b>close</b> your project, <b>rename</b> it or create <b>new one</b>."
+  },
+  "blocksHintDesc": {
+    "message": "Any Synecto project contains following parts:<br/> <b>Tasks</b> - manage your project flow: tasks, due dates and so on;<br/> <b>Files</b> - cloud drive for your project's data;<br/> <b>Chat</b> - quick messaging and reports;<br/> <b>Archive</b> - tasks or files can be archived here."
+  },
+  "membersHintDesc": {
+    "message": "Manage your <b>team members</b>. Invite colleagues, customers, or just friends. Of course if you are project owner... "
+  },
+  "userMenuDesc": {
+    "message": "Click on e-mail to open <b>settings menu</b>. Here you can find <b>support menu</b>, <b>account settings</b> or <b>plans settings</b> and so on. By the way the bell nearby it is <b>notificaitons</b>."
+  },
+  "taskListDesc": {
+    "message": "You can add <b>new task</b> here. Any task list has <b>quick filters</b>, they located on top of it. By default quick filter shows only <b>\"not completed\"</b> tasks."
+  },
+  "assigneeHintDesc": {
+    "message": "Clicking this button you can <b>assign</b> some team member on this task. Task assignee can change <b>task status</b> and <b>track time</b> spent on this task."
+  },
+  "statusHintDesc": {
+    "message": "There are <b>4 statuses</b> in Synecto: <br><b>Awaiting<b> - when task is not start. <br><b>In progress</b> - when assignee start working. <br><b>Completed</b> - When task is finished. <br><b>Expired</b> - when task is not completed by due date."
+  },
+  "Task actions": {
+    "message": "Task actions"
+  },
+  "taskActionsDesc": {
+    "message": "Change <b>due date</b>, estimate tasks in <b>story points</b>, <b>track</b> spent time, and others"
+  },
+  "subtasksHintDesc": {
+    "message": "Type new subtask name and press <b>Enter</b>. Use <b>breadcrumbs</b> to navigate between task and subtasks."
+  },
+  "Subtasks": {
+    "message": "Subtasks"
+  },
+  "folderHintDesc": {
+    "message": "Folder can be opened via <b>double click</b>. Navigation between folders can be established via <b>breadcrumbs</b>. Right click or click on folder menu button opens <b>context menu</b>."
+  },
+  "File system button panel": {
+    "message": "File system button panel"
+  },
+  "fsPanelHintDesc": {
+    "message": "Using those buttons you can: <br/><b>Create new folder</b>,<br/><b>Upload new file</b>, <br/><b>Create new Google document</b>"
+  },
+  "fileHintDesc": {
+    "message": "Images can be discussed using <b>precise comments</b>. Office files (docx,xlsx,pttx,pdf) can be <b>previewed</b>. Using context menu you can <b>copy file #ID</b> to create link on it in comments."
+  },
+  "attachFileChatDesc": {
+    "message": "Upload <b>new file</b> or attach one of <b>existing</b> using file system explorer. Uploaded files will be stored in File system."
+  },
+  "attachTaskChatHintDesc": {
+    "message": "Create <b>new task</b> just right here or attach one of <b>existing</b> using task manager explorer. Created tasks will be stored in Task manager."
+  },
+  "Add new member": {
+    "message": "Add new member"
   }
 }

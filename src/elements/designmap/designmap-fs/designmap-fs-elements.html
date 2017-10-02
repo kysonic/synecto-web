@@ -4,6 +4,7 @@
 <link rel="import" href="../designmap-ui/designmap-hidden-panel.html">
 <link rel="import" href="designmap-file-uploader.html">
 <link rel="import" href="../../plastic/plastic-custom-scroll.html">
+<link rel="import" href="/bower_components/cbn-copy-clipboard/cbn-copy-clipboard.html">
 
 <!-- Redux -->
 <link rel="import" href="../../../redux/actions/folders-actions.html">
@@ -200,6 +201,13 @@
                             </div>
                         </designmap-context-menu>
                     </template>
+
+                    <li on-tap="_copyId">
+                        <cbn-copy-clipboard  value="#[[_computeTaskId(currentElement)]]">
+                            <i18-n msgid="Copy id">Copy #ID</i18-n>
+                        </cbn-copy-clipboard>
+                    </li>
+
                     <li on-click="cutElement">
                         <i18-n msgid="Cut">Cut</i18-n>
                     </li>
@@ -269,6 +277,36 @@
         <div class="cloud">
             <iron-icon icon="cloud-upload"></iron-icon>
         </div>
+
+        <!-- Hint -->
+        <designmap-hint id="folderHint"
+                        target="[[hintFolderTarget]]"
+                        have-skip
+                        name="folder"
+                        vertical-offset="200"
+                        horizontal-offset="20">
+            <div class="title">
+                <i18-n msgid="Folder">Folder</i18-n>
+            </div>
+            <div class="desc">
+                <i18-n msgid="folderHintDesc">folderHintDesc</i18-n>
+            </div>
+        </designmap-hint>
+
+        <designmap-hint id="fileHint"
+                        target="[[hintFileTarget]]"
+                        have-skip
+                        name="file"
+                        vertical-offset="200"
+                        horizontal-offset="0">
+            <div class="title">
+                <i18-n msgid="File">File</i18-n>
+            </div>
+            <div class="desc">
+                <i18-n msgid="fileHintDesc">fileHintDesc</i18-n>
+            </div>
+        </designmap-hint>
+        <!-- Hint -->
     </template>
     <script>
         Polymer({
@@ -390,6 +428,9 @@
                 // Resizer
                 /*this.resizerShouldNotify(this);
                  this.assignParentResizable(this);*/
+            },
+
+            attached: function(){
                 if(!this.hintTarget) {
                     this.async(function(){
                         this.hintFolderTarget = this.$$('designmap-fs-element[type="folder"]');
@@ -747,6 +788,11 @@
                     if(index>limit) return false;
                     return true;
                 }.bind(this)
+            },
+
+            _copyId: function (e) {
+                this.$$('#contextMenu').close();
+                this.showMessage('Element id was copied.')
             }
         });
     </script>

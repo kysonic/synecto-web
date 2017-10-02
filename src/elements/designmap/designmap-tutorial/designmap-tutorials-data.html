@@ -1,0 +1,37 @@
+<script>
+    /**
+     * All Tutorials Hints in one Place
+     * @type {{properties: {}}}
+     */
+    Polymer.DesignMapTutorialsData = {
+        properties: {
+            tutorial: {
+                type: Array,
+                value: {
+                    basic: [
+                        'advancedMenu.projectSectionHint',
+                        'advancedMenu.blocksHint',
+                        'advancedMenu.membersHint',
+                        'dmHeader.userMenuHint'
+                    ],
+                    'task-manager': [
+                        'taskManagerView.taskManager.list.taskListHint',
+                        'taskManagerView.taskManager.details.assigneeHint',
+                        'taskManagerView.taskManager.details.info.statusHint',
+                        'taskManagerView.taskManager.details.actionsHint',
+                        'taskManagerView.taskManager.details.subtasksHint'
+                    ],
+                    fs: [
+                        'fsView.fs.panel.fsPanelHint',
+                        'fsView.fs.elements.folderHint',
+                        'fsView.fs.elements.fileHint',
+                    ],
+                    chat: [
+                        'chatView.chat.attachFileChatHint',
+                        'chatView.chat.attachTaskChatHint',
+                    ]
+                }
+            }
+        }
+    }
+</script>

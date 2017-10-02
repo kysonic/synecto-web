@@ -71,6 +71,31 @@
                 color: var(--designmap-hint-text-dark-color);
                 font-weight: 100;
             }
+            .mark {
+                width: 7px;
+                height: 7px;
+                background: var(--inprogress);
+                border-radius: 50%;
+                position: absolute;
+                z-index: 999;
+            }
+            .mark .ripple {
+                background: var(--inprogress);
+                border-radius: 50%;
+                opacity: 0.6;
+                position: absolute;
+                z-index: 998;
+                animation: ripple .4s;
+                animation-iteration-count: infinite;
+            }
+            @keyframes ripple {
+                from {
+                    transform: scale(0);
+                }
+                to{
+                    transform: scale(1);
+                }
+            }
         </style>
         <designmap-dropdown vertical-offset="[[verticalOffset]]"
                             horizontal-offset="[[horizontalOffset]]"
@@ -79,6 +104,7 @@
                             tri-border
                             tri-right$="[[triRight]]"
                             tri-left$="[[triLeft]]"
+                            tri-bottom$="[[triBottom]]"
                             target="[[target]]">
             <content></content>
             <div class="button-set">
@@ -128,6 +154,10 @@
                     type: Boolean,
                     value: false
                 },
+                triBottom: {
+                    type: Boolean,
+                    value: false
+                },
                 haveSkip: {
                     type: Boolean,
                     value: false
@@ -139,16 +169,19 @@
                 this.app = document.querySelector('designmap-app');
             },
             run: function () {
+                this.fire('pre-hook',this);
                 this.$.dropdown.open();
             },
             finish: function () {
+                this.fire('post-hook',this);
                 this.$.dropdown.close();
             },
             tryIt: function () {
                 this.finish();
             },
             skip: function(){
-                this.fire('skip');
+                this.finish();
+                this.fire('hint-skip');
             }
         })
     </script>

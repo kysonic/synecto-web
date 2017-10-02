@@ -15,7 +15,7 @@
                 color: var(--blue-darkest-color);
             }
             .marked {
-                padding: 0 3px;
+                padding: 0 0;
                 background: #e7dad1;
             }
         </style>
@@ -42,7 +42,7 @@
             },
             highlightChanged: function(highlight){
                 if(!highlight) return  this.$.content.innerHTML = this.msg;
-                this.$.content.innerHTML = this.msg.replace(new RegExp(highlight,'ig'),'<span class="marked">'+highlight+'</span>');
+                this.$.content.innerHTML = this.msg.replace(new RegExp(highlight,'g'),'<span class="marked">'+highlight+'</span>');
             }
         })
     </script>

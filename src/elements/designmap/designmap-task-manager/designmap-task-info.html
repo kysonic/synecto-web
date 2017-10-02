@@ -37,9 +37,32 @@
             .identificator {
                 border-bottom: 1px dashed var(--gray-color);
             }
+            @media (min-width: 320px) and (max-width: 768px) {
+                designmap-task-status-selector {
+                    margin-left: 13px;
+                }
+                .info {
+                    margin-left: 18px;
+                }
+            }
         </style>
         <div class="statuses">
             <designmap-task-status-selector id="statusSelector" status="[[task.status]]"></designmap-task-status-selector>
+            <!-- Hint -->
+            <designmap-hint id="statusHint"
+                            previous
+                            have-skip
+                            name="status"
+                            vertical-offset="40"
+                            horizontal-offset="20">
+                <div class="title">
+                    <i18-n msgid="Status">Status</i18-n>
+                </div>
+                <div class="desc">
+                    <i18-n msgid="statusHintDesc">statusHintDesc</i18-n>
+                </div>
+            </designmap-hint>
+            <!-- Hint -->
             <paper-tooltip for="statusSelector"><i18-n msgid="Change status">Change status</i18-n></paper-tooltip>
             <!--<div hidden$="[[_isComplete(task.status)]]" class="finish-task" on-click="finishTask"><i18-n msgid="complete a task">complete a task</i18-n></div>-->
         </div>

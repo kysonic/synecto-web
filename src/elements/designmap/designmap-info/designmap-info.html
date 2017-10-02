@@ -1,0 +1,319 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../designmap-fs/designmap-fs-service.html">
+<link rel="import" href="../designmap-task-manager/deaignmap-task-service.html">
+<link rel="import" href="./designmap-info-icon.html">
+
+<dom-module is="designmap-info">
+    <template>
+        <style>
+            :host {
+                display: block;
+                height: 100%;
+                white-space: nowrap;
+                font-weight: 100;
+
+                --designmap-info-color: var(--blue-darkest-color);
+                --designmap-info-circle-background: var(--gray-lightenest-color);
+                --designmap-info-circle-border: var(--gray-lighty-color);
+                --designmap-info-label-color: var(--blue-darker-color);
+                --designmap-info-folder-wrapper: var(--blue-color);
+                --designmap-info-message-text: var(--gray-darkend-color);
+            }
+
+            .information {
+                text-align: center;
+                padding-top: 20px;
+            }
+
+            .name {
+                text-align: center;
+                font-size: 22px;
+                font-family: var(--font-family);
+                padding: 25px 0;
+                color: var(--designmap-info-color);
+                font-weight: 100;
+                text-transform: capitalize;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                width: 90%;
+                margin: 0 auto;
+            }
+
+
+
+            .info {
+                padding: 5px 10px;
+                text-align: center;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .info > * {
+                display: inline-block;
+            }
+
+            .info .message {
+                color: var(--designmap-info-message-text);
+
+            }
+
+            .info .title {
+                font-weight: 500;
+                color: var(--designmap-info-message-text);
+            }
+
+            .message {
+                text-align: center;
+            }
+
+            .store-icon.designmap {
+                width: 25px !important;
+                height: 25px !important;
+                padding: 17px 0 0 0 !important;
+            }
+
+            .tasks-list .title {
+                margin-top: 20px;
+            }
+
+            .tasks-list .task {
+                cursor: pointer;
+            }
+
+            .tasks-list .task .name {
+                margin: 5px;
+                padding: 0;
+            }
+
+            .tasks-list .task:hover {
+                text-decoration: underline;
+            }
+
+        </style>
+        <div class="information" hidden$="[[!computeInfoState(data)]]">
+           <!-- <div class="circle" hidden$="[[!isFile(data)]]">
+                <iron-icon class$="store-icon [[data.data.storage]]" icon="designmap:designmap"></iron-icon>
+            </div>-->
+            <designmap-info-icon data="[[data]]"></designmap-info-icon>
+           <!-- <div class="circle" hidden$="[[!isFile(data)]]">
+                <div class="size">[[computeFileSize(data.data.size)]]</div>
+            </div>-->
+            <div class="name" title="[[computeName(data)]]">[[computeName(data)]]</div>
+            <!-- Information -->
+            <template is="dom-repeat" items="[[_computeElementInfo(data)]]" as="info">
+                <div class="info">
+                    <div class="title" title="[[translate(info.title,language,i18Loaded)]]">
+                        [[translate(info.title,language,i18Loaded)]]
+                    </div>:
+                    <div class="message" title="[[translate(info.value,language,i18Loaded)]]">
+                        [[translate(info.value,language,i18Loaded)]]
+                    </div>
+                </div>
+            </template>
+            <template is="dom-if" if="[[isFile(data)]]">
+                <div class="tasks-list">
+                    <div class="title" hidden$="[[!_getCorrespondingTasksLength(data)]]">
+                        <i18-n msgid="Corresponding tasks">Corresponding tasks</i18-n>:
+                    </div>
+                    <template is="dom-repeat" items="[[_computeCorrespondingTasks(data)]]" as="task">
+                        <div class="task">
+                            <div on-click="_goToTask" class="name">[[task.name]]</div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+    </template>
+    <script>
+        var ICONS = {
+            'googleDrive': 'google-drive',
+            'yandexDisk': 'yandex-disk',
+            'dropBox': 'dropbox',
+            'designmap': 'designmap'
+        };
+        Polymer({
+            is: 'designmap-info',
+            behaviors: [
+                ReduxBehavior,
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapFsService,
+                Polymer.DesignMapTaskService
+            ],
+            properties: {
+                data: {
+                    type: Object,
+                    value: null
+                },
+                project: {
+                    type: Object,
+                    statePath: 'project'
+                },
+                projectId: {
+                    type: String,
+                    statePath: 'projectId'
+                },
+                projectUsers: {
+                    type: Object,
+                    statePath: 'projectUsers'
+                },
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    value: false
+                },
+                tasks: {
+                    type: Array,
+                    statePath: 'tasks'
+                }
+            },
+            /**
+             * State of information
+             */
+            computeInfoState: function (data) {
+                return !!data;
+            },
+            /**
+             * Compute element name
+             */
+            computeName: function (element) {
+                if (!element) return '';
+                if (element && element.name) return element.name;
+                if (element && element.data && element.data.name) return this.getElementName(element);
+            },
+            /**
+             * Compute folder's children
+             */
+            computeChildren: function (data) {
+                if (!data) return 0;
+                return this.findFolderByCriteria({path: this.getFullPath(data)}).length;
+            },
+
+            _computeElementInfo: function(data) {
+                if(!data) return [];
+                const infos = [
+                    {
+                        title: 'type',
+                        value: data.type
+                    },
+                    {
+                        title: 'owner',
+                        value: this.computeOwnerName(this.getProjectsUserById(data.owner))
+                    },
+                    {
+                        title: 'created',
+                        value: moment(new Date(data.created)).format('YYYY-MM-DD')
+                    }
+                ];
+                if(!this['_get'+data.type.capitalize()+'Info']) return infos;
+                return infos.concat(this['_get'+data.type.capitalize()+'Info'](data));
+            },
+
+            _getFolderInfo: function(data) {
+                return [
+                    {
+                        title: 'Children',
+                        value: this.computeChildren(data)
+                    },
+                    {
+                        title: 'Path',
+                        value: data.path || '/'
+                    },
+                    {
+                        title: 'files',
+                        value: data.files.length
+                    }
+                ]
+            },
+
+            _getFileInfo: function(data) {
+                const d = [
+                    {
+                        title: 'Mime type',
+                        value: data.data.contentType || data.data.mimeType
+                    }
+                ];
+
+                if(data.data.size) {
+                    let size = (data.data.size/1024);
+                    let postfix = 'kb';
+                    if(size>1024) {size = size/1024;postfix='mb'};
+
+                    d.push({
+                        title: 'Size',
+                        value: (data.data.size/1024) + ' kb'
+                    });
+                }
+
+                if(data.stickers && data.stickers.length) d.push({
+                    title: 'stickers',
+                    value: data.stickers.length
+                });
+
+                return d;
+            },
+
+            _getTaskInfo: function(data) {
+                const d = [
+                    {
+                        title: 'status',
+                        value: data.status
+                    },
+                    {
+                        title: 'spent time',
+                        value:  moment(data.time.spent).subtract('hours',3).format('HH:mm:ss')
+                    },
+                    {
+                        title: 'completed',
+                        value:  moment(new Date(data.completed)).format('YYYY-MM-DD')
+                    },
+                    {
+                        title: 'files',
+                        value: data.files.length
+                    }
+                ];
+
+                const assignee = this.computeOwnerName(this.getProjectsUserById(data.assignee));
+                if(assignee!='xxx') d.push(
+                    {
+                        title: 'assignee',
+                        value: assignee
+                    }
+                );
+
+
+                return d;
+            },
+
+            isFile: function (element) {
+                return element ? element.type == 'file' : false;
+            },
+
+            _computeCorrespondingTasks: function(data){
+                const tasks = [];
+                this.tasks.forEach(function(task){
+                    if(!task.removed && task.files.indexOf(data._id)!=-1) tasks.push(task);
+                });
+                return tasks;
+            },
+
+            _getCorrespondingTasksLength: function(data){
+                 return  this._computeCorrespondingTasks(data).length;
+            },
+
+            _goToTask: function(e){
+                const task = e.model.task;
+                this.fire('close-info');
+                page.redirect('/'+this.projectId+'/task-manager'+this.getTaskFullPath(task))
+            }
+
+        })
+    </script>
+</dom-module>

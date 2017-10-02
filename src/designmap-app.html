@@ -24,11 +24,12 @@
 <link rel="import" href="elements/designmap/designmap-icons/designmap-workspace-icons.html">
 <link rel="import" href="elements/designmap/designmap-workspace/designmap-advanced-menu.html">
 <link rel="import" href="elements/designmap/designmap-workspace/designmap-header.html">
-<link rel="import" href="elements/designmap/designmap-workspace/designmap-info.html">
+<link rel="import" href="elements/designmap/designmap-info/designmap-info.html">
 <link rel="import" href="elements/designmap/designmap-chat/designmap-chat.html">
 <link rel="import" href="elements/designmap/designmap-buttons/designmap-circle-button.html">
 <link rel="import" href="elements/designmap/designmap-notifications/designmap-notifier.html">
 <link rel="import" href="elements/designmap/designmap-tutorial/designmap-tutorial.html">
+<link rel="import" href="elements/designmap/designmap-tutorial/designmap-tutorials-data.html">
 <link rel="import" href="elements/plastic/plastic-media-query.html">
 <link rel="import" href="elements/designmap/designmap-ui/designmap-stub.html">
 <!-- Configs -->
@@ -163,15 +164,14 @@
         <designmap-notifier id="notifier"></designmap-notifier>
         <!-- i18-n -->
         <i18-n-domain id="i18nDomain" locale="[[language]]" messages-url="/assets/locales"></i18-n-domain>
-        <!-- Tutorials -->
-        <designmap-tutorial id="fsTutorial" hints="[[fsHints]]"></designmap-tutorial>
-        <designmap-tutorial id="tmTutorial" hints="[[tmHints]]"></designmap-tutorial>
         <!-- Sharing dialog -->
         <paper-dialog id="sharingDialog" cancel-auto-refit entry-animation="scale-up-animation"
                       exit-animation="scale-down-animation">
             <designmap-accesses edit="[[topAccess(user.role)]]" id="accesses"></designmap-accesses>
             <!--<iron-icon dialog-dismiss class="dialog-close access" icon="icons:close"></iron-icon>-->
         </paper-dialog>
+        <!-- Tutorials -->
+        <designmap-tutorial id="tutorial" loading="[[loading]]" user="[[user]]" ready-state="[[readyState]]" page="[[page]]" path="[[path]]" hints="[[tutorial]]"></designmap-tutorial>
         <!-- Confirms -->
         <designmap-confirm id="removeProjectConfirm" message="AreYouSureThatYouWannaRemoveProject"
                            on-continue="removeIt" on-suspend="suspendRemoving"></designmap-confirm>
@@ -257,6 +257,7 @@
                     Polymer.TasksActions,
                     Polymer.CommentsActions,
                     Polymer.MessagesActions),
+                Polymer.DesignMapTutorialsData,
                 Polymer.DesignMapUtilsBehavior,
                 Polymer.DesignMapMessagesBehavior,
                 Polymer.DesignmapSocketBehavior,
@@ -339,29 +340,6 @@
                     type: Boolean,
                     value: false
                 },
-                fsHints: {
-                    type: Array,
-                    value: [
-                        'fsView.fs.panel.createFolderHint',
-                        'fsView.fs.elements.openContextMenuHint',
-                        'fsView.fs.panel.uploadFileHint',
-                        'fsView.fs.elements.openFileHint',
-                        'galleryView.gallery.stickers.addCommentHint',
-                        'galleryView.gallery.shareHint'
-                    ]
-                },
-                tmHints: {
-                    type: Array,
-                    value: [
-                        'taskManagerView.taskManager.addTaskHint',
-                        'taskManagerView.taskManager.list.taskListHint',
-                        'taskManagerView.taskManager.details.changeTaskTitleHint',
-                        'taskManagerView.taskManager.details.changeTaskDescHint',
-                        'taskManagerView.taskManager.details.assigneeHint',
-                        'taskManagerView.taskManager.details.statusHint',
-                        'taskManagerView.taskManager.details.endingHint'
-                    ]
-                },
                 protocolShowCaseItems: {
                     type: Array,
                     value: [
@@ -399,7 +377,7 @@
 
             listeners: {
                 'open-info': 'openInfo',
-                'open-chat': 'openChat',
+                'close-info': 'closeInfo',
                 'set-unread-mark': '_setUnreadMark',
                 'close-share-dialog': 'closeShareDialog',
                 'open-menu': 'openMenu',
@@ -414,7 +392,9 @@
                 'close-showcase-dialog':'closeShowCaseDialog',
                 'close-accesses':'closeShareDialog',
                 'app-loading':'changeAppLoading',
-                'project-error':'changeAppError'
+                'project-error':'changeAppError',
+                'hint-skip': 'hintSkip',
+                'tutorial-finish': 'finishTutorial'
             },
 
 
@@ -645,25 +625,13 @@
             },
 
             openInfo: function () {
-                this.chatMode = false;
-                this.$.dmHeader.$.userMenu.chatIsOpen = false;
-                this.$.right.classList.remove('chat');
                 this.$.right.open();
-                this.$.right.persistent = false;
-                this._twoColumns();
-                this.updateStyles();
             },
 
-            openChat: function () {
-                this.chatMode = true;
-                this.$.dmHeader.$.userMenu.chatIsOpen = !this.$.dmHeader.$.userMenu.chatIsOpen;
-                this.$.right.classList.add('chat');
-                !this.$.right.persistent ? this.$.right.open() : this.$.right.toggle();
-                this.$.right.persistent = true;
-                this._threeColumns();
-                this.$.chat.scrollUp();
-                this.updateStyles();
+            closeInfo: function () {
+                this.$.right.close();
             },
+
 
             _twoColumns: function(){
                 this.$.pages.animate([
@@ -804,6 +772,34 @@
 
             _mobileModeChanged: function(mobileMode){
                 this.resWidth = mobileMode ? '1960px' : '1366px';
+            },
+
+            hintSkip: function(){
+                this.$.tutorial.thumbUp();
+                let currentStep = this.$.tutorial.current;
+                localStorage.setItem('synecto:tutorial:'+this.$.tutorial.section,++currentStep);
+                this.async(function(){
+                    this.$.tutorial.next();
+                },800);
+            },
+
+            finishTutorial: function(e){
+                localStorage.setItem('synecto:tutorial:'+this.$.tutorial.section,true);
+                this.checkTheTutorialEnd();
+            },
+
+            checkTheTutorialEnd: function(){
+                const tutorials = this.$.tutorial.TUTORIAL_PAGES.concat('basic');
+                let count = 0;
+                tutorials.forEach(function(tutorialName){
+                    const tutorial = JSON.parse(localStorage.getItem('synecto:tutorial:'+tutorialName));
+                    if(tutorial===true) count++;
+                });
+                if(count==tutorials.length) {
+                    const system = this.user.system;
+                    system.tutorials = true;
+                    this.dispatch('userUpdate',{system:system});
+                }
             }
 
         });

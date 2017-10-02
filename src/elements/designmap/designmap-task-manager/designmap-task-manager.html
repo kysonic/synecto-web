@@ -183,7 +183,7 @@
 
             .right {
                 float: right;
-                margin-right: 2px;
+                margin-right: 25px;
                 min-width: 230px;
             }
 
@@ -211,13 +211,16 @@
                 border-left: 1px solid var(--gray-color);
             }
 
+            .mobile-title {
+                display: none;
+            }
+
             @media (min-width: 320px) and (max-width: 768px) {
 
                 :host > .wrapper > .content {
                     display: flex;
                     height: calc(100vh - 180px);
                 }
-
                 .hidden-xs {
                     display: none;
                 }
@@ -231,10 +234,53 @@
                     display: none;
                 }
                 designmap-task-details {
-                    margin-top: 0px;
+                    margin-top: 0;
                 }
                 designmap-tasks-overview {
                     display: none;
+                }
+                .left {
+                    flex: 3;
+                    max-width: calc(100vw - 103px);
+                }
+                .right {
+                    flex: 1;
+                    min-width: auto;
+                    margin-right: 18px;
+                    display: flex;
+                    justify-content: flex-end;
+                }
+                designmap-search-filter {
+                    min-width: auto;
+                    display: inline-block;
+                }
+                .dashborad {
+                    justify-content: flex-start;
+                }
+                .left .title {
+                    margin-left: 20px;
+                }
+                .search {
+                    display: none;
+                }
+                .left .title {
+                    display: none !important;
+                }
+                .mobile-title {
+                    display: block;
+                    font-size: 26px;
+                    font-weight: 100;
+                    cursor: pointer;
+                    white-space: nowrap;
+                    vertical-align: middle;
+                    color: var(--title-color);
+                    margin-left: 22px;
+                    max-width: calc(100% - 30px);
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+                .mobile-title.selected {
+                    margin-left: 11px !important;
                 }
             }
 
@@ -243,12 +289,15 @@
         <div class="wrapper">
             <designmap-dashboard class="dashborad" hidden$="[[projectError]]" back="[[_showBack(selectedTask,MQ)]]" on-go-back="_arrowBackAction" >
                 <div class="left">
-                    <div class="title" >
+                    <div class$="title [[_isThereSelectedCls(selectedTask)]]" >
                         [[project.name]]
+                    </div>
+                    <div class$="mobile-title [[_isThereSelectedCls(selectedTask)]]">
+                        [[_computeMobileTitle(project,breadcrumbs,breadcrumbs.length)]]
                     </div>
                     <div class="breadcrumbs hidden-xs">
                         <div class="crumb">
-                            <div class="title" on-click="goOnTop"><i18-n msgid="Tasks">Tasks</i18-n></div>
+                            <div class="title" on-click="cancelTask"><i18-n msgid="Tasks">Tasks</i18-n></div>
                             <iron-icon class="line" icon="icons:chevron-left"></iron-icon>
                         </div>
                         <template is="dom-repeat" items="[[breadcrumbs]]" as="crumb">
@@ -268,10 +317,10 @@
                 </div>
                 <div class="right">
                     <designmap-search-filter id="searchFilter" label="[[translate('Search...',language,i18Loaded)]]" items="[[filterItems]]"></designmap-search-filter>
-                    <paper-icon-button id="cancelTask" icon="subject" on-click="cancelTask"></paper-icon-button>
+                    <!--<paper-icon-button id="cancelTask" icon="subject" on-click="cancelTask"></paper-icon-button>
                     <paper-tooltip for="cancelTask" position="left">
                         <i18-n msgid="Show overview">Show overview</i18-n>
-                    </paper-tooltip>
+                    </paper-tooltip>-->
                 </div>
             </designmap-dashboard>
             <div class$="content [[mode]]">
@@ -687,6 +736,16 @@
             cancelTask: function(){
                 this.selectedTask = null;
                 page.redirect('/'+this.projectId+'/task-manager/');
+            },
+
+            _isThereSelectedCls: function(selectedTask){
+                return !!selectedTask ? 'selected' : '';
+            },
+
+            _computeMobileTitle: function(project,breadcrumbs,length){
+                if(!project || !breadcrumbs) return 'XXX';
+                const crmb = breadcrumbs[length-2];
+                return breadcrumbs.length ? crmb?crmb.title: project.name : project.name
             }
         })
     </script>

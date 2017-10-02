@@ -1,0 +1,128 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="../designmap-icons/designmap-archive-icons.html">
+
+<dom-module id="designmap-info-icon">
+    <template>
+        <style>
+            :host {
+
+            }
+            .circle {
+                width: 60px;
+                height: 60px;
+                background: var(--designmap-info-circle-background);
+                color: var(--designmap-info-message-text);
+                border-radius: 50%;
+                border: 1px solid var(--designmap-info-circle-border);
+                display: inline-block;
+                margin-left: 5px;
+                vertical-align: top;
+            }
+
+            .circle .store-icon {
+                width: 30px;
+                height: 30px;
+                padding: 15px 0;
+            }
+
+            .circle .size {
+                padding: 20px 0;
+            }
+
+            .circle:first-child {
+                margin-left: 0px;
+            }
+
+            .circle .folder-wrapper {
+                height: 20px;
+                width: 30px;
+                padding: 16px 9px;
+            }
+
+            .circle .folder-wrapper .label {
+                height: 2px;
+                width: 18px;
+                background: var(--designmap-info-label-color);
+            }
+
+            .circle .folder-wrapper .folder {
+                height: 28px;
+                width: 44px;
+                background: var(--designmap-info-folder-wrapper);
+            }
+
+            .circle .ext {
+                color: var(--designmap-info-label-color);
+                text-align: center;
+                font-size: 22px;
+                text-transform: uppercase;
+                padding: 15px 0;
+                font-weight: bold;
+            }
+            .circle iron-icon {
+                width: 40px;
+                height: 40px;
+                padding: 10px;
+            }
+        </style>
+        <div class="circle">
+            <template is="dom-if" if="[[isFile(data)]]">
+                <template is="dom-if" if="[[isGoogleDoc(data)]]">
+                    <iron-icon icon="designmap:google-drive-blue"></iron-icon>
+                </template>
+                <template is="dom-if" if="[[!isGoogleDoc(data)]]">
+                    <div class="ext">
+                        [[getExtension(data.data.name)]]
+                    </div>
+                </template>
+            </template>
+            <template is="dom-if" if="[[isFolder(data)]]">
+                <div class="folder-wrapper" >
+                    <div class="label"></div>
+                    <div class="folder"></div>
+                </div>
+            </template>
+            <template is="dom-if" if="[[isTask(data)]]">
+                <iron-icon icon="designmap-archive:task"></iron-icon>
+            </template>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-info-icon',
+            behaviors: [],
+            properties: {
+                data: {
+                    type: Object,
+                    value: null
+                }
+            },
+
+            isFile: function (element) {
+                return element ? element.type == 'file' : false;
+            },
+
+            isFolder: function (element) {
+                return element ? element.type == 'folder' : false;
+            },
+
+            isTask: function (element) {
+                return element ? element.type == 'task' : false;
+            },
+
+            isGoogleDoc: function (element) {
+                return element && element.data ? element.data.storage == 'google' : false;
+            },
+
+            /**
+             * Get extension of the file
+             */
+            getExtension: function (name) {
+                if (!name) return null;
+                var splitter = name.split('.');
+                var ext = splitter[splitter.length - 1];
+                return '.' + ext.substr(0,3);
+            }
+        })
+    </script>
+</dom-module>

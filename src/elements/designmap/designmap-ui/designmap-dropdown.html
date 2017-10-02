@@ -119,6 +119,7 @@
                 margin-top: 0;
                 border-width: 5px 10px 5px 0;
                 border-color: transparent var(--white-color) transparent transparent;
+                @apply(--designmap-dropdown-triangle-left-mixin);
             }
             :host([tri-left]) .triangle-border {
                 left: 0;
@@ -126,10 +127,30 @@
                 top: 7px;
                 border-width: 5px 10px 5px 0;
                 border-color: transparent var(--gray-color) transparent transparent;
+                @apply(--designmap-dropdown-triangle-left-mixin);
+            }
+
+            :host([tri-bottom]) .triangle, :host([tri-bottom]) .triangle-border  {
+                left: 50%;
+                margin-left: -5px;
+                top: 100%;
+                margin-top: 0;
+                border-width: 10px 5px 0 5px;
+                border-color: var(--white-color) transparent transparent transparent;
+                @apply(--designmap-dropdown-triangle-bottom-mixin);
+            }
+            :host([tri-bottom]) .triangle-border {
+                left: 50%;
+                margin-left: -5px;
+                top: 100%;
+                margin-top: 1px;
+                border-width: 10px 5px 0 5px;
+                border-color: var(--gray-color) transparent transparent transparent;
+                @apply(--designmap-dropdown-triangle-bottom-mixin);
             }
 
             @media (min-device-width: 320px) and (max-device-width: 768px) {
-                .dropdown-content ::content * {
+                .dropdown-content ::content > * {
                     overflow: auto;
                 }
             }

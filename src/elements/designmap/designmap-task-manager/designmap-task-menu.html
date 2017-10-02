@@ -173,6 +173,25 @@
                 transition: .2s opacity,.2s transform;
             }
 
+            @media (min-width: 320px) and (max-width: 768px) {
+                :host {
+                    width: 100%;
+                }
+                ul.menu {
+                    width: 100%;
+                    padding: 0 15px !important;
+                }
+
+                ul.menu .item {
+                    vertical-align: top;
+                    display: inline-block;
+                    min-width: 45%;
+                }
+                .estimation-request, designmap-task-estimate-dropdown {
+                    display: none;
+                }
+            }
+
 
         </style>
         <!-- Estimate popup -->

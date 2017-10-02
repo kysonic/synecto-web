@@ -581,6 +581,13 @@
                 .add-task-wrapper input {
                     font-size: 18px;
                 }
+
+                .desktop-filters .row:first-child {
+                    margin-left: 20px;
+                }
+                .list {
+                    padding-left: 3px;
+                }
             }
 
         </style>
@@ -646,6 +653,21 @@
                            error-message="{{translate('TaskNameError',language,i18nLoaded)}}" id="addTask"/>
                 </div>
             </div>
+            <!-- Hint -->
+            <designmap-hint id="taskListHint"
+                            previous
+                            have-skip
+                            name="taskList"
+                            vertical-offset="55"
+                            horizontal-offset="50">
+                <div class="title">
+                    <i18-n msgid="Task list">Task list</i18-n>
+                </div>
+                <div class="desc">
+                    <i18-n msgid="taskListDesc">taskListDesc</i18-n>
+                </div>
+            </designmap-hint>
+            <!-- Hint -->
         </template>
         <template is="dom-if" if="[[_notFound(tasks.length,searchMode)]]">
             <div class="white-space">
@@ -660,17 +682,6 @@
             </div>
         </template>
         <div class$="[[computeLineClass(selected)]]"></div>
-        <!-- Hint -->
-        <designmap-hint id="taskListHint" have-skip target="[[overviewTaskHintTarget]]" on-skip="skipTutorialStep"
-                        name="taskList" vertical-offset="120"
-                        horizontal-offset="0">
-            <div class="title">
-                <i18-n msgid="Task list">Task list</i18-n>
-            </div>
-            <div class="desc">
-                <i18-n msgid="taskListMsg">taskListMsg</i18-n>
-            </div>
-        </designmap-hint>
     </template>
     <script>
         var STATUSES = ['incomplete', 'in_progress', 'completed'];

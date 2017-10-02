@@ -151,6 +151,11 @@
             .cross-tick.v {
                 transform: rotate(135deg);
             }
+            @media (min-width: 320px) and (max-width: 768px) {
+                .gear-button {
+                    display: none;
+                }
+            }
         </style>
         <div class="label" on-tap="openDropdown">[[_computeLabel(label,labels)]]</div>
         <paper-icon-button class="gear-button" hidden$="[[!_isProjectOwner(project,user)]]" icon="icons:settings" on-tap="openSettingsDropdown"></paper-icon-button>

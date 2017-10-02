@@ -25,6 +25,13 @@
             return (task.path || Designmap.config.separator) + (name || task.name) + Designmap.config.separator;
         },
         /**
+         * Get full path of task
+         */
+        getTaskFullPath: function (task, name) {
+            if (!task) return null;
+            return (task.path || Designmap.config.separator) + (name || task.name) + Designmap.config.separator;
+        },
+        /**
          * Find name of folder using its full path
          */
         findNameByFullPath: function (path) {

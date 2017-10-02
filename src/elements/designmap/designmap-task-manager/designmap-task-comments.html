@@ -93,6 +93,12 @@
                 border: 1px solid var(--gray-color);
             }
 
+            @media (min-width: 320px) and (max-width: 768px) {
+                .followers {
+                    display: none;
+                }
+            }
+
         </style>
         <div class="followers" hidden$="[[!task.followers.length]]">
             <span class="txt" id="followTxt"><i18-n msgid="Followers">Followers</i18-n>:</span>
@@ -217,7 +223,6 @@
                 });
 
                 //Followers
-                console.log(this.followers,this.followers.indexOf(this.user._id));
                 if(this.followers.indexOf(this.user._id)===-1) this.dispatch('followTask',this.task,this.user._id);
 
                 this.sendTaskCommentNotification(comment);

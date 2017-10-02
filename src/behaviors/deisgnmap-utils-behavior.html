@@ -10,16 +10,22 @@
         IMAGE_REGEXP: /images/,
         shareRegexp: /share/,
         urlRegexp: /https?\:\/\/[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/ig,
+        elementIDRegexp: /\#[0-9a-z]{10,13}/ig,
         spacesRegexp: /\s/,
+        EL_PREFIXES: {
+            'folder':'fs',
+            'file':'gallery',
+            'task':'task-manager'
+        },
         /**
          * Find parent node
          * @param node - DOM node
          * @param acin - attribute,class,id or tagName
          */
-        parents: function(node,acin) {
+        parents: function (node, acin) {
             if (!node) return false;
             var found = null;
-            while(node && node.tagName && node.tagName.toLowerCase() !== 'body') {
+            while (node && node.tagName && node.tagName.toLowerCase() !== 'body') {
                 if (node.getAttribute(acin) || node.classList.contains(acin) || node.id == acin || node.tagName.toLowerCase() == acin) found = node;
                 node = node.parentNode;
             }
@@ -27,7 +33,7 @@
         },
         generateObjectId: function () {
             var timestamp = (new Date().getTime() / 1000 | 0).toString(16);
-            return timestamp + 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, function() {
+            return timestamp + 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, function () {
                     return (Math.random() * 16 | 0).toString(16);
                 }).toLowerCase();
         },
@@ -81,7 +87,7 @@
          */
         getExtensionWithoutDot: function (name) {
             if (!name) return null;
-            if(name.indexOf('.')==-1) return '';
+            if (name.indexOf('.') == -1) return '';
             var splitter = name.split('.');
             var ext = splitter[splitter.length - 1];
             return ext;
@@ -122,80 +128,81 @@
         /**
          * Compute sticker owner's name.
          */
-        computeOwnerName: function(owner){
-            if(!owner) return 'xxx';
-            return owner.profile.name&&owner.profile.lastName?owner.profile.name+ ' '+ owner.profile.lastName:owner.profile.name?owner.profile.name: owner.local&&owner.local.email?owner.local.email: 'xxx';
+        computeOwnerName: function (owner) {
+            if (!owner || !(owner.profile && owner.local)) return 'xxx';
+            return owner.profile.name && owner.profile.lastName ? owner.profile.name + ' ' + owner.profile.lastName : owner.profile.name ? owner.profile.name : owner.local && owner.local.email ? owner.local.email : 'xxx';
         },
         /**
          * Find project's user by its id
          * projectUsers statePath is required!
          */
-        getProjectsUserById: function(id) {
-            if(!this.projectUsers) return ;
-            return this.projectUsers.find(function(user){
+        getProjectsUserById: function (id) {
+            if (!this.projectUsers) return;
+            return this.projectUsers.find(function (user) {
                 return user._id == id;
             });
         },
         /**
          * Remove folder name from appearance of file.
          */
-        cutFileName: function(file){
-            if(!file || !file.data || !file.data.name) return;
-            file.data.name = file.data.name.replace(file.data.uid+"-","");
-            file.data.name = file.data.name.replace(file.folder+"-","");
-            file.data.name = file.data.name.replace(file.project+"-","");
+        cutFileName: function (file) {
+            if (!file || !file.data || !file.data.name) return;
+            file.data.name = file.data.name.replace(file.data.uid + "-", "");
+            file.data.name = file.data.name.replace(file.folder + "-", "");
+            file.data.name = file.data.name.replace(file.project + "-", "");
+            file.data.name = file.data.name.replace(this.UIDREGEXP, '')
             return file.data.name;
         },
         /**
          * And extension
          */
-        cutFileNameAndExt: function(file){
-            if(!file || !file.data || !file.data.name) return;
+        cutFileNameAndExt: function (file) {
+            if (!file || !file.data || !file.data.name) return;
             var ext = this.getExtensionWithoutDot(file.data.name);
-            return file.data.name.replace((file.folder=="null"?file.data.uid:file.folder)+"-","").replace('.'+ext,'');
+            return file.data.name.replace((file.folder == "null" ? file.data.uid : file.folder) + "-", "").replace('.' + ext, '');
         },
         /**
          * Compute user name
          */
-        computeUserName: function(user){
-            if(typeof user == 'string' || !user) return '...';
-            return user?user.profile?user.profile.name&&user.profile.lastName?user.profile.name[0]+user.profile.lastName[0]:user.local?user.local.email[0]:'XX':'XX':'XX';
+        computeUserName: function (user) {
+            if (typeof user == 'string' || !user) return '...';
+            return user ? user.profile ? user.profile.name && user.profile.lastName ? user.profile.name[0] + user.profile.lastName[0] : user.local ? user.local.email[0] : 'XX' : 'XX' : 'XX';
         },
         /**
          * Compute user name
          */
-        computeUserFullName: function(user){
-            if(typeof user == 'string' || !user) return '...';
-            return user?user.profile.name&&user.profile.lastName?user.profile.name+' '+user.profile.lastName:user.local?user.local.email[0]:'XX':'XX';
+        computeUserFullName: function (user) {
+            if (typeof user == 'string' || !user) return '...';
+            return user ? user.profile.name && user.profile.lastName ? user.profile.name + ' ' + user.profile.lastName : user.local ? user.local.email[0] : 'XX' : 'XX';
         },
         /**
          * Compute avatar possible path
          * If it is from server - go there
          * Otherwise just go to local url
          */
-        computeAvatarPath: function(path){
-            if(!path) return '';
-            if(this.IMAGE_REGEXP.test(path)) return path/*+'?v='+this.generateUid()*/;
-            return Designmap.config.apiURL+path/*+'?v='+this.generateUid()*/;
+        computeAvatarPath: function (path) {
+            if (!path) return '';
+            if (this.IMAGE_REGEXP.test(path)) return path/*+'?v='+this.generateUid()*/;
+            return Designmap.config.apiURL + path/*+'?v='+this.generateUid()*/;
         },
         /**
          * Upload file
          * @param url
          */
-        quickUpload: function(url){
-            window.open(url,'Download');
+        quickUpload: function (url) {
+            window.open(url, 'Download');
         },
         /**
          * Find user by id
          */
-        findUserById: function(id){
-            return new Promise(function(resolve,reject){
-                if(!this.users) return false;
+        findUserById: function (id) {
+            return new Promise(function (resolve, reject) {
+                if (!this.users) return false;
                 var found = null;
-                this.users.forEach(function(user){
-                    if(user._id==id) found = user;
+                this.users.forEach(function (user) {
+                    if (user._id == id) found = user;
                 });
-                if(!found) return this.dispatch('getUsers',id).then(function(response){
+                if (!found) return this.dispatch('getUsers', id).then(function (response) {
                     resolve(response.users[0]);
                 })
                 return resolve(found);
@@ -206,7 +213,7 @@
          * @param date
          * @returns {*}
          */
-        formatDate: function(date) {
+        formatDate: function (date) {
             return moment(date).format('YYYY/MM/DD');
         },
         /**
@@ -214,13 +221,13 @@
          * @param text
          * @returns {Context|*|string|XML|void}
          */
-        stripTags: function(text) {
-            return text.replace(this.cleanTextRegexp,'');
+        stripTags: function (text) {
+            return text.replace(this.cleanTextRegexp, '');
         },
         /**
          * Language hook
          */
-        lng: function(){
+        lng: function () {
             var lng = this.language;
             this.language = 'x';
             this.language = lng;
@@ -228,24 +235,24 @@
         /**
          * Compute state of animation
          */
-        computeAnimationState: function(animationName,animationOn){
-            return animationOn?animationName:'none';
+        computeAnimationState: function (animationName, animationOn) {
+            return animationOn ? animationName : 'none';
         },
         /**
          * Get url of the app
          * @returns {string}
          */
-        getAppUrl: function(){
-            return location.protocol+'//'+location.host+'/';
+        getAppUrl: function () {
+            return location.protocol + '//' + location.host + '/';
         },
-        removeAppUrl: function(str) {
-           return str.replace(this.getAppUrl(),'/');
+        removeAppUrl: function (str) {
+            return str.replace(this.getAppUrl(), '/');
         },
         _findElement(selector){
             const nodesArray = selector.split('.');
             let node = document.querySelector('designmap-app');
-            while(nodesArray.length) {
-                node = node.$[nodesArray[0]] || node.$$('#'+nodesArray[0]) || node.querySelector('.'+nodesArray[0]) || node.querySelector(nodesArray[0]);
+            while (nodesArray.length) {
+                node = node.$[nodesArray[0]] || node.$$('#' + nodesArray[0]) || node.querySelector('.' + nodesArray[0]) || node.querySelector(nodesArray[0]);
                 nodesArray.shift();
             }
             return node;
@@ -253,37 +260,75 @@
         /**
          * Get element name
          */
-        getElementName: function(element){
-            if(!Object.keys(element).length) return '';
-            if(element && element.name) return element.name
-            return  element.data&&element.data.name ? element.data.name.replace(element.folder+'-','').replace(this.UIDREGEXP,'') : 'xxx';
+        getElementName: function (element) {
+            if (!Object.keys(element).length) return '';
+            if (element && element.name) return element.name
+            return element.data && element.data.name ? element.data.name.replace(element.folder + '-', '').replace(this.UIDREGEXP, '') : 'xxx';
         },
         /**
          * Check object id
          * @param str
          */
-        isObjectID: function(str){
+        isObjectID: function (str) {
             return this.objectIDRegexp.test(str);
         },
         /** Accesses **/
-        topAccess: function(role){
+        topAccess: function (role) {
             return role === 'project-owner';
         },
-        lowAccess: function(role){
+        lowAccess: function (role) {
             return role === 'project-co-author' || role === 'project-owner';
         },
-        isMobile: function(){
+        isMobile: function () {
             return /Mobi/.test(navigator.userAgent);
         },
+        commentTextProcess: function (text) {
+            if (!text) return '';
+            text = this.findElementIds(text);
+            return this.processLinksInText(text);
+        },
+
+        findElementIds: function (text) {
+            const matches = text.match(this.elementIDRegexp);
+            if (!matches) return text;
+            const state = ReduxStore.getState();
+            const elements = state.folders.concat(state.files).concat(state.tasks);
+
+            return text.replace(this.elementIDRegexp, function (match) {
+                const foundElement = this.findElementByCustomId(match, elements);
+                if (!foundElement) return match;
+                return '<a href="'+this.buildElementLink(foundElement)+'" title="'+foundElement.type+'" >' + this.getElementName(foundElement) + '</a>'
+            }.bind(this));
+        },
+
+        buildElementLink: function(element) {
+            const prefix = this.EL_PREFIXES[element.type];
+            const path = element.type=='file'?'/'+element._id:this.getFullPath(element);
+            return '/'+this.projectId+'/'+prefix+path;
+        },
+
+        getFullPath: function (element, name) {
+            if (!element) return null;
+            return (element.path || Designmap.config.separator) + (name || element.name) + Designmap.config.separator;
+        },
+
+        findElementByCustomId: function (id, elements) {
+            let found = null;
+            elements.forEach(function (element) {
+                if ('#' + this._computeTaskId(element) == id) found = element;
+            }, this);
+            return found;
+        },
+
         processLinksInText(text) {
-            if(!text) return '';
-            return text.replace(this.urlRegexp,function(match){
-                const target = match.indexOf(Designmap.config.appURL)==-1 ? '_blank' : '_self';
-                const text = match.length>30 ? match.substr(0,30)+'...' : match;
-                return '<a href="'+match.replace(Designmap.config.appURL,'/')+'" target="'+target+'">'+text+'</a>';
+            if (!text) return '';
+            return text.replace(this.urlRegexp, function (match) {
+                const target = match.indexOf(Designmap.config.appURL) == -1 ? '_blank' : '_self';
+                const text = match.length > 30 ? match.substr(0, 30) + '...' : match;
+                return '<a href="' + match.replace(Designmap.config.appURL, '/') + '" target="' + target + '">' + text + '</a>';
             })
         },
-        removeDuplicatesInArray: function(arr) {
+        removeDuplicatesInArray: function (arr) {
             var obj = {};
             var ret_arr = [];
             for (var i = 0; i < arr.length; i++) {
@@ -294,36 +339,38 @@
             }
             return ret_arr;
         },
-        prepareRecipients: function(arr,user){
+        prepareRecipients: function (arr, user) {
             const pure = this.removeDuplicatesInArray(arr);
             const indx = pure.indexOf(user._id);
-            if(indx!==-1) pure.splice(pure.indexOf(user._id),1);
+            if (indx !== -1) pure.splice(pure.indexOf(user._id), 1);
             this.spliceNotProjectUsers(pure);
             return pure;
         },
-        spliceNotProjectUsers: function(pure){
-            const projectUsersIds = this.projectUsers.map(function(user){return user._id});
-            pure.forEach(function(uid,i){
-                if(projectUsersIds.indexOf(uid)==-1) {
-                    console.log(uid,projectUsersIds,pure,pure.indexOf(uid),12);
-                    pure.splice(pure.indexOf(uid),1);
+        spliceNotProjectUsers: function (pure) {
+            const projectUsersIds = this.projectUsers.map(function (user) {
+                return user._id
+            });
+            pure.forEach(function (uid, i) {
+                if (projectUsersIds.indexOf(uid) == -1) {
+                    console.log(uid, projectUsersIds, pure, pure.indexOf(uid), 12);
+                    pure.splice(pure.indexOf(uid), 1);
                 }
-            },this);
+            }, this);
         },
-        goToLink: function(e){
+        goToLink: function (e) {
             e.preventDefault();
             const href = e.currentTarget.getAttribute('href');
-            if(href.indexOf('http')!=-1) return window.open(href,'_blank');
+            if (href.indexOf('http') != -1) return window.open(href, '_blank');
             page.redirect(e.currentTarget.getAttribute('href'));
         },
 
-        _computeTaskId: function(task){
-            if(!task || !task._id) return 'XXX';
+        _computeTaskId: function (task) {
+            if (!task || !task._id) return 'XXX';
             const date = new Date(task.created);
-            return date.getFullYear()+date.getMonth()+date.getDate()+task._id.substr(15,task._id.length);
+            return date.getFullYear() + date.getMonth() + date.getDate() + task._id.substr(15, task._id.length);
         },
 
-        _computeProjectUsersWithOutMe: function(projectUsers){
+        _computeProjectUsersWithOutMe: function (projectUsers) {
             return projectUsers.filter(function (user) {
                 if (!this.user) return true;
                 return user._id !== this.user._id;

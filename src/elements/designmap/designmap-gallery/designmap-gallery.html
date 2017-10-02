@@ -290,6 +290,7 @@
                 width: 100%;
                 flex-basis: var(--designmap-gallery-panel-height);
                 background: var(--gray-lightern-color);
+                color: var(--gray-darkend-color);
             }
 
             .bottom-panel .center {
@@ -404,6 +405,7 @@
                 color: var(--gray-darkend-color);
                 overflow: hidden !important;
                 text-overflow: ellipsis;
+                text-align: center;
             }
 
             .copy-button {
@@ -496,6 +498,10 @@
                 margin-left: 20px;
                 border-bottom: 1px dashed var(--gray-darkend-color);
                 cursor: help;
+            }
+
+            .owner {
+                margin-right: 10px;
             }
 
 
@@ -632,10 +638,10 @@
                 </div>
             </div>
             <div class="right">
-                <button hidden$="[[!file]]" id="callButton" class="top-panel-button" is="designmap-gallery-button" on-click="call">
+                <!--<button hidden$="[[!file]]" id="callButton" class="top-panel-button" is="designmap-gallery-button" on-click="call">
                     <iron-icon class="phone-icon" icon="designmap:phone"></iron-icon>
-                </button>
-                <paper-tooltip for="callButton"><i18-n msgid="Call">Call</i18-n></paper-tooltip>
+                </button>-->
+                <!--<paper-tooltip for="callButton"><i18-n msgid="Call">Call</i18-n></paper-tooltip>-->
                 <!--<button hidden$="[[!file]]" id="chatButton" class="top-panel-button" is="designmap-gallery-button" on-click="chat">
                     <iron-icon class="chat-icon" icon="designmap:chat"></iron-icon>
                 </button>-->
@@ -647,26 +653,14 @@
                     <!--<div class="title">
                         <i18-n msgid="Share this file">Share this file</i18-n>
                     </div>-->
-                    <div on-click="_selectAll" class="link">[[_buildLink(file.*)]]</div>
-                    <cbn-copy-clipboard  value="[[_buildLink(file.*)]]">
+                    <div on-click="_selectAll" class="link">#[[_computeTaskId(file)]]</div>
+                    <cbn-copy-clipboard  value="#[[_computeTaskId(file)]]">
                         <button class="copy-button" is="designmap-button" on-click="_copyToClipBoard" thin gray>
                             <i18-n msgid="Copy to clipboard">Copy to clipboard</i18-n>
                         </button>
                     </cbn-copy-clipboard>
                 </designmap-dropdown>
-                <paper-tooltip for="shareButton"><i18-n msgid="Share">Share</i18-n></paper-tooltip>
-                <designmap-hint id="shareHint"
-                                target="[[shareButton]]"
-                                name="share"
-                                vertical-offset="60"
-                                horizontal-offset="-107">
-                    <div class="title">
-                        <i18-n msgid="Share file">Share file</i18-n>
-                    </div>
-                    <div class="desc">
-                        <i18-n msgid="shareFileMsg">shareFileMsg</i18-n>
-                    </div>
-                </designmap-hint>
+                <paper-tooltip for="shareButton"><i18-n msgid="File id share">File id share</i18-n></paper-tooltip>
                 <button hidden$="[[!file]]" id="moreButton" class="top-panel-button" is="designmap-gallery-button" on-click="openContext">
                     <iron-icon class="more-icon" icon="designmap-workspace:more"></iron-icon>
                 </button>
@@ -851,6 +845,10 @@
                 <!--<button class="resize-button" is="designmap-gallery-button" on-click="clearZoom">
                     <iron-icon class="resize-icon" icon="designmap:resize"></iron-icon>
                 </button>-->
+                <div class="owner">
+                    <i18-n msgid="owner">owner</i18-n>:
+                    [[_computeOwnerName(file,projectUsers,project)]]
+                </div>
             </div>
         </div>
         <!-- Showcase dialog -->
@@ -911,6 +909,10 @@
                 project: {
                     type: String,
                     statePath: 'project'
+                },
+                projectUsers: {
+                    type: String,
+                    statePath: 'projectUsers'
                 },
                 fileId: {
                     type: String,
@@ -1629,7 +1631,12 @@
                 this.dispatch('unfollowFile',this.file,this.user._id).then(function(){
                     this.async(this.checkFile);
                 }.bind(this));
+            },
+            _computeOwnerName: function(file){
+                if(!file) return 'xxx';
+                return this.computeOwnerName(this.getProjectsUserById(file.owner));
             }
+
         });
     </script>
 </dom-module>

@@ -67,12 +67,14 @@
             }
 
 
+
+
             /** DROP DOWN **/
             .statuses #statusesSelector {
                 --designmap-dropdown-mixin: {
                     border: 1px solid var(--gray-lighty-color);
                     box-shadow: 0px 4px 8px -1px rgba(0, 0, 0, 0.15);
-                    padding: 28px;
+                    padding: 28px 0;
                     max-width: 200px;
                 };
                 --designmap-dropdown-triangle-mixin: {
@@ -92,6 +94,7 @@
             #statusesSelector .row iron-icon, .desktop-statuses .row iron-icon {
                 width: 20px;
                 height: 20px;
+                margin-left: 28px;
             }
 
             #statusesSelector .row, .desktop-statuses .row {
@@ -102,6 +105,15 @@
                 font-size: 15px;
                 margin-left: 18px;
             }
+
+            .row {
+                padding: 0 28px;
+            }
+
+            .row:hover {
+                background: var(--gray-lightern-color);
+            }
+
         </style>
         <div class="statuses">
             <div class="status-wrapper">

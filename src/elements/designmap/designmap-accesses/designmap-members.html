@@ -117,7 +117,7 @@
                            on-continue="remove" on-suspend="suspendRemoving"></designmap-confirm>
         <!-- Members -->
         <div class="members">
-            <template is="dom-repeat" items="[[members]]" as="member">
+            <template is="dom-repeat" items="[[members]]" as="member" sort="[[sortFn(project)]]">
                 <div class="member">
                     <designmap-avatar-projector class$="[[_ownerCls(member)]]" user="[[member]]"></designmap-avatar-projector>
                     <div class$="mark [[_isOnline(member)]]"></div>
@@ -137,13 +137,16 @@
             <div id="addMember" class="add" hidden$="[[!_isOwner(user,project)]]" on-click="openHidden">
                 <iron-icon icon="icons:add"></iron-icon>
             </div>
+            <paper-tooltip position="right" for="addMember">
+                <i18-n msgid="Add new member">Add new member</i18-n>
+            </paper-tooltip>
         </div>
         <!-- Context -->
         <!---->
 
         <designmap-hidden-panel id="hiddenList" class="member-hidden" target="[[bodyNode]]" position="left">
             <div class="select-panel-content">
-                <designmap-members-list project="[[project]]" user="[[user]]" members="[[members]]" language="[[language]]" i-loaded="[[i18Loaded]]"></designmap-members-list>
+                <designmap-members-list on-close-members-list="closeMembersList" parent="[[membersNode]]" project="[[project]]" user="[[user]]" members="[[members]]" language="[[language]]" i-loaded="[[i18Loaded]]"></designmap-members-list>
             </div>
         </designmap-hidden-panel>
     </template>
@@ -184,7 +187,7 @@
                 },
                 members: {
                     type: Array,
-                    computed: '_computeMembers(project.ownerData,project.users)'
+                    statePath: 'projectUsers'
                 },
                 invited: {
                     type: Array,
@@ -195,13 +198,18 @@
                     value: function () {
                         return document.body;
                     }
+                },
+                membersNode:{
+                    type: Object,
+                    value: function () {
+                        return this;
+                    }
                 }
             },
             listeners: {
-                'update-invited':'updateInvited'
-            },
-            _computeMembers: function(ownerData,users){
-                return [ownerData].concat(users);
+                'update-invited':'updateInvited',
+                'select-member': 'select',
+                'remove-member':'remove'
             },
             _computeInvited: function(invited){
                 if(!invited) return;
@@ -231,14 +239,36 @@
             openHidden: function(e){
                 this.$.hiddenList.open();
             },
-            remove: function(){
-                if(this.tempUser.invited) return this.removeInvited();
-                const index = this.project.users.indexOf(this.tempUser._id);
-                this.project.users.splice(index,1);
-                this.set('project.users', this.project.users);
-                //
+            select: function(e){
+                const user = e.detail;
+                // Prevent repeats
+                if (this.checkUsers(user.local.email)) return this.showErrorMessage('This user already added');
+                if (user.local.email == this.user.local.email) return this.showErrorMessage('You cannot add yourself. You are already there!');
+                // Members
+                this.push('members',user);
+                this.dispatch({type: 'SET_PROJECT_USERS', users: this.members});
+                // DB
+                const projectUsersId = this.members.map(function(user){return user._id;}).filter(function(userId){return userId!=this.project.owner}.bind(this));
+                // UPD
+                this.dispatch('updateProject', this.project._id, {users:projectUsersId}).then(function (response) {
+                    if(!response.success) return this.manageErrorResponse(response);
+                    // Notify
+                    this.sendNotification(user);
+                    this.showMessage('Share was updated successful');
+                }.bind(this));
+            },
+            remove: function(e){
                 this.suspendRemoving();
-                this.dispatch('updateProject', this.project._id, this.project).then(function (response) {
+                if(this.tempUser && this.tempUser.invited) return this.removeInvited();
+                if(!this.tempUser) this.tempUser = e.detail;
+                // Members
+                const index = this.members.indexOf(this.tempUser);
+                this.splice('members',index,1);
+                this.dispatch({type: 'SET_PROJECT_USERS', users: this.members});
+                // DB
+                const projectUsersId = this.members.map(function(user){return user._id;}).filter(function(userId){return userId!=this.project.owner}.bind(this));
+                // UPD
+                this.dispatch('updateProject', this.project._id, {users:projectUsersId}).then(function (response) {
                     if(!response.success) return this.manageErrorResponse(response);
                     // Notify
                     this.sendNotification(this.tempUser,true);
@@ -295,6 +325,26 @@
                     }
                 });
             },
+            /**
+             * Check users if they can be repeted
+             */
+            checkUsers: function (email) {
+                if (!this.project || !this.project.users) return;
+                let found = null;
+                this.project.users.forEach(function (user) {
+                    if ((user && user.local && user.local.email === email) || (user.email === email) || (user.label === email)) found = user;
+                }, this);
+                return found;
+            },
+            sortFn: function(project){
+                if(!project) return;
+                return function(a,b){
+                    return a._id==project.owner?0:1;
+                }
+            },
+            closeMembersList: function(){
+                this.$.hiddenList.close();
+            }
         })
     </script>
 </dom-module>

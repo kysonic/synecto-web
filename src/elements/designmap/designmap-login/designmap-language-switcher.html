@@ -29,7 +29,7 @@
 
         </style>
         <template is="dom-repeat" items="[[languages]]" as="lang">
-            <div class$="[[computeClass(index,selected)]]" on-click="checkLanguage">[[lang.text]]</div>
+            <div class$="[[computeClass(index,selected)]]" on-tap="checkLanguage">[[lang.text]]</div>
         </template>
     </template>
     <script>
