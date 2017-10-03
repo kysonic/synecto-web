@@ -91,6 +91,12 @@
             .white-space .wrapper .text a {
                 color: var(--blue-darkest-color);
             }
+
+            @media (min-width: 320px) and (max-width: 768px) {
+                .mh {
+                    display: none;
+                }
+            }
         </style>
         <template is="dom-if" if="[[elements.length]]">
             <div id="elementsWrapper" class="elements" hidden$="[[!elements.length]]">
@@ -103,10 +109,10 @@
                         <div class="name">
                             <i18-n msgid="Element name">Element name</i18-n>
                         </div>
-                        <div class="removed-by">
+                        <div class="removed-by mh">
                             <i18-n msgid="Removed by">Removed by</i18-n>
                         </div>
-                        <div class="removed-date">
+                        <div class="removed-date mh">
                             <i18-n msgid="Removed date">Removed date</i18-n>
                         </div>
                         <div class="menu">

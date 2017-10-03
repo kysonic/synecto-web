@@ -52,6 +52,14 @@
                 background: var(--white-color);
                 transition: .2s background ease-in;
             }
+            @media (min-width: 320px) and (max-width: 768px) {
+                .mh {
+                    display: none;
+                }
+                .menu {
+                    opacity: 1;
+                }
+            }
         </style>
         <div class="icon">
             <iron-icon icon$="designmap-archive:[[element.type]]"></iron-icon>
@@ -59,10 +67,10 @@
         <div class="name">
             [[_getName(element)]]
         </div>
-        <div class="removed-by">
+        <div class="removed-by mh">
             [[_computeRemovedByName(element.removedBy.user,project.owner,projectUsers)]]
         </div>
-        <div class="removed-date">
+        <div class="removed-date mh">
             [[_computeRemovedDate(element.removedBy.date)]]
         </div>
         <div class="menu" on-click="openContextMenu">

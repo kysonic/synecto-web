@@ -129,11 +129,14 @@
             }
 
             @media (min-width: 320px) and (max-width: 768px) {
-                .project-name, .project, .of-project, .arrow-back.selected, .crumb, .crumb.selected iron-icon {
+                .project, .of-project, .arrow-back.selected, .crumb, .crumb.selected iron-icon {
                     display: none;
                 }
-                .project-name.selected, .arrow-back, .crumb.selected {
+                .arrow-back, .crumb.selected {
                     display: block;
+                }
+                .project-name.selected {
+                    display: none;
                 }
                 .crumb.selected {
                     margin-left: 0;
@@ -150,14 +153,17 @@
                     padding: 0;
                     color: var(--breadcrumbs-text-color);
                 }
+                .search, .fls {
+                    display: none !important;
+                }
             }
 
 
         </style>
-        <div class="project-name">
+        <div class$="project-name [[_isThereSelected(currentFolderId)]]">
             [[project.name]]
         </div>
-        <div class$="crumb [[breadCrumbs(breadcrumbs.length)]]"  on-click="goOnTop">
+        <div class$="crumb fls [[breadCrumbs(breadcrumbs.length)]]"  on-click="goOnTop">
             <iron-icon class$="line [[isFirst(index,breadcrumbs)]] " icon="icons:chevron-left"></iron-icon>
             <div class$="title [[calculateSelectedCrumb(breadcrumbs.length,index)]]">
                 <i18-n msgid="Files">Files</i18-n>
@@ -276,6 +282,9 @@
             },
             cancelSearch: function(){
                 this.fire('cancel-search');
+            },
+            _isThereSelected: function(currentFolderId) {
+                return !!currentFolderId ? 'selected' : '';
             }
         })
     </script>

@@ -3,6 +3,7 @@
 <link rel="import" href="/bower_components/paper-input/paper-input.html">
 <link rel="import" href="./designmap-dropdown.html">
 <link rel="import" href="../../plastic/plastic-select.html">
+<link rel="import" href="../../../behaviors/deisgnmap-utils-behavior.html">
 
 <dom-module id="designmap-search-filter">
     <template>
@@ -80,15 +81,17 @@
                     display: none;
                 }
                 .mobile-dropdown {
-                    position: absolute;
+                    position: fixed;
                     width: 100vw;
                     height: 55px;
                     background: var(--white-color);
                     left: 0;
-                    top: 0;
+                    top: 75px;
                     z-index: 999;
                     padding: 0 15px;
                     border-bottom: 1px solid var(--gray-color);
+                    box-shadow: var(--box-shadow);
+                    @apply(--designmpa-search-filter-mobile-dropdown-mixin);
                 }
                 .mobile-search-input {
                     margin-top: 7px;
@@ -104,16 +107,16 @@
         </style>
         <div class="wrap">
             <paper-input id="search" class="search-input" on-input="_changeSearchInput" label="[[label]]" on-click="openDropdown">
-                <paper-icon-button suffix icon="search" class="search-btn" on-click="search"></paper-icon-button>
+                <paper-icon-button suffix icon$="[[_computeIcon(values.searchInpt.value)]]" class="search-btn" on-tap="search"></paper-icon-button>
             </paper-input>
             <!-- Mobile -->
-            <div class$="mobile-dropdown [[_mobileDropDownCls(mobileDropdownOpened)]]">
+            <div class$="mobile-dropdown bound [[_mobileDropDownCls(mobileDropdownOpened)]]">
                 <paper-input id="mobileSearch" class="mobile-search-input" on-input="_changeSearchInput" label="[[label]]" on-click="openDropdown">
-                    <paper-icon-button suffix icon="search" class="search-btn" on-click="search"></paper-icon-button>
+                    <paper-icon-button suffix icon="close" class="search-btn" on-tap="cancelSearch"></paper-icon-button>
                 </paper-input>
             </div>
             <!-- Mobile -->
-            <paper-icon-button class="search-button" suffix icon="search" class="search-btn" on-click="openMobileSearch"></paper-icon-button>
+            <paper-icon-button class="search-button bound" suffix icon="search" on-click="openMobileSearch"></paper-icon-button>
             <!-- Filters -->
             <designmap-dropdown no-cancel-on-outside-click="[[noCancelOnOutsideClick]]" id="dropdown" target="[[_getInput(MQ)]]" vertical-offset="40" horizontal-offset="0">
                 <template is="dom-repeat" items="[[items]]" as="item">
@@ -130,7 +133,9 @@
     <script>
         Polymer({
             is: 'designmap-search-filter',
-            behaviors: [],
+            behaviors: [
+                Polymer.DesignMapUtilsBehavior
+            ],
             properties: {
                 items: {
                     type: Array,
@@ -163,6 +168,7 @@
             ],
             ready: function () {
                 this.MQ = ReduxStore.getState().MQ;
+                document.body.addEventListener('touchend',this._touchOutta.bind(this))
             },
             _itemsChanged: function(items){
                 if(this.values) return;
@@ -199,6 +205,7 @@
                 this.$.dropdown.open();
             },
             search: function(){
+                if(!this.values) return this.fire('cancel-search');
                 this.noCancelOnOutsideClick = false;
                 this.async(this.$.dropdown.close);
                 this.fire('search',this.values);
@@ -216,6 +223,16 @@
             },
             _getInput: function(MQ) {
                 return MQ=='sm' ? this.$.mobileSearch : this.$.search;
+            },
+            _touchOutta: function(e){
+                if(e.path.indexOf(this)!=-1) return;
+                this.mobileDropdownOpened = false;
+            },
+            cancelSearch: function(){
+                this.fire('cancel-search');
+            },
+            _computeIcon: function (value) {
+                return value ? 'close' : 'search';
             }
         })
     </script>

@@ -156,8 +156,8 @@
                 var menuWidth = this.width || menuRect.width || 200;
                 var menuHeight = this.height || menuRect.height;
                 var cords = this.getCords(e);
-                this.$.dd.horizontalOffset = menuWidth + e.pageX < window.innerWidth - 50 ? cords.x : cords.x - menuWidth;
-                this.$.dd.verticalOffset = menuRect.height + e.pageY < window.innerHeight - 50 ? cords.y : cords.y - menuHeight;
+                this.$.dd.horizontalOffset = menuWidth + e.pageX < window.innerWidth - 20 ? cords.x : cords.x - menuWidth;
+                this.$.dd.verticalOffset = menuRect.height + e.pageY < window.innerHeight - 20 ? cords.y : cords.y - menuHeight;
                 this.$.dd.refit();
             },
             /**

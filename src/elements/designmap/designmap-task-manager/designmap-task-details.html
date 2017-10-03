@@ -72,16 +72,15 @@
             }
 
             .details .panel .left {
-                flex: 1;
                 display: flex;
                 justify-content: center;
                 align-items: flex-start;
             }
 
             .details .panel .center {
-                flex: 11;
                 display: flex;
                 align-items: center;
+                max-width: calc(100% - 125px);
             }
 
             .panel .right designmap-circle-button, designmap-assignee {
@@ -112,7 +111,7 @@
 
             .task-title-input, .task-title {
                 font-family: var(--font-family);
-                font-weight: 100;
+                font-weight: 300;
                 font-size: 34px;
                 color: var(--gray-darky-color);
                 border: none;
@@ -130,6 +129,7 @@
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
+                max-width: 100%;
             }
 
             .title-edit-arrow {
@@ -391,7 +391,7 @@
                            placeholder="[[translate('Enter title',language,i18Loaded)]]"
                            hidden$="[[!canRemoveTask(task)]]"
                            value="[[task.name]]"/>
-                    <div hidden$="[[canRemoveTask(task)]]" class="task-title">[[task.name]]</div>
+                    <div hidden$="[[canRemoveTask(task)]]" title="[[task.name]]" class="task-title">[[task.name]]</div>
                     <paper-icon-button class="title-edit-arrow" hidden$="[[!titleEditMode]]" icon="arrow-forward" on-click="saveTitle"></paper-icon-button>
                     <iron-a11y-keys keys="enter" on-keys-pressed="saveTitle"></iron-a11y-keys>
                 </div>

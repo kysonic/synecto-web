@@ -86,9 +86,7 @@
                 margin-left: -3px;
                 margin-top: -6px;
             }
-            .mobile-menu {
-                display: none;
-            }
+
             designmap-search-filter {
                 margin-right: 5px;
                 min-width: 230px;
@@ -100,19 +98,33 @@
                 margin-left: 10px;
             }
 
+            .mobile-left {
+                display: none;
+            }
+
             @media (min-width: 320px) and (max-width: 768px) {
-                #createFolderButton ,#uploadFileButton, #sortButton, #infoButton, #restoreButton,#removeButton {
+                .right {
+                    margin: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: flex-end;
+                }
+                .right designmap-search-filter {
+                    margin-right: 15px;
+                    min-width: auto !important;
+                }
+                .left {
                     display: none;
                 }
-                .mobile-menu {
-                    display: block;
+                .mobile-left {
+                    display: flex;
+                    align-items: center;
+                }
+                paper-icon-button {
                     position: relative;
-                    left: 10px;
-                    width: 50px;
-                    height: 50px;
+                    top: 2px;
                     --iron-icon-components-mixin: {
-                        stroke: var(--gray-darkend-color);
-                        stroke-width: 1px;
+                        fill: var(--blue-darkest-color);
                     };
                 }
             }
@@ -156,6 +168,9 @@
                 <paper-tooltip for="uploadFileButton"><i18-n msgid="Upload file">Upload file</i18-n></paper-tooltip>
                 <!-- Google -->
                 <designmap-google-docs folder="[[currentFolderId]]"></designmap-google-docs>
+            </div>
+            <div class="mobile-left">
+                <paper-icon-button icon="more-vert" on-click="openMobileMenu"></paper-icon-button>
             </div>
             <!-- Hint -->
             <designmap-hint id="fsPanelHint"
@@ -391,6 +406,9 @@
             },
             _searchModeChanged: function(searchMode) {
                 if(!searchMode) this.$.searchFilter.empty();
+            },
+            openMobileMenu: function(e){
+                this.fire('open-context-menu',e);
             }
         })
     </script>
