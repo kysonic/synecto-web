@@ -34,14 +34,15 @@
         /**
          * Special designmap toast function !
          */
-        notify: function(message, type, replacement, sender, duration){
+        notify: function(o, duration){
+          const message = o.text.message, type=o.type, replacement = o.text.replacement, sender= o.sender;
           var msg = this.i18nDomain.getMsg(message) || message;
           if(replacement) msg = this.replaceExpressions(msg,replacement);
           if(!("Notification" in window) || Notification.permission === "denied") return  this.snackbar.add({text:msg,type: type, notify:true,sender:sender,duration:duration});
-          if(Notification.permission === 'granted') return this.browserNotification({text:msg,type: type, notify:true,sender:sender});
+          if(Notification.permission === 'granted') return this.browserNotification({text:msg,type: type, notify:true,sender:sender,xlink:o.text.info ?o.text.info.xlink:{}});
           Notification.requestPermission(function (permission) {
             if (permission === "granted") {
-                this.browserNotification({text:msg,type: type, notify:true,sender:sender});
+                this.browserNotification({text:msg,type: type, notify:true,sender:sender,xlink:o.text.info ?o.text.info.xlink:{}});
             }
           }.bind(this));
 
@@ -55,10 +56,12 @@
         },
         browserNotification(opts){
             const message = opts.text+'\n\n'+this.translate('From')+': '+this.computeOwnerName(opts.sender);
-            new Notification(this.translate(opts.type.replace('-',' ').capitalize()),{
+            const n = new Notification(this.translate(opts.type.replace('-',' ').capitalize()),{
                 body: message,
                 icon: '/assets/images/manifest/icon-48x48.png'
-            })
+            });
+
+            if(opts.xlink) {n.onclick = function(){window.open(opts.xlink)}}
         },
         /**
          * Replace all of expressions in the sentence
