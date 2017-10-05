@@ -2281,5 +2281,17 @@
   },
   "Add new member": {
     "message": "Добавить нового пользователя"
+  },
+  "App": {
+    "message": "Приложение"
+  },
+  "DoYouWantToDonwloadApp": {
+    "message": "Do you want to donwload Syencto app for your computer? Using this app you will be able: <ul<li>Create screenshots</li></ul>"
+  },
+  "Synecto app desc": {
+    "message": "Создавай скриншоты, которые <span class='marked'>автоматически будут загружены</span> в проект Synecto, получай <span class='marked'>уведомления</span> от коллег, управляй своим Synecto <span class='marked'>аккаунтом</span> прямо из Вашего компьютера!"
+  },
+  "Download app": {
+    "message": "Скачать приложение"
   }
 }

@@ -2272,5 +2272,17 @@
   },
   "Add new member": {
     "message": "Add new member"
+  },
+  "App": {
+    "message": "App"
+  },
+  "DoYouWantToDonwloadApp": {
+    "message": "Do you want to donwload Syencto app for your computer? Using this app you will be able: <ul<li>Create screenshots</li></ul>"
+  },
+  "Synecto app desc": {
+    "message": "Create screenshots which will be <span class='marked'>upload</span> in Synecto app <span class='marked'>automatically</span>, receive <span class='marked'>notifications</span> from your colleagues, manage your Syencto <span class='marked'>account</span> right from your computer!"
+  },
+  "Download app": {
+    "message": "Download app"
   }
 }

@@ -189,7 +189,7 @@
                 <app-toolbar>
                     <a class="logo-wrap" style="text-decoration: none" tabindex="-1" >
                         <iron-icon class="designmap-logo" tabindex="-1" icon="designmap-logo:logo"></iron-icon>
-                        <span class="beta">beta v4.1</span>
+                        <span class="beta">[[version]]</span>
                     </a>
                 </app-toolbar>
                 <designmap-advanced-menu id="advancedMenu" mobile-mode="[[mobileMode]]" path="[[path]]" page="[[page]]"></designmap-advanced-menu>
@@ -372,6 +372,12 @@
                     type: Boolean,
                     value: false,
                     observer: '_mobileModeChanged'
+                },
+                version: {
+                    type: String,
+                    value: function(){
+                        return Designmap.version;
+                    }
                 }
             },
 

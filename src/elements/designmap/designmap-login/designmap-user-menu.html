@@ -1,9 +1,11 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
 <!-- Components -->
 <link rel="import" href="../designmap-ui/designmap-dropdown.html">
 <link rel="import" href="./designmap-language-switcher.html">
 <link rel="import" href="../designmap-notifications/designmap-notifications.html">
+<link rel="import" href="../designmap-buttons/designmap-button.html">
 <!-- Mixins -->
 <link rel="import" href="../../../behaviors/designmap-messages-behavior.html">
 <link rel="import" href="../../../behaviors/deisgnmap-utils-behavior.html">
@@ -233,6 +235,7 @@
             }
 
             .upgrade {
+                cursor: pointer;
                 color: var(--white-color);
                 font-size: 14px;
                 padding: 5px 10px;
@@ -282,6 +285,9 @@
                 .indicator[hidden] {
                     display: none;
                 }
+                .row.app, .block.app {
+                    display: none !important;
+                }
             }
             
             #notifyDropdown {
@@ -294,6 +300,33 @@
                     max-height: 370px;
                 }
             }
+
+            paper-dialog .content {
+                max-width: 500px;
+            }
+
+
+            paper-dialog .content h1{
+                font-size: 32px;
+                color: var(--blue-darkest-color);
+            }
+
+            paper-dialog .content p{
+                padding-top: 10px;
+                font-size: 16px;
+                color: var(--gray-darkend-color);
+            }
+
+            paper-dialog .content p .marked{
+                color: var(--blue-darkest-color);
+            }
+
+
+            .block.app {
+                cursor: pointer;
+                margin-right: 10px;
+            }
+
 
         </style>
         <!-- Auth -->
@@ -309,6 +342,14 @@
                 <a hidden$="[[_isPremium(user)]]" href="/activate" class="block upgrade" id="upgrade" >
                    <i18-n msgid="Upgrade">Upgrade</i18-n>
                 </a>
+                <div class="block app" id="app" on-click="openAppDialog">
+                    <div class="notify">
+                        <iron-icon icon="designmap-user-menu:app"></iron-icon>
+                    </div>
+                </div>
+                <paper-tooltip for="app">
+                    <i18-n msgid="Download app">Download app</i18-n>
+                </paper-tooltip>
                 <div class="block notification" id="notify" on-tap="openNotifyDropdown">
                     <div class="notify">
                         <iron-icon icon="designmap-user-menu:notify"></iron-icon>
@@ -365,6 +406,12 @@
                             <i18-n msgid="Notifications">Notifications</i18-n>
                             &nbsp;<span hidden$="[[_areThereNotReadNotifications(notifications.*)]]">([[_getNotReadNotifications(notifications.*)]])</span></div>
                     </div>
+                    <div class="row app" on-click="openAppDialog">
+                        <iron-icon icon="get-app"></iron-icon>
+                        <div class="text">
+                            <i18-n msgid="App">App</i18-n>
+                        </div>
+                    </div>
                     <div class="row support" on-tap="goToDocs">
                         <iron-icon icon="icons:question-answer"></iron-icon>
                         <div class="text">
@@ -393,6 +440,17 @@
                     </div>
                 </designmap-dropdown>
                 <!-- Account menu -->
+                <paper-dialog id="appDialog"  entry-animation="scale-up-animation" exit-animation="scale-down-animation">
+                    <div class="content">
+                        <h1><i18-n msgid="Download app">Download app</i18-n></h1>
+                        <p>
+                            <i18-n msgid="Synecto app desc">Synecto app desc</i18-n>
+                        </p>
+                        <button is="designmap-button" blue on-click="downloadApp">
+                            <i18-n msgid="Download">Download</i18-n>
+                        </button>
+                    </div>
+                </paper-dialog>
             </div>
         </template>
     </template>
@@ -535,6 +593,20 @@
             _isPremium: function(user) {
                 if(!user || !user.plan) return false;
                 return user.plan.name!='startup';
+            },
+            _getOSLink: function(){
+                const os = window.navigator.platform.indexOf('Mac')!=-1 ? 'mac' : 'win';
+                return Designmap.config.appDownloadUrl+'?os='+os;
+            },
+            openAppDialog: function(){
+                this.$$("#dropdown").close();
+                this.$$('#appDialog').open();
+            },
+            closeAppDialog: function(){
+                this.$$('#appDialog').close();
+            },
+            downloadApp: function(){
+                window.open(this._getOSLink(),'_blank');
             }
         })
     </script>

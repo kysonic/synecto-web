@@ -1,6 +1,8 @@
 {
-  "name": "polymer-starter-kit",
-  "license": "BSD-3-Clause",
+  "name": "Synecto",
+  "version": "0.4.3",
+  "author": "Anton Miroshnichenko",
+  "license": "Not yet",
   "devDependencies": {
     "browser-sync": "^2.18.8",
     "element-resize-detector": "^1.1.11",

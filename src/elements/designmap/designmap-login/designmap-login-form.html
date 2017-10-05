@@ -285,7 +285,7 @@
             <div class="header-phantom"></div>
             <div class="header">
                 <iron-icon icon="designmap-logo:logo"></iron-icon>
-                <div class="beta">beta v4.1</div>
+                <div class="beta">[[version]]</div>
             </div>
             <div class="social">
                 <div class="button-wrapper">
@@ -515,6 +515,12 @@
                 inviteMode: {
                     type: Boolean,
                     value: false
+                },
+                version: {
+                    type: String,
+                    value: function(){
+                        return Designmap.version;
+                    }
                 }
             },
             ready: function () {
