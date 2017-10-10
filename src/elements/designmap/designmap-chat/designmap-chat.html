@@ -1052,6 +1052,7 @@
                         message: message.text,
                         replacement: {'#NAME#': title},
                         info: {
+                            project: this.project.name,
                             xlink: Designmap.config.appURL + this.projectId + '/chat'+'#'+message._id
                         }
                     }

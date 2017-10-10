@@ -462,9 +462,16 @@
                 width: 4px;
                 top: 0;
                 height: 100%;
-                left: 100%;
-                margin-left: -4px;
+                left: calc(100% - 4px);
                 background: var(--white-color);
+                cursor: col-resize;
+                transition: all .2s linear;
+            }
+
+            .line:hover,  .line.dragged {
+                width: 6px;
+                left: calc(100% - 6px);
+                transition: all .2s linear;
             }
 
             .status-line {
@@ -602,7 +609,7 @@
         <plastic-custom-scroll hidden$="[[!tasks.length]]" no-scroll="[[noScroll]]" id="scroller" fit small-bar>
             <ul class="list" id="list">
                 <template id="listRepeater" is="dom-repeat" items="[[tasks]]" as="task" filter="[[taskFilter(selectedFilter,limit,tasks.*)]]" observe="parent limit searchMode" sort="[[taskSort(parent,limit,tasks.*)]]">
-                    <li draggable$="[[_computeDraggable(searchMode)]]" on-dragstart="dragStart" on-dragenter="dragEnter" on-dragover="dragOver" on-drop="dragDrop" class$="[[computeItemClass(task,selected)]]" data-task-id$="[[task._id]]">
+                    <li draggable$="[[_computeDraggable(searchMode,dragLine)]]" on-dragstart="dragStart" on-dragenter="dragEnter" on-dragover="dragOver" on-drop="dragDrop" class$="[[computeItemClass(task,selected)]]" data-task-id$="[[task._id]]">
                         <!--<div class="line" class$="[[computeSubLineClass(task)]]"></div>-->
                         <designmap-circle-button id$="statusButton[[index]]" class="status-button"
                                                  on-tap="changeStatus">
@@ -681,7 +688,7 @@
                 </div>
             </div>
         </template>
-        <div class$="[[computeLineClass(selected)]]"></div>
+        <div on-mousedown="_lineMouseDown"  class$="[[computeLineClass(selected,dragLine)]]"></div>
     </template>
     <script>
         var STATUSES = ['incomplete', 'in_progress', 'completed'];
@@ -851,6 +858,10 @@
                 filter: {
                     type: Boolean,
                     value: false
+                },
+                dragLine: {
+                    type: Boolean,
+                    value: false
                 }
             },
             observers: [
@@ -977,12 +988,13 @@
              * @param selected - selected task
              * @returns {string}
              */
-            computeLineClass: function (selected) {
+            computeLineClass: function (selected,dragLine) {
 //                var root = this.findRoot(selected);
 //                if (!root) return '';
 //                var cls = this.isExpired(root.expired, root.status) ? 'expired' : root.status;
                 if (!selected) return 'line hide-on-mobile';
                 var cls = this.isExpired(selected.expired, selected.status) ? 'expired' : selected.status;
+                if(dragLine) cls+=' dragged'
                 return 'line hide-on-mobile ' + cls;
             },
             /**
@@ -1321,17 +1333,21 @@
                 }
             },
             dragStart: function(e){
+                if(this.dragLine) return;
                 this.draggedTask = e.model.task;
             },
             dragEnter: function(e){
+                if(this.dragLine) return;
                 //console.log( this.draggedTask,e.model.task,Polymer.dom(this.$.list).querySelector('*[data-task-id="'+e.model.task._id+'"]'));
                 e.preventDefault();
                 return true;
             },
             dragOver: function(e){
+                if(this.dragLine) return;
                 e.preventDefault();
             },
             dragDrop: function(e){
+                if(this.dragLine) return;
                 if(!this.draggedTask || !e.model.task || this.draggedTask.parent!=e.model.task.parent) return;
                 this.dispatch('_updateTask',this.draggedTask._id,{position:e.model.task.position});
                 this.dispatch('_updateTask',e.model.task._id,{position:this.draggedTask.position});
@@ -1386,8 +1402,8 @@
                 return !length && searchMode;
             },
 
-            _computeDraggable: function(searchMode){
-                return searchMode?'false':'true';
+            _computeDraggable: function(searchMode,dragLine){
+                return searchMode || dragLine?'false':'true';
             },
 
             _computeAuthorName: function(userId) {
@@ -1420,6 +1436,30 @@
                     return this.statusFilter(selectedFilter,task)
                 }.bind(this))
                 return tsks.length>limit;
+            },
+
+            _lineMouseDown: function(e){
+                this.dragLine = true;
+                document.addEventListener('mousemove', _drag);
+                document.addEventListener('mouseup', _stop);
+                let _this = this;
+                _this.lastPageX = e.pageX;
+                _this.bound = this.getBoundingClientRect();
+                document.body.classList.add('non-select');
+                function _drag(e) {
+                    const delta = e.pageX - _this.lastPageX;
+                    const newWidth = _this.bound.width + delta;
+                    _this.async(function () {
+                        this.fire('resize-col',newWidth);
+                    });
+                }
+
+                function _stop(e) {
+                    _this.dragLine = false;
+                    document.body.classList.remove('non-select');
+                    document.removeEventListener('mousemove', _drag);
+                    document.removeEventListener('mouseup', _stop);
+                }
             }
         })
     </script>

@@ -149,6 +149,10 @@
                 @apply(--designmap-dropdown-triangle-bottom-mixin);
             }
 
+            :host([no-tri]) .triangle-border, :host([no-tri]) .triangle {
+                display: none;
+            }
+
             @media (min-device-width: 320px) and (max-device-width: 768px) {
                 .dropdown-content ::content > * {
                     overflow: auto;

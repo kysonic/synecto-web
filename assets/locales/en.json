@@ -2284,5 +2284,11 @@
   },
   "Download app": {
     "message": "Download app"
+  },
+  "active": {
+    "message": "active"
+  },
+  "closed": {
+    "message": "closed"
   }
 }

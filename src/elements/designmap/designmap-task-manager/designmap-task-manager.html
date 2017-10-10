@@ -324,7 +324,7 @@
                     </paper-tooltip>-->
                 </div>
             </designmap-dashboard>
-            <div class$="content [[mode]]">
+            <div id="content" class$="content [[mode]]">
                 <designmap-task-list class$="[[_isThereSelectedTaskClass(selectedTask)]]" hidden$="[[!computeListState(tasks.length)]]" id="list"
                                      selected="{{selectedTask}}" can-be-null parent="[[selectedTask.parent]]" cannot-add="[[searchMode]]" search-mode="[[searchMode]]"  selecting></designmap-task-list>
                 <designmap-task-details class$="[[_isThereSelectedTaskClass(selectedTask)]]" hidden$="[[!computeDetailsState(tasks.length,selectedTask)]]"
@@ -457,7 +457,15 @@
                 'focus-input': 'focusInput',
                 'reset': 'findDefaultTask',
                 'mobile-go-back':'mobileGoBack',
-                'cancel-search':'cancelSearch'
+                'cancel-search':'cancelSearch',
+                'resize-col':'resizeCol'
+            },
+            attached: function(){
+               const position = localStorage.getItem('synecto:tm:cols');
+               if(position) {
+                   const data = position.split('#');
+                   this._setCols(data[0],data[1]);
+               }
             },
             /**
              * Create new task on level 1.
@@ -747,6 +755,25 @@
                 if(!project || !breadcrumbs) return 'XXX';
                 const crmb = breadcrumbs[length-2];
                 return breadcrumbs.length ? crmb?crmb.title: project.name : project.name
+            },
+
+            resizeCol: function(e){
+                const cBound = this.$.content.getBoundingClientRect();
+
+                const newWidth = e.detail;
+                const newDetailsWidth = cBound.width - newWidth;
+
+                const listPercent = Math.round((newWidth/cBound.width)*100);
+                const detailsPercent = (Math.round((newDetailsWidth/cBound.width)*100) - 1);
+                if(listPercent<30 || detailsPercent<30) return;
+                localStorage.setItem('synecto:tm:cols',listPercent+'#'+detailsPercent);
+                this._setCols(listPercent,detailsPercent);
+
+            },
+
+            _setCols: function(listPercent,detailsPercent){
+                this.$.list.style.minWidth = listPercent + '%';
+                this.$.details.style.minWidth =  detailsPercent + '%';
             }
         })
     </script>

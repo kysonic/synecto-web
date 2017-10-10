@@ -14,6 +14,7 @@
 <link rel="import" href="../../../redux/actions/project-actions.html">
 
 <link rel="import" href="./designmap-projects-list.html">
+<link rel="import" href="./designmap-project-manager.html">
 
 <!-- icons:lock-outline -->
 <dom-module is="designmap-advanced-menu">
@@ -116,6 +117,10 @@
             left: 21px;
             top: 16px;
             color: var(--advanced-menu-main-color);
+        }
+
+        .trash-count.shift {
+            left: 17px;
         }
 
         .empty {
@@ -313,13 +318,14 @@
     <template>
 
         <plastic-custom-scroll id="scroller" fit small-bar  >
+
+            <!-- Projects -->
+            <!--<i18-n msgid="Projects">Projects</i18-n>
             <div class="menu-title" style="margin-top: 10px;">
-                <i18-n msgid="Projects">Projects</i18-n>
                 <plastic-select class="project-status" value="{{projectStatus}}" options="[[projectTypeOptions]]" default-label="[[translate('Not selected',language,i18Loaded)]]">
                 </plastic-select>
             </div>
-
-            <!-- Hint -->
+            &lt;!&ndash; Hint &ndash;&gt;
             <designmap-hint id="projectSectionHint"
                             previous
                             have-skip
@@ -335,124 +341,125 @@
                     <i18-n msgid="projectSectionHintDesc">projectSectionHintDesc</i18-n>
                 </div>
             </designmap-hint>
-            <!-- Hint -->
-
+            &lt;!&ndash; Hint &ndash;&gt;
             <designmap-projects-list id="projectList" closed-projects="{{closedProjects}}"></designmap-projects-list>
-
             <div class="create-project" on-click="openCreateProjectDialog">
                 <i18-n msgid="Create Project">Create Project</i18-n>
-            </div>
+            </div>-->
+            <!-- Projects -->
+            <!--<div class="menu-title" hidden$="[[!project._id]]" style="margin-top: 5px;">
+                <i18-n msgid="Projects">Projects</i18-n>
+            </div>-->
+            <designmap-project-manager project="[[project]]"></designmap-project-manager>
 
-            <div class="delimiter" hidden$="[[!project._id]]"><div class="line"></div></div>
-
-            <div class="menu-title" hidden$="[[!project._id]]" style="margin-top: 5px;">
-                <i18-n msgid="Blocks">Blocks</i18-n>
-            </div>
-
-            <!-- Hint -->
-            <designmap-hint id="blocksHint"
-                            previous
-                            have-skip
-                            name="blocks"
-                            tri-left
-                            on-pre-hook="menuHintPreHook"
-                            vertical-offset="0"
-                            horizontal-offset="220">
-                <div class="title">
+            <!-- Blocks -->
+                <div class="delimiter" hidden$="[[!project._id]]"><div class="line"></div></div>
+                <div class="menu-title" hidden$="[[!project._id]]" style="margin-top: 5px;">
                     <i18-n msgid="Blocks">Blocks</i18-n>
                 </div>
-                <div class="desc">
-                    <i18-n msgid="blocksHintDesc">blocksHintDesc</i18-n>
-                </div>
-            </designmap-hint>
-            <!-- Hint -->
-
-            <ul class="indented" hidden$="[[!project._id]]">
-
-
-                <li id="taskManagerItem" on-click="goToTaskManager" on-touchend="_closeMenu"  class$="[[_computeSelectedItem(page,trashMode,'task-manager')]]" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave">
-                    <designmap-circle-button>
-                        <iron-icon icon="designmap-workspace:taskmanager"></iron-icon>
-                    </designmap-circle-button>
-                    <!--<iron-icon hidden$="[[user.isPremium]]" class="locked-icon" icon="icons:lock-outline"></iron-icon>-->
-                    <div class="text">
-                        <i18-n msgid="Tasks">Tasks</i18-n>
+                <!-- Hint -->
+                <designmap-hint id="blocksHint"
+                                previous
+                                have-skip
+                                name="blocks"
+                                tri-left
+                                on-pre-hook="menuHintPreHook"
+                                vertical-offset="0"
+                                horizontal-offset="220">
+                    <div class="title">
+                        <i18-n msgid="Blocks">Blocks</i18-n>
                     </div>
-                    <div class="marker dot"></div>
-                </li>
-
-                <li on-click="goToTheProject"   on-mouseover="_mouseOver" on-touchend="_closeMenu" class$="[[_computeSelectedItem(page,trashMode,'fs')]]" on-mouseleave="_mouseLeave"
-                    data-hint="task-manager-button">
-                    <designmap-circle-button on-touchend="_closeMenu">
-                        <iron-icon icon="designmap-workspace:project"></iron-icon>
-                    </designmap-circle-button>
-                    <div class="text" on-touchend="_closeMenu">
-                        <i18-n msgid="Files">Files</i18-n>
+                    <div class="desc">
+                        <i18-n msgid="blocksHintDesc">blocksHintDesc</i18-n>
                     </div>
-                    <div class="marker dot"></div>
-                </li>
-
-                <li id="chatItem" on-click="openChat" on-touchend="_closeMenu"  class$="[[_computeSelectedItem(page,trashMode,'chat')]]" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave">
-                    <designmap-circle-button>
-                        <iron-icon class="chat-ico" icon="designmap-user-menu:chat"></iron-icon>
-                    </designmap-circle-button>
-                    <!--<iron-icon hidden$="[[user.isPremium]]" class="locked-icon" icon="icons:lock-outline"></iron-icon>-->
-                    <div class="text chat-text">
-                        <i18-n msgid="Project chat">Project chat</i18-n>
-                    </div>
-                    <div class="marker dot"></div>
-                    <div id="chatMarker" hidden$="[[!_isThereUnread(user.system.lastChatReview,messages,messages.length)]]" class="chat marker"></div>
-                </li>
+                </designmap-hint>
+                <!-- Hint -->
+                <ul class="indented" hidden$="[[!project._id]]">
 
 
-                <!--<li id="protocolItem" on-click="goToProtocol" on-touchend="_closeMenu"  on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class="locked">
-                    <designmap-circle-button>
-                        <iron-icon icon="designmap-workspace:protocol"></iron-icon>
-                    </designmap-circle-button>
-                    <iron-icon class="locked-icon" icon="icons:update"></iron-icon>
-                    <div class="text">
-                        <i18-n msgid="Protocol">Protocol</i18-n>
-                    </div>
-                </li>-->
+                    <li id="taskManagerItem" on-click="goToTaskManager" on-touchend="_closeMenu"  class$="[[_computeSelectedItem(page,trashMode,'task-manager')]]" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave">
+                        <designmap-circle-button>
+                            <iron-icon icon="designmap-workspace:taskmanager"></iron-icon>
+                        </designmap-circle-button>
+                        <!--<iron-icon hidden$="[[user.isPremium]]" class="locked-icon" icon="icons:lock-outline"></iron-icon>-->
+                        <div class="text">
+                            <i18-n msgid="Tasks">Tasks</i18-n>
+                        </div>
+                        <div class="marker dot"></div>
+                    </li>
 
-                <li id="trashItem" on-click="goToTrashBox" on-touchend="_closeMenu" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class$="[[_computeSelectedItem(page,trashMode,'archive')]]">
-                    <designmap-circle-button>
-                        <iron-icon icon="designmap-workspace:bin"></iron-icon>
-                        <div class="trash-count">[[trashLength]]</div>
-                    </designmap-circle-button>
-                    <div class="text">
-                        <i18-n msgid="Archive">Archive</i18-n>
-                    </div>
-                    <div class="marker dot"></div>
-                </li>
-            </ul>
+                    <li on-click="goToTheProject"   on-mouseover="_mouseOver" on-touchend="_closeMenu" class$="[[_computeSelectedItem(page,trashMode,'fs')]]" on-mouseleave="_mouseLeave"
+                        data-hint="task-manager-button">
+                        <designmap-circle-button on-touchend="_closeMenu">
+                            <iron-icon icon="designmap-workspace:project"></iron-icon>
+                        </designmap-circle-button>
+                        <div class="text" on-touchend="_closeMenu">
+                            <i18-n msgid="Files">Files</i18-n>
+                        </div>
+                        <div class="marker dot"></div>
+                    </li>
 
-            <div class="delimiter" hidden$="[[!project._id]]"><div class="line"></div></div>
+                    <li id="chatItem" on-click="openChat" on-touchend="_closeMenu"  class$="[[_computeSelectedItem(page,trashMode,'chat')]]" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave">
+                        <designmap-circle-button>
+                            <iron-icon class="chat-ico" icon="designmap-user-menu:chat"></iron-icon>
+                        </designmap-circle-button>
+                        <!--<iron-icon hidden$="[[user.isPremium]]" class="locked-icon" icon="icons:lock-outline"></iron-icon>-->
+                        <div class="text chat-text">
+                            <i18-n msgid="Project chat">Project chat</i18-n>
+                        </div>
+                        <div class="marker dot"></div>
+                        <div id="chatMarker" hidden$="[[!_isThereUnread(user.system.lastChatReview,messages,messages.length)]]" class="chat marker"></div>
+                    </li>
 
-            <div class="menu-title" hidden$="[[!project._id]]" style="margin-top: 5px;">
-                <i18-n msgid="Members">Members</i18-n>
-            </div>
 
-            <!-- Hint -->
-            <designmap-hint id="membersHint"
-                            class="tri-down"
-                            previous
-                            have-skip
-                            name="blocks"
-                            tri-left
-                            on-pre-hook="menuHintPreHook"
-                            vertical-offset="-200"
-                            horizontal-offset="220">
-                <div class="title">
+                    <!--<li id="protocolItem" on-click="goToProtocol" on-touchend="_closeMenu"  on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class="locked">
+                        <designmap-circle-button>
+                            <iron-icon icon="designmap-workspace:protocol"></iron-icon>
+                        </designmap-circle-button>
+                        <iron-icon class="locked-icon" icon="icons:update"></iron-icon>
+                        <div class="text">
+                            <i18-n msgid="Protocol">Protocol</i18-n>
+                        </div>
+                    </li>-->
+
+                    <li id="trashItem" on-click="goToTrashBox" on-touchend="_closeMenu" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave" class$="[[_computeSelectedItem(page,trashMode,'archive')]]">
+                        <designmap-circle-button>
+                            <iron-icon icon="designmap-workspace:bin"></iron-icon>
+                            <div class$="trash-count [[_computeTrashCountCls(trashLength)]]">[[trashLength]]</div>
+                        </designmap-circle-button>
+                        <div class="text">
+                            <i18-n msgid="Archive">Archive</i18-n>
+                        </div>
+                        <div class="marker dot"></div>
+                    </li>
+                </ul>
+            <!-- Blocks -->
+
+            <!-- Members -->
+                <div class="delimiter" hidden$="[[!project._id]]"><div class="line"></div></div>
+                <div class="menu-title" hidden$="[[!project._id]]" style="margin-top: 5px;">
                     <i18-n msgid="Members">Members</i18-n>
                 </div>
-                <div class="desc">
-                    <i18-n msgid="membersHintDesc">membersHintDesc</i18-n>
-                </div>
-            </designmap-hint>
-            <!-- Hint -->
-
-            <designmap-members></designmap-members>
+                <!-- Hint -->
+                <designmap-hint id="membersHint"
+                                class="tri-down"
+                                previous
+                                have-skip
+                                name="blocks"
+                                tri-left
+                                on-pre-hook="menuHintPreHook"
+                                vertical-offset="-200"
+                                horizontal-offset="220">
+                    <div class="title">
+                        <i18-n msgid="Members">Members</i18-n>
+                    </div>
+                    <div class="desc">
+                        <i18-n msgid="membersHintDesc">membersHintDesc</i18-n>
+                    </div>
+                </designmap-hint>
+                <!-- Hint -->
+                <designmap-members></designmap-members>
+            <!-- Members -->
 
             <div class="down"></div>
         </plastic-custom-scroll>
@@ -665,7 +672,7 @@
             },
             _projectStatusChanged: function(value){
                 if(value=='closed' && !this.$.projectList.closedProjects.length) return this.projectStatus = 'active';
-                this.$.projectList.selectedTab = value=='active'?0:1;
+                //this.$.projectList.selectedTab = value=='active'?0:1;
             },
             _isThereUnread: function(lastChatReview,messages){
                 if(!messages.length || !lastChatReview || !this.user) return false;
@@ -697,6 +704,10 @@
                 if(!this.mobileMode) return;
                 const app = document.querySelector('designmap-app');
                 app.$.drawer.opened = true;
+            },
+
+            _computeTrashCountCls: function(count) {
+                return count > 9 ? 'shift' : '';
             }
         });
     </script>

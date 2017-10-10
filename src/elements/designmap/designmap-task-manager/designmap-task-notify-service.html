@@ -10,7 +10,7 @@
         },
         replacements: {
             'status-changed': function (task) {
-                return {"#NAME#": task.name, '#STATUS#': this.translate(task.status)}
+                return {"#NAME#": task.name, '#STATUS#': task.status}
             },
             'new-task-comment': function (task) {
                 return {"#NAME#": task.name}
@@ -64,8 +64,9 @@
                     message: message || this.NOTIFY_MESSAGES[type],
                     replacement: rp(task),
                     info: {
-                        xlink: this.getAppUrl() + this.projectId + '/task-manager' + pth,
-                        project: this.project.name
+                        project: this.project.name,
+                        task: this.task.name,
+                        xlink: this.getAppUrl() + this.projectId + '/task-manager' + pth
                     }
                 }
             });

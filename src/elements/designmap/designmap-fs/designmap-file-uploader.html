@@ -549,7 +549,8 @@
             },
             sendNotification: function(files) {
                 if(this.project.owner==this.user._id) return;
-                const pth = this.getFullPath(this.findFolderById(this._id));
+                const folder = this.findFolderById(this._id);
+                const pth = this.getFullPath(folder);
                 document.querySelector('designmap-app').$.notifier.create({
                     sender: this.user._id,
                     recipients: [this.project.owner],
@@ -558,8 +559,9 @@
                         message: 'Some files were uploaded',
                         replacement: {"#NAME#":'name'},
                         info: {
+                            folder: pth?pth:'/',
+                            project: this.project.name,
                             xlink: this.getAppUrl() + this.project._id + '/fs' + (pth || ''),
-                            project: this.project.name
                         }
                     }
                 });

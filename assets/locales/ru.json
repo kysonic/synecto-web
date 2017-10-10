@@ -2293,5 +2293,11 @@
   },
   "Download app": {
     "message": "Скачать приложение"
+  },
+  "active": {
+    "message": "активный"
+  },
+  "closed": {
+    "message": "закрытый"
   }
 }

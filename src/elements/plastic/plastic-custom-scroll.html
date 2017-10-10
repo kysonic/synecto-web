@@ -110,6 +110,7 @@
         Polymer({
             is: 'plastic-custom-scroll',
             behaviors: [Polymer.IronResizableBehavior],
+            FOCUSABLE: ['input','textarea'],
             properties: {
                 maxHeight: {
                     type: Number,
@@ -287,8 +288,15 @@
             },
             tap: function (e) {
                 //console.log(e.keyCode);
-                //e.currentTarget.focus();
+                const target = e.path?e.path[0]:e.target;
+                if(this._isFocusable(target)) return;
+                this.$.content.focus();
             },
+
+            _isFocusable: function(target){
+                return !!target.getAttribute('tabindex') || this.FOCUSABLE.indexOf(target.tagName.toLowerCase())!=-1;
+            },
+
             keyDown: function (e) {
                 if(e.keyCode!=40 && e.keyCode!=38) return;
                 if(e.keyCode==40) this.scrollDown();

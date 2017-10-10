@@ -56,8 +56,8 @@
             .tabs .title {
                 flex: 1;
                 font-weight: 100;
-                text-align: center;
-                padding: 15px 15px 7px 15px;
+                text-align: left;
+                padding: 15px 15px 0 15px;
                 cursor: pointer;
                 pointer-events: auto;
                 text-transform: none;
@@ -70,7 +70,7 @@
             .tabs .title.selected {
                 background: var(--white-color);
                 color: var(--designmap-project-text-color);
-                border-bottom: 2px solid var(--gray-special-color);
+                font-weight: bold;
             }
 
             /** LISTS **/
@@ -160,7 +160,7 @@
             }
         </style>
 
-        <div class="tabs" hidden$="[[menuMode]]">
+        <!--<div class="tabs" hidden$="[[menuMode]]">
             <div on-click="selectTab" disabled?="[[projects.length]]"
                  class$="title [[computeSelectedTab(selectedTab,0)]]" data-id="0">
                 <i18-n msgid="Active">Active</i18-n>
@@ -170,7 +170,7 @@
                  disabled$="[[!closedProjects.length]]" data-id="1">
                 <i18-n msgid="Closed">Closed</i18-n>
             </div>
-        </div>
+        </div>-->
 
         <ul class="list your-projects" hidden$="[[hideUnselected(selectedTab,0)]]">
             <template is="dom-repeat" items="[[overallProjects]]" as="project" filter="[[_filter(limit,projectId,overallProjects)]]" sort="[[_sortProjects(sortWay,projectId,overallProjects)]]">
@@ -383,7 +383,6 @@
              * @param e
              */
             selectTab: function (e) {
-                this.fire('show-more');
                 if(e.currentTarget.dataset.id && !this.closedProjects.length)  return;
                 if(!e.currentTarget.dataset.id && !this.overallProjects.length)  return;
                 this.selectedTab = e.currentTarget.dataset.id;
@@ -537,7 +536,6 @@
             },
 
             showMore: function (overallProjects,limit) {
-                this.fire('show-more')
                 this.limit = 10;
             },
         });

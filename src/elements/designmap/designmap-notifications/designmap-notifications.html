@@ -338,7 +338,7 @@
                                             </template>
                                             <template is="dom-if" if="[[!isThatLink(info)]]">
                                                 <div class="info-item">
-                                                    <i18-n msgid="[[info]]">[[info]]</i18-n>
+                                                    [[_computeInfo(info,language,i18Loaded)]]
                                                     : <b>[[getText(notification.text.info,info)]]</b></div>
                                             </template>
                                         </template>
@@ -394,6 +394,10 @@
                 language: {
                     type: String,
                     computed: '_computeLanguage(user.system.language)'
+                },
+                i18Loaded: {
+                    type: Boolean,
+                    statePath: 'i18Loaded'
                 },
                 bodyNode: {
                     type: Object,
@@ -524,6 +528,9 @@
             },
             _cutChanged: function(){
                 this.maxHeight = this.cut?340:window.innerHeight - 150;
+            },
+            _computeInfo: function(info){
+                return this.capitalizeFirstLetter(this.translate(info));
             }
         })
     </script>

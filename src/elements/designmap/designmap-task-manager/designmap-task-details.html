@@ -80,6 +80,7 @@
             .details .panel .center {
                 display: flex;
                 align-items: center;
+                flex: 11;
                 max-width: calc(100% - 125px);
             }
 
@@ -117,6 +118,8 @@
                 border: none;
                 outline: none;
                 width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
             .task-title-input.edit {
@@ -129,7 +132,6 @@
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                max-width: 100%;
             }
 
             .title-edit-arrow {
@@ -327,7 +329,7 @@
                 .desc-textarea.edit {
                     margin-top: -1px;
                     --plastic-textarea-mixin: {
-                        margin-left: 14px;
+                        margin-left: 24px;
                         font-family: var(--font-family);
                         color: var(--gray-darky-color);
                         max-width: calc(100% - 40px);
@@ -507,7 +509,8 @@
             properties: {
                 task: {
                     type: Object,
-                    value: null
+                    value: null,
+                    observer: '_taskChanged'
                 },
                 user: {
                     type: Object,
@@ -710,8 +713,8 @@
                     this.$.desc.$.textarea.value = this.task.description;
                     return this.showErrorMessage('You do not have access to make it');
                 }
+                this.descEditMode = false;
                 this.dispatch('updateTask', this.task._id, {description: val}).then(function (response) {
-                    this.descEditMode = false;
                     if (!response.success) return this.showErrorMessage('Cannot save description');
                     this.showMessage('Description has been saved!');
                 }.bind(this));
@@ -783,6 +786,12 @@
                     if (!response.success) return this.showErrorMessage('Cannot archive task');
                     this.showMessage('Task has been archived.');
                 }.bind(this));
+            },
+
+            _taskChanged: function(){
+                this.async(function(){
+                    this.$.scroller.calculate();
+                },100);
             }
         })
     </script>

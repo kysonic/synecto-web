@@ -1,0 +1,121 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../designmap-ui/designmap-dropdown.html">
+
+<!-- Redux -->
+<link rel="import" href="../../../redux/redux-store.html">
+<link rel="import" href="../../../redux/actions/combine-actions.html">
+
+<dom-module id="designmap-project-manager">
+    <template>
+        <style>
+            :host {
+                color: var(--gray-darkend-color);
+                --designmap-dropdown-background: var(--gray-color);
+                --designmap-dropdown-triangle-border-mixin: {
+                    left: 0;
+                    margin-left: 18px;
+                    top: -12px;
+                    border-color: transparent transparent var(--gray-color) transparent;
+                };
+                --designmap-dropdown-triangle-mixin: {
+                    left: 0;
+                    margin-left: 20px;
+                }
+            }
+            *[hidden] {
+                display: none !important;
+            }
+            .title {
+                color: var(--gray-darkend-color);
+                display: inline-block;
+                margin: 7px 0 0 15px;
+                font-size: 25px;
+            }
+            paper-icon-button {
+                width: 35px;
+                height: 35px;
+                position: relative;
+                bottom: 3px;
+            }
+            .status {
+                font-size: 12px;
+                margin-left: 15px;
+                position: relative;
+                bottom: 10px;
+            }
+            .create-project {
+                margin-left: 16px;
+                cursor: pointer;
+                color: var(--blue-darkest-color);
+                margin-bottom: 5px;
+            }
+            .create-project:hover {
+                text-decoration: underline;
+            }
+        </style>
+        <div class="title" on-click="openDropdown">[[project.name]]</div>
+        <designmap-dropdown id="dropdown" previous vertical-offset="40" tri-border horizontal-offset="">
+            <designmap-projects-list id="projectList" closed-projects="{{closedProjects}}"></designmap-projects-list>
+        </designmap-dropdown>
+        <paper-icon-button hidden$="[[!project.name]]" icon="designmap24:arrow_down" on-click="openDropdown"></paper-icon-button>
+        <div class="status" hidden$="[[!project.name]]">[[_getProjectStatus(project,language,i18Loaded)]]</div>
+        <div class="create-project" hidden$="[[!project.name]]" on-click="openCreateProjectDialog">
+            <i18-n msgid="Create Project">Create Project</i18-n>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-project-manager',
+            behaviors: [
+                ReduxBehavior,
+                Polymer.DesignMapMessagesBehavior,
+                Polymer.DesignMapUtilsBehavior
+            ],
+            properties: {
+                project:{
+                    type: Object,
+                    value: null
+                },
+                i18Loaded: {
+                    type: String,
+                    statePath: 'i18Loaded'
+                },
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
+                language: {
+                    type: String,
+                    computed: '_computeLanguage(user.system.language)'
+                }
+            },
+            listeners: {
+                'close-menu-in-mobile-mode':'closeDropdown',
+                'show-more':'refitDropdown'
+            },
+            _getProjectStatus: function(project){
+                if(!project) return 'xxx';
+                return (this.translate(!project.closed ? 'active' : 'closed' )+' '+this.translate('project')).toLowerCase();
+            },
+
+            openDropdown: function(){
+                this.$.dropdown.open();
+            },
+
+            closeDropdown: function(){
+                this.$.dropdown.close();
+            },
+
+            refitDropdown: function(){
+                this.async(function(){
+                    this.$.dropdown.refit();
+                },10);
+            },
+            openCreateProjectDialog: function(){
+                this.fire('close-menu-in-mobile-mode');
+                this.fire('open-create-project-dialog');
+            }
+        })
+    </script>
+</dom-module>

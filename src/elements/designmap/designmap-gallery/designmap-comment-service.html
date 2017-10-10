@@ -33,6 +33,7 @@
                     message: comment.text.replace(EMAILS_REGEXP,''),
                     replacement: {'#NAME#': this.cutFileName(file)},
                     info: {
+                        project: this.project.name,
                         file: this.cutFileName(file),
                         xlink: Designmap.config.appURL+this.projectId+'/gallery/'+ file._id+'/#/'+sticker._id
                     }
