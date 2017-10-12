@@ -370,7 +370,7 @@
                 return !!user;
             },
             computeName: function (user) {
-                if(!user) return 'XX';
+                if(!user || !user.local) return 'XX';
                 return user ? user.name && user.lastName ? user.name[0] + user.lastName[0] : user.local.email[0] : 'XX';
             },
             computeAvatarPath: function (path) {

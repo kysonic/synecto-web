@@ -36,9 +36,20 @@
             /**
              * Action!
              */
-            Designmap[type+'Socket'].on('action', function (o) {
+            // Builtin custom subscribers
+            this[type+'BuiltIn']?this[type+'BuiltIn']():null;
+
+
+        },
+
+        projectBuiltIn: function(){
+            Designmap.projectSocket.on('action', function (o) {
                 if (o.uid == Designmap.uid) return;
                 ReduxStore.dispatch(o);
+            }.bind(this));
+
+            Designmap.projectSocket.on('userOnline', function (o) {
+                this.fire('user-online',o);
             }.bind(this));
         },
         /**

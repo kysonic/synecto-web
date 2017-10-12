@@ -161,21 +161,22 @@
         </style>
 
         <div class="tabs" hidden$="[[menuMode]]">
-            <div on-click="selectTab" disabled?="[[projects.length]]"
-                 class$="title [[computeSelectedTab(selectedTab,0)]]" data-id="0">
+            <div id="projectsTab" on-click="selectTab"
+                 class$="title [[computeSelectedTab(selectedTab,0)]]"
+                 disabled$="[[!overallProjects.length]]" data-id="0">
                 <i18-n msgid="Active">Active</i18-n>
             </div>
-            <div on-click="selectTab" disabled?="[[sharedProjects.length]]"
+            <div on-click="selectTab"
                  class$="title [[computeSelectedTab(selectedTab,1)]]"
                  disabled$="[[!closedProjects.length]]" data-id="1">
                 <i18-n msgid="Closed">Closed</i18-n>
             </div>
         </div>
 
-        <ul class="list your-projects" hidden$="[[hideUnselected(selectedTab,0)]]">
+        <ul class="list your-projects" hidden$="[[hideUnselected(selectedTab,0,menuMode)]]">
             <template is="dom-repeat" items="[[overallProjects]]" as="project" filter="[[_filter(limit,projectId,overallProjects)]]" sort="[[_sortProjects(sortWay,projectId,overallProjects)]]">
                 <li class$="[[computeSelected(projectId,project)]]">
-                    <div class="project-name" on-click="selectProject">
+                    <div class="project-name" title="[[_computeAuthorName(project)]]" on-click="selectProject">
                         <span>[[project.name]]</span>
                         <span class="author">[ [[_computeAuthorName(project)]] ]</span>
                     </div>
@@ -184,10 +185,10 @@
             </template>
         </ul>
 
-        <ul class="list available-projects" hidden$="[[hideUnselected(selectedTab,1)]]">
+        <ul class="list available-projects" hidden$="[[hideUnselected(selectedTab,1,menuMode)]]">
             <template is="dom-repeat" items="[[closedProjects]]" as="project">
                 <li class$="[[computeSelected(projectId,project)]]">
-                    <div class="project-name" title="[[_computeAuthorName(project)]]">
+                    <div class="project-name" title="[[_computeAuthorName(project)]]" on-click="selectProject"  >
                         <span>[[project.name]]</span>
                         <span class="author">[ [[_computeAuthorName(project)]] ]</span>
                     </div>
@@ -311,7 +312,8 @@
                  */
                 overallProjects: {
                     type: Array,
-                    computed: '_computeOverallProjects(projects,sharedProjects)'
+                    computed: '_computeOverallProjects(projects,sharedProjects)',
+                    observer: '_overallProjectsChanged'
                 },
                 /**
                  * Closed
@@ -319,7 +321,8 @@
                 closedProjects: {
                     type: Array,
                     notify: true,
-                    computed: '_computeClosedProjects(projects,sharedProjects)'
+                    computed: '_computeClosedProjects(projects,sharedProjects)',
+                    observer: '_closedProjectsChanged'
                 },
                 /**
                  * Temp name for project
@@ -383,9 +386,10 @@
              * @param e
              */
             selectTab: function (e) {
-                this.fire('show-more');
+                if(e.currentTarget.hasAttribute('disabled')) return;
                 if(e.currentTarget.dataset.id && !this.closedProjects.length)  return;
                 if(!e.currentTarget.dataset.id && !this.overallProjects.length)  return;
+                this.fire('show-more');
                 this.selectedTab = e.currentTarget.dataset.id;
             },
             /**
@@ -394,7 +398,8 @@
              * @param id - id of tab content
              * @returns {boolean}
              */
-            hideUnselected: function (selected, id) {
+            hideUnselected: function (selected, id, menuMode) {
+                if(menuMode) return false;
                 return selected != id;
             },
             /**
@@ -461,7 +466,9 @@
                     if(this.projectID==this.projectId) {
                         if(this.projects && this.projects[0]) return page.redirect('/'+this.projects[0]._id);
                         page.redirect('/');
+                        localStorage.setItem('synecto:lop',null);
                     }
+                    this.showMessage('Project has been removed');
                     if(!this.closedProjects.length) this.selectedTab = 0;
                 }.bind(this));
             },
@@ -473,10 +480,12 @@
                 this.$.closeProjectConfirm.close();
                 this.$.projectContextMenu.close();
                 this.dispatch('updateProject', this.projectID, {closed: true}).then(function(){
+                    if(!this.projects.length) this.selectedTab = 1;
                     if(this.projectID==this.projectId) {
                         if(this.overallProjects && this.overallProjects[0]) return page.redirect('/'+this.overallProjects[0]._id);
                         page.redirect('/');
                     }
+                    this.showMessage('Project has been closed');
                 }.bind(this));
             },
             /**
@@ -486,6 +495,8 @@
                 this.$.closedContext.close();
                 this.dispatch('updateProject', this.projectID, {closed: false}).then(function(){
                     if(!this.closedProjects.length) this.selectedTab = 0;
+                    this.showMessage('Project has been restored');
+                    page.redirect('/'+this.projectID);
                 }.bind(this));
             },
             /**
@@ -540,6 +551,14 @@
                 this.fire('show-more')
                 this.limit = 10;
             },
+
+            _overallProjectsChanged: function(op){
+                if(!op.length) this.selectedTab = 1;
+            },
+
+            _closedProjectsChanged: function(cp){
+                if(!cp.length) this.selectedTab = 0;
+            }
         });
     </script>
 </dom-module>

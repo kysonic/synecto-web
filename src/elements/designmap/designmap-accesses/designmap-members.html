@@ -117,10 +117,10 @@
                            on-continue="remove" on-suspend="suspendRemoving"></designmap-confirm>
         <!-- Members -->
         <div class="members">
-            <template is="dom-repeat" items="[[members]]" as="member" sort="[[sortFn(project)]]">
+            <template id="membersRepeater" is="dom-repeat" items="[[members]]" as="member" sort="[[sortFn(project)]]">
                 <div class="member">
                     <designmap-avatar-projector class$="[[_ownerCls(member)]]" user="[[member]]"></designmap-avatar-projector>
-                    <div class$="mark [[_isOnline(member)]]"></div>
+                    <div class$="mark [[_isOnline(member.online)]]"></div>
                     <div class="remove" on-click="openRemoveConfirm" hidden$="[[!_canRemove(user,member,project)]]">
                         <iron-icon icon="icons:close"></iron-icon>
                     </div>
@@ -232,9 +232,8 @@
                 if(!this.project) return;
                 return this.project.owner == member._id;
             },
-            _isOnline: function(user){
-                if(user._id==this.user._id) return 'online';
-                return user.online ? 'online' : '';
+            _isOnline: function(online){
+                return online ? 'online' : '';
             },
             openHidden: function(e){
                 this.$.hiddenList.open();
@@ -345,6 +344,16 @@
             },
             closeMembersList: function(){
                 this.$.hiddenList.close();
+            },
+            setOnline: function(o) {
+                let indx = -1;
+                this.members.find(function(user,inx){
+                    if(user._id==o.userId) {
+                        console.log(user);
+                        indx=inx;
+                    }
+                });
+                this.set('members.'+indx+'.online',o.state);
             }
         })
     </script>

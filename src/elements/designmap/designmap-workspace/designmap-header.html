@@ -409,8 +409,8 @@
             openProjectMenu: function () {
                 this.$.projectFormDialog.open();
             },
-            onCreateProject: function () {
-                const projectName = this.$.projectName.value;
+            onCreateProject: function (e) {
+                const projectName = e.detail || this.$.projectName.value;
                 if (!projectName) return this.showErrorMessage('Project name cannot be empty');
                 //Validation
                 if (!/[\w\dа-яА-ЯёЁ -]+/.test(projectName)) return this.showErrorMessage('Project name is not correct');

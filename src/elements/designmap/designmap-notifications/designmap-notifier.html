@@ -2,6 +2,7 @@
 <link rel="import" href="../../../redux/actions/notifications-actions.html">
 <link rel="import" href="../../../behaviors/deisgnmap-utils-behavior.html">
 <link rel="import" href="../../../behaviors/designmap-socket-behavior.html">
+<link rel="import" href="../../../redux/actions/user-actions.html">
 
 <dom-module id="designmap-notifier">
     <template></template>
@@ -13,7 +14,8 @@
                 Polymer.NotificationsActions,
                 Polymer.DesignMapUtilsBehavior,
                 Polymer.DesignMapMessagesBehavior,
-                Polymer.DesignmapSocketBehavior
+                Polymer.DesignmapSocketBehavior,
+                Polymer.UserActions
             ],
             properties: {
                 user: {
@@ -47,6 +49,13 @@
                             ReduxStore.dispatch({type:'ADD_SHARED_PROJECT',data:{name:o.text.replacement['#PROJECT#'],_id: o.text.projectID}})
                         }
                     }
+                }.bind(this));
+                // Another subscriber
+                this.addSocketSubscriber('notification','planUpload',function(o){
+                    console.log('Storage[debug]>',o);
+                    const plan = this.user.plan;
+                    plan.upload = o;
+                    this.dispatch('userUpdate',{plan:plan});
                 }.bind(this));
             },
             _computeIsAuth: function(user){

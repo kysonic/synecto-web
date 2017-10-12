@@ -342,7 +342,7 @@
                 <a hidden$="[[_isPremium(user)]]" href="/activate" class="block upgrade" id="upgrade" >
                    <i18-n msgid="Upgrade">Upgrade</i18-n>
                 </a>
-                <div class="block app" id="app" on-click="openAppDialog">
+                <div hidden$="[[downloaded]]" class="block app" id="app" on-click="openAppDialog">
                     <div class="notify">
                         <iron-icon icon="designmap-user-menu:app"></iron-icon>
                     </div>
@@ -439,7 +439,7 @@
                         </div>
                     </div>
                 </designmap-dropdown>
-                <!-- Account menu -->
+                <!-- Download app dialog -->
                 <paper-dialog id="appDialog"  entry-animation="scale-up-animation" exit-animation="scale-down-animation">
                     <div class="content">
                         <h1><i18-n msgid="Download app">Download app</i18-n></h1>
@@ -499,11 +499,18 @@
                 MQ: {
                     type: String,
                     statePath: 'MQ'
+                },
+                downloaded: {
+                    type: Boolean,
+                    value: false
                 }
             },
             observers: [
                 'changeOffset(MQ,user.plan)'
             ],
+            ready: function(){
+                this.downloaded = !!JSON.parse(localStorage.getItem('synecto:app:downloaded'));
+            },
             openLoginDialog: function (e) {
                 this.$.dialog.open();
             },
@@ -606,6 +613,7 @@
                 this.$$('#appDialog').close();
             },
             downloadApp: function(){
+                localStorage.setItem('synecto:app:downloaded',true);
                 window.open(this._getOSLink(),'_blank');
             }
         })

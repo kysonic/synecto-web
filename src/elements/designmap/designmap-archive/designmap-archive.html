@@ -304,7 +304,7 @@
                 this.dispatch('removeFiles', files).then(function (response) {
                     if (!response.success) throw new Error(response.errors.message);
                     const msg = files.length>1 ? 'Objects were removed irretrievably.': 'File has been removed from trash.';
-                    if(!skip) this.showMessage(msg, {"#NAME#": files[0].name});
+                    if(!skip) this.showMessage(msg, {"#NAME#": files[0].name || files[0].data.name});
                     // Update user's plan upload params
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));
             },

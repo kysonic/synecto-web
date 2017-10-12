@@ -29,20 +29,26 @@
             .title {
                 color: var(--gray-darkend-color);
                 display: inline-block;
+                vertical-align: middle;
                 margin: 7px 0 0 15px;
                 font-size: 25px;
+                max-width: calc(100% - 55px);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
             paper-icon-button {
                 width: 35px;
                 height: 35px;
                 position: relative;
-                bottom: 3px;
+                top: 7px;
+                vertical-align: middle;
             }
             .status {
                 font-size: 12px;
                 margin-left: 15px;
                 position: relative;
-                bottom: 10px;
+                bottom: 8px;
             }
             .create-project {
                 margin-left: 16px;
@@ -54,7 +60,7 @@
                 text-decoration: underline;
             }
         </style>
-        <div class="title" on-click="openDropdown">[[project.name]]</div>
+        <div class="title" title="[[project.name]]" on-click="openDropdown">[[project.name]]</div>
         <designmap-dropdown id="dropdown" previous vertical-offset="40" tri-border horizontal-offset="">
             <designmap-projects-list id="projectList" closed-projects="{{closedProjects}}"></designmap-projects-list>
         </designmap-dropdown>

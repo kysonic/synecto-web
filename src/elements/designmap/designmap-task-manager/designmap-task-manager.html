@@ -403,7 +403,8 @@
                 },
                 project: {
                     type: Object,
-                    statePath: "project"
+                    statePath: "project",
+                    observer: '_projectIdChanged'
                 },
                 path: {
                     type: String,
@@ -537,7 +538,8 @@
             selectTask: function (e) {
                 //if(this.selectedTask && this.selectedTask.parent!=e.detail.parent) this.$.list.limit = this.$.list.defaultLimit;
                 //if(this.selectedTask && this.selectedTask.parent==e.detail.parent) this.$.details.$.list.limit = this.$.list.defaultLimit;
-                //this.cancelSearch();
+                this.searchMode = false;
+                this.$.searchFilter.empty();
                 page.redirect('/' + this.projectId + '/task-manager' + this.getFullPath(e.detail));
             },
             focusInput: function () {

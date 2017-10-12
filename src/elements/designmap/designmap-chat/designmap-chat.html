@@ -286,6 +286,11 @@
                 margin-top: 5px;
                 color: var(--gray-darkend-color);
                 text-decoration: none;
+                max-width: 200px;
+                display: inline-block;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
            /** Date delimeter **/
@@ -517,6 +522,11 @@
                 bottom: 5px;
             }
 
+            .marked {
+                padding: 0 0;
+                background: #e7dad1;
+            }
+
 
             @media (min-width: 320px) and (max-width: 768px) {
                 .scroll {
@@ -653,7 +663,7 @@
                                                     <template is="dom-if" if="[[!_canBeDisplayed(attach)]]">
                                                         <designmap-file-preview file="[[attach]]"></designmap-file-preview>
                                                     </template>
-                                                    <label>[[cutFileName(attach)]]</label>
+                                                    <label title="[[cutFileName(attach)]]">[[cutFileName(attach)]]</label>
                                                 </a>
                                             </template>
                                             <template is="dom-if" if="[[!_isFile(attach)]]">

@@ -298,6 +298,12 @@
             }
         }
 
+        .empty-message {
+            margin-left: 15px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
 
         @media (min-width: 320px) and (max-width: 768px) {
             .mobile-project-menu {
@@ -350,7 +356,16 @@
             <!--<div class="menu-title" hidden$="[[!project._id]]" style="margin-top: 5px;">
                 <i18-n msgid="Projects">Projects</i18-n>
             </div>-->
-            <designmap-project-manager project="[[project]]"></designmap-project-manager>
+            <designmap-project-manager hidden$="[[!project._id]]" project="[[project]]"></designmap-project-manager>
+
+            <div class="menu-title" hidden$="[[project._id]]" style="margin-top: 5px;">
+                <i18-n msgid="Select project">Select project</i18-n>
+            </div>
+            <designmap-projects-list hidden$="[[project._id]]" menu-mode="true"></designmap-projects-list>
+
+            <div hidden$="[[_showEmptyMessage(overallProjects.length)]]" class="empty-message">
+                <i18-n msgid="There are no projects yet">There are no projects yet</i18-n>
+            </div>
 
             <!-- Blocks -->
                 <div class="delimiter" hidden$="[[!project._id]]"><div class="line"></div></div>
@@ -458,7 +473,7 @@
                     </div>
                 </designmap-hint>
                 <!-- Hint -->
-                <designmap-members></designmap-members>
+                <designmap-members id="members" hidden$="[[!project._id]]"></designmap-members>
             <!-- Members -->
 
             <div class="down"></div>
@@ -504,6 +519,20 @@
                 projects: {
                     type: Array,
                     statePath: 'projects'
+                },
+                /**
+                 * Shared projects list for current user
+                 */
+                sharedProjects: {
+                    type: Array,
+                    statePath: 'sharedProjects'
+                },
+                /**
+                 * My + Shared
+                 */
+                overallProjects: {
+                    type: Array,
+                    computed: '_computeOverallProjects(projects,sharedProjects)'
                 },
                 messages: {
                     type: Array,
@@ -708,6 +737,14 @@
 
             _computeTrashCountCls: function(count) {
                 return count > 9 ? 'shift' : '';
+            },
+
+            _showEmptyMessage: function(project,length){
+                return !length
+            },
+
+            _computeOverallProjects: function(p,sp){
+                return p.concat(sp);
             }
         });
     </script>

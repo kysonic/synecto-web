@@ -232,8 +232,8 @@
             .extension {
                 width: 25vw;
                 height: 25vw;
-                color: var(--gray-darky-hovered-color);
-                border: 1px solid var(--gray-darky-hovered-color);
+                color: var(--gray-darkend-color);
+                border: 1px solid var(--gray-darkend-color);
                 text-align: center;
                 display: flex;
                 align-items: center;
@@ -267,12 +267,10 @@
 
             .extension .data .ext-icon span {
                 position: absolute;
-                left: 50%;
-                top: 50%;
-                margin-left: -4vh;
-                margin-top: -3vh;
+                font-size: 200%;
+                margin-top: 6px;
+                color: var(--gray-saturate-color);
                 text-transform: uppercase;
-                font-size: 5vh;
             }
 
             .extension .data a {
@@ -506,6 +504,14 @@
                 margin-right: 10px;
             }
 
+            .track-plate {
+                display: none;
+            }
+
+            iframe {
+                touch-action: auto;
+            }
+
 
 
             @media (min-width: 320px) and (max-width: 768px) {
@@ -618,6 +624,14 @@
                 }
                 .top-panel .center {
                     margin-left: 0px;
+                }
+                .track-plate {
+                    display: block;
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    left:0;
+                    top:0;
                 }
             }
 
@@ -741,9 +755,7 @@
                         <template is="dom-if" if="[[canBeDisplayed(file)]]" restamp="true">
                             <template is="dom-if" if="[[isOfficeFile(file)]]" restamp="true" >
                                 <iframe id="itm" class$="office-view [[getExtensionWithoutDot(file.data.name)]]" src='[[_getOfficeFilePreview(file)]]' frameborder="0"></iframe>
-                            </template>
-                            <template is="dom-if" if="[[isPDF(file)]]" restamp="true" >
-                                <iframe id="itm" class$="pdf-view [[getExtensionWithoutDot(file.data.name)]]" src='[[_getPDFFilePreview(file)]]' frameborder="0"></iframe>
+                                <div class="track-plate" id="trackPlate"></div>
                             </template>
                             <template is="dom-if" if="[[isImageFile(file)]]" restamp="true">
                                 <iron-image
@@ -901,7 +913,7 @@
             // Files with same extension can be displayed
             canBeDisplayedExt: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr", ".ppm", ".pbm",".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx",".pdf"],
             imageFilesExt: [".jpg", ".png", ".gif", ".ttf", ".rif", ".bmp", ".jpg", ".hdr", ".ppm", ".pbm"],
-            officeFileExt: [".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx"],
+            officeFileExt: [".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx",".pdf"],
             objectIDRegexp: /^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/i,
             properties: {
                 projectId: {
@@ -1044,6 +1056,15 @@
               this.async(function(){
                   this.refitStickers();
                   this._showCounter();
+                  const trackPlate = this.$$('#trackPlate');
+
+                  trackPlate.addEventListener('touchstart',function(e){
+                      trackPlate.style.pointerEvents = 'none';
+                  },false);
+                  trackPlate.addEventListener('touchend',function(e){
+                      trackPlate.style.pointerEvents = 'initial';
+                  },false);
+
               },1000);
             },
             _showCounter: function(){

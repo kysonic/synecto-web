@@ -332,6 +332,9 @@
   "Add project": {
     "message": "Add project"
   },
+  "Add new project": {
+    "message": "Enter new project name"
+  },
   "Select project": {
     "message": "Select project"
   },
@@ -997,6 +1000,9 @@
   },
   "There are no projects yet": {
     "message": "You do not have projects yet..."
+  },
+  "Project is not selected. Select one in left menu or create new": {
+    "message": "Project is not selected. Select one in left menu or create new"
   },
   "This folder has file with name. Choose another one or change file name.": {
     "message": "This folder has file with name. Choose another one or change file name."
@@ -2290,5 +2296,14 @@
   },
   "closed": {
     "message": "closed"
+  },
+  "Project has been closed": {
+    "message": "Project has been closed"
+  },
+  "Project has been restored": {
+    "message": "Project has been restored"
+  },
+  "Project has been removed": {
+    "message": "Project has been removed successfully"
   }
 }

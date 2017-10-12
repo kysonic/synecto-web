@@ -121,7 +121,7 @@
                 --app-drawer-width: var(--chat-width);
             }
 
-            .error {
+            .error, .empty {
                 position: absolute;
                 top: 0;
                 left: 0;
@@ -232,7 +232,13 @@
                     <designmap-stub image="designmap-workspace-stub:error" message="[[translate(error,language,i18Loaded)]]"
                                     error></designmap-stub>
                 </div>
-                <!-- Error -->
+                <!-- Empty -->
+                <div class="empty" hidden$="[[_hideEmpty(error,page,project)]]">
+                    <designmap-stub image="designmap-workspace-stub:project"
+                                    on-action="addProject"
+                                    input-text="Add new project" input-error="AddProejctError"
+                                    message="Project is not selected. Select one in left menu or create new"></designmap-stub>
+                </div>
                 <!-- Info -->
                 <app-drawer id="right" align="end" opened="{{rightOpened}}">
                     <!--<designmap-chat hidden$="[[!chatMode]]" opened="[[_computeOpened(chatMode,rightOpened)]]" id="chat"></designmap-chat>-->
@@ -309,6 +315,10 @@
                     type: Object,
                     statePath: 'projects'
                 },
+                projectUsers: {
+                    type: Object,
+                    statePath: 'projectUsers'
+                },
                 error: {
                     type: String,
                     value: ''
@@ -348,7 +358,7 @@
                 },
                 showErrorPage: {
                     type: Array,
-                    value: ['fs','task-manager','trash']
+                    value: ['fs','task-manager','trash','archive']
                 },
                 loaded: {
                     type: Number,
@@ -400,7 +410,8 @@
                 'app-loading':'changeAppLoading',
                 'project-error':'changeAppError',
                 'hint-skip': 'hintSkip',
-                'tutorial-finish': 'finishTutorial'
+                'tutorial-finish': 'finishTutorial',
+                'user-online': 'userOnline'
             },
 
 
@@ -528,8 +539,7 @@
             _projectIdChanged: function (projectId) {
                 // Project manipulation
                 this.cleanProjectData();
-                if (!projectId) return ;
-                localStorage.setItem('synecto:lop',JSON.stringify(projectId));
+                if (!projectId) return this.dispatch({type: 'SET_PROJECT_STATE', project: null});
                 this.dispatch('updateProjectId', projectId);
                 if(this.project) return this.getProjectData();
                 // Get project data
@@ -544,9 +554,11 @@
                     }
                     if (!response.success) throw response.errors;
                     this.error = '';
+                    localStorage.setItem('synecto:lop',JSON.stringify(projectId));
                     this.updateProject(response.project);
                 }.bind(this)).catch(function (err) {
                     this.loading = false;
+                    localStorage.setItem('synecto:lop',null);
                     const errorMessage = err.message || err + (err.stack ? err.stack : '');
                     this.error = errorMessage;
                 }.bind(this));
@@ -606,6 +618,7 @@
 
             _loaded: function(){
                 this.loading = false;
+                this.async(function(){this.loading = false},300);
                 this.readyState = true;
                 this.loaded = 0;
             },
@@ -733,6 +746,10 @@
                 },50);
             },
 
+            addProject: function(e){
+                this.$.dmHeader.onCreateProject(e);
+            },
+
             openCreateProjectDialog: function(){
                 if(this.$.dmHeader) this.$.dmHeader.openProjectMenu();
             },
@@ -766,6 +783,12 @@
 
             _hideError: function(error, page){
                 return this.showErrorPage.indexOf(page)==-1 || !error;
+            },
+
+            _hideEmpty: function(error, page, project){
+                if(this.showErrorPage.indexOf(page)==-1) return true;
+                if(error) return true;
+                return !!project;
             },
 
             changeAppLoading: function(e){
@@ -806,8 +829,11 @@
                     system.tutorials = true;
                     this.dispatch('userUpdate',{system:system});
                 }
-            }
+            },
 
+            userOnline: function (e) {
+                this.$.advancedMenu.$.members.setOnline(e.detail);
+            }
         });
     </script>
 </dom-module>

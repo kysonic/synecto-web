@@ -55,8 +55,8 @@
         </paper-tooltip>
         <designmap-context-menu bound darker id="nameContext">
             <div class="context-content">
-                <iron-a11y-keys id="a11yAddFolder" keys="ctrl+enter meta+enter"
-                                on-keys-pressed="renameFolder"></iron-a11y-keys>
+                <iron-a11y-keys id="a11yAddFolder" keys="enter"
+                                on-keys-pressed="createDoc"></iron-a11y-keys>
                 <paper-input label="[[inputLabel]]" auto-validate
                              pattern="[\w\dа-яА-ЯёЁ -]+"
                              required

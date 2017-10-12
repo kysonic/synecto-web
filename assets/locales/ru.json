@@ -350,6 +350,9 @@
   "Add project": {
     "message": "Добавить Проект"
   },
+  "Add new project": {
+    "message": "Введите имя нового проекта"
+  },
   "Menu": {
     "message": "Меню"
   },
@@ -997,6 +1000,9 @@
   },
   "Not allowed in beta": {
     "message":"Не доступно для бета версии!"
+  },
+  "Project is not selected. Select one in left menu or create new": {
+    "message": "Проект не выбран. Выбреите один в левом меню или создайте новый"
   },
   "There are no projects yet": {
     "message":"У вас еще нет проектов..."
@@ -2299,5 +2305,14 @@
   },
   "closed": {
     "message": "закрытый"
+  },
+  "Project has been closed": {
+    "message": "Проект был закрыт"
+  },
+  "Project has been restored": {
+    "message": "Проект был восстановлен"
+  },
+  "Project has been removed": {
+    "message": "Проект был успешно удален"
   }
 }
