@@ -174,7 +174,7 @@
         </div>
 
         <ul class="list your-projects" hidden$="[[hideUnselected(selectedTab,0,menuMode)]]">
-            <template is="dom-repeat" items="[[overallProjects]]" as="project" filter="[[_filter(limit,projectId,overallProjects)]]" sort="[[_sortProjects(sortWay,projectId,overallProjects)]]">
+            <template id="overallRepeater" is="dom-repeat" items="[[overallProjects]]" as="project" filter="[[_filter(limit,projectId,overallProjects)]]" sort="[[_sortProjects(sortWay,projectId,overallProjects)]]">
                 <li class$="[[computeSelected(projectId,project)]]">
                     <div class="project-name" title="[[_computeAuthorName(project)]]" on-click="selectProject">
                         <span>[[project.name]]</span>
@@ -216,7 +216,7 @@
                     <i18-n msgid="Rename">Rename</i18-n>
                 </li>
                 <!-- Rename project -->
-                <designmap-context-menu bound id="renameProjectContext" previous>
+                <designmap-context-menu darker bound id="renameProjectContext" previous>
                     <div class="context-content">
                         <iron-a11y-keys id="a11yAddFolder" keys="enter" on-keys-pressed="renameIt"></iron-a11y-keys>
                         <paper-input label$="[[translate('Project Name',language,i18Loaded)]]"

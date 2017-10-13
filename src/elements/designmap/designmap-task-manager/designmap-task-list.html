@@ -600,6 +600,12 @@
                 .list {
                     padding-left: 3px;
                 }
+
+                plastic-custom-scroll {
+                    --plastic-custom-scroll-content-mixin:{
+                        max-height: calc(100vh - 280px);
+                    };
+                }
             }
 
         </style>
@@ -613,7 +619,7 @@
         </div>
         <plastic-custom-scroll hidden$="[[!tasks.length]]" no-scroll="[[noScroll]]" id="scroller" fit small-bar>
             <ul class="list" id="list">
-                <template id="listRepeater" is="dom-repeat" items="[[tasks]]" as="task" filter="[[taskFilter(selectedFilter,limit,tasks.*)]]" observe="parent limit searchMode" sort="[[taskSort(parent,limit,tasks.*)]]">
+                <template id="listRepeater" is="dom-repeat" items="[[tasks]]" as="task" filter="[[taskFilter(selectedFilter,limit,tasks.*)]]" sort="[[taskSort(limit)]]">
                     <li draggable$="[[_computeDraggable(searchMode,dragLine)]]" on-dragstart="dragStart" on-dragenter="dragEnter" on-dragover="dragOver" on-drop="dragDrop" class$="[[computeItemClass(task,selected)]]" data-task-id$="[[task._id]]">
                         <!--<div class="line" class$="[[computeSubLineClass(task)]]"></div>-->
                         <designmap-circle-button id$="statusButton[[index]]" class="status-button"
@@ -1124,6 +1130,8 @@
                 };
                 // Notify
                 this.sendNewTaskNotification(task);
+                // Scroll
+                this.async(function(){this.$.scroller.setScroll(this.$.scroller.$.content.scrollHeight + 500)},50);
                 // Create task
                 this.dispatch('addTask', task).then(function (response) {
                     this.showUndoMessage('Task was added successfully.');
@@ -1184,6 +1192,7 @@
              */
             taskSort: function (limit,parent) {
                 return function(a,b){
+                    if(!a && !b) return 0;
                     return a.position-b.position;
                 }
             },
@@ -1307,6 +1316,7 @@
             },
             _taskChanged: function () {
                 //this.updateScrollHeight();
+                this.$.listRepeater.sort();
             },
             _computeSelectedFilterClass: function (filter, selectedFilter) {
                 return filter.type == selectedFilter.type ? 'selected' : '';
@@ -1334,6 +1344,7 @@
             },
             _sort: function(sortWay){
                 return function(a,b) {
+                    if(!a && !b) return 0;
                     return a.position > b.position;
                 }
             },

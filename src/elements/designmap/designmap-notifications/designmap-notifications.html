@@ -36,6 +36,7 @@
                 width: 100%;
                 max-width: 750px;
                 font-weight: 100;
+                height: calc(100% - 130px);
             }
 
             /** NOTIFICATION **/
@@ -271,7 +272,7 @@
                     height: calc(100vh - 130px);
                 }
                 .content {
-                    height: 100%;
+                    height: calc(100% - 130px);
                 }
                 .notification .type {
                     font-size: 20px;
@@ -286,6 +287,13 @@
                     max-width: calc(100vw - 30px);
                     overflow: hidden;
                     text-overflow: ellipsis;
+                }
+                @media (min-width: 320px) and (max-width: 768px) {
+                    :host {
+                        --plastic-custom-scroll-content-mixin: {
+                            max-height: calc(100vh - 180px);
+                        };
+                    }
                 }
             }
 

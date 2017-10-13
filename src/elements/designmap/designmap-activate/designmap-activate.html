@@ -179,17 +179,18 @@
 
             @media (min-width: 320px) and (max-width: 768px) {
                 .wrapper {
-                    height: 100%;
+                    height: auto;
                 }
                 .wrapper > .content {
-                    width: 100%;
+                    width: auto;
                     padding: 0;
                     bottom: 0;
                     top: 10px;
                 }
                 .plans {
                     flex-direction: column;
-                    margin-top: 40px;
+                    margin-top: 20px;
+                    margin-bottom: 20px;
                 }
                 .plans .plan {
                     margin-left: 0;
@@ -218,7 +219,7 @@
                            message="Are you sure that you want to unsubscribe?">
         </designmap-confirm>
         <designmap-confirm id="unsubsWarn"
-                           on-continue="closeUnsubsConfirm"
+                           on-continue="next"
                            on-suspend="closeUnsubsConfirm"
                            message="Click on unsubscribe button on your current plan.">
         </designmap-confirm>
@@ -280,7 +281,6 @@
                 <!-- Card -->
                 <div class="card" hidden$="[[!cardMode]]">
                     <designmap-pay plan="[[chosenPlan]]"></designmap-pay>
-
                 </div>
             </div>
         </div>
@@ -410,7 +410,7 @@
                 this.chosenPlan = e.model.plan;
                 if(this._getUserPlanPower(this.user.plan)>0 && this.user.plan.name==e.model.plan.name && new Date(this.user.plan.expired)>new Date()) return this.openUnsbsConfirm();
                 if(this._getUserPlanPower(this.user.plan)>0 && new Date(this.user.plan.expired)>new Date()) return this.openUnsbsWarn();
-                window.open(e.model.plan.gumlink,'_self');
+                this.next();
             },
             openUnsbsWarn: function(){
                 this.$.unsubsWarn.open();
@@ -423,27 +423,16 @@
                 this.$.unsubsConfirm.close();
             },
             unsubscribe: function(){
-                this.closeUnsubsConfirm();
-                xhr.post(Designmap.config.apiURL + 'pay/unsubscribe').then(function(response){
-                    if(!response.success) {
-                        // Cannot do it via api...
-                        if(response.subscriptionId) {
-                            xhr.post(Designmap.config.apiURL + 'pay/downgrade');
-                            return window.open('https://gumroad.com/subscriptions/cancel_subscription/'+response.subscriptionId,'_self')
-                        }
-                        return this.manageErrorResponse(response);
-                    }
-                    this.dispatch('_userUpdate',{plan:response.plan});
-                    this.showMessage('Your plan has been downgraded.');
-                    this.back();
-                    this.fire('project-error','');
-                    page.redirect('/');
+                xhr.post(Designmap.config.apiURL + 'pay/unsubscribe',{userId:this.user._id}).then(function(response){
+                    if(!response.success) return this.manageErrorResponse(response);
+                    this.closeUnsubsConfirm();
+                    this.showMessage('Your order has been sent. We will answer you during 1 work day.');
                 }.bind(this)).catch(function(err){
                     this.manageErrorResponse(err);
                 }.bind(this));
             },
             next: function(){
-                this.closeDowngradeConfirm();
+                this.closeUnsubsConfirm();
                 this.cardMode = true;
             },
             back: function(){

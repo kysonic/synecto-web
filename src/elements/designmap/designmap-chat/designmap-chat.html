@@ -1070,11 +1070,7 @@
             },
 
             _getFollowers: function(){
-                return this.project.users.filter(function(user){
-                    /*const defaultDate = new Date();
-                    const date = new Date(user.system.lastChatReview || defaultDate.setMinutes(defaultDate.getMinutes() - 130));
-                    date.setMinutes(date.getMinutes() + 120);
-                    return date < new Date();*/
+                return this.projectUsers.filter(function(user){
                     return !user.online;
                 }).map(function(user){
                     return user._id;

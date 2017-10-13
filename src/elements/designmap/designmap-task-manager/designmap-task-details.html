@@ -62,7 +62,22 @@
             /** DETAILS **/
             .details {
                 width: 100%;
-                height: 100%;
+                height: calc(100% - 64px);
+            }
+
+            .details.followers {
+                width: 100%;
+                height: calc(100% - 108px);
+            }
+
+            .details.followers.invoked {
+                width: 100%;
+                height: calc(100% - 129px);
+            }
+
+            .details.invoked {
+                width: 100%;
+                height: calc(100% - 85px);
             }
 
             /** Panel **/
@@ -311,7 +326,7 @@
 
             plastic-custom-scroll {
                 --plastic-custom-scroll-content-mixin:{
-                    max-height: calc(100vh - 240px);
+                    max-height: calc(100vh - 260px);
                 };
             }
 
@@ -353,10 +368,39 @@
                         max-height: calc(100vh - 295px);
                     };
                 }
+
+
+
+                /** DETAILS **/
+                .details {
+                    width: 100%;
+                    height: calc(100% - 55px);
+                }
+
+                .details.followers {
+                    width: 100%;
+                    height: calc(100% - 55px);
+                }
+
+                .details.followers.invoked {
+                    width: 100%;
+                    height: calc(100% - 75px);
+                }
+
+                .details.invoked {
+                    width: 100%;
+                    height: calc(100% - 75px);
+                }
+
+                .details.invoked plastic-custom-scroll {
+                    --plastic-custom-scroll-content-mixin:{
+                        max-height: calc(100vh - 320px);
+                    };
+                }
             }
 
         </style>
-        <div id="details" class$="details [[_computeAssigneeStatus(task)]] [[_computeFollowersCls(followers)]]" >
+        <div id="details" class$="details [[_computeAssigneeStatus(task)]] [[_computeFollowersCls(followers)]] [[_computeInvokedClass(invokedUsers)]]" >
             <!-- Panel -->
             <div class="panel">
                 <div class="left">
@@ -487,6 +531,7 @@
                     project-users="[[projectUsersWithOutMe]]"
                     language="[[language]]"
                     followers="{{followers}}"
+                    invoked-users="{{invokedUsers}}"
                     i-18-loaded="[[i18Loaded]]"
                     project-id="[[projectId]]"
                     project="[[project]]"
@@ -553,6 +598,10 @@
                     statePath: 'comments'
                 },
                 followers: {
+                    type: Array,
+                    value: []
+                },
+                invokedUsers: {
                     type: Array,
                     value: []
                 }
@@ -759,6 +808,11 @@
             _computeFollowersCls: function(followers){
                 this.async(this.updateStyles);
                 return followers.length ? 'followers' : '';
+            },
+
+            _computeInvokedClass: function(invoked){
+                this.async(this.updateStyles);
+                return invoked.length ? 'invoked' : '';
             },
 
             scrollOnTop: function(){

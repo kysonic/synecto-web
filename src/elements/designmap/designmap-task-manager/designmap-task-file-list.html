@@ -80,6 +80,12 @@
                     stroke: var(--gray-darkend-color) !important;
                 };
             }
+
+            @media (min-width: 320px) and (max-width: 768px) {
+                paper-dialog {
+                    max-width: 300px !important;
+                }
+            }
         </style>
         <template is="dom-repeat" items="[[_computeTaskFiles(task.files)]]" as="file">
             <div class="file">

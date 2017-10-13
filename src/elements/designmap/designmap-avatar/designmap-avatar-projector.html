@@ -7,7 +7,6 @@
             :host {
                 display: block;
                 position: relative;
-                overflow: hidden;
                 width: 30px;
                 height: 30px;
                 border-radius: 50%;
@@ -22,6 +21,10 @@
                 cursor: pointer;
                 border: 1px solid var(--gray-darkend-color);
                 @apply(--designmap-avatar-projector-mixin);
+            }
+            .avtr {
+                border-radius: 50%;
+                overflow: hidden;
             }
             :host img {
                 width: 100%;
@@ -63,22 +66,51 @@
             }
 
         </style>
-        <template is="dom-if" if="[[user.profile.avatar]]">
-            <img src="[[computeAvatarPath(user.profile.avatar)]]" title="[[user.local.email]]">
-        </template>
-        <template is="dom-if" if="[[!user.profile.avatar]]">
-            <div class="text" title="[[user.local.email]]"> [[computeName(user)]]</div>
-        </template>
+        <div class="avtr">
+            <template is="dom-if" if="[[user.profile.avatar]]">
+                <img src="[[computeAvatarPath(user.profile.avatar)]]">
+            </template>
+            <template is="dom-if" if="[[!user.profile.avatar]]">
+                <div class="text"> [[computeName(user)]]</div>
+            </template>
+        </div>
+        <div id="dropdown" hidden$="[[!opened]]" class="avatar-dropdown">
+            <div class="header">
+                <div class="title">[[computeOwnerName(user)]]</div>
+            </div>
+            <div class="content">
+                <template is="dom-repeat" items="[[_getProfileData(user.profile)]]" as="field">
+                    <div class="field">
+                        <div class="key">[[translate(field.key)]]</div>:
+                        <div class="value">[[field.value]]</div>
+                    </div>
+                </template>
+            </div>
+        </div>
     </template>
     <script>
         Polymer({
             is: 'designmap-avatar-projector',
-            behaviors: [Polymer.DesignMapUtilsBehavior],
+            behaviors: [
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapMessagesBehavior
+            ],
+            omit: ['avatar','state','zipCode','name','lastName'],
             properties: {
                 user: {
                     type: Object,
                     value: {}
+                },
+                opened: {
+                    type: Boolean,
+                    value: false
                 }
+            },
+            ready: function(){
+                document.body.appendChild(this.$.dropdown);
+                this.addEventListener('mouseover',this.adOpen.bind(this))
+                this.addEventListener('mouseleave',this.adClose.bind(this))
+                this.addEventListener('mousemove',this.adMove.bind(this))
             },
             computeAvatarPath: function (path) {
                 if (!path) return '';
@@ -89,6 +121,44 @@
                 if (typeof user == 'string') return '...';
                 return user ? user.profile.name && user.profile.lastName ? user.profile.name[0] + user.profile.lastName[0] :
                         user.profile.name ? user.profile.name.substr(0,2) : user.local.email.substr(0,2) : 'XX';
+            },
+
+            adOpen: function (e) {
+                if (this.st) return;
+                this.st = setTimeout(function () {
+                    this.opened = true;
+                    this.async(function(){
+                       this.resolvePosition(e);
+                    })
+                }.bind(this), 1000);
+            },
+
+            resolvePosition: function(e){
+                this.$.dropdown.style.left = e.pageX + 2 + 'px';
+                this.$.dropdown.style.top = e.pageY+ 2 + 'px';
+                const bound = this.$.dropdown.getBoundingClientRect();
+                if(e.pageY + bound.height + 100 > window.innerHeight) this.$.dropdown.style.top = e.pageY - bound.height - 5 + 'px';
+                if(e.pageX + bound.width + 100 > window.innerWidth) this.$.dropdown.style.left = e.pageX - bound.width - 5 + 'px';
+            },
+
+            adMove: function(e){
+                this.resolvePosition(e);
+            },
+
+            adClose: function (e) {
+                clearTimeout(this.st);
+                this.st = null;
+                this.opened = false;
+            },
+
+            _getProfileData: function(profile){
+                if(!profile) return [];
+                if(profile.birthDate) profile.birthDate = moment(profile.birthDate).format('YYYY-MM-DD');
+                return Object.keys(profile).map(function(pk){
+                    return {key:pk,value:profile[pk]};
+                }).filter(function(f){
+                    return this.omit.indexOf(f.key)==-1;
+                }.bind(this));
             }
         })
     </script>

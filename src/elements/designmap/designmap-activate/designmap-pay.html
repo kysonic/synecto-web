@@ -198,11 +198,11 @@
             }
 
         </style>
-        <div class="steps">
+        <!--<div class="steps">
             <div class$="step [[_isSelected(step,0)]]" on-tap="selectStep" data-step="0"><span class="num">1.</span><i18-n msgid="Duration">Duration</i18-n></div>
             <div class$="step [[_isSelected(step,1)]]" on-tap="selectStep" data-step="1"><span class="num">2.</span> <i18-n msgid="Billing info">Billing info</i18-n></div>
-                <div class$="step [[_isSelected(step,2)]]" ><span class="num">3.</span> <i18-n msgid="Card info">Card info</i18-n></div>
-        </div>
+            &lt;!&ndash;<div class$="step [[_isSelected(step,2)]]" ><span class="num">3.</span> <i18-n msgid="Card info">Card info</i18-n></div>&ndash;&gt;
+        </div>-->
         <iron-pages selected="[[step]]">
             <!-- Duration -->
             <iron-page>
@@ -242,8 +242,8 @@
                         <button is="designmap-button" on-tap="back" gray  thin>
                             <i18-n msgid="Back">Back</i18-n>
                         </button>
-                        <button is="designmap-button" on-tap="next" blue  thin>
-                            <i18-n msgid="Proceed">Proceed</i18-n>
+                        <button is="designmap-loading-button" id="loadingButton" on-tap="submitPayment" blue  thin>
+                            <i18-n msgid="Submit order">Submit order</i18-n>
                         </button>
                     </div>
                 </div>
@@ -255,7 +255,7 @@
                         <div class="col col-md-12 col-xs-12">
                             <paper-input id="name" value="{{fullName::change}}" required
                                          error-message="[[translate('Cannot contain special symbols or tags',language,i18Loaded)]]"
-                                         pattern="[\w\dа-яА-ЯёЁ ]+"
+                                         pattern="[\w\dа-яА-ЯёЁ \-_0-9]+"
                                          auto-validate
                                          required
                                          label="[[translate('Full name',language,i18Loaded)]]"></paper-input>
@@ -264,7 +264,7 @@
                     <div class="row">
                         <div class="col col-md-6 col-xs-12">
                             <paper-input value="{{user.profile.country::change}}"
-                                         pattern="[\w\dа-яА-ЯёЁ -\+\,\.\#]+"
+                                         pattern="[\w\dа-яА-ЯёЁ \-_0-9]+"
                                          auto-validate
                                          required
                                          error-message="[[translate('Enter valid country',language,i18Loaded)]]"
@@ -275,7 +275,7 @@
                                          auto-validate
                                          required
                                          error-message="[[translate('Enter valid state',language,i18Loaded)]]"
-                                         pattern="[\w\dа-яА-ЯёЁ ]+"
+                                         pattern="[\w\dа-яА-ЯёЁ \-_0-9]+"
                                          label="[[translate('State',language,i18Loaded)]]"></paper-input>
                         </div>
                     </div>
@@ -290,7 +290,7 @@
                         </div>
                         <div class="col col-md-6 col-xs-12">
                             <paper-input value="{{user.profile.address::change}}"
-                                         pattern="[\w\dа-яА-ЯёЁ \\\.\,\-\+\:_№]+"
+                                         pattern="[\w\dа-яА-ЯёЁ \-_0-9]+"
                                          auto-validate
                                          required
                                          error-message="[[translate('Enter valid address',language,i18Loaded)]]"
@@ -319,8 +319,8 @@
                         <button is="designmap-button" on-tap="back" gray  thin>
                             <i18-n msgid="Back">Back</i18-n>
                         </button>
-                        <button is="designmap-button" on-tap="next" blue  thin>
-                            <i18-n msgid="Proceed">Proceed</i18-n>
+                        <button is="designmap-loading-button" id="loadingButton" on-tap="submitPayment" blue  thin>
+                            <i18-n msgid="Submit order">Submit order</i18-n>
                         </button>
                     </div>
                 </form>
@@ -417,6 +417,50 @@
             selectStep: function(e){
                 if(this.step>parseInt(e.currentTarget.dataset.step)) this.step = parseInt(e.currentTarget.dataset.step);
             },
+
+            submitPayment: function(e){
+                e.preventDefault();
+                const body = {
+                    userId: this.user._id,
+                    plan: this.plan,
+                    billingAddr: {
+                        "name": this.$.name.value,
+                        "addrLine1": this.user.profile.address,
+                        "city":  this.user.profile.city,
+                        "state":  this.user.profile.state,
+                        "zipCode":  this.user.profile.zipCode,
+                        "country":  this.user.profile.country,
+                        "email":  this.user.local.email,
+                        "phoneNumber":  this.user.profile.phoneNumber
+                    }
+                };
+                xhr.post(Designmap.config.apiURL + 'pay',body).then(function(response){
+                    console.log(response);
+                    this.$.loadingButton.loading = false;
+                    if(!response.success) return this.manageErrorResponse(response);
+                    this.showMessage('Your order has been sent. We will answer you during 1 work day.');
+                    this.fire('back');
+                }.bind(this)).catch(function(err){
+                    this.$.loadingButton.loading = false;
+                    this.manageErrorResponse(err);
+                }.bind(this));
+            },
+
+            _showMonthsMsg: function(plan) {
+                if(!plan) return  0;
+                const currentDate = new Date();
+                return plan.name!='startup' && new Date(plan.expired)>currentDate.setDate(currentDate.getDate()+7);
+            },
+            _getMonthsManagementMsg: function(plan){
+                return this.replaceExpressions(this.translate('Months management'),{'#DATE#':moment(plan.expired).format('DD-MM-YYYY')})
+            },
+            termsOn: function(){
+                this.terms = true;
+            },
+
+
+            /** TWO CHECKOUT IMPL **/
+
             submitCardForm: function(e){
                 e.preventDefault();
                 if(this.$.loadingButton.loading) return;
@@ -476,17 +520,6 @@
                 } else {
                     this.showErrorMessage(data.errorMsg)
                 }
-            },
-            _showMonthsMsg: function(plan) {
-                if(!plan) return  0;
-                const currentDate = new Date();
-                return plan.name!='startup' && new Date(plan.expired)>currentDate.setDate(currentDate.getDate()+7);
-            },
-            _getMonthsManagementMsg: function(plan){
-                return this.replaceExpressions(this.translate('Months management'),{'#DATE#':moment(plan.expired).format('DD-MM-YYYY')})
-            },
-            termsOn: function(){
-                this.terms = true;
             }
         })
     </script>

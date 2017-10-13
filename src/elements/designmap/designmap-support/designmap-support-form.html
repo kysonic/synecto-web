@@ -46,6 +46,13 @@
                 font-style: italic;
                 padding: 10px 9px;
             }
+            @media (min-width: 320px) and (max-width: 768px) {
+                .content {
+                    width: auto;
+                    padding: 20px 10px;
+                }
+
+            }
         </style>
         <designmap-dashboard back back-url="/support/">
             <div class="title"><i18-n msgid="Support form">Support form</i18-n></div>
@@ -144,7 +151,7 @@
             },
             _sendMessage: function(e){
                 e.preventDefault();
-                if(this.user.plan.name=='startup') return this.showErrorMessage('You cannot use support because you have free plan.');
+                //if(this.user.plan.name=='startup') return this.showErrorMessage('You cannot use support because you have free plan.');
                 // Send message
                 if(!this.$.form.validate())return this.showErrorMessage('Some of form fields is not valid');
                 xhr.post(Designmap.config.apiURL+'support-message',{

@@ -18,11 +18,13 @@
                 font-family: var(--font-family);
                 font-weight: 300;
                 font-size: 20px;
-                color: var(--designmap-task-preview-color);
+                color:  var(--gray-darkend-color);
                 transition: background .3s;
-                border: 1px solid var(--designmap-task-preview-color);
+                overflow: hidden;
+                border: 1px solid  var(--gray-darkend-color);
                 padding: 10px;
                 white-space: nowrap;
+                text-overflow: ellipsis;
             }
 
             .task .row {
@@ -46,6 +48,7 @@
                 text-align: left;
                 font-size: 18px;
                 margin-left: 10px;
+                color:  var(--gray-darkend-color);
             }
 
             .task.completed .title{
@@ -65,7 +68,7 @@
 
             .status-icon {
                 --iron-icon-components-mixin: {
-                    stroke: var(--designmap-task-preview-color) !important;
+                    stroke:  var(--gray-darkend-color) !important;
                 };
             }
 

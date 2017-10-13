@@ -36,8 +36,13 @@
             }
         </style>
         <div class="borders" >
-            <iron-icon icon="designmap-workspace:filer"></iron-icon>
-            <span class="extension">[[getExtensionWithoutDot(file.data.name)]]</span>
+            <template is="dom-if" if="[[!_isGoogleDoc(file)]]">
+                <iron-icon icon="designmap-workspace:filer"></iron-icon>
+                <span class="extension">[[getExtensionWithoutDot(file.data.name)]]</span>
+            </template>
+            <template is="dom-if" if="[[_isGoogleDoc(file)]]">
+                <iron-icon class="gdoc" icon$="designgdoc:[[file.data.type]]"></iron-icon>
+            </template>
         </div>
     </template>
     <script>
@@ -51,6 +56,9 @@
                     type: Object,
                     value: {}
                 }
+            },
+            _isGoogleDoc: function(element){
+                return element && element.type=='file' && element.data.storage=='google' && element.data.type;
             }
         })
     </script>

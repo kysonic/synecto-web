@@ -168,6 +168,7 @@
                     <template is="dom-if" if="[[storages.length]]">
                         <designmap-file-button thin gray hidden$="[[fileUploadLoading]]" name="files[]"
                                                files="{{buttonFiles}}"
+                                               on-change="openIt"
                                                allowed-extension="[[allowedExtension]]"
                                                on-notallowed="showFilesNotAllowedError" multiple="multiple" id="files">
                             <i18-n msgid="Select File">Select File</i18-n>
@@ -354,6 +355,9 @@
              */
             buttonFilesChanged: function (buttonFiles) {
                 if(!buttonFiles) return;
+
+            },
+            openIt: function(){
                 this.openForm();
                 this.uploadFiles();
             },
@@ -368,6 +372,7 @@
             },
             /**
              * Upload selected files.
+             * Deprectaed _ createFiles insted of it
              */
             __uploadFiles: function () {
                 this.fileUploadLoading = true;

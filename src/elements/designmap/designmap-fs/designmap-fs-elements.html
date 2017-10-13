@@ -131,6 +131,16 @@
                 .elements {
                     left: 10px;
                 }
+                :host {
+                    --plastic-custom-scroll-content-mixin: {
+                        display: flex;
+                        padding: 0;
+                        width: auto;
+                        justify-content: space-between;
+                        flex-wrap: wrap;
+                        max-height: calc(100vh - 190px);
+                    }
+                }
             }
         </style>
         <!-- Elements -->

@@ -96,6 +96,11 @@
                 .mh {
                     display: none;
                 }
+                :host {
+                    --plastic-custom-scroll-content-mixin: {
+                        max-height: calc(100vh - 190px);
+                    };
+                }
             }
         </style>
         <template is="dom-if" if="[[elements.length]]">

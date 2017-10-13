@@ -363,6 +363,13 @@
                     align-items: center;
                     justify-content: center;
                 }
+                @media (min-width: 320px) and (max-width: 768px) {
+                    :host {
+                        --plastic-custom-scroll-content-mixin: {
+                            max-height: calc(100vh - 210px);
+                        };
+                    }
+                }
             }
 
         </style>

@@ -1692,7 +1692,7 @@
     "message":"Are you sure that you want to downgrade plan? You won't be able to manage projects exceed your plan possibilities."
   },
   "Click on unsubscribe button on your current plan.": {
-    "message":"Your current plan is available. You should unsubscribe at first. Click on \"Unsubscribe\" button on your current plan."
+    "message":"Your current plan is available. Are you sure you want subscribe on new one? Your old plan will be suspended."
   },
   "Are you sure that you want to unsubscribe?": {
     "message":"Are you sure that you want to unsubscribe? Plan will be downgraded on \"startup\". It is free but you won't be able to manage projects which exceed possibilities of free plan."
@@ -1737,7 +1737,7 @@
     "message": "Duration"
   },
   "Billing info": {
-    "message": "Billing info"
+    "message": "Information"
   },
   "Card info": {
     "message": "Card info"
@@ -1786,6 +1786,9 @@
   },
   "Submit Payment": {
     "message": "Submit Payment"
+  },
+  "Submit order": {
+    "message": "Submit order"
   },
   "Card number": {
     "message": "Card number"
@@ -2305,5 +2308,29 @@
   },
   "Project has been removed": {
     "message": "Project has been removed successfully"
+  },
+  "Your message has been sent!": {
+    "message": "Your message has been sent!"
+  },
+  "Your order has been sent. We will answer you during 1 work day.": {
+    "message": "Your order has been sent. We will answer you during 1 work day. Thank you!"
+  },
+  "country": {
+    "message": "Country"
+  },
+  "city": {
+    "message": "City"
+  },
+  "address": {
+    "message": "Address"
+  },
+  "phoneNumber": {
+    "message": "Phone Number"
+  },
+  "company": {
+    "message": "Company"
+  },
+  "birthDate": {
+    "message": "Birth Date"
   }
 }
