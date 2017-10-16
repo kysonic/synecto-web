@@ -285,7 +285,8 @@
             properties: {
                 loading: {
                     type: Boolean,
-                    value: true
+                    value: true,
+                    observer: '_loadingChanged'
                 },
                 page: {
                     type: String,
@@ -855,6 +856,10 @@
 
             userOnline: function (e) {
                 this.$.advancedMenu.$.members.setOnline(e.detail);
+            },
+
+            _loadingChanged: function(loading){
+                if(loading) this.async(function(){this.loading = false},5000);
             }
         });
     </script>

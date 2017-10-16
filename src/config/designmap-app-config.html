@@ -5,7 +5,7 @@
     var Designmap = {
         version: 'beta v4.6',
         config:{
-            apiURL: ENV=='local'?'http://'+LOCAL_NETWORK_ADDRESS+':4000/':'https://server.synecto.io/',
+            apiURL: ENV=='locals'?'http://'+LOCAL_NETWORK_ADDRESS+':4000/':'https://server.synecto.io/',
             appURL: location.protocol+'//'+location.host+'/',
             appDownloadUrl: ENV=='local'?'http://'+LOCAL_NETWORK_ADDRESS+':4000/app/updates/latest':'https://server.synecto.io/app/updates/latest',
             trueIP: 'http://52.59.115.60:3000/',

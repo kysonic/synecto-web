@@ -363,7 +363,7 @@
                 return label;
             },
             _findLabel:function(l){
-                if(!this.labels) return false;
+                if(!this.labels || !this.labels.find) return false;
                 return this.labels.find(function(label){
                     return label.label==l;
                 });

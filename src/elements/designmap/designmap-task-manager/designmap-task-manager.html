@@ -697,6 +697,14 @@
             },
             _projectIdChanged: function () {
                 this.selectedTask = null;
+
+                /**
+                 * Prevent search enabling because
+                 * searchItems observe project changes and
+                 * after searchItems is changed -> search starts automatically
+                 * by design
+                 */
+                this.async(function(){this.searchMode = false},500);
             },
             /**
              * Breadcrumbs will be calculated

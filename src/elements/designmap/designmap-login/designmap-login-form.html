@@ -3,6 +3,7 @@
 
 <link rel="import" href="/bower_components/paper-input/paper-input.html">
 <link rel="import" href="/bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../../plastic/plastic-custom-scroll.html">
 <!-- Animation -->
 <link rel="import" href="/bower_components/neon-animation/neon-animated-pages.html">
 <link rel="import" href="/bower_components/neon-animation/neon-animatable.html">
@@ -35,7 +36,7 @@
                 min-width: 450px;
                 color: var(--designmap-login-form-color);
 
-                --paper-input-container-color:  var(--designmap-login-form-color);
+                --paper-input-container-color: var(--designmap-login-form-color);
                 --paper-input-container-focus-color: var(--designmap-login-form-color);
                 --paper-input-container-input: {
                     color: var(--designmap-login-form-color);
@@ -47,32 +48,38 @@
                 --iron-overlay-backdrop-opened: {
                     z-index: 10;
                 };
+
             }
+
             *[hidden] {
                 display: none !important;
             }
+
             :host([fake-support]) {
                 background: transparent;
             }
+
             .forgot-message {
                 margin-top: 15px;
                 text-align: center;
             }
+
             .forgot-button {
                 display: block;
                 margin: 12px auto !important;
                 margin-bottom: 0 !important;
             }
+
             .wrapper {
                 width: 100%;
                 max-width: 500px;
                 height: 556px;
                 overflow: hidden;
                 position: relative;
-                bottom: 20px;
             }
+
             /** HEADER **/
-            .header, .header-phantom{
+            .header, .header-phantom {
                 height: 150px;
                 width: 100%;
                 background: var(--designmap-login-form-header);
@@ -81,15 +88,18 @@
                 align-items: center;
                 justify-content: center;
             }
+
             .header-phantom {
                 height: 270px;
                 background: var(--white-color);
             }
+
             .header {
                 position: absolute;
                 top: 0;
                 z-index: 20;
             }
+
             .social {
                 position: absolute;
                 width: 100%;
@@ -99,27 +109,32 @@
                 z-index: 20;
                 background: var(--white-color);
             }
+
             .social .button-wrapper {
                 padding: 0 75px;
             }
+
             .social button {
                 margin-top: 39px;
             }
+
             .title {
                 position: absolute;
                 width: 100%;
                 text-align: center;
                 z-index: 20;
             }
+
             .title hr {
                 border-color: var(--gray-lightenest-color);
                 background: var(--gray-lightenest-color);
                 opacity: 0.3;
             }
+
             .title .text {
                 position: absolute;
                 color: var(--gray-darky-color);
-                font-weight: 100;
+                font-weight: 300;
                 font-size: 22px;
                 text-align: center;
                 padding: 0 5px;
@@ -128,12 +143,14 @@
                 top: -10px;
                 background: var(--white-color);
             }
+
             .header iron-icon {
                 width: 237px;
                 height: 60px;
                 position: relative;
                 top: 5px;
             }
+
             .beta {
                 color: var(--white-color);
                 position: absolute;
@@ -142,28 +159,34 @@
                 margin-left: -65px;
                 font-size: 12px;
             }
+
             /** CONTENT **/
             .wrapper > .content {
                 background: var(--designmap-login-form-content);
                 height: 100%;
                 padding: 20px 75px;
             }
+
             .wrapper button {
                 display: inline-block;
                 background: var(--blue-darker-color);
                 color: var(--white-color);
                 width: 100%;
             }
+
             .wrapper > .content button:hover {
                 background: var(--blue-super-dark-color);
             }
+
             .wrapper > .content .button-set {
                 text-align: center;
             }
+
             .wrapper > .content .button-set button {
                 display: inline-block;
                 width: 100%;
             }
+
             .wrapper > .content .msg, .msg {
                 display: block;
                 width: 100%;
@@ -173,16 +196,19 @@
                 font-size: 12px;
                 color: var(--blue-super-dark-color);
             }
+
             .wrapper > .content .msg:hover {
                 text-decoration: underline;
             }
+
             .wrapper > .content .forgot-msg, .phantom {
                 display: inline-block;
                 cursor: pointer;
                 margin: 15px 0 9px 0;
                 font-size: 12px;
             }
-            .wrapper > .content  .forgot-msg:hover {
+
+            .wrapper > .content .forgot-msg:hover {
                 text-decoration: underline;
             }
 
@@ -190,6 +216,7 @@
                 color: var(--orange-color);
                 font-weight: bold;
             }
+
             /** Forgot password **/
             .forgot-password-form, .approval-form {
                 position: absolute;
@@ -200,16 +227,19 @@
                 transition: top .5s cubic-bezier(0.23, 1, 0.32, 1);
                 height: 325px;
             }
-            .forgot-password-form .content,.approval-form .content {
+
+            .forgot-password-form .content, .approval-form .content {
                 background: transparent;
                 height: 100%;
                 padding: 20px 75px;
             }
+
             .forgot-password-form .panel-title, .approval-form .panel-title {
                 width: 100%;
                 text-align: center;
                 font-size: 22px;
             }
+
             .forgot-password-form .msg, .approval-form .msg {
                 margin-top: 5px;
             }
@@ -224,6 +254,7 @@
                 padding-left: 5px;
                 padding-right: 5px;
             }
+
             .google-btn.twl {
                 font-size: 15px;
                 padding-top: 13px;
@@ -231,44 +262,48 @@
                 padding-left: 5px;
                 padding-right: 5px;
             }
+
             .twl:not(.google-btn) {
                 font-size: 16px;
                 padding-top: 12px;
                 padding-bottom: 12px;
                 vertical-align: top;
             }
+
             .linkers {
                 text-align: left;
                 width: 512px;
                 position: relative;
-                bottom: 20px;
             }
+
             .linkers a {
                 color: var(--gray-darky-color);
                 padding: 5px;
                 font-size: 12px;
-                font-weight: 100;
+                font-weight: 300;
             }
+
             .fake-signup-title {
                 text-align: center;
                 font-size: 13px;
                 padding-top: 11px;
             }
 
-            @media screen and (min-width: 320px) and (max-width: 768px) {
+            @media (min-width: 320px) and (max-width: 768px) {
                 :host {
                     max-width: calc(100vw - 10px);
                 }
-                .wrapper {
-                    bottom: 0
-                }
+
                 .linkers {
                     display: none;
                 }
+
                 .social .button-wrapper, .wrapper > .content, .forgot-password-form .content, .approval-form .content {
                     padding: 0 25px;
                 }
+
             }
+
             /** MOBILE **/
             @media screen and (min-width: 320px) and (max-width: 450px) {
                 :host {
@@ -370,7 +405,8 @@
                                      exit-animation="[[exitAnimation]]">
                     <!-- Sign in -->
                     <neon-animatable id="animatable1">
-                        <paper-input is="iron-input" id="emailSignin" required pattern="[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*"
+                        <paper-input is="iron-input" id="emailSignin" required
+                                     pattern="[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*"
                                      on-cahange="authEmailChanged"
                                      label="E-mail" error-message="[[translate('EmailError',language,i18Loaded)]]"
                                      autocomplete="email"
@@ -449,7 +485,7 @@
                                 <i18-n msgid="Enter">Enter</i18-n>
                             </button>
                         </div>
-                        <a class="msg"  on-click="goToTheSignin">
+                        <a class="msg" on-click="goToTheSignin">
                             <i18-n msgid="GoToTheLogin"></i18-n>
                             <i18-n class="sign-up" msgid="Authorization"></i18-n>
                             <i18-n msgid="frm"></i18-n>
@@ -518,24 +554,24 @@
                 },
                 version: {
                     type: String,
-                    value: function(){
+                    value: function () {
                         return Designmap.version;
                     }
                 }
             },
             ready: function () {
-                if(this.fakeSupport) {
+                if (this.fakeSupport) {
                     this.selected = 2;
-                    if(this.user) return;
+                    if (this.user) return;
                     const user = JSON.parse(localStorage.getItem('designmap:user'));
-                    if(user && user._id) this.dispatch('_userUpdate', user);
+                    if (user && user._id) this.dispatch('_userUpdate', user);
                 }
 
-                if(location.hash=='#register') {
+                if (location.hash == '#register') {
                     this.selected = 1;
                 }
                 const query = this.parseQuery(Designmap.firstQuery);
-                if(query.invtkn) {
+                if (query.invtkn) {
                     this.selected = 1;
                     this.inviteMode = true;
                     this.invtkn = query.invtkn;
@@ -574,23 +610,23 @@
                 e.preventDefault();
                 if (this.$.registerButton.loading) return;
                 if (!(this.$.emailSignup.validate() && this.$.passwordSignup.validate())) return this.showErrorMessage('AuthorizationFormWasFilledNotCorrectly');
-                this.$.registerButton.loading=true;
+                this.$.registerButton.loading = true;
                 const email = this.$.emailSignup.value;
-                this.dispatch('userSignup', this.$.emailSignup.value, this.$.passwordSignup.value,this.invtkn).then(function (response) {
-                    this.$.registerButton.loading=false;
+                this.dispatch('userSignup', this.$.emailSignup.value, this.$.passwordSignup.value, this.invtkn).then(function (response) {
+                    this.$.registerButton.loading = false;
                     if (!response.success) return this.manageErrorResponse(response);
                     this.$.emailSignup.value = null;
                     this.$.passwordSignup.value = null;
-                    if(response.projectId) {
+                    if (response.projectId) {
                         this.inviteMode = false;
                         this.ivktkn = null;
-                        return page.redirect('/'+response.projectId);
+                        return page.redirect('/' + response.projectId);
                     }
                     this.showMessage('Welcome to the Synecto!');
                     // Analytics
-                    this.reachGoal('auth','register',email);
-                }.bind(this)).catch(function(err){
-                    this.$.registerButton.loading=true;
+                    this.reachGoal('auth', 'register', email);
+                }.bind(this)).catch(function (err) {
+                    this.$.registerButton.loading = true;
                     this.manageErrorResponse(err)
                 }.bind(this));
             },
@@ -607,19 +643,21 @@
                     return this.showErrorMessage('AuthorizationFormWasFilledNotCorrectly');
                 }
                 const email = this.$.emailSignin.value;
-                this.fire('app-loading',true);
+                this.fire('app-loading', true);
                 this.dispatch('userLogin', this.$.emailSignin.value, this.$.passwordSignin.value).then(function (response) {
-                    this.async(function(){this.fire('app-loading',false);},300);
+                    this.async(function () {
+                        this.fire('app-loading', false);
+                    }, 300);
                     this.$.signInLoadingButton.loading = false;
                     if (!response.success) return this.manageErrorResponse(response);
                     this.$.emailSignin.value = null;
                     this.$.passwordSignin.value = null;
                     // Analytics
-                    this.reachGoal('auth','login',email);
+                    this.reachGoal('auth', 'login', email);
                 }.bind(this)).catch(function (err) {
                     this.$.signInLoadingButton.loading = false;
                     this.manageErrorResponse(err);
-                    this.fire('app-loading',false);
+                    this.fire('app-loading', false);
                 }.bind(this));
             },
             /**
@@ -652,7 +690,7 @@
                     this.$$('#restoreLoadingButton').loading = false;
                     return this.showErrorMessage('Email is not correct');
                 }
-                const promise = xhr.post(Designmap.config.apiURL + 'token/entry', {email: this.restoreEmail });
+                const promise = xhr.post(Designmap.config.apiURL + 'token/entry', {email: this.restoreEmail});
                 promise.then(function (response) {
                     this.$$('#restoreLoadingButton').loading = false;
                     if (!response.success) return this.manageErrorResponse(response);
@@ -687,14 +725,14 @@
                 this.$.registerGoogleButton.loading = true;
                 this.$.aware.signIn();
                 // Analytics
-                this.reachGoal('auth','google');
+                this.reachGoal('auth', 'google');
             },
             /**
              * Google sign-in success
              */
             googleSigninSuccess: function () {
                 var googleUser = gapi.auth2.getAuthInstance()['currentUser'].get();
-                if(this.googleButtonPressed) this.signInWithGoogle(googleUser);
+                if (this.googleButtonPressed) this.signInWithGoogle(googleUser);
                 this.$.registerGoogleButton.loading = false;
                 this.googleButtonPressed = false;
             },
@@ -715,12 +753,12 @@
                 this.dispatch('userGoogleSignup', googleUser.w3, this.invtkn).then(function (response) {
                     this.$.registerGoogleButton.loading = false;
                     if (!response.success) return this.showErrorMessage(response.errors.message);
-                    if(response.projectId) {
+                    if (response.projectId) {
                         this.inviteMode = false;
                         this.ivktkn = null;
-                        return this.async(function(){
-                            page.redirect('/'+response.projectId)
-                        },5000);
+                        return this.async(function () {
+                            page.redirect('/' + response.projectId)
+                        }, 5000);
                     }
                     this.showMessage(response.message, {}, 10000);
                 }.bind(this)).catch(function (err) {
@@ -732,7 +770,7 @@
              * user does not have possibility to login with
              * its own account
              */
-            fakeSignUp: function(){
+            fakeSignUp: function () {
                 const unknownName = this.$.nameFakeSignup.value;
                 const unknownEmail = this.$.emailFakeSignup.value;
                 if (!this.$.nameFakeSignup.validate() || !this.$.emailFakeSignup.validate()) return this.showErrorMessage("Form was not filled correctly");

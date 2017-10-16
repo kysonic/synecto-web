@@ -215,6 +215,7 @@
                 this.$.mobileSearch.value = '';
                 this.values = {};
                 this.mobileDropdownOpened = false;
+                this._itemsChanged(this.values);
             },
             _mobileDropDownCls: function(mobileDropdownOpened){
                 return mobileDropdownOpened ? 'opened' : '';

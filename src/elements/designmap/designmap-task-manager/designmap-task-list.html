@@ -442,7 +442,7 @@
             /** INPUT **/
             .add-task-wrapper > input {
                 font-family: var(--font-family);
-                font-weight: 100;
+                font-weight: 300;
                 font-size: 22px;
                 border: none;
                 outline: none;
@@ -544,7 +544,7 @@
             }
 
             .white-space .wrapper .text {
-                font-weight: 100;
+                font-weight: 300;
                 text-align: center;
                 color: var(--gray-saturated-color);
             }
@@ -632,7 +632,7 @@
                         <paper-tooltip for$="statusButton[[index]]" position="right">
                             <i18-n msgid="Change status">Change status</i18-n>
                         </paper-tooltip>
-                        <div class="title" on-click="select">[[task.name]]</div>
+                        <div class="title" title="[[task.name]]" on-click="select">[[task.name]]</div>
                         <div class="label no-selected" hidden$="[[!_getLabel(task,labels)]]" style$="[[_getLabelStyle(task,labels)]]">[[_getLabelText(task,labels)]]</div>
                         <!--<div class="position no-selected">
                             [[task.position]]

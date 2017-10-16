@@ -123,8 +123,8 @@
         <span class="item-text">[[_computeTime(task.time,spentTime)]]</span>
         <span class="time-track-buttons">
 
-            <div class="button play" on-tap="trackTime" disabled$="[[!_disablePlayButton(task.assignee,task.time.request)]]">
-                <iron-icon id="trackButton" icon="[[_computeTimeIcon(task.time)]]"></iron-icon>
+            <div id="playButton" class="button play" on-tap="trackTime">
+                <iron-icon id="trackButton" icon="[[_computeTimeIcon(task.time,task)]]"></iron-icon>
             </div>
             <div class="button" hidden$="[[!_spentAndAssigneeOrOwner(task.time.spent,task)]]"
                                 disabled$="[[!_disableEditButton(task.assignee,task.time.request,project)]]"
@@ -196,6 +196,11 @@
                     value: false
                 }
             },
+
+            observers: [
+                'playBtnDisabled(task,task.assignee)',
+                ''
+            ],
 
 
             _computeTime: function (time, spentTime) {
@@ -280,8 +285,10 @@
                 return request && this._isOwner();
             },
 
-            _disablePlayButton: function(assignee,request){
-                return this._isAssignee(assignee) && !request;
+            playBtnDisabled: function(task){
+                if(!task) return;
+                const disabled = this._isAssignee(task.assignee) && !task.time.request;
+                !disabled?this.$.playButton.setAttribute('disabled',disabled):this.$.playButton.removeAttribute('disabled');
             },
 
             _disableEditButton: function(assignee,request){

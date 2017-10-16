@@ -98,7 +98,7 @@
                 color: var(--fs-element-text);
                 font-size: 16px;
                 font-family: 'Open Sans Light', 'Open Sans', sans-serif;
-                font-weight: 100;
+                font-weight: 300;
                 margin-top: 10px;
                 overflow: hidden;
                 white-space: nowrap;
@@ -125,7 +125,7 @@
             .overlay .open {
                 color: var(--white-color);
                 padding: 5px 30px;
-                font-weight: 100;
+                font-weight: 300;
                 font-family: var(--font-family);
                 border: 1px solid var(--white-color);
                 display: inline-block;
@@ -133,10 +133,12 @@
             .overlay iron-icon {
                 cursor: pointer;
                 position: absolute;
+                width: 32px;
+                height: 32px;
                 left: 100%;
-                margin-left: -34px;
+                margin-left: -36px;
                 top: 100%;
-                margin-top: -34px;
+                margin-top: -36px;
                 border-radius: 50%;
                 --iron-icon-stroke-color: var(--white-color);
                 --iron-icon-fill-color: var(--white-color);
@@ -171,7 +173,7 @@
                 position: absolute;
                 font-size: 18px;
                 text-transform: uppercase;
-                font-weight: 100;
+                font-weight: 300;
                 top: 50%;
                 margin-top: -10px;
                 text-align: center;
@@ -214,6 +216,12 @@
                 width: 40px;
                 height: 40px;
             }
+
+            .menu {
+                width: 30px;
+                height: 30px;
+            }
+
             @media (min-width: 320px) and (max-width: 655px) {
                 :host {
                     height: 45vw;
@@ -233,7 +241,7 @@
 
             @media (min-width: 1330px) and (max-width: 1680px) {
                 :host {
-                    flex: 0 1 calc(100% / 4);
+                    flex: 0 1 calc(100% / 5);
                 }
                 .element {
                     max-width: 230px;
@@ -246,7 +254,7 @@
 
             @media (min-width: 1024px) and (max-width: 1330px) {
                 :host {
-                    flex: 0 1 calc(100% / 3);
+                    flex: 0 1 calc(100% / 4);
                 }
                 .element {
                     max-width: 200px;

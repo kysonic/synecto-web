@@ -116,7 +116,7 @@
                 align-items: center;
                 justify-content: center;
                 color: var(--gray-darky-color);
-                font-weight: 100;
+                font-weight: 300;
             }
 
             .error-message {
@@ -305,6 +305,9 @@
                 'search': '_search',
                 'cancel-search':'cancelSearch'
             },
+            observers:[
+                'projectIdChanged(projectId)'
+            ],
             /**
              * Open file uploader
              */
@@ -451,6 +454,15 @@
             cancelSearch: function () {
                 if(!this.$$('#elements')) return;
                 this.$$('#elements').cancelSearch();
+            },
+            /**
+             * Prevent search enabling because
+             * searchItems observe project changes and
+             * after searchItems is changed -> search starts automatically
+             * by design
+             */
+            projectIdChanged: function(){
+                this.async(function(){this.searchMode = false},1000);
             }
         });
     </script>

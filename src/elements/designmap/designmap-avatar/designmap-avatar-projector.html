@@ -56,12 +56,20 @@
             }
 
 
+
+
             @keyframes appearance {
                 from {
                     opacity: 0;
                 }
                 to {
                     opacity: 1;
+                }
+            }
+
+            @media (min-width: 320px) and (max-width: 768px) {
+                .dropdown {
+                    display: none !important;
                 }
             }
 
@@ -78,13 +86,15 @@
             <div class="header">
                 <div class="title">[[computeOwnerName(user)]]</div>
             </div>
-            <div class="content">
-                <template is="dom-repeat" items="[[_getProfileData(user.profile)]]" as="field">
-                    <div class="field">
-                        <div class="key">[[translate(field.key)]]</div>:
-                        <div class="value">[[field.value]]</div>
-                    </div>
-                </template>
+            <div id="content" class="content">
+                <div class="fields">
+                    <template is="dom-repeat" items="[[_getProfileData(user.profile)]]" as="field">
+                        <div class="field">
+                            <div class="key">[[translate(field.key)]]</div>:
+                            <div class="value">[[field.value]]</div>
+                        </div>
+                    </template>
+                </div>
             </div>
         </div>
     </template>
@@ -106,6 +116,9 @@
                     value: false
                 }
             },
+            observers:[
+                '_avatarChanged(user.profile.avatar)'
+            ],
             ready: function(){
                 document.body.appendChild(this.$.dropdown);
                 this.addEventListener('mouseover',this.adOpen.bind(this))
@@ -115,7 +128,7 @@
             computeAvatarPath: function (path) {
                 if (!path) return '';
                 if (/images/.test(path)) return path;
-                return Designmap.config.apiURL + path;
+                return Designmap.config.apiURL + path+'?v='+Designmap.uid;
             },
             computeName: function (user) {
                 if (typeof user == 'string') return '...';
@@ -134,11 +147,11 @@
             },
 
             resolvePosition: function(e){
-                this.$.dropdown.style.left = e.pageX + 2 + 'px';
-                this.$.dropdown.style.top = e.pageY+ 2 + 'px';
+                this.$.dropdown.style.left = e.pageX + 'px';
+                this.$.dropdown.style.top = e.pageY + 'px';
                 const bound = this.$.dropdown.getBoundingClientRect();
-                if(e.pageY + bound.height + 100 > window.innerHeight) this.$.dropdown.style.top = e.pageY - bound.height - 5 + 'px';
-                if(e.pageX + bound.width + 100 > window.innerWidth) this.$.dropdown.style.left = e.pageX - bound.width - 5 + 'px';
+                if(e.pageY + bound.height + 50 > window.innerHeight) this.$.dropdown.style.top = e.pageY - bound.height  + 'px';
+                if(e.pageX + bound.width + 50 > window.innerWidth) this.$.dropdown.style.left = e.pageX - bound.width  + 'px';
             },
 
             adMove: function(e){
@@ -159,6 +172,14 @@
                 }).filter(function(f){
                     return this.omit.indexOf(f.key)==-1;
                 }.bind(this));
+            },
+
+            _avatarChanged: function(avatar){
+                if(!avatar) return;
+                if (/images/.test(avatar)) return;
+                //Designmap.config.apiURL + path+'?v='+Designmap.uid
+                const path = Designmap.config.apiURL + avatar+'?v='+Designmap.uid;
+                this.$.content.style.backgroundImage = "url("+path+")"
             }
         })
     </script>
