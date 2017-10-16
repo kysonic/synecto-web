@@ -134,7 +134,6 @@
             _currentChanged: function(n,o){
                 //if(n>o) this.thumbUp();
                 if(!this.hints[this.section][this.current]) return this.fire('tutorial-finish',{section:this.section,step:this.current});
-                console.log(this.hints[this.section][this.current]);
                 const e = this._findElement(this.hints[this.section][this.current]);
                 if(!e) return ;
                 this.isRunning = e.name;
@@ -148,12 +147,9 @@
             },
             _routerObserver: function(user,page,path,loading,readyState){
                 const isTutorialPage = this.TUTORIAL_PAGES.indexOf(page)!=-1;
-                console.log(user,loading,readyState,isTutorialPage,1);
                 if(!user || user.system.tutorials || loading || !readyState || !isTutorialPage) return;
-                console.log(2);
                 const basicTutorialState = JSON.parse(localStorage.getItem('synecto:tutorial:basic'));
                 this.async(function(){
-                    console.log(basicTutorialState,3,'<<<<<');
                     if(basicTutorialState!==true) return this.current = basicTutorialState || 0;
                     const anotherTutorialState = JSON.parse(localStorage.getItem('synecto:tutorial:'+page));
                     if(page=='task-manager' && path && path!='/' && anotherTutorialState!='true') {
