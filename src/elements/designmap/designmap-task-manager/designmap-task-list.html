@@ -606,6 +606,9 @@
                         max-height: calc(100vh - 280px);
                     };
                 }
+                .list {
+                    padding-right: 10px;
+                }
             }
 
         </style>
@@ -1041,7 +1044,7 @@
                 if (!task.expired) return '';
                 var diff = moment.duration(moment(task.expired).diff(moment()));
                 if (diff._milliseconds < 0) return this.translate('expired');
-                return (diff.asDays() > 1 ? (Math.round(diff.asDays()) + ' ' + this.translate('days').substr(0, 1)) : Math.round(diff.asHours()) + ' ' + this.translate('hours').substr(0, 1));
+                return (diff.asDays() > 1 ? (Math.ceil(diff.asDays()) + ' ' + this.translate('days').substr(0, 1)) : Math.ceil(diff.asHours()) + ' ' + this.translate('hours').substr(0, 1));
             },
             /**
              *
@@ -1052,6 +1055,15 @@
                 if(!expired) return false;
                 var diff = moment.duration(moment(expired).diff(moment()));
                 return diff._milliseconds < 0 && status != 'completed';
+            },
+            /**
+             * Before 1 do to experation
+             */
+            isExpiredSoon: function (expired, status, from, to) {
+                if(!expired) return false;
+                var diff = moment.duration(moment(expired).diff(moment()));
+                const d = Math.ceil(diff.asDays());
+                return  d > from && d <= to && status != 'completed';
             },
             /**
              * Open date picker
@@ -1388,6 +1400,10 @@
                         switch(filter.type) {
                             case 'select':
                                 if(filter.value=='all') return;
+                                if(filter.value=='expired') return fit = this.isExpired(element.expired, element.status);
+                                if(filter.value=='expired_tomorrow') return fit = this.isExpiredSoon(element.expired, element.status,0,1);
+                                if(filter.value=='expired_week') return fit = this.isExpiredSoon(element.expired, element.status,0,7);
+                                if(filter.value=='expired_month') return fit = this.isExpiredSoon(element.expired, element.status,0,31);
                                 if(element[filterName]!=filter.value) fit = false;
                                 break;
                             case 'search':

@@ -8,6 +8,7 @@
 <link rel="import" href="./designmap-tasks-overview.html">
 <link rel="import" href="../designmap-ui/designmap-stub.html">
 <link rel="import" href="../designmap-tutorial/designmap-hint.html">
+<link rel="import" href="../designmap-buttons/designmap-button.html">
 <!-- Redux -->
 <link rel="import" href="../../../redux/redux-store.html">
 <link rel="import" href="../../../redux/actions/combine-actions.html">
@@ -45,7 +46,6 @@
             *[hidden] {
                 display: none !important;
             }
-
 
             :host > .wrapper > .content {
                 display: flex;
@@ -109,7 +109,7 @@
                 color: red;
             }
 
-            designmap-task-details.no-task{
+            designmap-task-details.no-task {
                 display: none;
             }
 
@@ -117,6 +117,7 @@
             designmap-task-list {
                 flex: 1;
             }
+
             designmap-task-details {
                 flex: 1;
             }
@@ -138,7 +139,8 @@
                 flex: 1;
                 position: relative;
             }
-            .crumb .title{
+
+            .crumb .title {
                 cursor: pointer;
                 display: inline-block;
                 vertical-align: middle;
@@ -152,6 +154,7 @@
                 text-overflow: ellipsis;
                 color: var(--breadcrumbs-selected-color);
             }
+
             .crumb .title.selected {
                 border-radius: 3px;
                 background: var(--breadcrumbs-selected-color);
@@ -208,12 +211,30 @@
             }
 
             designmap-tasks-overview {
-                min-width: 400px;
+                min-width: 600px;
                 border-left: 1px solid var(--gray-color);
             }
 
             .mobile-title {
                 display: none;
+            }
+
+            .button-set {
+                display: flex;
+                justify-content: space-between;
+            }
+
+            .button-set button {
+                width: 115px;
+            }
+
+            .dialog-content {
+                max-width: 320px;
+                text-align: center;
+            }
+
+            .expired-soon-message {
+                color: var(--gray-darkend-color);
             }
 
             @media (min-width: 320px) and (max-width: 768px) {
@@ -222,28 +243,36 @@
                     display: flex;
                     height: calc(100vh - 180px);
                 }
+
                 .hidden-xs {
                     display: none;
                 }
+
                 designmap-task-list.no-task {
                     display: block;
                 }
+
                 designmap-task-details.selected-task {
                     display: flex;
                 }
-                designmap-task-list.selected-task, designmap-task-details.no-task{
+
+                designmap-task-list.selected-task, designmap-task-details.no-task {
                     display: none;
                 }
+
                 designmap-task-details {
                     margin-top: 0;
                 }
+
                 designmap-tasks-overview {
                     display: none;
                 }
+
                 .left {
                     flex: 3;
                     max-width: calc(100vw - 103px);
                 }
+
                 .right {
                     flex: 1;
                     min-width: auto;
@@ -251,22 +280,28 @@
                     display: flex;
                     justify-content: flex-end;
                 }
+
                 designmap-search-filter {
                     min-width: auto;
                     display: inline-block;
                 }
+
                 .dashborad {
                     justify-content: flex-start;
                 }
+
                 .left .title {
                     margin-left: 20px;
                 }
+
                 .search {
                     display: none;
                 }
+
                 .left .title {
                     display: none !important;
                 }
+
                 .mobile-title {
                     display: block;
                     font-size: 26px;
@@ -280,6 +315,7 @@
                     overflow: hidden;
                     text-overflow: ellipsis;
                 }
+
                 .mobile-title.selected {
                     margin-left: 7px !important;
                 }
@@ -288,9 +324,10 @@
 
         </style>
         <div class="wrapper">
-            <designmap-dashboard class="dashborad" hidden$="[[projectError]]" back="[[_showBack(selectedTask,MQ)]]" on-go-back="_arrowBackAction" >
+            <designmap-dashboard class="dashborad" hidden$="[[projectError]]" back="[[_showBack(selectedTask,MQ)]]"
+                                 on-go-back="_arrowBackAction">
                 <div class="left">
-                    <div class$="title [[_isThereSelectedCls(selectedTask)]]" >
+                    <div class$="title [[_isThereSelectedCls(selectedTask)]]">
                         [[project.name]]
                     </div>
                     <div class$="mobile-title [[_isThereSelectedCls(selectedTask)]]">
@@ -298,26 +335,35 @@
                     </div>
                     <div class="breadcrumbs hidden-xs">
                         <div class="crumb">
-                            <div class="title" on-click="cancelTask"><i18-n msgid="Tasks">Tasks</i18-n></div>
+                            <div class="title" on-click="cancelTask">
+                                <i18-n msgid="Tasks">Tasks</i18-n>
+                            </div>
                             <iron-icon class="line" icon="icons:chevron-left"></iron-icon>
                         </div>
                         <template is="dom-repeat" items="[[breadcrumbs]]" as="crumb">
-                            <div class$="crumb [[calculateSelectedCrumb(breadcrumbs.length,index)]]" title="[[crumb.title]]"  hidden$="[[!breadcrumbs.length]]">
-                                <div class$="title [[calculateSelectedCrumb(breadcrumbs.length,index)]]" on-click="goToParent">[[crumb.title]]</div>
+                            <div class$="crumb [[calculateSelectedCrumb(breadcrumbs.length,index)]]"
+                                 title="[[crumb.title]]" hidden$="[[!breadcrumbs.length]]">
+                                <div class$="title [[calculateSelectedCrumb(breadcrumbs.length,index)]]"
+                                     on-click="goToParent">[[crumb.title]]
+                                </div>
                                 <iron-icon class="line" icon="icons:chevron-left"></iron-icon>
                             </div>
                         </template>
                     </div>
                     <div class="breadcrumbs search" hidden$="[[!searchMode]]">
                         <div class="crumb">
-                            <div class="title"><i18-n msgid="Search">Search</i18-n></div>
+                            <div class="title">
+                                <i18-n msgid="Search">Search</i18-n>
+                            </div>
                             <iron-icon class="line" icon="icons:chevron-left"></iron-icon>
                         </div>
-                        <paper-icon-button class="cancel-search" on-click="cancelSearch" icon="icons:close"></paper-icon-button>
+                        <paper-icon-button class="cancel-search" on-click="cancelSearch"
+                                           icon="icons:close"></paper-icon-button>
                     </div>
                 </div>
                 <div class="right">
-                    <designmap-search-filter id="searchFilter" label="[[translate('Search...',language,i18Loaded)]]" items="[[filterItems]]"></designmap-search-filter>
+                    <designmap-search-filter id="searchFilter" label="[[translate('Search...',language,i18Loaded)]]"
+                                             items="[[filterItems]]"></designmap-search-filter>
                     <!--<paper-icon-button id="cancelTask" icon="subject" on-click="cancelTask"></paper-icon-button>
                     <paper-tooltip for="cancelTask" position="left">
                         <i18-n msgid="Show overview">Show overview</i18-n>
@@ -325,17 +371,23 @@
                 </div>
             </designmap-dashboard>
             <div id="content" class$="content [[mode]]">
-                <designmap-task-list class$="[[_isThereSelectedTaskClass(selectedTask)]]" hidden$="[[!computeListState(tasks.length)]]" id="list"
-                                     selected="{{selectedTask}}" can-be-null parent="[[selectedTask.parent]]" cannot-add="[[searchMode]]" search-mode="[[searchMode]]"  selecting></designmap-task-list>
-                <designmap-task-details class$="[[_isThereSelectedTaskClass(selectedTask)]]" hidden$="[[!computeDetailsState(tasks.length,selectedTask)]]"
-                                        id="details" task="[[selectedTask]]" search-mode="[[searchMode]]"></designmap-task-details>
-                <designmap-tasks-overview hidden$="[[!computeOverviewState(tasks,selectedTask)]]"></designmap-tasks-overview>
+                <designmap-task-list class$="[[_isThereSelectedTaskClass(selectedTask)]]"
+                                     hidden$="[[!computeListState(tasks.length)]]" id="list"
+                                     selected="{{selectedTask}}" can-be-null parent="[[selectedTask.parent]]"
+                                     cannot-add="[[searchMode]]" search-mode="[[searchMode]]"
+                                     selecting></designmap-task-list>
+                <designmap-task-details class$="[[_isThereSelectedTaskClass(selectedTask)]]"
+                                        hidden$="[[!computeDetailsState(tasks.length,selectedTask)]]"
+                                        id="details" task="[[selectedTask]]"
+                                        search-mode="[[searchMode]]"></designmap-task-details>
+                <designmap-tasks-overview
+                        hidden$="[[!computeOverviewState(tasks,selectedTask)]]"></designmap-tasks-overview>
                 <div class="no-task" hidden$="[[!computeNoTasksState(tasks,loading,error)]]">
                     <designmap-stub id="slothStub" value="{{taskName}}" on-action="addTask"
                                     image="designmap-workspace-stub:sloth" message="You do not have tasks yet"
                                     input-text="Add task" input-error="AddTaskError"></designmap-stub>
                 </div>
-               <div id="projectLoading" hidden$="[[!loadingState(loading,error)]]" class="loading-overlay">
+                <div id="projectLoading" hidden$="[[!loadingState(loading,error)]]" class="loading-overlay">
                     <div class="uil-reload-css">
                         <div></div>
                     </div>
@@ -345,6 +397,24 @@
                                     error></designmap-stub>
                 </div>
             </div>
+            <!-- Expires soon dialog -->
+            <paper-dialog no-cancel-on-outside-click class="explorer-dialog" id="expiredSoonDialog"
+                          entry-animation="scale-up-animation" exit-animation="scale-down-animation">
+
+                <div class="dialog-content">
+                    <div class="expired-soon-message">
+                        <i18-n msgid="expiredSoonMessage">expiredSoonMessage</i18-n>
+                    </div>
+                    <div class="button-set">
+                        <button is="designmap-button" on-tap="closeExpiredSoonDialog" gray thin>
+                            <i18-n msgid="No">No</i18-n>
+                        </button>
+                        <button is="designmap-button" on-tap="showExpiredSoonTasks" blue thin>
+                            <i18-n msgid="Yes">Yes</i18-n>
+                        </button>
+                    </div>
+                </div>
+            </paper-dialog>
         </div>
     </template>
     <script>
@@ -360,6 +430,12 @@
                 Polymer.DesignmapSocketBehavior,
                 Polymer.CombineActions(Polymer.ProjectActions, Polymer.UserActions, Polymer.TasksActions, Polymer.FilesActions, Polymer.CommentsActions)
             ],
+            expiredSoonFilters: {
+                "owner": {"value": "all"},
+                "assignee": {"value": "all"},
+                "status": {"value": "all"},
+                "expires": {"type": "select", "value": "expired_tomorrow"}
+            },
             properties: {
                 user: {
                     type: Object,
@@ -457,16 +533,29 @@
                 'task-normalize-positions': 'normalizePositions',
                 'focus-input': 'focusInput',
                 'reset': 'findDefaultTask',
-                'mobile-go-back':'mobileGoBack',
-                'cancel-search':'cancelSearch',
-                'resize-col':'resizeCol'
+                'mobile-go-back': 'mobileGoBack',
+                'cancel-search': 'cancelSearch',
+                'resize-col': 'resizeCol'
             },
-            attached: function(){
-               const position = localStorage.getItem('synecto:tm:cols');
-               if(position) {
-                   const data = position.split('#');
-                   this._setCols(data[0],data[1]);
-               }
+            attached: function () {
+                const position = localStorage.getItem('synecto:tm:cols');
+                if (position) {
+                    const data = position.split('#');
+                    this._setCols(data[0], data[1]);
+                }
+
+
+                this.async(function () {
+                    const m = moment().format('YYYY-MM-DD');
+                    const d = localStorage.getItem('synecto:expired:message');
+                    if (this.findExpiresSoonTasks().length && m != d) {
+                        localStorage.setItem('synecto:expired:message', m)
+                        this.$.expiredSoonDialog.open();
+                    }
+                }, 5000)
+
+                const trackedTask = JSON.parse(localStorage.getItem('synecto:trackedTask'));
+                if(trackedTask) Designmap.trackedTask = trackedTask;
             },
             /**
              * Create new task on level 1.
@@ -484,10 +573,10 @@
                     created: moment(),
                     expired: null
                 };
-                this.fire('app-loading',true);
+                this.fire('app-loading', true);
                 this.dispatch('addTask', task).then(function (response) {
                     this.showMessage('Task was added successfully.');
-                    this.fire('app-loading',false);
+                    this.fire('app-loading', false);
                     this.selectTask({detail: response.task});
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));
                 this.taskName = '';
@@ -508,13 +597,13 @@
                 return !!length && selectedTask;
             },
             computeOverviewState: function (tasks, selectedTask) {
-                const t = tasks.filter(function(task){
+                const t = tasks.filter(function (task) {
                     return !task.removed
                 });
                 return t.length && !selectedTask;
             },
-            computeNoTasksState: function (tasks,loading,error) {
-                const t = tasks.filter(function(task){
+            computeNoTasksState: function (tasks, loading, error) {
+                const t = tasks.filter(function (task) {
                     return !task.removed
                 });
                 return !t.length;
@@ -531,9 +620,9 @@
             _computeBackUrl: function (projectId) {
                 return '/' + (projectId || '');
             },
-            _arrowBackAction: function(){
+            _arrowBackAction: function () {
                 //if(this.MQ!=='sm') return page.redirect('/' + (this.projectId || ''));
-                if(this.MQ=='sm') this.mobileGoBack();
+                if (this.MQ == 'sm') this.mobileGoBack();
             },
             selectTask: function (e) {
                 //if(this.selectedTask && this.selectedTask.parent!=e.detail.parent) this.$.list.limit = this.$.list.defaultLimit;
@@ -543,7 +632,7 @@
                 page.redirect('/' + this.projectId + '/task-manager' + this.getFullPath(e.detail));
             },
             focusInput: function () {
-                if(this.$.details) this.$.details.focusInput();
+                if (this.$.details) this.$.details.focusInput();
             },
             _computedAuth: function (user) {
                 return !!user;
@@ -551,11 +640,11 @@
             _pathChanged: function (path) {
                 //if (path == '/' && !this.selectedTask && !this.isMobile()) return this.findDefaultTask();
                 const task = this.findTaskByPath(path);
-                if(!task) return;
+                if (!task) return;
                 this.selectedTask = task;
                 //this.$.list.resetFilter();
             },
-            _readyStateChaged: function(){
+            _readyStateChaged: function () {
                 this._pathChanged(this.path);
             },
             findDefaultTask: function () {
@@ -563,17 +652,17 @@
                 this.selectedTask = null;
                 page.redirect('/' + this.projectId + '/task-manager/');
             },
-            mobileGoBack: function(){
-                if(this.MQ!='sm') return;
+            mobileGoBack: function () {
+                if (this.MQ != 'sm') return;
                 // Mobile>>> If we are inside
-                if(this.selectedTask && this.selectedTask.parent) {
+                if (this.selectedTask && this.selectedTask.parent) {
                     var task = this.findTaskById(this.selectedTask.parent);
-                    return page.redirect('/'+this.projectId+'/task-manager/'+this.getFullPath(task));
+                    return page.redirect('/' + this.projectId + '/task-manager/' + this.getFullPath(task));
                 }
                 // If task doesn't have parent
-                if(this.selectedTask && !this.selectedTask.parent) {
+                if (this.selectedTask && !this.selectedTask.parent) {
                     this.selectedTask = false
-                    return page.redirect('/'+this.projectId+'/task-manager/');
+                    return page.redirect('/' + this.projectId + '/task-manager/');
                 }
                 // If we are on list
                 return page.redirect('/' + (this.projectId || ''));
@@ -582,31 +671,31 @@
              * Re-render task-details
              * after any changes
              */
-            tasksChanged: function(){
-                if(!this.selectedTask) return;
-                const task = Object.assign({},this.findTaskById(this.selectedTask._id));
+            tasksChanged: function () {
+                if (!this.selectedTask) return;
+                const task = Object.assign({}, this.findTaskById(this.selectedTask._id));
                 this.selectedTask = task;
             },
-            _isThereSelectedTaskClass: function(selectedTask){
+            _isThereSelectedTaskClass: function (selectedTask) {
                 return !!selectedTask ? 'selected-task' : 'no-task';
             },
-            _computedAuth: function(user) {
+            _computedAuth: function (user) {
                 return !!user;
             },
             _isAuthChanged: function (isAuth) {
                 if (!isAuth) return this.selectedTask = null;
                 // Start FileSystem tutorial
-                if(this.tasks && this.tasks.length) return;
+                if (this.tasks && this.tasks.length) return;
                 const MQ = ReduxStore.getState().MQ;
                 /*if(this.user && this.user.system && this.user.system.tutorials && this.user.system.tutorials.tm && MQ!='sm') {
-                    const user = Object.assign({},this.user);
-                    const tutorial = document.querySelector('designmap-app').$.tmTutorial;
-                    user.system.tutorials.tm = true;
-                    this.dispatch('userUpdate',user);
-                    this.async(function(){tutorial.start();},1000);
-                }*/
+                 const user = Object.assign({},this.user);
+                 const tutorial = document.querySelector('designmap-app').$.tmTutorial;
+                 user.system.tutorials.tm = true;
+                 this.dispatch('userUpdate',user);
+                 this.async(function(){tutorial.start();},1000);
+                 }*/
             },
-            _projectIdChanged: function(){
+            _projectIdChanged: function () {
                 this.selectedTask = null;
             },
             /**
@@ -627,7 +716,7 @@
                     //this.push('breadcrumbs', {id: this.selectedTask._id, title: this.selectedTask.name});
                 }
             },
-            _selectedTaskChanged: function(){
+            _selectedTaskChanged: function () {
                 this.set('breadcrumbs', []);
                 this.calculateBreadCrumbs();
             },
@@ -637,7 +726,7 @@
              */
             goToParent: function (e) {
                 var task = this.findTaskById(e.model.crumb.id);
-                this.selectTask({detail:task})
+                this.selectTask({detail: task})
             },
             /**
              * Redirect parent task
@@ -645,50 +734,50 @@
              */
             goOnTop: function (e) {
                 var task = this.findTaskById(this.breadcrumbs[0].id);
-                this.selectTask({detail:task})
+                this.selectTask({detail: task})
             },
             calculateSelectedCrumb: function (length, index) {
                 return (length - 1) == index ? 'selected' : '';
             },
-            _showBack: function(selectedTask,MQ){
-                return selectedTask && MQ=='sm';
+            _showBack: function (selectedTask, MQ) {
+                return selectedTask && MQ == 'sm';
             },
-            _titleCls: function(selectedTask,MQ){
-                return selectedTask && MQ=='sm' ? 'arrowmq' : '';
+            _titleCls: function (selectedTask, MQ) {
+                return selectedTask && MQ == 'sm' ? 'arrowmq' : '';
             },
-            normalizePositions: function(){
+            normalizePositions: function () {
                 this.$.list.normalizePositions();
             },
 
-            _computeFilterItems: function(project,lng,loaded,splices) {
+            _computeFilterItems: function (project, lng, loaded, splices) {
                 const users = project ? project.users.concat([project.ownerData]) : [];
                 const userOpts = [
                     {
                         value: 'all',
                         label: 'Any'
                     }
-                ].concat(users.map(function(user){
+                ].concat(users.map(function (user) {
                     return {
                         value: user._id,
                         label: this.computeOwnerName(user)
                     }
                 }.bind(this)));
-                const labels = project&&project.settings&&project.settings.taskManager?project.settings.taskManager.labels:[];
+                const labels = project && project.settings && project.settings.taskManager ? project.settings.taskManager.labels : [];
                 const data = [
                     {
-                        name:'owner',
+                        name: 'owner',
                         type: 'select',
                         default: 'all',
                         options: userOpts
                     },
                     {
-                        name:'assignee',
+                        name: 'assignee',
                         type: 'select',
                         default: 'all',
                         options: userOpts
                     },
                     {
-                        name:'status',
+                        name: 'status',
                         type: 'select',
                         default: 'all',
                         options: [
@@ -697,29 +786,56 @@
                                 label: this.translate('Any')
                             },
                             {
-                                value:'incomplete',
+                                value: 'incomplete',
                                 label: this.translate('incomplete')
                             },
                             {
-                                value:'in_progress',
+                                value: 'in_progress',
                                 label: this.translate('in_progress')
                             },
                             {
-                                value:'completed',
+                                value: 'completed',
                                 label: this.translate('completed')
+                            }
+                        ]
+                    },
+                    {
+                        name: 'expires',
+                        type: 'select',
+                        default: 'all',
+                        options: [
+                            {
+                                value: 'all',
+                                label: this.translate('Any')
+                            },
+                            {
+                                value: 'expired',
+                                label: this.translate('expired')
+                            },
+                            {
+                                value: 'expired_tomorrow',
+                                label: this.translate('expired_tomorrow')
+                            },
+                            {
+                                value: 'expired_week',
+                                label: this.translate('expired_week')
+                            },
+                            {
+                                value: 'expired_month',
+                                label: this.translate('expired_month')
                             }
                         ]
                     }
                 ];
-                if(labels && labels.length) data.push({
-                    name:'label',
+                if (labels && labels.length) data.push({
+                    name: 'label',
                     type: 'select',
                     default: 'all',
                     options: [{
                         value: 'all',
                         label: 'Any'
-                    }].concat(labels.map(function(label){
-                        if(!label) return {label:'--',value:'--'}
+                    }].concat(labels.map(function (label) {
+                        if (!label) return {label: '--', value: '--'}
                         return {
                             value: label.label,
                             label: label.label
@@ -730,52 +846,72 @@
                 return data
             },
 
-            search: function(e){
+            search: function (e) {
                 this.searchMode = true;
                 this.selectedTask = null;
-                this.async(function(){
+                this.async(function () {
                     this.$.list.search(e.detail);
-                })
+                });
             },
 
-            cancelSearch: function() {
+            cancelSearch: function () {
                 this.searchMode = false;
                 this.$.searchFilter.empty();
-                page.redirect('/'+this.projectId+'/task-manager/');
+                page.redirect('/' + this.projectId + '/task-manager/');
             },
 
-            cancelTask: function(){
+            cancelTask: function () {
                 this.selectedTask = null;
-                page.redirect('/'+this.projectId+'/task-manager/');
+                page.redirect('/' + this.projectId + '/task-manager/');
             },
 
-            _isThereSelectedCls: function(selectedTask){
+            _isThereSelectedCls: function (selectedTask) {
                 return !!selectedTask ? 'selected' : '';
             },
 
-            _computeMobileTitle: function(project,breadcrumbs,length){
-                if(!project || !breadcrumbs) return 'XXX';
-                const crmb = breadcrumbs[length-2];
-                return breadcrumbs.length ? crmb?crmb.title: project.name : project.name
+            _computeMobileTitle: function (project, breadcrumbs, length) {
+                if (!project || !breadcrumbs) return 'XXX';
+                const crmb = breadcrumbs[length - 2];
+                return breadcrumbs.length ? crmb ? crmb.title : project.name : project.name
             },
 
-            resizeCol: function(e){
+            resizeCol: function (e) {
                 const cBound = this.$.content.getBoundingClientRect();
 
                 const newWidth = e.detail;
                 const newDetailsWidth = cBound.width - newWidth;
 
-                const listPercent = Math.round((newWidth/cBound.width)*100);
-                const detailsPercent = (Math.round((newDetailsWidth/cBound.width)*100) - 1);
-                if(listPercent<30 || detailsPercent<30) return;
-                localStorage.setItem('synecto:tm:cols',listPercent+'#'+detailsPercent);
-                this._setCols(listPercent,detailsPercent);
+                const listPercent = Math.round((newWidth / cBound.width) * 100);
+                const detailsPercent = (Math.round((newDetailsWidth / cBound.width) * 100) - 1);
+                if (listPercent < 30 || detailsPercent < 30) return;
+                localStorage.setItem('synecto:tm:cols', listPercent + '#' + detailsPercent);
+                this._setCols(listPercent, detailsPercent);
 
             },
 
-            _setCols: function(listPercent,detailsPercent){
+            _setCols: function (listPercent, detailsPercent) {
                 this.$.list.style.minWidth = listPercent + '%';
-                this.$.details.style.minWidth =  detailsPercent + '%';
+                this.$.details.style.minWidth = detailsPercent + '%';
+            },
+
+            findExpiresSoonTasks: function () {
+                if (!this.tasks) return;
+                const expiredSoon = [];
+                this.tasks.forEach(function (task) {
+                    if (this.$.list.isExpiredSoon(task.expired, task.status, 0, 1)) expiredSoon.push(task);
+                }, this);
+                return expiredSoon;
+            },
+            showExpiredSoonTasks: function () {
+                this.$.expiredSoonDialog.close();
+                this.searchMode = true;
+                this.selectedTask = null;
+                this.async(function () {
+                    this.$.list.search(this.expiredSoonFilters);
+                });
+            },
+            closeExpiredSoonDialog: function () {
+                this.$.expiredSoonDialog.close();
             }
         })
     </script>

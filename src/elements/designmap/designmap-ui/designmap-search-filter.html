@@ -18,15 +18,15 @@
                     color: var(--blue-darkest-color);
                     font-family: var(--font-family);
                     font-size: 16px;
-                    font-weight: 300 !important;
+                    font-weight: 500 !important;
                     padding: 0;
                 };
                 --paper-input-container-label: {
                     font-size: 16px;
-                    font-weight: 300 !important;
+                    font-weight: 500 !important;
                 };
                 --paper-input-container-label-floating: {
-                    font-weight: 300 !important;
+                    font-weight: 500 !important;
                 };
                 --paper-input-container-invalid-color: var(--error-color);
                 --iron-icon-fill-color: var(--blue-darkest-color);
@@ -168,7 +168,7 @@
             ],
             ready: function () {
                 this.MQ = ReduxStore.getState().MQ;
-                document.body.addEventListener('touchend',this._touchOutta.bind(this))
+                //document.body.addEventListener('touchend',this._touchOutta.bind(this))
             },
             _itemsChanged: function(items){
                 if(this.values) return;

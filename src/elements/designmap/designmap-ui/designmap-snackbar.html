@@ -21,7 +21,7 @@
                 margin-top: 5px;
              };
 
-            @apply(--plastic-snackbar);
+            @apply(--designmap-snackbar);
         }
       :host(.opened) {
         display: flex;
@@ -29,7 +29,7 @@
     </style>
     <template>
         <template is="dom-repeat" items="{{toasts}}" as="toast">
-            <designmap-toast oid="{{index}}" on-hide="remove" type="[[toast.type]]" sender="[[toast.sender]]" notify="[[toast.notify]]" undo="[[toast.undo]]" error="[[toast.error]]" text="[[toast.text]]" duration="[[resolveDuration(toast)]]"></designmap-toast>
+            <designmap-toast oid="{{index}}" on-hide="remove" type="[[toast.type]]" sender="[[toast.sender]]" notify="[[toast.notify]]" undo="[[toast.undo]]" error="[[toast.error]]" text="[[toast.text]]" link="[[toast.link]]" duration="[[resolveDuration(toast)]]"></designmap-toast>
         </template>
     </template>
     <script>

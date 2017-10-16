@@ -218,9 +218,10 @@
         </paper-dialog>
         <!-- Datepicker -->
         <ul class="menu">
-            <li id="complete" disabled$="[[_isCompleted(task)]]" class="item" on-tap="_completeTask">
+            <li id="complete" class="item" on-tap="_completeTask">
                 <iron-icon icon="designmap-task-menu:finish"></iron-icon>
-                <i18-n class="item-text" msgid="complete a task">complete a task</i18-n>
+                <i18-n hidden$="[[_isCompleted(task)]]" class="item-text" msgid="complete a task">complete a task</i18-n>
+                <i18-n hidden$="[[!_isCompleted(task)]]" class="item-text" msgid="back to work">back to work</i18-n>
             </li>
             <paper-tooltip for="complete" position="left">
                 <i18-n msgid="Complete task">Complete task</i18-n>
@@ -234,9 +235,9 @@
                 <designmap-task-manager-labels task="[[task]]" label="[[task.label]]" on-change="_labelChanged"
                                                id="labels"></designmap-task-manager-labels>
             </li>
-            <!--<paper-tooltip for="labelsItem" position="top">
+            <paper-tooltip for="labelsItem" position="bottom">
                 <i18-n msgid="Set label">Set label</i18-n>
-            </paper-tooltip>-->
+            </paper-tooltip>
 
             <li class="item" id="estimationItem">
                 <iron-icon icon="designmap-task-menu:difficulty" on-tap="openEstimateDialog" on-mouseover="edOpen" on-mouseleave="edClose"></iron-icon>
@@ -247,7 +248,7 @@
                 <designmap-task-estimate-dropdown task="[[task]]" project-users="[[projectUsers]]" uid="[[user._id]]"
                                                   opened="{{edOpened}}"></designmap-task-estimate-dropdown>
 
-                <paper-icon-button hidden$="[[!_showRequestEstimateButton(project,user,task.grade,projectUsers,task)]]"
+                <paper-icon-button hidden$="[[!_showRequestEstimateButton(project,user,task,projectUsers.length)]]"
                                    id="estimationRequestButton" class="estimation-request"
                                    icon="mail"
                                    on-tap="sendEstimationRequest"></paper-icon-button>
@@ -262,16 +263,19 @@
                 <i18-n msgid="Datepicker tooltip">Datepicker tooltip</i18-n>
             </paper-tooltip>
 
-            <li class="item">
+            <li  id="trackItem" class="item">
                 <iron-icon icon="designmap-task-menu:track"></iron-icon>
                 <designmap-task-track-time project-users="[[projectUsers]]" project="[[project]]" task="[[task]]"
                                            spent-time="[[spentTime]]" user="[[user]]"></designmap-task-track-time>
             </li>
+            <paper-tooltip for="trackItem" position="left">
+                <i18-n msgid="Track time">Track time</i18-n>
+            </paper-tooltip>
 
-            <li class="item start">
+            <!--<li class="item start">
                 <iron-icon icon="designmap-task-menu:attach"></iron-icon>
                 <designmap-task-file-list user="[[user]]" project="[[project]]" project-id="[[project._id]]" task="[[task]]"></designmap-task-file-list>
-            </li>
+            </li>-->
         </ul>
     </template>
     <script>
@@ -336,11 +340,11 @@
                 if (task && !task.expired) return this.translate('due date');
                 const diff = moment.duration(moment(task ? task.expired : 0).diff(moment()));
                 if (diff._milliseconds < 0) return this.translate('expired');
-                return (diff.asDays() > 1 ? (Math.round(diff.asDays()) + ' ' + this.translate('days')) : Math.round(diff.asHours()) + ' ' + this.translate('hours'));
+                return (diff.asDays() > 1 ? (Math.ceil(diff.asDays()) + ' ' + this.translate('days')) : Math.ceil(diff.asHours()) + ' ' + this.translate('hours'));
             },
 
             _completeTask: function () {
-                this.fire('change-status', 'completed');
+                this.fire('change-status', this.task.status!='completed'?'completed':'in_progress');
             },
 
             _isCompleted: function (task) {
@@ -427,6 +431,7 @@
             },
 
             openDatePickerDialog: function () {
+                if (!this.canRemoveTask(this.task)) return this.showErrorMessage('Only project or task can change due date');
                 // Super junky hook
                 this.async(this.$.datePicker.$.calendar._resizeHandler.bind(this.$.datePicker.$.calendar), 100);
                 this.$.datePickerDialog.toggle();
@@ -445,9 +450,9 @@
                 this.$.labels.openDropdown();
             },
 
-            _showRequestEstimateButton: function(project,user,grade) {
-                if(!project || !user || !grade) return false;
-                return user._id==project.owner && this._getPossibleEstimators(grade).length;
+            _showRequestEstimateButton: function(project,user,task) {
+                if(!project || !user || !task) return false;
+                return this._isTaskOwner(task,user)  && this._getPossibleEstimators(task.grade).length;
             },
 
             _getPossibleEstimators: function(grade){

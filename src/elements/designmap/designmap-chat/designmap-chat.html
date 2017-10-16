@@ -143,7 +143,7 @@
 
 
             .message:hover {
-                background: var(--gray-lightern-color);
+                background: var(--gry-lightern-color);
             }
 
             .message .gutter {
@@ -389,7 +389,7 @@
                 cursor: pointer;
             }
             .buttons .button:hover {
-                background: var(--gray-lightern-color);
+                background: var(--gry-lightern-color);
                 transition: background .2s;
             }
             .buttons .button iron-icon {
@@ -527,6 +527,14 @@
                 background: #e7dad1;
             }
 
+            .mobile-dropdown {
+                display: none;
+            }
+
+            .search-button {
+                display: none;
+            }
+
 
             @media (min-width: 320px) and (max-width: 768px) {
                 .scroll {
@@ -565,6 +573,59 @@
                     background: var(--white-color);
                 }
 
+                .search {
+                    display: none;
+                }
+
+                .search-button {
+                    display: block;
+                }
+
+                .mobile-dropdown {
+                    position: fixed;
+                    width: 100vw;
+                    height: 55px;
+                    background: var(--white-color);
+                    left: 0;
+                    top: 75px;
+                    z-index: 999;
+                    padding: 0 15px;
+                    border-bottom: 1px solid var(--gray-color);
+                    box-shadow: var(--box-shadow);
+                    @apply(--designmpa-search-filter-mobile-dropdown-mixin);
+                }
+                .mobile-search-input {
+                    margin-top: 7px;
+                    width: calc(100% - 33px);
+                }
+                .mobile-dropdown.opened {
+                    display: block;
+                }
+
+                .right {
+                    display: flex;
+                    justify-content: flex-end;
+                }
+
+                .search-button {
+                    display: block;
+                    position: relative;
+                    top: 3px;
+                }
+
+                .comment.focused {
+                    position: fixed;
+                    height: calc(100vh - 75px);
+                    width: 100%;
+                    background: var(--white-color);
+                    z-index: 999;
+                }
+                .mobile-close {
+                    position: absolute;
+                    background: var(--white-color);
+                    padding: 10px;
+                    opacity: 1 !important;
+                }
             }
         </style>
 
@@ -581,9 +642,19 @@
                 </div>
             </div>
             <div class="right">
-                <paper-input id="search"  on-input="_search" label="[[translate('Search...',language,i18Loaded)]]">
+                <paper-input id="search" class="search" on-input="_search" label="[[translate('Search...',language,i18Loaded)]]">
                     <paper-icon-button suffix icon="search" class="search-btn" on-click="_search"></paper-icon-button>
                 </paper-input>
+
+                <!-- Mobile -->
+                <div class$="mobile-dropdown bound [[_mobileDropDownCls(mobileDropdownOpened)]]">
+                    <paper-input id="mobileSearch"  class="mobile-search-input" on-input="_search" label="[[translate('Search...',language,i18Loaded)]]">
+                        <paper-icon-button suffix icon="close" class="search-btn" on-tap="cancelSearch"></paper-icon-button>
+                    </paper-input>
+                </div>
+                <!-- Mobile -->
+                <paper-icon-button class="search-button bound" icon="search" on-click="openMobileSearch"></paper-icon-button>
+
             </div>
         </designmap-dashboard>
 
@@ -716,6 +787,8 @@
                         id="invkTextarea"
                         value="{{message}}"
                         users="[[projectUsers]]"
+                        on-focus="commentFocused"
+                        on-blur="commentBlurred"
                         invoked-users="{{invokedUsers}}"
                         placeholder="[[translate('Enter a message',language,i18Loaded)]]"
                 ></designmap-invk-textarea>
@@ -765,6 +838,7 @@
                     <!-- -->
                     <div id="sendMessage" class="button send-msg" on-tap="postMessage" disabled$="[[!_sendButtonState(message,attaches.length)]]">
                         <iron-icon icon="icons:send"></iron-icon>
+                        <iron-icon icon="close" on-click="focusOut" class="mobile-close" hidden$="[[_computeHide(focused,message)]]"></iron-icon>
                     </div>
                     <paper-tooltip position="top" for="sendMessage"><i18-n msgid="Send message">Send message</i18-n></paper-tooltip>
                 </div>
@@ -909,6 +983,10 @@
                 currentTaskId: {
                     type: String,
                     value: null
+                },
+                focused: {
+                    type: Boolean,
+                    value: false
                 }
             },
             observers: [
@@ -918,6 +996,7 @@
             ],
             ready: function () {
                 //if(/Safari/.test(navigator.userAgent)) this.classList.add('safari');
+                document.body.addEventListener('touchend',this._touchOutta.bind(this))
                 this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 // Load sound
                 var xhr = new XMLHttpRequest();
@@ -1038,6 +1117,8 @@
                     this._sendNotification(response.message,invokedUsers);
                 }.bind(this));
                 this.message = '';
+                this.$.comment.classList.remove('focused');
+                this.focused = false;
                 this.set('invokedUsers', []);
                 this.set('attaches',[]);
                 this.async(this.scrollUp);
@@ -1332,6 +1413,47 @@
                 const userLikesIndex = message.likes.indexOf(this.user._id);
                 isThereUser ? message.likes.splice(userLikesIndex, 1) : message.likes.push(this.user._id);
                 this.dispatch('updateMessage', message._id, {likes:message.likes});
+            },
+
+            _mobileDropDownCls: function(mobileDropdownOpened){
+                return mobileDropdownOpened ? 'opened' : '';
+            },
+
+            openMobileSearch: function(){
+                this.mobileDropdownOpened = true;
+            },
+
+            _touchOutta: function(e){
+                if(e.path && e.path.indexOf(this)!=-1) return;
+                this.mobileDropdownOpened = false;
+            },
+
+            cancelSearch: function(){
+                this.mobileDropdownOpened = false;
+                this.$.mobileSearch.value = '';
+            },
+
+            commentFocused: function(){
+                this.counter = this.counter || 0;
+                if(!this.counter) return this.counter++;
+                this.focused = true;
+                this.$.comment.classList.add('focused');
+            },
+
+            commentBlurred: function(){
+                //this.$.comment.classList.remove('focused');
+            },
+
+            _computeHide: function(focused,message){
+                if(this.MQ!='sm') return true;
+                return !(focused && !message);
+            },
+
+            focusOut: function(e){
+                e.stopPropagation();
+                this.message = '';
+                this.$.comment.classList.remove('focused');
+                this.focused = false;
             }
         });
     </script>

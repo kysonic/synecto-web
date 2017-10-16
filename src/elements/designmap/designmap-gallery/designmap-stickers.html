@@ -327,7 +327,7 @@
             }
 
             designmap-dropdown .menu li:hover {
-                background: var(--gray-lightern-color);
+                background: var(--gry-lightern-color);
                 transition: .2s background;
             }
 
@@ -371,7 +371,6 @@
             }
 
             /** INVOCATION **/
-
 
             .ripple {
                 display: none;
@@ -432,8 +431,6 @@
                     transform: scale(2);
                 }
             }
-
-
 
             @media (min-width: 320px) and (max-width: 768px) {
                 .marker {
@@ -498,15 +495,8 @@
                                     <template is="dom-repeat" items="[[_computeComments(sticker._id, comments.*)]]"
                                               as="comment">
                                         <div class="comment">
-                                            <div hidden$="[[comment.edit]]" class="text">
+                                            <div class="text">
                                                 <plastic-html msg="[[commentTextProcess(comment.text)]]"></plastic-html>
-                                            </div>
-                                            <div class="ta" hidden$="[[!comment.edit]]">
-                                            <textarea class="textarea"
-                                                      value="{{comment.text}}"></textarea>
-                                                <button class="edit-comment" on-click="_saveComment">
-                                                    <i18-n msgid="Edit a comment">Edit a comment</i18-n>
-                                                </button>
                                             </div>
                                             <div class="footer">
                                                 <div class="info">
@@ -542,7 +532,8 @@
                                         placeholder="[[translate('Write a comment',language,i18Loaded)]]"></designmap-invk-textarea>
                             </div>
                             <button class="post-comment-button" on-click="_postComment" hidden$="[[!textAreaValue]]">
-                                <i18-n msgid="Post a comment">Post a comment</i18-n>
+                                <i18-n hidden="[[commentEditMode]]" msgid="Post a comment">Post a comment</i18-n>
+                                <i18-n hidden="[[!commentEditMode]]" msgid="Edit a comment">Edit a comment</i18-n>
                             </button>
                         </div>
                         <!-- Dropdown -->
@@ -673,9 +664,9 @@
                     value: ''
                 },
                 /*stickerEvent: {
-                    type: Object,
-                    value: null
-                },*/
+                 type: Object,
+                 value: null
+                 },*/
                 hintTarget: {
                     type: Object,
                     value: null
@@ -704,6 +695,10 @@
                 invokedUsers: {
                     type: Array,
                     value: []
+                },
+                commentEditMode: {
+                    type: Boolean,
+                    value: false
                 }
             },
             ready: function () {
@@ -814,7 +809,7 @@
 
             _userChanged: function (user) {
                 /*if (user) this.set('stickerEvent', false);
-                if (!user) this.set('stickerEvent', true);*/
+                 if (!user) this.set('stickerEvent', true);*/
             },
 
             /**
@@ -958,7 +953,7 @@
 
 
             _textAreaValueChanged: function () {
-                this.async(function(){
+                this.async(function () {
                     this._resolveStickerDropdownPosition(this._findOpenedSticker())
                 });
             },
@@ -1011,11 +1006,11 @@
                 return user && user._id == comment.owner._id;
             },
 
-            _reply: function(e){
+            _reply: function (e) {
                 const user = e.model.comment.owner;
-                let figure = user.profile&&user.profile.name?'@'+user.profile.name+' ':"+" + user.local.email + " ";
-                this.textAreaValue = figure+ this.textAreaValue;
-                const textArea =  Polymer.dom(this.$.wrapper).querySelector('.sticker.opened #invkTextarea');
+                let figure = user.profile && user.profile.name ? '@' + user.profile.name + ' ' : "+" + user.local.email + " ";
+                this.textAreaValue = figure + this.textAreaValue;
+                const textArea = Polymer.dom(this.$.wrapper).querySelector('.sticker.opened #invkTextarea');
                 textArea.focus();
             }
 

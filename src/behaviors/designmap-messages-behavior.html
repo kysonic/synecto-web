@@ -26,10 +26,10 @@
          * Show error message.
          * @param message
          */
-        showErrorMessage: function(message,replacement,duration){
+        showErrorMessage: function(message,replacement,duration,link){
             var msg = this.i18nDomain.getMsg(message) || message;
             if(replacement) msg = this.replaceExpressions(msg,replacement);
-            this.snackbar.add({text:msg,error:true,duration:duration});
+            this.snackbar.add({text:msg,error:true,duration:duration,link:link});
         },
         /**
          * Special designmap toast function !

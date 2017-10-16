@@ -37,7 +37,7 @@
             };*/
 
             --advanced-menu-main-color: var(--gray-saturated-color);
-            --designmap-advanced-menu-hoverd: var(--gray-lightern-color);
+            --designmap-advanced-menu-hoverd: var(--gry-lightern-color);
 
             --plastic-custom-scroll-content-mixin:{
                 max-height: calc(100vh - 60px);
@@ -332,6 +332,18 @@
                 </plastic-select>
             </div>
             &lt;!&ndash; Hint &ndash;&gt;
+
+            &lt;!&ndash; Hint &ndash;&gt;
+            <designmap-projects-list id="projectList" closed-projects="{{closedProjects}}"></designmap-projects-list>
+            <div class="create-project" on-click="openCreateProjectDialog">
+                <i18-n msgid="Create Project">Create Project</i18-n>
+            </div>-->
+            <!-- Projects -->
+            <!--<div class="menu-title" hidden$="[[!project._id]]" style="margin-top: 5px;">
+                <i18-n msgid="Projects">Projects</i18-n>
+            </div>-->
+            <designmap-project-manager hidden$="[[!project._id]]" project="[[project]]"></designmap-project-manager>
+
             <designmap-hint id="projectSectionHint"
                             previous
                             have-skip
@@ -347,16 +359,6 @@
                     <i18-n msgid="projectSectionHintDesc">projectSectionHintDesc</i18-n>
                 </div>
             </designmap-hint>
-            &lt;!&ndash; Hint &ndash;&gt;
-            <designmap-projects-list id="projectList" closed-projects="{{closedProjects}}"></designmap-projects-list>
-            <div class="create-project" on-click="openCreateProjectDialog">
-                <i18-n msgid="Create Project">Create Project</i18-n>
-            </div>-->
-            <!-- Projects -->
-            <!--<div class="menu-title" hidden$="[[!project._id]]" style="margin-top: 5px;">
-                <i18-n msgid="Projects">Projects</i18-n>
-            </div>-->
-            <designmap-project-manager hidden$="[[!project._id]]" project="[[project]]"></designmap-project-manager>
 
             <div class="menu-title" hidden$="[[project._id]]" style="margin-top: 5px;">
                 <i18-n msgid="Select project">Select project</i18-n>

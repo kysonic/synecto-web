@@ -286,7 +286,7 @@
                 });
             },
             openDropdown: function(){
-                if(!this.labels.length) return;
+                if(!this.labels.length) return this.user && this.user._id==this.project.owner ? null : this.showErrorMessage('There is no labels yet. Ask project owner to add it.');
                 this.$.dropdown.toggle();
             },
             openSettingsDropdown: function(){

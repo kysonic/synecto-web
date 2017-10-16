@@ -23,7 +23,7 @@
                 background: var(--white-color);
 
                 --designmap-project-text-color: var(--gray-darkend-color);
-                --designmap-project-list-hover: var(--gray-lightern-color);
+                --designmap-project-list-hover: var(--gry-lightern-color);
                 --designmap-project-list-hover-icon: var(--gray-lightenest-color);
                 --designmap-tab-background: var(--primary-color);
                 --designmap-tab-color: var(--white-color);
@@ -209,6 +209,9 @@
         <!-- Close confirm -->
         <designmap-confirm id="closeProjectConfirm" message="AreYouSureThatYouWannaCloseProject"
                            on-continue="closeIt" on-suspend="suspendRemoving"></designmap-confirm>
+        <!-- Track -->
+        <designmap-confirm id="trackedTaskConfirm" message="You have in progress task in this project" replace="[[trackedConfirmReplace]]"
+                           on-continue="anyWaySelectProject" on-suspend="goToTrackedTask"></designmap-confirm>
         <!-- Context -->
         <designmap-context-menu id="projectContextMenu" previous>
             <ul class="menu">
@@ -342,6 +345,10 @@
                 limit: {
                     type: Number,
                     value: 4
+                },
+                trackedConfirmReplace: {
+                    type: Object,
+                    value: {}
                 }
 
             },
@@ -354,7 +361,18 @@
              */
             selectProject: function (e) {
                 this.limit = 4;
+                if(Designmap.trackedTask) {
+                    this.trackedConfirmReplace={'#NAME#':Designmap.trackedTask.name}
+                    this.tempProjectId = e.model.project._id;
+                    return this.$.trackedTaskConfirm.open();
+                }
                 page.redirect('/' + e.model.project._id);
+                this.fire('close-menu-in-mobile-mode');
+            },
+
+            anyWaySelectProject: function(){
+                this.$.trackedTaskConfirm.close();
+                page.redirect('/' + this.tempProjectId);
                 this.fire('close-menu-in-mobile-mode');
             },
             /**
@@ -558,6 +576,12 @@
 
             _closedProjectsChanged: function(cp){
                 if(!cp.length) this.selectedTab = 0;
+            },
+
+            goToTrackedTask: function(){
+                if(!Designmap.trackedTask) return;
+                this.$.trackedTaskConfirm.close();
+                page.redirect('/'+Designmap.trackedTask.scope+'/task-manager'+this.getFullPath(Designmap.trackedTask));
             }
         });
     </script>

@@ -111,6 +111,21 @@
                 --iron-icon-stroke-color: var(--white-color);
                 --iron-icon-fill-color: var(--white-color);
             }
+
+            :host {
+                --designmap-hidden-panel: {
+                    width: 220px !important;
+                    height: calc(100vh - 75px) !important;
+                    top: 75px;
+                    background: var(--white-color);
+                    border-right: 1px solid var(--gray-color);
+                }
+            }
+
+            .member-hidden .select-panel-content {
+                display: block;
+            }
+
         </style>
         <!-- Confirm -->
         <designmap-confirm id="removingConfirm" message="AreYouSureYouWantToRemoveUser"

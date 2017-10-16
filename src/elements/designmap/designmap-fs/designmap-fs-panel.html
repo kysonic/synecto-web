@@ -169,9 +169,6 @@
                 <!-- Google -->
                 <designmap-google-docs folder="[[currentFolderId]]"></designmap-google-docs>
             </div>
-            <div class="mobile-left">
-                <paper-icon-button icon="more-vert" on-click="openMobileMenu"></paper-icon-button>
-            </div>
             <!-- Hint -->
             <designmap-hint id="fsPanelHint"
                             previous
@@ -187,6 +184,9 @@
                 </div>
             </designmap-hint>
             <!-- Hint -->
+            <div class="mobile-left">
+                <paper-icon-button icon="more-vert" on-click="openMobileMenu"></paper-icon-button>
+            </div>
             <!-- Right -->
             <div class="right">
                 <designmap-search-filter id="searchFilter" label="[[translate('Search...',language,i18Loaded)]]" items="[[filterItems]]"></designmap-search-filter>

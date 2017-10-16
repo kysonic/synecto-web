@@ -25,6 +25,7 @@
                 text-align: center;
             }
             .info .chart google-chart {
+                width: 600px;
                 height: 200px;
             }
             .info .item > * {
@@ -169,6 +170,8 @@
             _getCompletedData: function(tasks){
                 const completed = tasks.filter(function(task){
                     return task.status=='completed';
+                }).sort(function(a,b){
+                    return b.completed-a.completed;
                 });
                 const data = [[this.translate("Days"), this.translate("Tasks")]];
                 const dates = {};
@@ -182,8 +185,9 @@
                 Object.keys(dates).forEach(function(dateKey){
                     data.push([dateKey,dates[dateKey].length]);
                 });
-
-                return data;
+                return data.sort(function(a,b){
+                    return a[0]-b[0]
+                });
             },
             _getDateAxisAlias: function(completedDate){
                 const d = new Date(completedDate);

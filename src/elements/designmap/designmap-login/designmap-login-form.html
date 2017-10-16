@@ -31,7 +31,7 @@
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                font-weight: 300;
+                font-weight: 500;
                 min-width: 450px;
                 color: var(--designmap-login-form-color);
 
@@ -609,16 +609,14 @@
                 const email = this.$.emailSignin.value;
                 this.fire('app-loading',true);
                 this.dispatch('userLogin', this.$.emailSignin.value, this.$.passwordSignin.value).then(function (response) {
-                    this.fire('app-loading',false);
+                    this.async(function(){this.fire('app-loading',false);},300);
                     this.$.signInLoadingButton.loading = false;
                     if (!response.success) return this.manageErrorResponse(response);
                     this.$.emailSignin.value = null;
                     this.$.passwordSignin.value = null;
                     // Analytics
                     this.reachGoal('auth','login',email);
-                    this.fire('app-loading',false);
                 }.bind(this)).catch(function (err) {
-
                     this.$.signInLoadingButton.loading = false;
                     this.manageErrorResponse(err);
                     this.fire('app-loading',false);

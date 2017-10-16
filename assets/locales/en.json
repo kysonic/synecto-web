@@ -1568,6 +1568,9 @@
   "canRemoveTask": {
     "message": "Only project owner or task owner can do it... See documentation for more details"
   },
+  "Only project or task can change due date": {
+    "message": "Only project or task can change due date"
+  },
   "isAssignee": {
     "message": "Only assignee can do it... See documentation for more details"
   },
@@ -2332,5 +2335,44 @@
   },
   "birthDate": {
     "message": "Birth Date"
+  },
+  "Unfortunately Synecto is not available now. We are sorry for inconvenience.": {
+    "message": "Unfortunately Synecto is not available now. We are sorry for inconvenience."
+  },
+  "There is no labels yet. Ask project owner to add it.": {
+    "message": "There is no labels yet. Ask project owner to add it."
+  },
+  "back to work": {
+    "message": "back to work"
+  },
+  "Track time": {
+    "message": "Track time"
+  },
+  "expired_tomorrow": {
+    "message": "Expired tomorrow"
+  },
+  "expired_week": {
+    "message": "Expired on this week"
+  },
+  "expired_month": {
+    "message": "Expired on this month"
+  },
+  "expires": {
+    "message": "due date"
+  },
+  "expiredSoonMessage": {
+    "message": "You have tasks that will be expired tomorrow. Do you want to see those tasks?"
+  },
+  "You already work on #NAME# task. You cannot work on two task on same time.": {
+    "message": "You already work on \"#NAME#\" task. You cannot work on two task on same time."
+  },
+  "Go to task": {
+    "message": "Go to task"
+  },
+  "You have in progress task in this project": {
+    "message": "Task \"#NAME#\" is tracked right now. Do you really want to go in another project and leave tracking of the task?"
+  },
+  "You have in progress task": {
+    "message": "Task \"#NAME#\" is tracked right now. Stop it's tracking to leave Synecto without messages."
   }
 }

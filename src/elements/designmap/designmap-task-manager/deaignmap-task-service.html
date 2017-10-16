@@ -174,6 +174,10 @@
         _isOwner: function () {
             return this.user && this.project && (this.user._id == this.project.owner);
         },
+        _isTaskOwner: function (task) {
+            if(!task) return false;
+            return this.user && task.owner==this.user._id;
+        },
         _isMyComment: function (user, comment) {
             return user._id == comment.owner._id;
         },

@@ -2,9 +2,27 @@
 
 <script>
     Polymer.DesignmapTaskTrackTimeService = {
+
+        ready: function(){
+            window.onbeforeunload = function() {
+                if(Designmap.trackedTask) {
+                    this.showErrorMessage('You have in progress task',
+                        {'#NAME#':Designmap.trackedTask.name},
+                        7000,
+                        {title:this.translate('Go to task'),href:'/'+Designmap.trackedTask.scope+'/task-manager'+this.getFullPath(Designmap.trackedTask)})
+                    return 'You have unsaved changes!';
+                }
+            }.bind(this)
+        },
+
         trackTime: function (e) {
+            console.log(Designmap.trackedTask,this.task);
+            if(Designmap.trackedTask && Designmap.trackedTask._id!=this.task._id) return this.showErrorMessage('You already work on #NAME# task. You cannot work on two task on same time.',
+                {'#NAME#':Designmap.trackedTask.name},7000,{title:this.translate('Go to task'),href:'/'+Designmap.trackedTask.scope+'/task-manager'+this.getFullPath(Designmap.trackedTask)})
             this.task.time = this.task.time || {};
             this.task.time.run ? this.stopTrack() : this.startTrack();
+            Designmap.trackedTask = this.task.time.run ? this.task : null;
+            localStorage.setItem('synecto:trackedTask',JSON.stringify(Designmap.trackedTask));
         },
 
         startImmediateTrack: function () {

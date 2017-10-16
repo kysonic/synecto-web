@@ -422,20 +422,9 @@
                 e.preventDefault();
                 const body = {
                     userId: this.user._id,
-                    plan: this.plan,
-                    billingAddr: {
-                        "name": this.$.name.value,
-                        "addrLine1": this.user.profile.address,
-                        "city":  this.user.profile.city,
-                        "state":  this.user.profile.state,
-                        "zipCode":  this.user.profile.zipCode,
-                        "country":  this.user.profile.country,
-                        "email":  this.user.local.email,
-                        "phoneNumber":  this.user.profile.phoneNumber
-                    }
+                    plan: this.plan
                 };
                 xhr.post(Designmap.config.apiURL + 'pay',body).then(function(response){
-                    console.log(response);
                     this.$.loadingButton.loading = false;
                     if(!response.success) return this.manageErrorResponse(response);
                     this.showMessage('Your order has been sent. We will answer you during 1 work day.');

@@ -18,7 +18,7 @@
                 color: var(--gray-darkend-color);
                 font-size: 14px;
                 box-shadow: var(--box-shadow);
-                border: 1px solid var(--gray-color);
+                border: 1px solid var(--gry-color);
                 @apply(--designmap-users-select-dropdown-mixin);
             }
             .wrapper {
@@ -47,18 +47,18 @@
                 @apply(--designmap-users-select-option-mixin);
             }
             .item:hover {
-                background: var(--gray-lightern-color);
+                background: var(--gry-lightern-color);
                 color: var(--gray-darkend-color);
                 @apply(--designmap-users-select-option-hover-mixin);
             }
             item.selected {
-                background: var(--gray-lightern-color);
+                background: var(--gry-lightern-color);
                 color: var(--gray-darkend-color);
                 @apply(--designmap-users-select-option-selected-mixin);
             }
 
             .keyed {
-                background: var(--gray-lightern-color);
+                background: var(--gry-lightern-color);
                 color: var(--gray-darkend-color);
                 @apply(--designmap-users-select-option-keyed-mixin);
             }
@@ -106,14 +106,18 @@
                 display: flex;
             }
             .item .avatar {
-                margin-left: 5px;
+                margin-left: 0px;
             }
             .item .data {
-                margin-left: 20px;
+                margin-left: 5px;
             }
             .item .name-email .name{
                 text-align: left;
                 max-height: 20px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: calc(100% - 32px);
             }
             .item .name-email .email{
                 font-size: 12px;

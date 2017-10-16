@@ -42,6 +42,7 @@
         },
 
         _postComment: function (e) {
+            if(this.commentEditMode) return this._saveComment();
             if (!this.textAreaValue.trim()) return;
             let sticker = e.model.sticker;
 
@@ -114,27 +115,23 @@
         },
 
         _editComment: function () {
-            let comment = this.lastCommentData.comment;
-            comment.edit = true;
-            this.dispatch('_updateComment', comment._id, comment);
-            this.$.dropdown.close();
-            const lastCommentNode = this.parents(this.lastCommentData.target, 'comment');
-            const textNodeBound = lastCommentNode.querySelector('.text').getBoundingClientRect();
-            if(textNodeBound.height>100) textNodeBound.height=100;
-            this.async(function () {
-                const textAreaNode = lastCommentNode.querySelector('textarea');
-                const buttonNode = lastCommentNode.querySelector('.edit-comment');
-                textAreaNode.style.height = textNodeBound.height + 'px';
-                buttonNode.style.top = textNodeBound.height + 20 + 'px';
-                textAreaNode.focus();
-            }, 0);
+            const sticker = this.lastCommentData.sticker;
+            const comment = this.lastCommentData.comment;
+            this.commentEditMode = true;
+            this.textAreaValue = comment.text;
+            const stickerNode = this.$$('#sticker-' + sticker._id);
+            if(!stickerNode) return;
+            const invkTextarea = stickerNode.querySelector('designmap-invk-textarea');
+            if(!invkTextarea) return;
+            invkTextarea.focus();
+            this.$$("#dropdown").close();
         },
 
         _saveComment: function () {
             let comment = this.lastCommentData.comment;
-            comment.edit = false;
-            const textAreaNode = this.parents(this.lastCommentData.target, 'comment').querySelector('textarea');
-            comment.text = textAreaNode.value;
+            this.commentEditMode = false;
+            comment.text = this.textAreaValue;
+            this.textAreaValue = '';
             this.dispatch('updateComment', comment._id, comment);
         },
 

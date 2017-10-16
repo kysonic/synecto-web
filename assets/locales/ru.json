@@ -1568,6 +1568,9 @@
   "canRemoveTask": {
     "message": "Только владелец проекта или владелец задачи могут сделать это... Откройте документацию, чтобы узнать больше"
   },
+  "Only project or task can change due date": {
+    "message": "Только владелец проекта или задачи может изменить срок"
+  },
   "isAssignee": {
     "message": "Только ответственный может сделать это... Откройте документацию, чтобы узнать больше"
   },
@@ -2341,5 +2344,44 @@
   },
   "birthDate": {
     "message": "Дата рождения"
+  },
+  "Unfortunately Synecto is not available now. We are sorry for inconvenience.": {
+    "message": "К сожалению Synecto не доступен на данный момент. Мы приносим свои извинения за доставленные неудобства."
+  },
+  "There is no labels yet. Ask project owner to add it.": {
+    "message": "В проекте еще нет меток. Попросите владельца проекта добавить их."
+  },
+  "back to work": {
+    "message": "в работу"
+  },
+  "Track time": {
+    "message": "Отслеживать время"
+  },
+  "expired_tomorrow": {
+    "message": "Истекает завтра"
+  },
+  "expired_week": {
+    "message": "Истекает на неделе"
+  },
+  "expired_month": {
+    "message": "Истекает в этом месяце"
+  },
+  "expires": {
+    "message": "срок"
+  },
+  "expiredSoonMessage": {
+    "message": "У Вас есть задачи, срок которых истечет завтра. Вы хотите просмотреть их?"
+  },
+  "You already work on #NAME# task. You cannot work on two task on same time.": {
+    "message": "Вы уже работаете над задачей \"#NAME#\". Вы не можете работать над двумя задачами одновременно."
+  },
+  "Go to task": {
+    "message": "Перейти"
+  },
+  "You have in progress task in this project": {
+    "message": "Задача \"#NAME#\" отслеживается на данный момент. Вы действительно хотите перейти в другой проект и оставить отслеживание времени этой задачи?"
+  },
+  "You have in progress task": {
+    "message": "Задача \"#NAME#\" отслеживается на данный момент. Остановите ее отслеживание, чтобы закрыть Synecto без сообщений."
   }
 }

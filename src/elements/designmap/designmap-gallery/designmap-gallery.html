@@ -34,7 +34,7 @@
                 flex-direction: column;
 
                 --designmap-gallery-panel-height: var(--header-height);
-                --designmap-gallery-color: var(--gray-lightern-color);
+                --designmap-gallery-color: var(--gry-lightern-color);
                 --designmap-gallery-line-color: var(--white-color);
 
                 /**repeating-linear-gradient(-45deg, var(--designmap-gallery-color), var(--designmap-gallery-line-color) 5px, rgba(256, 256, 256, 0.3) 5px, rgba(256, 256, 256, 0.3) 6px);**/
@@ -74,7 +74,7 @@
             }
 
             .top-panel {
-                background: var(--gray-lightern-color);
+                background: var(--gry-lightern-color);
             }
 
             .top-panel .left, .top-panel .right, .bottom-panel .left, .bottom-panel .right {
@@ -289,7 +289,7 @@
             .bottom-panel {
                 width: 100%;
                 flex-basis: var(--designmap-gallery-panel-height);
-                background: var(--gray-lightern-color);
+                background: var(--gry-lightern-color);
                 color: var(--gray-darkend-color);
             }
 
@@ -704,7 +704,7 @@
             <div class="previous" on-click="previous" hidden$="[[_computeButtons(files)]]">
                 <iron-icon icon="icons:chevron-left"></iron-icon>
             </div>
-            <template is="dom-if" if="[[!loading]]">
+            <template is="dom-if" if="[[_isThereFile(file,loading)]]">
                     <div id="item"
                          draggable="false"
                          class$="item {{zoomClasses(zoom)}}"
@@ -755,7 +755,7 @@
                         <template is="dom-if" if="[[canBeDisplayed(file)]]" restamp="true">
                             <template is="dom-if" if="[[isOfficeFile(file)]]" restamp="true" >
                                 <iframe id="itm" class$="office-view [[getExtensionWithoutDot(file.data.name)]]" src='[[_getOfficeFilePreview(file)]]' frameborder="0"></iframe>
-                                <div class="track-plate" id="trackPlate"></div>
+                                <!--<div class="track-plate" id="trackPlate"></div>-->
                             </template>
                             <template is="dom-if" if="[[isImageFile(file)]]" restamp="true">
                                 <iron-image
@@ -826,6 +826,11 @@
                                 image="designmap-workspace-stub:error"
                                 message="[[error]]"></designmap-stub>
             </template>
+            <template is="dom-if" if="[[!file]]">
+                <designmap-stub error
+                                image="designmap-workspace-stub:error"
+                                message="Cannot find file"></designmap-stub>
+            </template>
             <div class="next" on-click="next" hidden$="[[_computeButtons(files)]]">
                 <iron-icon icon="icons:chevron-right"></iron-icon>
             </div>
@@ -859,7 +864,7 @@
                 <!--<button class="resize-button" is="designmap-gallery-button" on-click="clearZoom">
                     <iron-icon class="resize-icon" icon="designmap:resize"></iron-icon>
                 </button>-->
-                <div class="owner">
+                <div class="owner" hidden$="[[!file]]">
                     <i18-n msgid="owner">owner</i18-n>:
                     [[_computeOwnerName(file,projectUsers,project)]]
                 </div>
@@ -1056,14 +1061,14 @@
               this.async(function(){
                   this.refitStickers();
                   this._showCounter();
-                  const trackPlate = this.$$('#trackPlate');
-
+                  /*const trackPlate = this.$$('#trackPlate');
+                  if(!trackPlate) return;
                   trackPlate.addEventListener('touchstart',function(e){
                       trackPlate.style.pointerEvents = 'none';
                   },false);
                   trackPlate.addEventListener('touchend',function(e){
                       trackPlate.style.pointerEvents = 'initial';
-                  },false);
+                  },false);*/
 
               },1000);
             },
@@ -1658,6 +1663,9 @@
             _computeOwnerName: function(file){
                 if(!file) return 'xxx';
                 return this.computeOwnerName(this.getProjectsUserById(file.owner));
+            },
+            _isThereFile: function(file,loading) {
+                return file && !loading;
             }
 
         });

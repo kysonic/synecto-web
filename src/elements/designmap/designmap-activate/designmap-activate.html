@@ -9,6 +9,7 @@
 <link rel="import" href="../designmap-ui/designmap-dashboard.html">
 <link rel="import" href="../designmap-buttons/designmap-button.html">
 <link rel="import" href="../../../styles/tooltip-shared-styles.html">
+<link rel="import" href="../../plastic/plastic-custom-scroll.html">
 
 <link rel="import" href="./designmap-pay.html">
 
@@ -20,6 +21,9 @@
         <style  include="tooltip-shared-styles">
             :host {
                 width: 100%;
+                --plastic-custom-scroll-content-mixin: {
+                    max-height: calc(100vh - 180px);
+                };
             }
             *[hidden] {
                 display: none !important;
@@ -63,7 +67,7 @@
             }
             .plan .header {
                 height: 90px;
-                background: var(--gray-lightern-color);
+                background: var(--gry-lightern-color);
                 padding: 10px 35px;
                 font-weight: 500;
             }
@@ -197,6 +201,7 @@
                     min-width: 300px;
                     max-width: 300px;
                     margin-top: 10px;
+                    border: 1px solid var(--gray-color);
                 }
                 .plans .plan:first-child {
                     margin-top: 0;
@@ -233,51 +238,54 @@
                     <i18-n msgid="Speed up">Speed up</i18-n>
                 </button>-->
                 <!-- Plans -->
-                <div class="plans" hidden$="[[cardMode]]">
-                    <template is="dom-repeat" items="[[plans]]" as="plan">
-                        <div class="plan">
-                            <div id$="current[[index]]" class="current" hidden$="[[_isCurrent(user.plan,plan)]]">
-                                <div class="checkmark_stem"></div>
-                                <div class="checkmark_kick"></div>
-                            </div>
-                            <paper-tooltip position="left" for$="current[[index]]">
-                                <span>[[_getPlanExpMsg(user.plan,language,i18Loaded)]]</span>
-                            </paper-tooltip>
-                            <div class="header">
-                                <div class="name">&laquo;[[plan.name]]&raquo;</div>
-                                <div class="prc">
-                                    <div class="price">[[plan.price]]</div><span class="dollar">$/mo.</span>
+                <plastic-custom-scroll fit small-bar>
+                    <div class="plans" hidden$="[[cardMode]]">
+                        <template is="dom-repeat" items="[[plans]]" as="plan">
+                            <div class="plan">
+                                <div id$="current[[index]]" class="current" hidden$="[[_isCurrent(user.plan,plan)]]">
+                                    <div class="checkmark_stem"></div>
+                                    <div class="checkmark_kick"></div>
                                 </div>
-                            </div>
-                            <div class="content">
-                                <div class="features">
-                                    <div id$="teamMember[[index]]" class="feature">
-                                        <i18-n msgid="up to" class$="[[_isDashed(plan)]]">up to</i18-n>
-                                        <span class$="[[_isDashed(plan)]]">[[plan.teamMembers]]</span>
-                                        <i18-n msgid="team members" class$="[[_isDashed(plan)]]">team members</i18-n>
+                                <paper-tooltip position="left" for$="current[[index]]">
+                                    <span>[[_getPlanExpMsg(user.plan,language,i18Loaded)]]</span>
+                                </paper-tooltip>
+                                <div class="header">
+                                    <div class="name">&laquo;[[plan.name]]&raquo;</div>
+                                    <div class="prc">
+                                        <div class="price">[[plan.price]]</div><span class="dollar">$/mo.</span>
                                     </div>
-                                    <paper-tooltip for$="teamMember[[index]]">
-                                        <span>[[_getTeamMemberTooltipMsg(plan,language,i18Loaded)]]</span>
-                                    </paper-tooltip>
-                                    <div class="feature">
-                                        <span>[[_countDataSpace(plan.storage)]]</span>
-                                        <i18-n msgid="storage">storage</i18-n>
-                                    </div>
-                                    <template is="dom-repeat" items="[[plan.features]]" as="feature">
-                                        <div class="feature">
-                                            <i18-n msgid="[[feature]]">[[feature]]</i18-n>
+                                </div>
+                                <div class="content">
+                                    <div class="features">
+                                        <div id$="teamMember[[index]]" class="feature">
+                                            <i18-n msgid="up to" class$="[[_isDashed(plan)]]">up to</i18-n>
+                                            <span class$="[[_isDashed(plan)]]">[[plan.teamMembers]]</span>
+                                            <i18-n msgid="team members" class$="[[_isDashed(plan)]]">team members</i18-n>
                                         </div>
-                                    </template>
-                                </div>
-                                <div class="button-set">
-                                    <button class$="[[_getCodeName(user.plan,plan)]]" on-click="selectPlan" disabled="[[_disableButton(user.plan,plan.name)]]" is="designmap-button" blue fit class="button">
-                                        [[_buttonTitle(user.plan,plan,language,i18Loaded)]]
-                                    </button>
+                                        <paper-tooltip for$="teamMember[[index]]">
+                                            <span>[[_getTeamMemberTooltipMsg(plan,language,i18Loaded)]]</span>
+                                        </paper-tooltip>
+                                        <div class="feature">
+                                            <span>[[_countDataSpace(plan.storage)]]</span>
+                                            <i18-n msgid="storage">storage</i18-n>
+                                        </div>
+                                        <template is="dom-repeat" items="[[plan.features]]" as="feature">
+                                            <div class="feature">
+                                                <i18-n msgid="[[feature]]">[[feature]]</i18-n>
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <div class="button-set">
+                                        <button class$="[[_getCodeName(user.plan,plan)]]" on-click="selectPlan" disabled="[[_disableButton(user.plan,plan.name)]]" is="designmap-button" blue fit class="button">
+                                            [[_buttonTitle(user.plan,plan,language,i18Loaded)]]
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </template>
-                </div>
+                        </template>
+                    </div>
+                </plastic-custom-scroll>
+
                 <!-- Card -->
                 <div class="card" hidden$="[[!cardMode]]">
                     <designmap-pay plan="[[chosenPlan]]"></designmap-pay>

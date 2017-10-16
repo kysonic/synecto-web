@@ -330,6 +330,27 @@
                 };
             }
 
+            .mid {
+                margin-top: 10px;
+            }
+
+            .attaches {
+                padding-top: 20px;
+                border-top: 1px solid var(--gray-color);
+            }
+
+            .attaches .attach-icon {
+                margin-left: 20px;
+                vertical-align: top;
+            }
+
+            .attaches designmap-task-file-list {
+                display: inline-block;
+                cursor: pointer;
+                width: 100%;
+                max-width: calc(100% - 55px);
+            }
+
 
             @media (min-width: 320px) and (max-width: 768px) {
                 .grid {
@@ -498,6 +519,12 @@
                     </div>
                 </div>
                 <div class="mid">
+                    <!-- Attaches -->
+                    <div class="attaches">
+                        <iron-icon class="attach-icon" icon="designmap-task-menu:attach"></iron-icon>
+                        <designmap-task-file-list user="[[user]]" project="[[project]]" project-id="[[project._id]]" task="[[task]]"></designmap-task-file-list>
+                    </div>
+                    <!-- Task list -->
                     <designmap-task-list id="list"
                                          placeholder="Add subtask"
                                          parent="[[task._id]]"
@@ -697,7 +724,10 @@
                 const data = {status: status};
                 if(status=='completed') data.completed = new Date();
                 this.dispatch('updateTask', this.task._id, data);
-                this.async(this.updateStyles);
+                this.async(function(){
+                    this.updateStyles();
+                    this.$.list.updateStyles();
+                });
                 // Notify
                 this.sendTaskStatusNotification(this.task);
             },
