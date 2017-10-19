@@ -3,6 +3,14 @@
     function _setPreviousPagePath(page) {
         if(this.page!=page)  Designmap.previousPagePath = Designmap.previousPath;
     }
+    function _showDrift(){
+        const driftWidget = document.getElementById('drift-widget-container');
+        if(driftWidget) driftWidget.style.display = 'block';
+    };
+    function _hideDrift(){
+        const driftWidget = document.getElementById('drift-widget-container');
+        if(driftWidget) driftWidget.style.display = 'none';
+    };
     /**
      * Route like a boss
      */
@@ -17,7 +25,7 @@
                 Designmap.currentHash = ctx.hash;
                 Designmap.previousPath = Designmap.currentPath;
                 Designmap.currentPath = ctx.path;
-
+                _hideDrift();
                 // Common for all routes
                 next();
             }.bind(this));
@@ -43,6 +51,7 @@
 
             page('/support', this._isAuth.bind(this), function(ctx,next){
                 if(this.page!='support') Designmap.previousPagePath = Designmap.previousPath;
+                _showDrift();
                 this.page = 'support';
             }.bind(this));
 
@@ -53,11 +62,13 @@
 
             page('/support/docs', this._isAuth.bind(this), function(ctx,next){
                 if(this.page!='docs') Designmap.previousPagePath = Designmap.previousPath;
+                _showDrift();
                 this.page = 'docs';
             }.bind(this));
 
             page('/support/form', this._isAuth.bind(this), function(ctx,next){
                 _setPreviousPagePath('support-form');
+                _showDrift();
                 this.page = 'support-form';
             }.bind(this));
 

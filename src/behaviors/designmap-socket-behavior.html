@@ -12,6 +12,7 @@
                 Designmap[type+'Socket'] = io.connect(Designmap.config.apiURL, {query: 'room=' + roomId});
                 this.setupSocketSubscribers(type);
             } else if(roomId) {
+                Designmap[type+'Socket'].connect();
                 if(Designmap[type+'RoomId']==roomId) return;
                 Designmap[type+'RoomId'] = roomId;
                 // Change room

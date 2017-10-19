@@ -719,13 +719,6 @@
             ],
             properties: {
                 /**
-                 * Should filter be displayed?
-                 */
-                filter: {
-                    type: Boolean,
-                    value: false
-                },
-                /**
                  * If user cannot add task\subtask
                  * into list
                  */
@@ -747,6 +740,11 @@
                 parent: {
                     type: String,
                     observer: 'parentChanged',
+                    value: null
+                },
+
+                assignee: {
+                    type: String,
                     value: null
                 },
                 /**
@@ -782,7 +780,7 @@
                  * Currently selected task
                  */
                 selected: {
-                    type: String,
+                    type: Object,
                     notify: true,
                     value: {},
                     observer: '_selectedChanged'
@@ -876,6 +874,10 @@
                 dragLine: {
                     type: Boolean,
                     value: false
+                },
+                manager: {
+                    type: Object,
+                    value: {}
                 }
             },
             observers: [
@@ -915,11 +917,9 @@
              * @returns {boolean}
              */
             validate: function () {
-                var found = null;
-                if (/[\#\?\\\%\/\:]/.test(this.taskName)) return false;
-                this.tasks.forEach(function (task) {
-                    if (task.name == this.taskName) found = task;
-                }.bind(this));
+                let found = null;
+                if (/[\#\?\\\%\/\+\:]/.test(this.taskName)) return this.showErrorMessage('You cannot use special symbols in task name');
+                if(this.findNotUniq(this.taskName)) return this.showErrorMessage('Name should be unique. Check archive too.');
                 return !found;
             },
             openFilterSelector: function () {
@@ -1126,8 +1126,10 @@
                 // Validate
                 this.$$('#addTask').validate();
                 if (!this.taskName) return;
-                if (!this.validate()) return this.showErrorMessage('Task title is wrong!');
+                if (!this.validate()) return ;
                 // Check roles
+                const parent = this.findTaskById(this.parent);
+
                 var task = {
                     _id: this.generateUid(),
                     created: new Date(),
@@ -1138,7 +1140,8 @@
                     status: 'incomplete',
                     removed: false,
                     removedBy:{user:null},
-                    expired: null
+                    expired: null,
+                    assignee: parent ? parent.assignee : null
                 };
                 // Notify
                 this.sendNewTaskNotification(task);

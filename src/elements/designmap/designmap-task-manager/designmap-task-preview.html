@@ -165,6 +165,7 @@
             },
 
             _computeTaskDesc: function(desc){
+                if(!desc) return;
                 const words = desc.split(' ');
                 return words.slice(0, 10);
             }

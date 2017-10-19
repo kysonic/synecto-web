@@ -156,10 +156,10 @@
     "message": "Team members of"
   },
   "ShareLinkDesc": {
-    "message": "Any person who will receive this link will be able to see your project and manage stickers for it."
+    "message": "Any person who will receive this link will be able to see your project and manage precise comments for it."
   },
   "ShareReadDesc": {
-    "message": "Allows a user to see project and to manage stickers."
+    "message": "Allows a user to see project and to manage precise comments."
   },
   "ShareEditDesc": {
     "message": "Allows a user to manage this project completely."
@@ -522,16 +522,16 @@
     "message": "Stickers"
   },
   "Total stickers count": {
-    "message": "Total stickers count per image"
+    "message": "Total precise comments count per image"
   },
   "Particular user": {
-    "message": "Particular user's stickers count per image"
+    "message": "Particular user's precise comments count per image"
   },
   "Sticker user's restriction": {
-    "message": "Project owner has prohibited max stickers count for particular user. You cannot add more than #COUNT# stickers."
+    "message": "Project owner has prohibited max precise comments count for particular user. You cannot add more than #COUNT# precise comments."
   },
   "Sticker max count restriction": {
-    "message": "Project owner has prohibited max stickers count per image. Users cannot add more than #COUNT# stickers."
+    "message": "Project owner has prohibited max precise comments count per image. Users cannot add more than #COUNT# precise comments."
   },
   "Disable": {
     "message": "Disable"
@@ -543,7 +543,7 @@
     "message": "Notifications will be removed after"
   },
   "Stickers per image": {
-    "message": "Stickers per image"
+    "message": "Precise comments per image"
   },
   "Email settings": {
     "message": "Email settings"
@@ -1068,7 +1068,7 @@
     "message": "Contact a human"
   },
   "Contact us desc": {
-    "message": "If you cannot solve your problem using our docs and tips just write our 24/7 support a couple of lines."
+    "message": "Use on-line chat in bottom right corner or click here to open form."
   },
   "Video tutorials": {
     "message": "Video tutorials"
@@ -2374,5 +2374,14 @@
   },
   "You have in progress task": {
     "message": "Task \"#NAME#\" is tracked right now. Stop it's tracking to leave Synecto without messages."
+  },
+  "You cannot use special symbols in task name": {
+    "message": "You cannot use special symbols in task name: ?,#,\\,/,:,+,."
+  },
+  "Name should be unique. Check archive too.": {
+    "message": "Name should be unique on this level. Check archive too."
+  },
+  "Process personal data agreement": {
+    "message": "I accept processing of my personal data"
   }
 }

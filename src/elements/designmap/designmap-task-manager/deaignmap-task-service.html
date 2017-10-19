@@ -185,6 +185,14 @@
             if (!expired) return false;
             var diff = moment.duration(moment(expired).diff(moment()));
             return diff._milliseconds < 0 && status != 'completed';
+        },
+        findNotUniq: function(taskName){
+            let found = false;
+            const tasks = ReduxStore.getState().tasks;
+            tasks.forEach(function(task){
+                if(task.parent==this.parent && task.name == taskName) found = task;
+            },this)
+            return found;
         }
     }
 </script>

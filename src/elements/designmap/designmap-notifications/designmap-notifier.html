@@ -33,7 +33,7 @@
              * update notifications collection
              */
             _isAuthChanged: function () {
-                if (!this.user) return;
+                if (!this.user) return Designmap.notificationSocket?Designmap.notificationSocket.disconnect():null;
                 this.dispatch('getNotifications', {recipient: this.user._id});
                 this.setupSocket(this.user._id,'notification');
                 this.addSocketSubscriber('notification','notify',function(o){

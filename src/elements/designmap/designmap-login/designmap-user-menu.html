@@ -54,6 +54,9 @@
                     margin-top: -2px;
                     border-color: transparent transparent var(--gray-color) transparent !important;
                 };
+                --designmap-stub-block-mixin: {
+                    top: 0px;
+                }
             }
 
             *[hidden] {
@@ -350,6 +353,15 @@
                 <paper-tooltip for="app">
                     <i18-n msgid="Download app">Download app</i18-n>
                 </paper-tooltip>
+                <!-- Support -->
+                <div class="block app" id="qa" on-click="goToDocs">
+                    <div class="notify">
+                        <iron-icon icon="designmap24:qa"></iron-icon>
+                    </div>
+                </div>
+                <paper-tooltip for="qa">
+                    <i18-n msgid="Support">Support</i18-n>
+                </paper-tooltip>
                 <div class="block notification" id="notify" on-tap="openNotifyDropdown">
                     <div class="notify">
                         <iron-icon icon="designmap-user-menu:notify"></iron-icon>
@@ -518,7 +530,6 @@
                 document.querySelector('#globalLoading').style.display = 'flex';
                 if (this.$$('#logout').disabled) return;
                 page.redirect('/');
-                Designmap.notificationSocket.disconnect();
                 this.dispatch('userLogout').then(function () {
                     this.$$("#dropdown").close();
                     this.async(function(){

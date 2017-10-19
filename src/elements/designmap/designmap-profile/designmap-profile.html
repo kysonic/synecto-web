@@ -363,6 +363,12 @@
                     align-items: center;
                     justify-content: center;
                 }
+                .agreement paper-checkbox {
+                    display: inline-block;
+                }
+                .agreement label {
+                    color: var(--gray-darkend-color);
+                }
                 @media (min-width: 320px) and (max-width: 768px) {
                     :host {
                         --plastic-custom-scroll-content-mixin: {
@@ -473,7 +479,14 @@
                                                  label="[[translate('Phone',language,i18Loaded)]]"></paper-input>
                                 </div>
                             </div>
-                            <button class="save-button" data-form="profile-form" id="saveProfileButton"
+                            <div class="row agreement">
+                                <div class="col col-md-12 col-xs-12">
+                                    <paper-checkbox checked="{{user.config.agreedPersonal::change}}">
+                                        <label><i18-n msgid="Process personal data agreement"></i18-n></label>
+                                    </paper-checkbox>
+                                </div>
+                            </div>
+                            <button class="save-button" disabled$="[[!user.config.agreedPersonal]]" data-form="profile-form" id="saveProfileButton"
                                     is="designmap-loading-button" thin on-click="save">
                                 <i18-n msgid="Save Settings">Save Settings</i18-n>
                             </button>

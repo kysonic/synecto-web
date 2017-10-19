@@ -9,7 +9,7 @@
         objectIDRegexp: /^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/i,
         IMAGE_REGEXP: /images/,
         shareRegexp: /share/,
-        urlRegexp: /https?\:\/\/[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/ig,
+        urlRegexp: /^"https?\:\/\/[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/ig,
         elementIDRegexp: /\#[0-9a-z]{10,13}/ig,
         spacesRegexp: /\s/,
         EL_PREFIXES: {
@@ -297,7 +297,13 @@
             return text.replace(this.elementIDRegexp, function (match) {
                 const foundElement = this.findElementByCustomId(match, elements);
                 if (!foundElement) return match;
-                return '<a href="'+this.buildElementLink(foundElement)+'" title="'+foundElement.type+'" >' + this.getElementName(foundElement) + '</a>'
+                let target = '_self';
+                let link = this.buildElementLink(foundElement);
+                if(foundElement.type=='file' && foundElement.data.storage=='google') {
+                    target = '_blank';
+                    link = foundElement.data.url;
+                }
+                return '<a href="'+link+'" target="'+target+'" title="'+foundElement.type+'" >' + this.getElementName(foundElement) + '</a>'
             }.bind(this));
         },
 

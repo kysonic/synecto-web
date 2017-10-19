@@ -95,7 +95,9 @@
                     border-color: transparent transparent var(--gray-darkend-color) transparent;
                 };
                 --designmap-invk-textarea-mixin: {
-
+                    width: 100%;
+                    padding: 0 10px;
+                    max-width: calc(100% - 10px);
                 }
             }
 
@@ -240,8 +242,12 @@
                 text-align: left;
                 padding: 7px 10px;
                 color: var(--gray-super-dark);
-                border-bottom: 1px solid var(--gray-color);
+                border-top: 1px solid var(--gray-color);
                 cursor: default;
+            }
+
+            .comment:first-child {
+                border-bottom: none;
             }
 
             textarea {

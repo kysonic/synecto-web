@@ -453,6 +453,8 @@
             },
             cancelSearch: function () {
                 if(!this.$$('#elements')) return;
+                this.searchMode = false;
+                this.$.panel.$.searchFilter.empty();
                 this.$$('#elements').cancelSearch();
             },
             /**

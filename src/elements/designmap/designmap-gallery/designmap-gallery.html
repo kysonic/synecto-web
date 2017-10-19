@@ -1086,12 +1086,8 @@
              * Whe file id changed
              */
             _fileIdChanged: function (fileId) {
-                this.fire('app-loading',true);
                 const file = this.findFileById(fileId);
-                if (file) {
-                    this.fire('app-loading',false);
-                    return this.file = file;
-                }
+                if (file) this.file = file;
             },
             _filesChanged: function(){
                   this._fileIdChanged(this.fileId);

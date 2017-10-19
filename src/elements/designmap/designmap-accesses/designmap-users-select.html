@@ -109,11 +109,13 @@
                 margin-left: 0px;
             }
             .item .data {
+                width: 100%;
                 margin-left: 5px;
             }
             .item .name-email .name{
                 text-align: left;
                 max-height: 20px;
+                line-height: 24px;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -123,6 +125,7 @@
                 font-size: 12px;
                 text-align: left;
                 max-height: 20px;
+                line-height: 24px;
             }
             .item .only-email {
                 display: flex;
@@ -304,9 +307,10 @@
             openDropdown: function(){
                 this.$.dropdown.open();
                 // Fit to wrapper
+                const height = 52 * this.filtred(this.search).length;
                 this.async(function(){
-                    var bound = this.getBoundingClientRect();
-                    if(bound.height+(bound.top+100)>window.innerHeight) this.verticalOffset = -bound.height;
+                    const bound = this.getBoundingClientRect();
+                    if(height+(bound.top+100)>window.innerHeight) this.verticalOffset = -height;
                     this.$.dropdown.style.width = this.getBoundingClientRect().width+'px';
                     this.$.dropdown.refit();
                     //this.selectedOption = 0;

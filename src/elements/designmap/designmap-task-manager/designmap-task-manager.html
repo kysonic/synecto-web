@@ -372,8 +372,9 @@
             </designmap-dashboard>
             <div id="content" class$="content [[mode]]">
                 <designmap-task-list class$="[[_isThereSelectedTaskClass(selectedTask)]]"
-                                     hidden$="[[!computeListState(tasks.length)]]" id="list"
-                                     selected="{{selectedTask}}" can-be-null parent="[[selectedTask.parent]]"
+                                     manager="[[this]]"
+                                     hidden$="[[computeNoTasksState(tasks.length)]]" id="list"
+                                     selected="{{selectedTask}}" can-be-null parent="[[selectedTask.parent]]" assignee="[[selectedTask.assignee]]"
                                      cannot-add="[[searchMode]]" search-mode="[[searchMode]]"
                                      selecting></designmap-task-list>
                 <designmap-task-details class$="[[_isThereSelectedTaskClass(selectedTask)]]"
@@ -547,12 +548,12 @@
 
                 this.async(function () {
                     const m = moment().format('YYYY-MM-DD');
-                    const d = localStorage.getItem('synecto:expired:message');
+                    const d = localStorage.getItem('synecto:expired:message:'+this.projectId);
                     if (this.findExpiresSoonTasks().length && m != d) {
-                        localStorage.setItem('synecto:expired:message', m)
+                        localStorage.setItem('synecto:expired:message:'+this.projectId, m)
                         this.$.expiredSoonDialog.open();
                     }
-                }, 5000)
+                }, 5000);
 
                 const trackedTask = JSON.parse(localStorage.getItem('synecto:trackedTask'));
                 if(trackedTask) Designmap.trackedTask = trackedTask;
@@ -562,7 +563,7 @@
              */
             addTask: function () {
                 if (!this.taskName) return;
-                if (!this.validate()) return this.showErrorMessage('Task title is wrong!');
+                if (!this.validate()) return;
                 const task = {
                     _id: this.generateUid(),
                     name: this.taskName,
@@ -582,7 +583,9 @@
                 this.taskName = '';
             },
             validate: function () {
-                return !/[\#\?\\\%\/\:]/.test(this.taskName);
+                if (/[\#\?\\\%\/\+\:]/.test(this.taskName)) return this.showErrorMessage('You cannot use special symbols in task name');
+                if(this.findNotUniq(this.taskName)) return this.showErrorMessage('Name should be unique. Check archive too.');
+                return true;
             },
             changeMode: function () {
                 this.mode = this.mode == 'list' ? 'details' : 'list';
@@ -603,7 +606,8 @@
                 return t.length && !selectedTask;
             },
             computeNoTasksState: function (tasks, loading, error) {
-                const t = tasks.filter(function (task) {
+                const ts = ReduxStore.getState().tasks;
+                const t = ts.filter(function (task) {
                     return !task.removed
                 });
                 return !t.length;
@@ -724,7 +728,7 @@
                     //this.push('breadcrumbs', {id: this.selectedTask._id, title: this.selectedTask.name});
                 }
             },
-            _selectedTaskChanged: function () {
+            _selectedTaskChanged: function (st) {
                 this.set('breadcrumbs', []);
                 this.calculateBreadCrumbs();
             },

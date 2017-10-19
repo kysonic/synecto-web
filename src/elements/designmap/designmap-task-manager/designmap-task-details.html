@@ -454,6 +454,7 @@
                 <div class="center" id="center">
                     <input id="title" is="iron-input"
                            on-focus="titleEdit"
+                           on-blur="titleEditOff"
                            class$="task-title-input [[_isEditCls(titleEditMode)]]"
                            placeholder="[[translate('Enter title',language,i18Loaded)]]"
                            hidden$="[[!canRemoveTask(task)]]"
@@ -487,6 +488,7 @@
                                               value="[[task.description]]"
                                               rows="1"
                                               on-focus="descEditModeOn"
+                                              on-blur="descEditModeOff"
                                               on-input="saveTempDesc"
                                               hidden$="[[!descEditMode]]"
                                               placeholder="[[translate('Enter description',language,i18Loaded)]]"></plastic-textarea>
@@ -698,6 +700,10 @@
                 this.titleEditMode = true;
             },
 
+            titleEditOff: function(){
+                this.titleEditMode = false;
+            },
+
             _isEditCls: function(titleEditMode){
                 return titleEditMode?'edit':'';
             },
@@ -772,6 +778,10 @@
 
             descEditModeOn: function(){
                 this.descEditMode = true;
+            },
+
+            descEditModeOff: function(){
+                this.descEditMode = false;
             },
 
             _descEditModeCls: function(descEditMode){
