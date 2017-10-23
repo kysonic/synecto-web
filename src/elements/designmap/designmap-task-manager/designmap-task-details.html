@@ -454,14 +454,14 @@
                 <div class="center" id="center">
                     <input id="title" is="iron-input"
                            on-focus="titleEdit"
-                           on-blur="titleEditOff"
+                           on-blur="saveTitle"
                            class$="task-title-input [[_isEditCls(titleEditMode)]]"
                            placeholder="[[translate('Enter title',language,i18Loaded)]]"
                            hidden$="[[!canRemoveTask(task)]]"
                            value="[[task.name]]"/>
                     <div hidden$="[[canRemoveTask(task)]]" title="[[task.name]]" class="task-title">[[task.name]]</div>
-                    <paper-icon-button class="title-edit-arrow" hidden$="[[!titleEditMode]]" icon="arrow-forward" on-click="saveTitle"></paper-icon-button>
-                    <iron-a11y-keys keys="enter" on-keys-pressed="saveTitle"></iron-a11y-keys>
+                    <paper-icon-button class="title-edit-arrow" hidden$="[[!titleEditMode]]" icon="arrow-forward"></paper-icon-button>
+                    <iron-a11y-keys keys="enter" on-keys-pressed="titleFocusOut"></iron-a11y-keys>
                 </div>
                 <div class="right">
                     <designmap-circle-button class="hidden-xs"
@@ -482,20 +482,20 @@
                         <!-- Description -->
                         <div class="description">
                             <iron-a11y-keys id="a11ySaveDesc" keys="ctrl+enter meta+enter"
-                                            on-keys-pressed="saveDesc"></iron-a11y-keys>
+                                            on-keys-pressed="descFocusOut"></iron-a11y-keys>
                             <plastic-textarea id="desc"
                                               class$="desc-textarea [[_descEditModeCls(descEditMode)]]"
                                               value="[[task.description]]"
                                               rows="1"
                                               on-focus="descEditModeOn"
-                                              on-blur="descEditModeOff"
+                                              on-blur="saveDesc"
                                               on-input="saveTempDesc"
                                               hidden$="[[!descEditMode]]"
                                               placeholder="[[translate('Enter description',language,i18Loaded)]]"></plastic-textarea>
                             <div hidden$="[[descEditMode]]" on-tap="_tryToEdit" id="plasticDesc" class="task-desc">
                                 <plastic-html  msg="[[_generateDesc(task.description)]]"></plastic-html>
                             </div>
-                            <div hidden$="[[!descEditMode]]" class="desc-arrow" on-tap="saveDesc">
+                            <div hidden$="[[!descEditMode]]" class="desc-arrow">
                                 <iron-icon icon="icons:arrow-forward"></iron-icon>
                             </div>
                         </div>
@@ -667,6 +667,10 @@
                     this.rollbackTitle();
                     return this.showErrorMessage('Task title should be not empty');
                 }
+                if (/[\#\?\\\%\/\+\:]/.test(this.$.title.value)) {
+                    this.rollbackTitle();
+                    return this.showErrorMessage('You cannot use special symbols in task name');
+                }
                 if (!this.validate(this.$.title.value)) {
                     this.rollbackTitle();
                     return this.showErrorMessage('Task title should be unique');
@@ -776,11 +780,12 @@
                 this.dispatch('updateTask', this.task._id, this.task);
             },
 
-            descEditModeOn: function(){
+            descEditModeOn: function(e){
                 this.descEditMode = true;
             },
 
-            descEditModeOff: function(){
+            descEditModeOff: function(e){
+                console.log(e,1);
                 this.descEditMode = false;
             },
 
@@ -886,6 +891,14 @@
                 this.async(function(){
                     this.$.scroller.calculate();
                 },100);
+            },
+
+            titleFocusOut: function(){
+                this.$.title.blur();
+            },
+
+            descFocusOut: function(){
+                this.$.desc.blur();
             }
         })
     </script>

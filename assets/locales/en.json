@@ -2349,13 +2349,13 @@
     "message": "Track time"
   },
   "expired_tomorrow": {
-    "message": "Expired tomorrow"
+    "message": "expired tomorrow"
   },
   "expired_week": {
-    "message": "Expired on this week"
+    "message": "expired on this week"
   },
   "expired_month": {
-    "message": "Expired on this month"
+    "message": "expired on this month"
   },
   "expires": {
     "message": "due date"
@@ -2383,5 +2383,8 @@
   },
   "Process personal data agreement": {
     "message": "I accept processing of my personal data"
+  },
+  "Windows warn": {
+    "message": "Because Synecto app is currently self signed you will see notification from your OS. If you have some suspicions about Synecto app you can check it via any antivirus program before installation."
   }
 }

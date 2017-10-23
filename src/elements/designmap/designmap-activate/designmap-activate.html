@@ -18,62 +18,73 @@
 
 <dom-module id="designmap-activate">
     <template>
-        <style  include="tooltip-shared-styles">
+        <style include="tooltip-shared-styles">
             :host {
                 width: 100%;
                 --plastic-custom-scroll-content-mixin: {
                     max-height: calc(100vh - 180px);
                 };
             }
+
             *[hidden] {
                 display: none !important;
             }
+
             .wrapper > .content {
                 width: 85%;
                 padding: 0px 40px 40px 40px;
                 position: relative;
                 bottom: 30px;
             }
+
             .message {
                 position: relative;
                 bottom: 20px;
                 text-align: center;
                 color: var(--gray-darky-color);
             }
+
             .wrapper {
                 display: flex;
                 justify-content: center;
                 align-items: center;
                 height: calc(100vh - 140px);
             }
+
             /** PLANS **/
 
             .plans {
-                display: flex;
-                align-items: center;
-                justify-content: center;
+                display: block;
+                text-align: center;
+                padding: 5px;
             }
+
             .plan {
-                flex: 1;
-                height: auto;
+                display: inline-block;
+                vertical-align: top;
+                width: calc(33.3% - 40px);
+                height: 410px;
                 box-shadow: 0px 5px 4px 0px rgba(0, 0, 0, 0.2);
                 color: var(--blue-darkest-color);
                 margin-left: 20px;
-                max-width: 380px;
                 position: relative;
             }
+
             .plan:first-child {
                 margin-left: 0;
             }
+
             .plan .header {
                 height: 90px;
                 background: var(--gry-lightern-color);
                 padding: 10px 35px;
                 font-weight: 500;
             }
+
             .plan .header .prc {
                 text-align: center;
             }
+
             .plan .header .prc > * {
                 display: inline-block;
             }
@@ -83,6 +94,7 @@
                 margin-left: 5px;
                 color: var(--blue-darkester-color);
             }
+
             .plan .header .dollar {
                 font-size: 28px;
                 position: relative;
@@ -100,11 +112,17 @@
                 padding: 20px 40px;
                 background: var(--white-color);
             }
+
+            .plan .features {
+                height: 166px;
+            }
+
             .content .feature {
                 font-size: 18px;
                 margin-top: 10px;
                 text-align: center;
             }
+
             .content .feature:first-child {
                 margin-top: 0;
             }
@@ -117,6 +135,7 @@
                 margin-top: 20px;
                 text-align: center;
             }
+
             .current {
                 position: absolute;
                 background: var(--gray-saturate-color);
@@ -128,11 +147,13 @@
                 margin-left: -35px;
                 transform: rotate(135deg);
             }
+
             .current:hover {
                 cursor: help;
                 background: var(--gray-saturated-color);
                 transition: .2s background ease-in;
             }
+
             .checkmark_stem {
                 position: absolute;
                 width: 3px;
@@ -150,18 +171,22 @@
                 left: 6px;
                 top: 11px;
             }
+
             .dashed {
                 border-bottom: 1px dashed var(--blue-darkest-color);
                 cursor: help;
             }
+
             .Downgrade {
                 background: var(--gray-color);
                 border-color: var(--gray-color);
             }
+
             .Downgrade:hover {
                 background: var(--gray-saturate-color);
                 border-color: var(--gray-saturate-color);
             }
+
             /** Card **/
             .card {
                 width: 100%;
@@ -175,9 +200,25 @@
                 max-width: 680px;
             }
 
-            @media (min-width: 1024px) and (max-width: 1280px) {
+            @media (min-width: 768px) and (max-width: 1280px) {
+                .wrapper {
+                    height: auto;
+                }
+
+                .plans {
+                    margin-top: 40px;
+                    margin-bottom: 40px;
+                }
+
                 .plans .plan {
-                   min-width: 290px;
+                    width: calc(50% - 40px);
+                    height: 375px;
+                    margin-top: 20px;
+                    margin-bottom: 20px;
+                }
+
+                .plans .plan .features {
+                    height: 135px;
                 }
             }
 
@@ -185,27 +226,31 @@
                 .wrapper {
                     height: auto;
                 }
+
                 .wrapper > .content {
                     width: auto;
                     padding: 0;
                     bottom: 0;
                     top: 10px;
                 }
+
                 .plans {
-                    flex-direction: column;
                     margin-top: 20px;
                     margin-bottom: 20px;
                 }
+
                 .plans .plan {
-                    margin-left: 0;
-                    min-width: 300px;
-                    max-width: 300px;
+                    width: 100%;
+                    max-width: 375px;
+                    margin-left: 0px;
                     margin-top: 10px;
                     border: 1px solid var(--gray-color);
                 }
+
                 .plans .plan:first-child {
                     margin-top: 0;
                 }
+
                 .card designmap-pay {
                     max-width: 90%;
                 }
@@ -252,7 +297,8 @@
                                 <div class="header">
                                     <div class="name">&laquo;[[plan.name]]&raquo;</div>
                                     <div class="prc">
-                                        <div class="price">[[plan.price]]</div><span class="dollar">$/mo.</span>
+                                        <div class="price">[[plan.price]]</div>
+                                        <span class="dollar">$/mo.</span>
                                     </div>
                                 </div>
                                 <div class="content">
@@ -260,7 +306,8 @@
                                         <div id$="teamMember[[index]]" class="feature">
                                             <i18-n msgid="up to" class$="[[_isDashed(plan)]]">up to</i18-n>
                                             <span class$="[[_isDashed(plan)]]">[[plan.teamMembers]]</span>
-                                            <i18-n msgid="team members" class$="[[_isDashed(plan)]]">team members</i18-n>
+                                            <i18-n msgid="team members" class$="[[_isDashed(plan)]]">team members
+                                            </i18-n>
                                         </div>
                                         <paper-tooltip for$="teamMember[[index]]">
                                             <span>[[_getTeamMemberTooltipMsg(plan,language,i18Loaded)]]</span>
@@ -276,7 +323,9 @@
                                         </template>
                                     </div>
                                     <div class="button-set">
-                                        <button class$="[[_getCodeName(user.plan,plan)]]" on-click="selectPlan" disabled="[[_disableButton(user.plan,plan.name)]]" is="designmap-button" blue fit class="button">
+                                        <button class$="[[_getCodeName(user.plan,plan)]]" on-click="selectPlan"
+                                                disabled="[[_disableButton(user.plan,plan.name)]]" is="designmap-button"
+                                                blue fit class="button">
                                             [[_buttonTitle(user.plan,plan,language,i18Loaded)]]
                                         </button>
                                     </div>
@@ -325,7 +374,7 @@
                 },
                 cardMode: {
                     type: Boolean,
-                    value:false
+                    value: false
                 },
                 chosenPlan: {
                     type: Object
@@ -334,24 +383,24 @@
                     type: Array,
                     value: [
                         {
-                            name:'startup',
+                            name: 'startup',
                             teamMembers: 2,
                             storage: 500,
                             price: 0,
                             months: 3,
-                            power:0,
+                            power: 0,
                             features: [
                                 '3 projects',
                                 'self support'
                             ]
                         },
                         {
-                            name:'agency',
+                            name: 'agency',
                             teamMembers: 5,
                             months: 3,
                             storage: 5000,
                             price: 15,
-                            power:1,
+                            power: 1,
                             gumlink: "https://gum.co/LtMXJ",
                             features: [
                                 'unlimited projects',
@@ -359,12 +408,12 @@
                             ]
                         },
                         {
-                            name:'enterprise',
+                            name: 'enterprise',
                             teamMembers: 10,
                             storage: 10000,
                             price: 30,
                             months: 3,
-                            power:2,
+                            power: 2,
                             gumlink: "https://gum.co/ImYsT",
                             features: [
                                 'unlimited projects',
@@ -375,87 +424,90 @@
                 }
             },
             listeners: {
-                'back':'back'
+                'back': 'back'
             },
-            ready: function(){
-               //this.quicker = localStorage.getItem('designmap:quicker');
+            ready: function () {
+                //this.quicker = localStorage.getItem('designmap:quicker');
                 //TCO.loadPubKey('sandbox');
             },
-            speedUp: function(){
+            speedUp: function () {
                 this.showMessage('Thank you! We will try to do it quicker!');
                 //this.quicker = true;
                 //localStorage.setItem('designmap:quicker',true);
-                this.reachGoal('premium_speed_up','approve');
+                this.reachGoal('premium_speed_up', 'approve');
             },
-            _computeBackUrl: function(projectId){
-                return '/'+(projectId||'');
+            _computeBackUrl: function (projectId) {
+                return '/' + (projectId || '');
             },
-            _countDataSpace: function(storage){
-                return storage<1000 ? storage +' MB' : storage/1000+ ' GB';
+            _countDataSpace: function (storage) {
+                return storage < 1000 ? storage + ' MB' : storage / 1000 + ' GB';
             },
-            _isCurrent: function(userPlan,plan){
-                return userPlan.name!=plan.name;
+            _isCurrent: function (userPlan, plan) {
+                return userPlan.name != plan.name;
             },
-            _disableButton: function(plan,name){
-                return plan.name==name && name=='startup';
+            _disableButton: function (plan, name) {
+                return plan.name == name && name == 'startup';
             },
-            _getCodeName: function(userPlan,plan){
-                if(this._getUserPlanPower(userPlan)>plan.power) return 'Downgrade';
-                if(userPlan.name==plan.name && new Date(userPlan.expired)>new Date()) return 'Unsubscribe';
+            _getCodeName: function (userPlan, plan) {
+                if (this._getUserPlanPower(userPlan) > plan.power) return 'Downgrade';
+                if (userPlan.name == plan.name && new Date(userPlan.expired) > new Date()) return 'Unsubscribe';
                 return 'Upgrade';
             },
-            _getUserPlanPower: function(userPlan){
-                let found = {power:0};
-                this.plans.forEach(function(plan){
-                    if(userPlan.name==plan.name) found = plan;
+            _getUserPlanPower: function (userPlan) {
+                let found = {power: 0};
+                this.plans.forEach(function (plan) {
+                    if (userPlan.name == plan.name) found = plan;
                 });
                 return found.power;
             },
-            _buttonTitle: function(userPlan,plan,lng,loaded){
-               return this.translate(this._getCodeName(userPlan,plan));
+            _buttonTitle: function (userPlan, plan, lng, loaded) {
+                return this.translate(this._getCodeName(userPlan, plan));
             },
-            selectPlan: function(e){
+            selectPlan: function (e) {
                 this.chosenPlan = e.model.plan;
-                if(this._getUserPlanPower(this.user.plan)>0 && this.user.plan.name==e.model.plan.name && new Date(this.user.plan.expired)>new Date()) return this.openUnsbsConfirm();
-                if(this._getUserPlanPower(this.user.plan)>0 && new Date(this.user.plan.expired)>new Date()) return this.openUnsbsWarn();
+                if (this._getUserPlanPower(this.user.plan) > 0 && this.user.plan.name == e.model.plan.name && new Date(this.user.plan.expired) > new Date()) return this.openUnsbsConfirm();
+                if (this._getUserPlanPower(this.user.plan) > 0 && new Date(this.user.plan.expired) > new Date()) return this.openUnsbsWarn();
                 this.next();
             },
-            openUnsbsWarn: function(){
+            openUnsbsWarn: function () {
                 this.$.unsubsWarn.open();
             },
-            openUnsbsConfirm: function(){
+            openUnsbsConfirm: function () {
                 this.$.unsubsConfirm.open();
             },
-            closeUnsubsConfirm: function(){
+            closeUnsubsConfirm: function () {
                 this.$.unsubsWarn.close();
                 this.$.unsubsConfirm.close();
             },
-            unsubscribe: function(){
-                xhr.post(Designmap.config.apiURL + 'pay/unsubscribe',{userId:this.user._id}).then(function(response){
-                    if(!response.success) return this.manageErrorResponse(response);
+            unsubscribe: function () {
+                xhr.post(Designmap.config.apiURL + 'pay/unsubscribe', {userId: this.user._id}).then(function (response) {
+                    if (!response.success) return this.manageErrorResponse(response);
                     this.closeUnsubsConfirm();
                     this.showMessage('Your order has been sent. We will answer you during 1 work day.');
-                }.bind(this)).catch(function(err){
+                }.bind(this)).catch(function (err) {
                     this.manageErrorResponse(err);
                 }.bind(this));
             },
-            next: function(){
+            next: function () {
                 this.closeUnsubsConfirm();
                 this.cardMode = true;
             },
-            back: function(){
+            back: function () {
                 this.cardMode = false;
             },
-            _getTeamMemberTooltipMsg: function(plan){
-                if(plan.name=='startup') return '';
-                return this.replaceExpressions(this.translate('Plan tooltip'),{'#TM#':plan.teamMembers,'#PER#':plan.price/plan.teamMembers})
+            _getTeamMemberTooltipMsg: function (plan) {
+                if (plan.name == 'startup') return '';
+                return this.replaceExpressions(this.translate('Plan tooltip'), {
+                    '#TM#': plan.teamMembers,
+                    '#PER#': plan.price / plan.teamMembers
+                })
             },
-            _isDashed: function(plan){
-                return  plan.name=='startup'?'':'dashed';
+            _isDashed: function (plan) {
+                return plan.name == 'startup' ? '' : 'dashed';
             },
-            _getPlanExpMsg: function(plan){
-                if(plan.name=='startup') return '';
-                return this.translate('Plan exp')+ moment(plan.expired).format('DD-MM-YYYY');
+            _getPlanExpMsg: function (plan) {
+                if (plan.name == 'startup') return '';
+                return this.translate('Plan exp') + moment(plan.expired).format('DD-MM-YYYY');
             }
         })
     </script>

@@ -330,6 +330,10 @@
                 margin-right: 10px;
             }
 
+            .win-warn {
+                color: var(--expired) !important;
+            }
+
 
         </style>
         <!-- Auth -->
@@ -457,6 +461,9 @@
                         <h1><i18-n msgid="Download app">Download app</i18-n></h1>
                         <p>
                             <i18-n msgid="Synecto app desc">Synecto app desc</i18-n>
+                        </p>
+                        <p hidden$="[[!_isWin()]]" class="win-warn">
+                            <i18-n msgid="Windows warn">Windows warn</i18-n>
                         </p>
                         <button is="designmap-button" blue on-click="downloadApp">
                             <i18-n msgid="Download">Download</i18-n>
@@ -612,13 +619,19 @@
                 if(!user || !user.plan) return false;
                 return user.plan.name!='startup';
             },
+            _getOs: function(){
+                return window.navigator.platform.indexOf('Mac')!=-1 ? 'mac' : 'win';
+            },
             _getOSLink: function(){
-                const os = window.navigator.platform.indexOf('Mac')!=-1 ? 'mac' : 'win';
+                const os = this._getOs();
                 return Designmap.config.appDownloadUrl+'?os='+os;
             },
             openAppDialog: function(){
                 this.$$("#dropdown").close();
                 this.$$('#appDialog').open();
+            },
+            _isWin: function(){
+                return this._getOs()=='win';
             },
             closeAppDialog: function(){
                 this.$$('#appDialog').close();

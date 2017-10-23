@@ -24,6 +24,9 @@
                 margin-left: 20px;
                 text-align: center;
             }
+            .chart {
+                width: 600px;
+            }
             .info .chart google-chart {
                 width: 600px;
                 height: 200px;
@@ -68,7 +71,7 @@
                 <div class="chart">
                     <google-chart
                             type='pie'
-                            options='{"legend": { "position": "none" }, "colors": ["#989898","#b7d66b", "#f9a606", "#e46b54"]}'
+                            options='{"width":600,"legend": { "position": "none" }, "colors": ["#989898","#b7d66b", "#f9a606", "#e46b54"]}'
                             data='[[_statusChartData(tasks,language,i18Loaded)]]'
                     ></google-chart>
                 </div>
@@ -82,7 +85,7 @@
                 <div class="chart">
                     <google-chart
                             type='line'
-                            options='{"legend": { "position": "none" },  "hAxis": { "format": "#,###" }, "vAxis": { "format": "#,###" },"colors": ["#62a6ef"]}'
+                            options='{"width":600,"legend": { "position": "none" },  "hAxis": { "format": "#,###" }, "vAxis": { "format": "#,###" },"colors": ["#62a6ef"]}'
                             data='[[_getCompletedData(tasks,language,i18Loaded)]]'
                     ></google-chart>
                 </div>
@@ -96,7 +99,7 @@
                 <div class="chart">
                     <google-chart
                             type='column'
-                            options='{"bars": "horizontal","legend": { "position": "none" },  "hAxis": { "format": "#,###" }, "vAxis": { "format": "#,###" },"colors": ["#62a6ef","#FC4D3E","#b7d66b","#989898","#dda898"]}'
+                            options='{"width":600,"bars": "horizontal","legend": { "position": "none" },  "hAxis": { "format": "#,###" }, "vAxis": { "format": "#,###" },"colors": ["#62a6ef","#FC4D3E","#b7d66b","#989898","#dda898"]}'
                             data='[[_getSpentTimeData(tasks,projectUsers,language,i18Loaded)]]'
                     ></google-chart>
                 </div>

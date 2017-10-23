@@ -7,6 +7,7 @@
         cleanTextRegexp: /<\/?[^>]+(>|$)/g,
         UIDREGEXP: /[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}-/i,
         objectIDRegexp: /^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/i,
+        oidRegexp: /[a-f\d]{20,24}-/i,
         IMAGE_REGEXP: /images/,
         shareRegexp: /share/,
         urlRegexp: /^"https?\:\/\/[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/ig,
@@ -151,6 +152,7 @@
             file.data.name = file.data.name.replace(file.folder + "-", "");
             file.data.name = file.data.name.replace(file.project + "-", "");
             file.data.name = file.data.name.replace(this.UIDREGEXP, '')
+            file.data.name = file.data.name.replace(this.oidRegexp, '')
             return file.data.name;
         },
         /**
@@ -159,7 +161,7 @@
         cutFileNameAndExt: function (file) {
             if (!file || !file.data || !file.data.name) return;
             var ext = this.getExtensionWithoutDot(file.data.name);
-            return file.data.name.replace((file.folder == "null" ? file.data.uid : file.folder) + "-", "").replace('.' + ext, '');
+            return file.data.name.replace((file.folder == "null" ? file.data.uid : file.folder) + "-", "").replace('.' + ext, '').replace(this.oidRegexp,'');
         },
         /**
          * Compute user name
@@ -262,8 +264,8 @@
          */
         getElementName: function (element) {
             if (!Object.keys(element).length) return '';
-            if (element && element.name) return element.name
-            return element.data && element.data.name ? element.data.name.replace(element.folder + '-', '').replace(this.UIDREGEXP, '') : 'xxx';
+            if (element && element.name) return element.name;
+            return element.data && element.data.name ? element.data.name.replace(element.folder + '-', '').replace(this.UIDREGEXP, '').replace(this.oidRegexp,'') : 'xxx';
         },
         /**
          * Check object id
