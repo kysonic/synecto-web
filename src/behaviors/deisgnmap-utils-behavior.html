@@ -10,7 +10,7 @@
         oidRegexp: /[a-f\d]{20,24}-/i,
         IMAGE_REGEXP: /images/,
         shareRegexp: /share/,
-        urlRegexp: /^"https?\:\/\/[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/ig,
+        urlRegexp: /(.|)https?\:\/\/[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/ig,
         elementIDRegexp: /\#[0-9a-z]{10,13}/ig,
         spacesRegexp: /\s/,
         EL_PREFIXES: {
@@ -299,7 +299,7 @@
             return text.replace(this.elementIDRegexp, function (match) {
                 const foundElement = this.findElementByCustomId(match, elements);
                 if (!foundElement) return match;
-                let target = '_self';
+                let target = '';
                 let link = this.buildElementLink(foundElement);
                 if(foundElement.type=='file' && foundElement.data.storage=='google') {
                     target = '_blank';
@@ -330,10 +330,11 @@
 
         processLinksInText(text) {
             if (!text) return '';
-            return text.replace(this.urlRegexp, function (match) {
-                const target = match.indexOf(Designmap.config.appURL) == -1 ? '_blank' : '_self';
-                const text = match.length > 30 ? match.substr(0, 30) + '...' : match;
-                return '<a href="' + match.replace(Designmap.config.appURL, '/') + '" target="' + target + '">' + text + '</a>';
+            return text.replace(this.urlRegexp, function (match,a) {
+                if(a=='"') return match;
+                const target = match.indexOf(Designmap.config.appURL) == -1 ? '_blank' : '';
+                const text = match.length > 100 ? match.substr(0, 100) + '...' : match;
+                return '<a href="' + match.replace(Designmap.config.appURL, '') + '" target="' + target + '">' + text + '</a>';
             })
         },
         removeDuplicatesInArray: function (arr) {

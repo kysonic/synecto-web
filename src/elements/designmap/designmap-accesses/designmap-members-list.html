@@ -109,7 +109,7 @@
             </template>
         </div>
         <template is="dom-if" if="[[_notExceed(user.plan,members.length)]]">
-            <designmap-users-combo id="userCombo" label="[[translate('User email',language,iLoaded)]]"  on-selected="select"></designmap-users-combo>
+            <designmap-users-combo id="userCombo" label="[[translate('User email',language,iLoaded)]]" email-mode="true" on-selected="select"></designmap-users-combo>
         </template>
         <template is="dom-if" if="[[!_notExceed(user.plan,members.length)]]">
             <div class="message">

@@ -632,14 +632,14 @@
         <designmap-dashboard class="dashboard">
             <div class="left">
                 <div class="title">
-                    [[project.name]]
+                    <i18-n msgid="Chat">Chat</i18-n>
                 </div>
-                <div class="breadcrumbs">
+                <!--<div class="breadcrumbs">
                     <div class="crumb">
                         <div class="title" on-click="goOnTop"><i18-n msgid="Chat">Chat</i18-n></div>
                         <iron-icon class="line" icon="icons:chevron-left"></iron-icon>
                     </div>
-                </div>
+                </div>-->
             </div>
             <div class="right">
                 <paper-input id="search" class="search" on-input="_search" label="[[translate('Search...',language,i18Loaded)]]">
@@ -1027,9 +1027,9 @@
                     if (o.uid == Designmap.uid) return;
                     if(o.type==="ADD_MESSAGE") {
                         this.playSound();
+                        this.async(this.scrollUp,500);
                     }
                 }.bind(this));
-                this.scrollUp();
             },
             _projectIdChanged: function (prjId) {
                 if (!prjId) return;
@@ -1121,9 +1121,10 @@
                 this.focused = false;
                 this.set('invokedUsers', []);
                 this.set('attaches',[]);
-                this.async(this.scrollUp);
+                this.async(this.scrollUp,10);
                 this.async(this.$.invkTextarea.blur);
                 this.async(this._messageChanged);
+                this.updateMarkNow();
             },
 
             _sendNotification: function (message,invokedUsers) {
@@ -1166,7 +1167,7 @@
                 this.async(this.$.invkTextarea.blur);
             },
             scrollUp: function () {
-                this.$.scroll.setScroll(this.messages.length * 250);
+                this.$.scroll.setScroll(this.messages.length * 500);
             },
             _computeDate: function (date, frmt) {
                 return moment(date).format(frmt);
@@ -1200,13 +1201,14 @@
             removeMessage: function () {
                 this.dispatch('removeMessage', this.msg._id);
                 this.$.contextMenu.close();
-                this.async(this.scrollUp);
+                this.async(this.scrollUp,10)
+            },
+            updateMarkNow: function(){
+                this.user.system.lastChatReview = new Date();
+                this.dispatch('_userUpdate', {system:this.user.system});
             },
             scroll: function (e) {
-                /*if(e.detail.scrollTop+this.$.scroll.$.content.clientHeight==this.$.scroll.$.content.scrollHeight && this.user) {
-                    this.user.system.lastChatReview = new Date();
-                    this.dispatch('_userUpdate', this.user);
-                }*/
+                if(e.detail.scrollTop+this.$.scroll.$.content.clientHeight==this.$.scroll.$.content.scrollHeight && this.user) this.updateMarkNow();
                 if (e.detail.scrollTop !== 0 || this.inProgress) return;
                 this.skip += this.mpr;
                 if (this.skip > this.messagesCount) return;
@@ -1249,7 +1251,11 @@
                         })
                     }
                 }
-                if(splices.path=='messages.length') this.async(this.scrollUp,10);
+                if(!this.messagesChanged && this.messages.length) {
+                    this.messagesChanged = true;
+                    this.async(this.scrollUp,10);
+                }
+                //if(splices.path=='messages.length') this.async(this.scrollUp,10);
             },
 
             _pageChanged: function(page){

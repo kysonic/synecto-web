@@ -2342,6 +2342,9 @@
   "There is no labels yet. Ask project owner to add it.": {
     "message": "There is no labels yet. Ask project owner to add it."
   },
+  "There is no labels yet. Configure it using gear button": {
+    "message": "There is no labels yet. Configure it using gear button."
+  },
   "back to work": {
     "message": "back to work"
   },
@@ -2386,5 +2389,11 @@
   },
   "Windows warn": {
     "message": "Because Synecto app is currently self signed you will see notification from your OS. If you have some suspicions about Synecto app you can check it via any antivirus program before installation."
+  },
+  "Google Docs": {
+    "message": "Google Docs"
+  },
+  "googleDocsHintDesc": {
+    "message": "To create new google document do following: </br> 1. Click on this icon <b>first time</b> to connect google docs. </br> 2. Click <b>one more time</b> after account is connected to create new doc, sheet or slide"
   }
 }

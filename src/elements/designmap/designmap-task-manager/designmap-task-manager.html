@@ -327,19 +327,19 @@
             <designmap-dashboard class="dashborad" hidden$="[[projectError]]" back="[[_showBack(selectedTask,MQ)]]"
                                  on-go-back="_arrowBackAction">
                 <div class="left">
-                    <div class$="title [[_isThereSelectedCls(selectedTask)]]">
-                        [[project.name]]
+                    <div on-click="cancelTask" class$="title [[_isThereSelectedCls(selectedTask)]]">
+                        <i18-n msgid="Tasks">Tasks</i18-n>
                     </div>
                     <div class$="mobile-title [[_isThereSelectedCls(selectedTask)]]">
                         [[_computeMobileTitle(project,breadcrumbs,breadcrumbs.length)]]
                     </div>
                     <div class="breadcrumbs hidden-xs">
-                        <div class="crumb">
+                        <!--<div class="crumb">
                             <div class="title" on-click="cancelTask">
                                 <i18-n msgid="Tasks">Tasks</i18-n>
                             </div>
                             <iron-icon class="line" icon="icons:chevron-left"></iron-icon>
-                        </div>
+                        </div>-->
                         <template is="dom-repeat" items="[[breadcrumbs]]" as="crumb">
                             <div class$="crumb [[calculateSelectedCrumb(breadcrumbs.length,index)]]"
                                  title="[[crumb.title]]" hidden$="[[!breadcrumbs.length]]">
@@ -480,8 +480,7 @@
                 },
                 project: {
                     type: Object,
-                    statePath: "project",
-                    observer: '_projectIdChanged'
+                    statePath: "project"
                 },
                 path: {
                     type: String,
@@ -653,8 +652,15 @@
             },
             findDefaultTask: function () {
                 // Last on first level
-                this.selectedTask = null;
-                page.redirect('/' + this.projectId + '/task-manager/');
+                const parent = this.findTaskById(this.selectedTask.parent);
+                if(!parent) {
+                    this.selectedTask = null;
+                    return page.redirect('/' + this.projectId + '/task-manager/');
+                }
+                let found = null;
+                const tasksOnSameLevel = this.findSubtasks(parent);
+                if(tasksOnSameLevel && tasksOnSameLevel.length) found = tasksOnSameLevel[0];
+                page.redirect('/' + this.projectId + '/task-manager'+this.getFullPath(found));
             },
             mobileGoBack: function () {
                 if (this.MQ != 'sm') return;

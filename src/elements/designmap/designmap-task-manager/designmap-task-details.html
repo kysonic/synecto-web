@@ -781,6 +781,8 @@
             },
 
             descEditModeOn: function(e){
+                /*const target = e.path ? e.path[0] : e.target;
+                if(target.tagName.toLowerCase()=='a') return;*/
                 this.descEditMode = true;
             },
 
@@ -794,8 +796,11 @@
                 return descEditMode?'edit':'';
             },
 
-            _tryToEdit: function(){
+            _tryToEdit: function(e){
                 if(!this.canRemoveTask(this.task)) return;
+                const target = e.path ? e.path[0] : e.target;
+                if(target.tagName.toLowerCase()=='a') return;
+
                 this.descEditMode = true;
                 this.$.desc.refit();
                 this.async(function(){this.$.desc.focus();},10);

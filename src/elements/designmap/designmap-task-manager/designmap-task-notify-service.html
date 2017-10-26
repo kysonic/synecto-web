@@ -49,7 +49,7 @@
 
         sendAssigneeNotification: function(task,assigneeId){
             const recipients = this.prepareRecipients([assigneeId],this.user);
-            this.sendTaskNotification('new-assignee',this.task,recipients);
+            this.sendTaskNotification('new-assignee',task,recipients);
         },
 
         sendTaskNotification: function(type,task,recipients,message){
@@ -65,7 +65,7 @@
                     replacement: rp(task),
                     info: {
                         project: this.project.name,
-                        task: this.task.name,
+                        task: task.name,
                         xlink: this.getAppUrl() + this.projectId + '/task-manager' + pth
                     }
                 }

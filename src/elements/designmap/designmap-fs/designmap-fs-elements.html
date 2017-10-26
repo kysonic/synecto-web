@@ -295,6 +295,7 @@
                         target="[[hintFolderTarget]]"
                         have-skip
                         name="folder"
+                        on-pre-hook="folderHintPreHook"
                         vertical-offset="200"
                         horizontal-offset="20">
             <div class="title">
@@ -309,6 +310,7 @@
                         target="[[hintFileTarget]]"
                         have-skip
                         name="file"
+                        on-pre-hook="fileHintPreHook"
                         vertical-offset="200"
                         horizontal-offset="0">
             <div class="title">
@@ -655,7 +657,7 @@
                 if(!files.length) return this.classList.remove('dragged');
 
                 this.$.uploader.buttonFiles = [].slice.call(files, 0);
-                this.$.uploader.openForm();
+                this.$.uploader.openIt();
                 this.classList.remove('dragged');
             },
             /**
@@ -782,7 +784,7 @@
             },
 
             cancelSearch: function(){
-                this.searchMode = false;r
+                this.searchMode = false;
                 this.set('elements',this._countElements(ReduxStore.getState()));
             },
 
@@ -805,6 +807,18 @@
             _copyId: function (e) {
                 this.$$('#contextMenu').close();
                 this.showMessage('Element id was copied.')
+            },
+
+            folderHintPreHook: function(){
+                if(!this.hintFolderTarget) this.fire('hint-skip',true);
+            },
+
+            fileHintPreHook: function(){
+                if(!this.hintFileTarget) {
+                    this.async(function(){
+                        this.fire('hint-skip',true)
+                    },100)
+                };
             }
         });
     </script>

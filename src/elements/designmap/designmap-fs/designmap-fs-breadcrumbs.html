@@ -160,15 +160,15 @@
 
 
         </style>
-        <div class$="project-name [[_isThereSelected(currentFolderId)]]">
-            [[project.name]]
+        <div on-click="goOnTop" class$="project-name [[_isThereSelected(currentFolderId)]]">
+            <i18-n msgid="Files">Files</i18-n>
         </div>
-        <div class$="crumb fls [[breadCrumbs(breadcrumbs.length)]]"  on-click="goOnTop">
+        <!--<div class$="crumb fls [[breadCrumbs(breadcrumbs.length)]]"  on-click="goOnTop">
             <iron-icon class$="line [[isFirst(index,breadcrumbs)]] " icon="icons:chevron-left"></iron-icon>
             <div class$="title [[calculateSelectedCrumb(breadcrumbs.length,index)]]">
                 <i18-n msgid="Files">Files</i18-n>
             </div>
-        </div>
+        </div>-->
         <div class$="arrow-back [[breadCrumbs(breadcrumbs.length)]]" on-click="goBack">
             <iron-icon icon="designmap-workspace:open"></iron-icon>
         </div>

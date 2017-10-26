@@ -7,6 +7,9 @@
             :host {
                 display: inline-block;
             }
+            *[hidden] {
+                display: none !important;
+            }
             .follower {
                 display: inline-block;
                 position: relative;
@@ -46,14 +49,34 @@
                 --iron-icon-stroke-color: var(--white-color);
                 --iron-icon-fill-color: var(--white-color);
             }
+
+            .add {
+                width: 30px;
+                height: 30px;
+                vertical-align: top;
+                border-radius: 50%;
+                border: 1px solid var(--gray-darkend-color);
+                cursor: pointer;
+            }
+            .add:hover {
+                border-color: var(--gray-saturate-color);
+            }
+            .add iron-icon {
+                padding: 3px;
+            }
         </style>
         <div class="followers">
             <template is="dom-repeat" items="[[followers]]" as="follower">
                 <div class="follower">
-                    <designmap-avatar-projector user="[[_getFollower(follower,project)]]"></designmap-avatar-projector>
+                    <template is="dom-if" if="[[_getFollower(follower,project)]]">
+                        <designmap-avatar-projector user="[[_getFollower(follower,project)]]"></designmap-avatar-projector>
+                    </template>
                     <div class$="cancel [[_cancelCls(follower,user)]]" on-click="cancel"><iron-icon icon="icons:close"></iron-icon></div>
                 </div>
             </template>
+            <div class="add follower" hidden$="[[_amIIn(user,followers)]]" on-click="addMe">
+                <iron-icon icon="add"></iron-icon>
+            </div>
         </div>
     </template>
     <script>
@@ -79,9 +102,10 @@
             _getFollower: function(follower,project){
                 if(!follower || !project || !project.users) return;
                 const users = project.users.concat([project.ownerData]);
-                return users.find(function(user){
+                const found = users.find(function(user){
                     return user._id==follower;
                 });
+                return found;
             },
             _cancelCls: function(followerId,user){
                 if(!user) return '';
@@ -89,6 +113,12 @@
             },
             cancel: function(){
                 this.fire('cancel');
+            },
+            addMe: function () {
+                this.fire('apply');
+            },
+            _amIIn: function(user){
+                return this.followers.find(function(u){return u==user._id;});
             }
         })
     </script>

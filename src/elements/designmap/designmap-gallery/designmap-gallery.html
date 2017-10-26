@@ -846,7 +846,7 @@
                 </div>
 
                 <template is="dom-if" if="[[project]]">
-                    <designmap-followers on-cancel="_cancelFollowing" followers="[[_getFollowers(file.followers)]]"></designmap-followers>
+                    <designmap-followers on-apply="_applyFollowing" on-cancel="_cancelFollowing" followers="[[_getFollowers(file.followers)]]"></designmap-followers>
                 </template>
             </div>
             <div class="center" hidden$="[[!isImageFile(file)]]">
@@ -1651,8 +1651,15 @@
                 const defaultFollowers = this.removeDuplicatesInArray([this.project.owner,this.file.owner]);
                 return followers.length?followers:[];
             },
+
             _cancelFollowing: function(){
                 this.dispatch('unfollowFile',this.file,this.user._id).then(function(){
+                    this.async(this.checkFile);
+                }.bind(this));
+            },
+
+            _applyFollowing: function(){
+                this.dispatch('followFile',this.file,this.user._id).then(function(){
                     this.async(this.checkFile);
                 }.bind(this));
             },

@@ -4,6 +4,7 @@
 <link rel="import" href="../../../styles/tooltip-shared-styles.html">
 <!-- Services -->
 <link rel="import" href="./deaignmap-task-service.html">
+<link rel="import" href="./designmap-task-notify-service.html">
 <link rel="import" href="../designmap-tutorial/designmap-hint-service.html">
 <!-- Redux -->
 <link rel="import" href="../../../redux/redux-store.html">
@@ -715,6 +716,7 @@
                 Polymer.DesignMapUtilsBehavior,
                 Polymer.DesignMapHintService,
                 Polymer.DesignMapTaskService,
+                Polymer.DesignMapTaskNotifyService,
                 Polymer.CombineActions(Polymer.TasksActions)
             ],
             properties: {
@@ -791,6 +793,10 @@
                 user: {
                     type: Object,
                     statePath: 'user'
+                },
+                projectUsers: {
+                    type: Array,
+                    statePath: 'projectUsers'
                 },
                 /**
                  * Designmap user language
@@ -988,6 +994,7 @@
                 clearInterval(this.timer);
                 var status = 'completed';
                 this.dispatch('_updateTask', e.model.task._id, {status: status});
+                this.async(this.updateStyles);
                 // Wait
                 this.timer = setTimeout(function () {
                     this.dispatch('updateTask', e.model.task._id, {status: status});
@@ -1129,7 +1136,7 @@
                 if (!this.validate()) return ;
                 // Check roles
                 const parent = this.findTaskById(this.parent);
-
+                const assignee = parent ? parent.assignee : null;
                 var task = {
                     _id: this.generateUid(),
                     created: new Date(),
@@ -1141,7 +1148,7 @@
                     removed: false,
                     removedBy:{user:null},
                     expired: null,
-                    assignee: parent ? parent.assignee : null
+                    assignee: assignee
                 };
                 // Notify
                 this.sendNewTaskNotification(task);
@@ -1153,6 +1160,7 @@
                     this.$.scroller.calculate();
                     if (this.MQ != 'sm') this.$$('#addTask').focus();
                     //this.fire('select-task',response.task);
+                    if(assignee) this.sendAssigneeNotification(response.task,assignee);
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));
                 this.taskName = '';
             },
@@ -1396,6 +1404,9 @@
             },
             search: function(filters) {
                 const elements = ReduxStore.getState().tasks;
+                // Drop filter
+                this.selectedFilter = {type:'all',text:'all'};
+                // Find tasks
                 let filtred = elements.filter(function(element){
                     let fit = true;
                     Object.keys(filters).forEach(function(filterName){

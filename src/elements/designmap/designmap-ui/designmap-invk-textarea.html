@@ -85,7 +85,7 @@
         Polymer({
             is: 'designmap-invk-textarea',
             behaviors: [
-
+                ReduxBehavior
             ],
             properties: {
                 value: {
@@ -101,9 +101,17 @@
                     type: String,
                     value: ''
                 },
+                user: {
+                    type: Object,
+                    statePath: 'user'
+                },
                 users: {
                     type: Array,
-                    value: []
+                    statePath: function (state) {
+                        return state.projectUsers.filter(function(u){
+                            return u._id!=this.user._id
+                        }.bind(this))
+                    }
                 },
                 search: {
                     type: String,

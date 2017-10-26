@@ -6,10 +6,10 @@
         <style>
             :host {
                 display: block;
+                --designmap-users-select-paper-button: {
+                    @apply(--designmap-users-combo-paper-button);
+                }
             };
-            --designmap-users-select-paper-button: {
-                @apply(--designmap-users-combo-paper-button);
-            }
         </style>
         <designmap-users-select not-found-msg="[[msg]]" invite-mode="[[inviteMode]]" id="select" language="[[language]]" i-loaded="[[i18Loaded]]" options="[[options]]" search="{{search}}" limit="5" label="[[label]]"></designmap-users-select>
     </template>
@@ -54,6 +54,10 @@
                 inviteMode: {
                     type: Boolean,
                     value: false
+                },
+                emailMode: {
+                    type: Boolean,
+                    value: false
                 }
             },
             ready: function () {
@@ -62,11 +66,14 @@
             getUsers: function(q){
                 if(!q) return;
                 //var q = q==''?'.*':q;
-                if(!this.emailRegexp.test(q)) {
-                    this.inviteMode = false;
-                    return this.msg = "Users not found";
+                if(this.emailMode) {
+                    if(!this.emailRegexp.test(q)) {
+                        this.inviteMode = false;
+                        return this.msg = "Users not found";
+                    }
+                    this.msg = "User with such email is not found in Synecto. You can invite him clicking on button at right";
                 }
-                this.msg = "User with such email is not found in Synecto. You can invite him clicking on button at right";
+
                 // Prevent too much requests
                 this.async(function(){this.entering=false;},200);
                 if(this.entering) return;

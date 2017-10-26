@@ -383,7 +383,7 @@
                 },
                 showErrorPage: {
                     type: Array,
-                    value: ['fs','task-manager','trash','archive','gallery']
+                    value: ['fs','task-manager','trash','archive','gallery','chat']
                 },
                 loaded: {
                     type: Number,
@@ -839,8 +839,9 @@
                 this.resWidth = mobileMode ? '1960px' : '1366px';
             },
 
-            hintSkip: function(){
-                this.$.tutorial.thumbUp();
+            hintSkip: function(e){
+                const silent = e.detail==true;
+                if(!silent) this.$.tutorial.thumbUp();
                 let currentStep = this.$.tutorial.current;
                 localStorage.setItem('synecto:tutorial:'+this.$.tutorial.section,++currentStep);
                 this.async(function(){

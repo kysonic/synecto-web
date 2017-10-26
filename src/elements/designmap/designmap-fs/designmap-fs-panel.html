@@ -162,12 +162,27 @@
                 <!-- Upload file -->
                 <designmap-circle-button id="uploadFileButton"
                                          plastic-tooltip$="[[translate('Upload file',language,i18Loaded)]]" data-cls="blue"
-                                         on-click="openFileUploader" data-hint="add-file">
+                                         on-click="openFileUploader">
                     <iron-icon icon="designmap-workspace:file"></iron-icon>
                 </designmap-circle-button>
                 <paper-tooltip for="uploadFileButton"><i18-n msgid="Upload file">Upload file</i18-n></paper-tooltip>
                 <!-- Google -->
                 <designmap-google-docs folder="[[currentFolderId]]"></designmap-google-docs>
+                <!-- Hint -->
+                <designmap-hint id="googleDocsHint"
+                                previous
+                                have-skip
+                                name="googleDocs"
+                                vertical-offset="55"
+                                horizontal-offset="-105">
+                    <div class="title">
+                        <i18-n msgid="Google Docs">Google Docs</i18-n>
+                    </div>
+                    <div class="desc">
+                        <i18-n msgid="googleDocsHintDesc">googleDocsHintDesc</i18-n>
+                    </div>
+                </designmap-hint>
+                <!-- Hint -->
             </div>
             <!-- Hint -->
             <designmap-hint id="fsPanelHint"

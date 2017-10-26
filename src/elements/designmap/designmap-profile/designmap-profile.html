@@ -515,9 +515,6 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <!--<div class="col-md-12">
-                      <div class="title"><i18-n msgid="Change email or password">Change email or password</i18-n></div>
-                        </div>-->
                                 <div class="col col-md-6 col-xs-12">
                                     <paper-input value="{{user.local.email::change}}" disabled required
                                                  error-message="[[translate('Invalid email',language,i18Loaded)]]"
@@ -542,20 +539,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- APPROVED -->
-                            <!--<template is="dom-if" if="[[!user.system.approved]]">
-                                <div class="row" hidden$="[[sentApprove]]">
-                                    <div class="col col-md-12 col-xs-12 msg">
-                                        <span><i18-n
-                                                msgid="Your e-mail wasn't approved">Your e-mail wasn't approved!</i18-n></span>
-                                        <a on-click="sendApproveMile">
-                                            <i18-n msgid="Click here">Click here</i18-n>
-                                        </a>
-                                        <span><i18-n msgid="to send a letter with link to approve">to send a mail with link to approve it.</i18-n></span>
-                                    </div>
-                                </div>
-                            </template>-->
-                            <!-- APPROVED -->
                             <button class="save-button" id="saveAccountButton" is="designmap-loading-button"
                                     data-form="account-form" thin on-click="save">
                                 <i18-n msgid="Save Settings">Save Settings</i18-n>
@@ -750,8 +733,11 @@
                 }
                 delete this.user.local.password;
                 this.$['save' + formName + 'Button'].loading = true;
-                const user = Object.assign({},this.user);
-                this.dispatch('userUpdate', user).then(function (response) {
+                const userProp = formName.replace('Form','').toLowerCase();
+                const data = {};
+                data[userProp] = this.user[userProp];
+                console.log(userProp,data);
+                this.dispatch('userUpdate', data).then(function (response) {
                     this.$['save' + formName + 'Button'].loading = false;
                     if (!response.success) return this.manageErrorResponse(response);
                     this.showMessage(response.message);
