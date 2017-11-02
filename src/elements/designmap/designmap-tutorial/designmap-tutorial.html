@@ -45,7 +45,8 @@
         Polymer({
             is: 'designmap-tutorial',
             behaviors: [
-                Polymer.DesignMapWebAnimationBehavior
+                Polymer.DesignMapWebAnimationBehavior,
+                ReduxBehavior
             ],
             properties: {
                 hints: {
@@ -87,6 +88,10 @@
                 tutorialStartDelay: {
                     type: Number,
                     value: 3000
+                },
+                MQ: {
+                    type: String,
+                    statePath:"MQ"
                 }
             },
             TUTORIAL_PAGES: ['fs','task-manager','chat'],
@@ -147,7 +152,7 @@
             },
             _routerObserver: function(user,page,path,loading,readyState){
                 const isTutorialPage = this.TUTORIAL_PAGES.indexOf(page)!=-1;
-                if(!user || user.system.tutorials || loading || !readyState || !isTutorialPage) return;
+                if(!user || user.system.tutorials || loading || !readyState || !isTutorialPage || this.MQ=='sm') return;
                 const basicTutorialState = JSON.parse(localStorage.getItem('synecto:tutorial:basic'));
                 this.async(function(){
                     if(basicTutorialState!==true) return this.current = basicTutorialState || 0;

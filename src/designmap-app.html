@@ -162,8 +162,8 @@
 
         </style>
         <!-- Keys -->
-        <iron-a11y-keys id="a11yUndo" keys="(ctrl||cmd)+z" target="[[keysTarget]]" on-keys-pressed="undo"></iron-a11y-keys>
-        <iron-a11y-keys id="a11yRedo" keys="(ctrl||cmd)+shift+z" target="[[keysTarget]]" on-keys-pressed="redo"></iron-a11y-keys>
+        <!--<iron-a11y-keys id="a11yUndo" keys="(ctrl||cmd)+z" target="[[keysTarget]]" on-keys-pressed="undo"></iron-a11y-keys>
+        <iron-a11y-keys id="a11yRedo" keys="(ctrl||cmd)+shift+z" target="[[keysTarget]]" on-keys-pressed="redo"></iron-a11y-keys>-->
         <!-- Query -->
         <plastic-media-query on-query-changed="_queryChanged"></plastic-media-query>
         <!-- Notifier -->
@@ -228,7 +228,7 @@
                     <designmap-docs-view name="docs"></designmap-docs-view>
                     <designmap-support-form-view name="support-form"></designmap-support-form-view>
                     <designmap-notifications-view name="notifications"></designmap-notifications-view>
-                    <designmap-activate-view name="activate"></designmap-activate-view>
+                    <!--<designmap-activate-view name="activate"></designmap-activate-view>-->
                     <designmap-login-view name="login"></designmap-login-view>
                     <designmap-archive-view name="archive"></designmap-archive-view>
                     <designmap-404 name="404"></designmap-404>
@@ -262,17 +262,21 @@
     <script>
         const NO_HEADER_PAGES = ['login','404','gallery'];
 
-        document.body.addEventListener('keydown', function(e){
+        /*document.body.addEventListener('keydown', function(e){
             if(e.keyCode==91 || e.keyCode==17 || e.keyCode==224) Designmap.metaDown = true;
         });
         document.body.addEventListener('keyup', function(e){
             if(e.keyCode==91 || e.keyCode==17 || e.keyCode==224) Designmap.metaDown = false;
-        });
+        });*/
         // Decorate redirect
-        const rdct = page.redirect;
-        page.redirect = function(url){
-            if(Designmap.metaDown) return window.open(Designmap.config.appurl+url,'_blank');
-            rdct(url);
+
+        page.rdt = function(url,metaKey){
+            const a = document.createElement('a');
+            a.href=url;
+            if(metaKey) a.target = "_blank";
+            document.body.appendChild(a);
+            a.click();
+            a.parentNode.removeChild(a);
         }
 
         Polymer({
@@ -836,7 +840,7 @@
             },
 
             _mobileModeChanged: function(mobileMode){
-                this.resWidth = mobileMode ? '1960px' : '1366px';
+                this.resWidth = mobileMode ? '2600px' : '1366px';
             },
 
             hintSkip: function(e){

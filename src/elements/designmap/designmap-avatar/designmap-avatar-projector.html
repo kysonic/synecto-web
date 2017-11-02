@@ -131,7 +131,7 @@
                 return Designmap.config.apiURL + path+'?v='+Designmap.uid;
             },
             computeName: function (user) {
-                if (typeof user == 'string') return '...';
+                if (typeof user == 'string' || !user || !user.profile) return '...';
                 return user ? user.profile.name && user.profile.lastName ? user.profile.name[0] + user.profile.lastName[0] :
                         user.profile.name ? user.profile.name.substr(0,2) : user.local.email.substr(0,2) : 'XX';
             },
@@ -166,7 +166,7 @@
 
             _getProfileData: function(profile){
                 if(!profile) return [];
-                if(profile.birthDate) profile.birthDate = moment(profile.birthDate).format('YYYY-MM-DD');
+                if(profile.birthDate) profile.birthDate = moment(profile.birthDate).format('DD-MMMM-YYYY');
                 return Object.keys(profile).map(function(pk){
                     return {key:pk,value:profile[pk]};
                 }).filter(function(f){

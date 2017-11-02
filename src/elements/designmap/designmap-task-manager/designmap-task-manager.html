@@ -546,7 +546,7 @@
 
 
                 this.async(function () {
-                    const m = moment().format('YYYY-MM-DD');
+                    const m = moment().format('DD-MMMM-YYYY');
                     const d = localStorage.getItem('synecto:expired:message:'+this.projectId);
                     if (this.findExpiresSoonTasks().length && m != d) {
                         localStorage.setItem('synecto:expired:message:'+this.projectId, m)
@@ -632,7 +632,7 @@
                 //if(this.selectedTask && this.selectedTask.parent==e.detail.parent) this.$.details.$.list.limit = this.$.list.defaultLimit;
                 this.searchMode = false;
                 this.$.searchFilter.empty();
-                page.redirect('/' + this.projectId + '/task-manager' + this.getFullPath(e.detail));
+                page.rdt('/' + this.projectId + '/task-manager' + this.getFullPath(e.detail));
             },
             focusInput: function () {
                 if (this.$.details) this.$.details.focusInput();
@@ -655,27 +655,27 @@
                 const parent = this.findTaskById(this.selectedTask.parent);
                 if(!parent) {
                     this.selectedTask = null;
-                    return page.redirect('/' + this.projectId + '/task-manager/');
+                    return page.rdt('/' + this.projectId + '/task-manager/');
                 }
                 let found = null;
                 const tasksOnSameLevel = this.findSubtasks(parent);
                 if(tasksOnSameLevel && tasksOnSameLevel.length) found = tasksOnSameLevel[0];
-                page.redirect('/' + this.projectId + '/task-manager'+this.getFullPath(found));
+                page.rdt('/' + this.projectId + '/task-manager'+this.getFullPath(found));
             },
             mobileGoBack: function () {
                 if (this.MQ != 'sm') return;
                 // Mobile>>> If we are inside
                 if (this.selectedTask && this.selectedTask.parent) {
                     var task = this.findTaskById(this.selectedTask.parent);
-                    return page.redirect('/' + this.projectId + '/task-manager/' + this.getFullPath(task));
+                    return page.rdt('/' + this.projectId + '/task-manager/' + this.getFullPath(task));
                 }
                 // If task doesn't have parent
                 if (this.selectedTask && !this.selectedTask.parent) {
                     this.selectedTask = false
-                    return page.redirect('/' + this.projectId + '/task-manager/');
+                    return page.rdt('/' + this.projectId + '/task-manager/');
                 }
                 // If we are on list
-                return page.redirect('/' + (this.projectId || ''));
+                return page.rdt('/' + (this.projectId || ''));
             },
             /**
              * Re-render task-details
@@ -875,12 +875,12 @@
             cancelSearch: function () {
                 this.searchMode = false;
                 this.$.searchFilter.empty();
-                page.redirect('/' + this.projectId + '/task-manager/');
+                page.rdt('/' + this.projectId + '/task-manager/');
             },
 
             cancelTask: function () {
                 this.selectedTask = null;
-                page.redirect('/' + this.projectId + '/task-manager/');
+                page.rdt('/' + this.projectId + '/task-manager/');
             },
 
             _isThereSelectedCls: function (selectedTask) {

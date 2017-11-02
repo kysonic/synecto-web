@@ -44,6 +44,36 @@
     margin-left: 10px;
 }
 
+.markdown-content {
+    color: #464646;
+}
+.markdown-content a {
+    color: #629ee7;
+}
+.markdown-content span.marked {
+    padding: 0 0;
+    background: #e7dad1;
+}
+.markdown-content ul {
+    margin: 0;
+    padding: 0;
+    width: auto;
+    height: auto;
+}
+.markdown-content ul li {
+    margin: 0;
+    padding: 5px 0;
+}
+.markdown-content p {
+    margin: 3px 0;
+    white-space: pre-line;
+}
+.markdown-content blockquote {
+    margin: 5px 10px;
+    border-left: 3px solid #ccc;
+    padding-left: 10px;
+}
+
 @-webkit-keyframes uil-reload-css {
     0% {
         -ms-transform: rotate(0deg);

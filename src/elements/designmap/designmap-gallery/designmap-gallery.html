@@ -13,6 +13,7 @@
 <link rel="import" href="./designmap-stickers.html">
 <link rel="import" href="../designmap-icons/designmap-logo-icons.html">
 <link rel="import" href="./designmap-gallery-user-list.html">
+<link rel="import" href="/bower_components/iron-a11y-keys/iron-a11y-keys.html">
 <!-- Redux -->
 <link rel="import" href="../../../redux/actions/user-actions.html">
 <link rel="import" href="../../../redux/actions/files-actions.html">
@@ -501,7 +502,7 @@
             }
 
             .owner {
-                margin-right: 10px;
+                margin-right: 40px;
             }
 
             .track-plate {
@@ -637,7 +638,10 @@
 
 
         </style>
-        <div class$="top-panel panel [[_computeIronImageClass(MQ)]]">
+        <!-- Keys -->
+        <iron-a11y-keys id="a11yLeft" keys="left" target="[[keysTarget]]" on-keys-pressed="previous"></iron-a11y-keys>
+        <iron-a11y-keys id="a11yRight" keys="right" target="[[keysTarget]]" on-keys-pressed="next"></iron-a11y-keys>
+        <div id="galleryWrapper" class$="top-panel panel [[_computeIronImageClass(MQ)]]">
             <div class="left">
                 <iron-icon class="designmap-logo" on-click="close" icon="designmap-logo:logo-gray"></iron-icon>
                 <iron-icon class="designmap-logo-mobile" on-click="close" icon="designmap-logo-mobile:logo-gray"></iron-icon>
@@ -663,7 +667,7 @@
                 </button>-->
                 <!--<paper-tooltip for="chatButton"><i18-n msgid="Chat">Chat</i18-n></paper-tooltip>-->
                 <button hidden$="[[!file]]" id="shareButton" class="top-panel-button" is="designmap-gallery-button" on-click="share">
-                    <iron-icon class="share-icon" icon="social:share"></iron-icon>
+                    <iron-icon class="share-icon" icon="designmap:ID"></iron-icon>
                 </button>
                 <designmap-dropdown previous id="shareDropdown" tri-border vertical-offset="60" horizontal-offset="-107">
                     <!--<div class="title">
@@ -677,13 +681,17 @@
                     </cbn-copy-clipboard>
                 </designmap-dropdown>
                 <paper-tooltip for="shareButton"><i18-n msgid="File id share">File id share</i18-n></paper-tooltip>
-                <button hidden$="[[!file]]" id="moreButton" class="top-panel-button" is="designmap-gallery-button" on-click="openContext">
+                <button hidden$="[[!file]]" id="downloadButton" class="top-panel-button" is="designmap-gallery-button" on-click="dwnldFile">
+                    <iron-icon class="share-icon" icon="designmap:get-app"></iron-icon>
+                </button>
+                <paper-tooltip for="downloadButton"><i18-n msgid="Download">Download</i18-n></paper-tooltip>
+                <!--<button hidden$="[[!file]]" id="moreButton" class="top-panel-button" is="designmap-gallery-button" on-click="openContext">
                     <iron-icon class="more-icon" icon="designmap-workspace:more"></iron-icon>
                 </button>
-                <paper-tooltip for="moreButton"><i18-n msgid="File menu">File menu</i18-n></paper-tooltip>
+                <paper-tooltip for="moreButton"><i18-n msgid="File menu">File menu</i18-n></paper-tooltip>-->
                 <designmap-context-menu id="galleryContext" previous>
                     <ul class="menu">
-                        <li on-click="downloadFile">
+                        <li on-click="dwnldFile">
                             <i18-n msgid="Download file">Download file</i18-n>
                         </li>
                         <!--<li on-click="lockFile">
@@ -705,119 +713,119 @@
                 <iron-icon icon="icons:chevron-left"></iron-icon>
             </div>
             <template is="dom-if" if="[[_isThereFile(file,loading)]]">
-                    <div id="item"
-                         draggable="false"
-                         class$="item {{zoomClasses(zoom)}}"
-                         ondragstart="return false;"
-                         on-mousewheel="imageMouseWheel"
-                         on-wheel="imageMouseWheel"
+                <div id="item"
+                     draggable="false"
+                     class$="item {{zoomClasses(zoom)}}"
+                     ondragstart="return false;"
+                     on-mousewheel="imageMouseWheel"
+                     on-wheel="imageMouseWheel"
 
-                         on-mouseleave="mouseLeave"
-                         on-mousemove="mouseMove"
+                     on-mouseleave="mouseLeave"
+                     on-mousemove="mouseMove"
 
-                         on-mousedown="mouseDown"
-                         on-mouseup="mouseUp"
+                     on-mousedown="mouseDown"
+                     on-mouseup="mouseUp"
 
-                         on-touchstart="_touchStart"
-                         on-touchmove="_touchMove"
-                         on-touchend="_touchEnd"
-                    >
-                        <!-- Prev item -->
-                        <template is="dom-if" if="[[_computeSwipeImageState(files.length,MQ)]]">
+                     on-touchstart="_touchStart"
+                     on-touchmove="_touchMove"
+                     on-touchend="_touchEnd"
+                >
+                    <!-- Prev item -->
+                    <template is="dom-if" if="[[_computeSwipeImageState(files.length,MQ)]]">
 
-                            <template is="dom-if" if="[[!isImageFile(prevFile)]]" restamp="true">
-                                <div class="swipe-ext extension" id="prev-itm">
-                                    <div class="data">
-                                        <i18-n msgid="Preview is not available">Preview is not available</i18-n>
-                                        <div class="ext-icon">
-                                            <iron-icon icon="designmap-workspace:filer"></iron-icon>
-                                            <span class="ext">{{getExtensionWithoutDot(prevFile.data.name)}}</span>
-                                        </div>
-                                        <a href="#" >
-                                            <i18-n msgid="Download file">Download file</i18-n>
-                                        </a>
+                        <template is="dom-if" if="[[!isImageFile(prevFile)]]" restamp="true">
+                            <div class="swipe-ext extension" id="prev-itm">
+                                <div class="data">
+                                    <i18-n msgid="Preview is not available">Preview is not available</i18-n>
+                                    <div class="ext-icon">
+                                        <iron-icon icon="designmap-workspace:filer"></iron-icon>
+                                        <span class="ext">{{getExtensionWithoutDot(prevFile.data.name)}}</span>
                                     </div>
+                                    <a href="#" >
+                                        <i18-n msgid="Download file">Download file</i18-n>
+                                    </a>
                                 </div>
-                            </template>
-
-                            <template is="dom-if" if="[[isImageFile(prevFile)]]" restamp="true">
-                                <iron-image
-                                        id="prev-itm"
-                                        class$="swipe-image [[_computeIronImageClass(MQ)]]"
-                                        src="{{computeFileSrc(prevFile)}}"
-                                ></iron-image>
-                            </template>
-
+                            </div>
                         </template>
-                        <!-- Prev item -->
 
-                        <!-- Original -->
-                        <template is="dom-if" if="[[canBeDisplayed(file)]]" restamp="true">
-                            <template is="dom-if" if="[[isOfficeFile(file)]]" restamp="true" >
-                                <iframe id="itm" class$="office-view [[getExtensionWithoutDot(file.data.name)]]" src='[[_getOfficeFilePreview(file)]]' frameborder="0"></iframe>
-                                <!--<div class="track-plate" id="trackPlate"></div>-->
-                            </template>
-                            <template is="dom-if" if="[[isImageFile(file)]]" restamp="true">
+                        <template is="dom-if" if="[[isImageFile(prevFile)]]" restamp="true">
+                            <iron-image
+                                    id="prev-itm"
+                                    class$="swipe-image [[_computeIronImageClass(MQ)]]"
+                                    src="{{computeFileSrc(prevFile)}}"
+                            ></iron-image>
+                        </template>
+
+                    </template>
+                    <!-- Prev item -->
+
+                    <!-- Original -->
+                    <template is="dom-if" if="[[canBeDisplayed(file)]]" restamp="true">
+                        <template is="dom-if" if="[[isOfficeFile(file)]]" restamp="true" >
+                            <iframe id="itm" class$="office-view [[getExtensionWithoutDot(file.data.name)]]" src='[[_getOfficeFilePreview(file)]]' frameborder="0"></iframe>
+                            <!--<div class="track-plate" id="trackPlate"></div>-->
+                        </template>
+                        <template is="dom-if" if="[[isImageFile(file)]]" restamp="true">
                                 <iron-image
                                         id="itm"
                                         on-load="imageHasLoaded"
                                         on-error="imageError"
                                         class$="[[_computeIronImageClass(MQ)]]"
                                         src="{{computeFileSrc(file)}}"></iron-image>
-                            </template>
                         </template>
+                    </template>
 
-                        <template is="dom-if" if="[[!canBeDisplayed(file)]]">
-                            <div class="extension" id="itm">
+                    <template is="dom-if" if="[[!canBeDisplayed(file)]]">
+                        <div class="extension" id="itm">
+                            <div class="data">
+                                <i18-n msgid="Preview is not available">Preview is not available</i18-n>
+                                <div class="ext-icon">
+                                    <iron-icon icon="designmap-workspace:filer"></iron-icon>
+                                    <span class="ext">{{getExtensionWithoutDot(file.data.name)}}</span>
+                                </div>
+                                <a href="#" on-click="dwnldFile">
+                                    <i18-n msgid="Download file">Download file</i18-n>
+                                </a>
+                            </div>
+                        </div>
+                    </template>
+                    <!-- Original -->
+
+
+                    <!-- Next item -->
+                    <template is="dom-if" if="[[_computeSwipeImageState(files.length,MQ)]]">
+
+                        <template is="dom-if" if="[[!isImageFile(nextFile)]]" restamp="true">
+                            <div class="swipe-ext extension" id="next-itm">
                                 <div class="data">
                                     <i18-n msgid="Preview is not available">Preview is not available</i18-n>
                                     <div class="ext-icon">
                                         <iron-icon icon="designmap-workspace:filer"></iron-icon>
-                                        <span class="ext">{{getExtensionWithoutDot(file.data.name)}}</span>
+                                        <span class="ext">{{getExtensionWithoutDot(nextFile.data.name)}}</span>
                                     </div>
-                                    <a href="#" on-click="downloadFile">
+                                    <a href="#">
                                         <i18-n msgid="Download file">Download file</i18-n>
                                     </a>
                                 </div>
                             </div>
                         </template>
-                        <!-- Original -->
 
-
-                        <!-- Next item -->
-                        <template is="dom-if" if="[[_computeSwipeImageState(files.length,MQ)]]">
-
-                                <template is="dom-if" if="[[!isImageFile(nextFile)]]" restamp="true">
-                                    <div class="swipe-ext extension" id="next-itm">
-                                        <div class="data">
-                                            <i18-n msgid="Preview is not available">Preview is not available</i18-n>
-                                            <div class="ext-icon">
-                                                <iron-icon icon="designmap-workspace:filer"></iron-icon>
-                                                <span class="ext">{{getExtensionWithoutDot(nextFile.data.name)}}</span>
-                                            </div>
-                                            <a href="#">
-                                                <i18-n msgid="Download file">Download file</i18-n>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </template>
-
-                                <template is="dom-if" if="[[isImageFile(nextFile)]]" restamp="true">
-                                    <iron-image
-                                            id="next-itm"
-                                            class$="swipe-image [[_computeIronImageClass(MQ)]]"
-                                            src="{{computeFileSrc(nextFile)}}"
-                                    ></iron-image>
-                                </template>
-
+                        <template is="dom-if" if="[[isImageFile(nextFile)]]" restamp="true">
+                            <iron-image
+                                    id="next-itm"
+                                    class$="swipe-image [[_computeIronImageClass(MQ)]]"
+                                    src="{{computeFileSrc(nextFile)}}"
+                            ></iron-image>
                         </template>
-                        <!-- Next item -->
-                        <designmap-stickers hidden$="[[!isImageFile(file)]]" class$="[[zoomClasses(zoom)]] [[stickerApperClass(hideStickers)]]" is-there-opened="{{isThereOpened}}" id="stickers" sticker-catch="{{stickerCatch}}" moved="[[moved]]" pressed="[[pressed]]" file="[[file]]" zoom="[[zoom]]"></designmap-stickers>
-                    </div>
-                    <div class="hint" hidden$="[[!showHint]]">
-                        <i18-n msgid="Click on image to leave comment">Click on image to leave comment</i18-n>
-                    </div>
-                </template>
+
+                    </template>
+                    <!-- Next item -->
+                    <designmap-stickers hidden$="[[!isImageFile(file)]]" class$="[[zoomClasses(zoom)]] [[stickerApperClass(hideStickers)]]" is-there-opened="{{isThereOpened}}" id="stickers" sticker-catch="{{stickerCatch}}" moved="[[moved]]" pressed="[[pressed]]" file="[[file]]" zoom="[[zoom]]"></designmap-stickers>
+                </div>
+                <div class="hint" hidden$="[[!showHint]]">
+                    <i18-n msgid="Click on image to leave comment">Click on image to leave comment</i18-n>
+                </div>
+            </template>
             <template is="dom-if" if="[[_computeLoading(loading,error)]]">
                 <img src="/assets/images/svg/three-dots-gray.svg" alt="Loading">
             </template>
@@ -842,7 +850,7 @@
                 <!--<designmap-gallery-user-list></designmap-gallery-user-list>-->
                 <div class="followers-label" id="followTxt" hidden$="[[!file.followers.length]]">
                     <i18-n msgid="Followers">Followers</i18-n>:
-                    <paper-tooltip for="followTxt" position="right"><i18-n msgid="FollowerTextHint">FollowerTextHint</i18-n></paper-tooltip>
+                    <paper-tooltip for="followTxt" position="top"><i18-n msgid="FollowerTextHint">FollowerTextHint</i18-n></paper-tooltip>
                 </div>
 
                 <template is="dom-if" if="[[project]]">
@@ -941,6 +949,10 @@
                 path: {
                     type: String,
                     statePath: 'path'
+                },
+                page: {
+                    type: String,
+                    statePath: 'page'
                 },
                 folderId: {
                     type: String,
@@ -1042,6 +1054,12 @@
                 hideStickers: {
                     type: Boolean,
                     value: false
+                },
+                keysTarget: {
+                    type: Object,
+                    value: function(){
+                        return document.body
+                    }
                 }
             },
             observers: [
@@ -1100,12 +1118,13 @@
              * Previous file
              */
             previous: function (e) {
+                if(this.page!='gallery') return;
                 this.clearZoom();
                 let previousIndex = this.files.indexOf(this.file) - 1;
                 if (previousIndex < 0) previousIndex = this.files.length - 1;
                 const previousFileId = this.files[previousIndex]._id;
                 this._showCounter();
-                page.redirect('/'+this.projectId+'/gallery/' + previousFileId);
+                page.rdt('/'+this.projectId+'/gallery/' + previousFileId);
             },
             /**
              * Set zoom to zero
@@ -1122,19 +1141,20 @@
              * Next file
              */
             next: function (e) {
+                if(this.page!='gallery') return;
                 this.clearZoom();
                 let nextIndex = this.files.indexOf(this.file) + 1;
                 if (nextIndex >= this.files.length) nextIndex = 0;
                 const nextFileId = this.files[nextIndex]._id;
                 this._showCounter();
-                page.redirect('/'+this.projectId+'/gallery/' + nextFileId);
+                page.rdt('/'+this.projectId+'/gallery/' + nextFileId);
             },
             /**
              * Close gallery, but before we have to play exit animation
              */
             close: function () {
-                if(Designmap.previousPath == Designmap.currentPath) return page.redirect('/'+(this.projectId || this.file.project || ''));
-                return page.redirect(Designmap.previousPagePath || '/');
+                if(Designmap.previousPath == Designmap.currentPath) return page.rdt('/'+(this.projectId || this.file.project || ''));
+                return page.rdt(Designmap.previousPagePath || '/');
             },
             /**
              * Is Previous button disabled?
@@ -1405,8 +1425,9 @@
             /**
              * Download file. Right from gallery.
              */
-            downloadFile: function () {
-                window.open(this.file.data.url.replace("#SERVER#", Designmap.config.apiURL));
+            dwnldFile: function () {
+                const url = this.file.data.url.replace("#SERVER#", Designmap.config.apiURL);
+                this.downloadFile(url);
             },
             /**
              * Can user lock file?

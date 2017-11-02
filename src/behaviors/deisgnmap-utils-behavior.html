@@ -174,7 +174,7 @@
          * Compute user name
          */
         computeUserFullName: function (user) {
-            if (typeof user == 'string' || !user) return '...';
+            if (typeof user == 'string' || !user || !user.profile) return '...';
             return user ? user.profile.name && user.profile.lastName ? user.profile.name + ' ' + user.profile.lastName : user.local ? user.local.email[0] : 'XX' : 'XX';
         },
         /**
@@ -334,8 +334,16 @@
                 if(a=='"') return match;
                 const target = match.indexOf(Designmap.config.appURL) == -1 ? '_blank' : '';
                 const text = match.length > 100 ? match.substr(0, 100) + '...' : match;
-                return '<a href="' + match.replace(Designmap.config.appURL, '') + '" target="' + target + '">' + text + '</a>';
+                return '<a href="' + match.replace(Designmap.config.appURL, '/') + '" target="' + target + '">' + text + '</a>';
             })
+        },
+        downloadFile: function(url){
+            const a = document.createElement('A');
+            a.href = url;
+            a.download = url.substr(url.lastIndexOf('/') + 1);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         },
         removeDuplicatesInArray: function (arr) {
             var obj = {};

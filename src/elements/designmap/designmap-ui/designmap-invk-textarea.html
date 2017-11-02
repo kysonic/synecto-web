@@ -17,7 +17,7 @@
                     color: var(--gray-darkend-color);
                     outline: none;
                     border-top: 1px solid var(--gray-color);
-                    min-height: 30px;
+                    min-height: 34px;
                     @apply(--designmap-invk-textarea-mixin);
                 }
             }
@@ -109,6 +109,7 @@
                     type: Array,
                     statePath: function (state) {
                         return state.projectUsers.filter(function(u){
+                            if(!this.user) return false;
                             return u._id!=this.user._id
                         }.bind(this))
                     }
@@ -186,7 +187,7 @@
             },
 
             _specialActionForInvocation: function(e){
-                if([13,40,38].indexOf(e.detail.keyCode)==-1 || !this.opened) return;
+                if(e.detail && [13,40,38].indexOf(e.detail.keyCode)==-1 || !this.opened) return;
 
                 e.detail.preventDefault();
                 e.detail.stopPropagation();

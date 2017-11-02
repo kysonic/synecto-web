@@ -152,11 +152,60 @@
                 background: var(--gry-lightern-color);
                 transition: .2s background;
             }
+
+            /** Attaches **/
+            .attaches {
+                border-top: 1px dashed var(--gray-color);
+                padding-bottom: 10px;
+                margin-left: 41px;
+            }
+            .attaches .wrap {
+                display: inline-block;
+                max-width: calc(100% - 55px);
+                width: calc(100% - 55px);
+            }
+
+            .attaches .wrap .attach {
+                font-size: 14px;
+            }
+
+            .attaches .wrap .attach > * {
+                display: inline-block;
+                width: 100%;
+            }
+
+            .attaches .wrap .attach iron-icon {
+                width: 24px;
+                height: 24px;
+                vertical-align: top;
+                cursor: pointer;
+                --iron-icon-components-mixin: {
+                    stroke: var(--gray-darkend-color);
+                };
+            }
+
+            .attach {
+                margin-top: 5px;
+            }
+            .attach .name {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                max-width: calc(100% - 30px);
+                width: calc(100% - 30px);
+                display: inline-block;
+                vertical-align: top;
+            }
+            .attach a {
+                color: var(--gray-darkend-color);
+                text-decoration: none;
+            }
+
         </style>
         <!-- Comments list -->
         <ul class="comments-list" hidden$="[[!taskComments.length]]">
             <template is="dom-repeat" items="[[_getComments(task._id,comments.*)]]" as="comment">
-                <li>
+                <li on-mouseup="saveTempComment">
                     <designmap-avatar-projector user="[[comment.owner]]"></designmap-avatar-projector>
                     <div class="text">
                         <div class="head">
@@ -183,6 +232,18 @@
                                    icon="icons:more-vert"></iron-icon>
                     </div>
                 </li>
+                <div class="attaches" hidden$="[[!comment.attaches.length]]">
+                    <div class="wrap">
+                        <template is="dom-repeat" items="[[_computeAttaches(comment.attaches)]]" as="attach">
+                            <div class="attach">
+                                <a href="[[_getAttachLink(attach)]]" on-click="goToLink">
+                                    <iron-icon icon$="designmap24:[[attach.type]]"></iron-icon>
+                                    <div class="name">[[_computeAttachName(attach)]]</div>
+                                </a>
+                            </div>
+                        </template>
+                    </div>
+                </div>
             </template>
         </ul>
         <!-- Comments list Dropdown-->
@@ -202,12 +263,18 @@
         Polymer({
             is: 'designmap-task-comment-list',
             behaviors: [
-                Polymer.DesignMapUtilsBehavior
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapFsService,
+                Polymer.DesignMapTaskService,
             ],
             properties: {
                 task: {
                     type: Object,
                     value: {}
+                },
+                projectId: {
+                    type: String,
+                    value: ''
                 },
                 user: {
                     type: Object,
@@ -220,12 +287,13 @@
                 taskComments: {
                     type: Array,
                     value: []
-                },
-                projectId: {
-                    type: String,
-                    value: ''
                 }
             },
+
+            listeners: {
+               'text-quote': 'quoteText'
+            },
+
             _getComments: function (id) {
                 return this.taskComments = this.comments.filter(function (comment) {
                     return comment.task == id;
@@ -275,6 +343,34 @@
                 const comment = e.model.comment;
                 this.fire('reply-comment',comment);
             },
+
+            _computeAttachName: function(attach){
+                return attach.data?attach.data.name:attach.name;
+            },
+
+            _getAttachLink: function(attach) {
+                if(attach.type!='file') return '/'+this.projectId+'/task-manager'+this.getFullPath(attach);
+                if(!attach) return '/';
+                if(attach.data.storage=='google') return attach.data.url;
+                return '/'+this.projectId+'/gallery/'+attach._id;
+
+            },
+
+            _computeAttaches: function(attaches) {
+                if (!attaches) return [];
+                return attaches.map(function (attachId) {
+                    return this.findFileById(attachId) || this.findTaskById(attachId) || null;
+                }.bind(this));
+            },
+
+            quoteText: function(e){
+                this.fire('quote-task-comment',e.detail);
+            },
+
+            saveTempComment: function(e){
+                this.fire('set-temp-comment',e.model.comment);
+            }
+
         })
     </script>
 </dom-module>

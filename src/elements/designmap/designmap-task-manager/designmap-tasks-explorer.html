@@ -121,6 +121,12 @@
                 max-width: 300px;
                 font-weight: 500;
             }
+            button {
+                white-space: nowrap;
+                max-width: 300px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
             .button[disabled] {
                 background: var(--gray-saturate-color);
                 border-color: var(--gray-saturate-color);
@@ -195,14 +201,15 @@
                 [[_getTaskName(currentTaskId,project)]]
             </div>
         </div>
-        <div class="btn-container">
+        <div hidden$="[[noUpload]]" class="btn-container">
             <button is="designmap-button" fit thin on-tap="uploadIn">
                 <i18-n msgid="Create task in">Create task in</i18-n>
                 &laquo;[[_getTaskName(currentTaskId,project)]]&raquo;
             </button>
         </div>
         <div class="or">
-            <i18-n class="text" msgid="or select existed">or select existed</i18-n>
+            <i18-n hidden$="[[noUpload]]" class="text" msgid="or select existed">or select existed</i18-n>
+            <i18-n hidden$="[[!noUpload]]" class="text" msgid="select existed">select existed</i18-n>
             <div class="line"></div>
         </div>
         <div class="content">
@@ -247,7 +254,7 @@
                     type: Array,
                     statePath: function(state){
                         return state.tasks.filter(function (task) {
-                            return task.parent == this.currentTaskId;
+                            return task.parent == this.currentTaskId && !task.removed;
                         }.bind(this));
                     }
                 },
@@ -279,6 +286,10 @@
                 buttonText: {
                     type: String,
                     value: 'None'
+                },
+                noUpload: {
+                    type: Boolean,
+                    value: false
                 }
             },
             _getName: function(el) {

@@ -531,7 +531,7 @@
     "message": "Подтвердите новый пароль"
   },
   "Stickers and Notifications": {
-    "message": "Стикеры"
+    "message": "Точечные коментарии"
   },
   "Total stickers count": {
     "message": "Макс. число точеченых коментариев на одно изображение"
@@ -1071,10 +1071,10 @@
     "message":"Сделай работу в Synecto еще более удобной используя гарячие клавиши!"
   },
   "Contact us": {
-    "message": "Написать в поддержку"
+    "message": "Открыть обращение"
   },
   "Contact us desc": {
-    "message": "Воспользуйтесь on-line чатом в нижнем правом углу или нажмите сюда, чтобы открыть форму обращений."
+    "message": "Если Ваша проблема не срочная, Вы можете открыть новое обращение в нашей службе поддержки."
   },
   "Video tutorials": {
     "message":"Видео уроки"
@@ -1164,7 +1164,7 @@
     "message": "Выбранные элемнты были успешно отправлены в архив."
   },
   "Information": {
-    "message": "Информация"
+    "message": "Свойства"
   },
   "AreYouSureThatYouWannaCreateProject": {
     "message": "Вы уверены что хотите создать проект?"
@@ -1529,6 +1529,15 @@
   "File was attached successful!": {
     "message": "Файл был успешно прикреплен!"
   },
+  "Attach file to chat": {
+    "message": "Прикрепить файл к сообщению"
+  },
+  "YouHaveUncompletedTasks": {
+    "message": "Не все подзадачи этой задачи завершены. Все равно завершить эту?"
+  },
+  "Task was attached successful!": {
+    "message": "Задача была успешно прикреплена!"
+  },
   "Grades": {
     "message": "Оценки:"
   },
@@ -1878,7 +1887,7 @@
     "message": "Тут задач нет..."
   },
   "Blocks": {
-    "message": "Блоки"
+    "message": "Управление"
   },
   "AreYouSureThatYouWannaCloseProject": {
     "message": "Закрыть проект?"
@@ -1893,7 +1902,19 @@
     "message": "Закрытые"
   },
   "Members": {
-    "message": "Участники"
+    "message": "Участники проекта"
+  },
+  "Contact support": {
+    "message": "Поддержка"
+  },
+  "Download the synecto app": {
+    "message": "Скачать приложение Synecto"
+  },
+  "Manage your plan": {
+    "message": "Управление планами"
+  },
+  "Download the app": {
+    "message": "Скачать приложение"
   },
   "Not selected": {
     "message": "Не выбран..."
@@ -2022,7 +2043,7 @@
     "message": "Показать обзор задач"
   },
   "GoogleDocsIntegration": {
-    "message": "Интегрируйтесь с Google Docs чтобы добавлять документы, таблицы и презентации"
+    "message": "Интегрируйтесь с Google Docs"
   },
   "Create Doc": {
     "message": "Создать Google Документ"
@@ -2101,6 +2122,15 @@
   },
   "or select existed": {
     "message": "или выберите существующие"
+  },
+  "select existed": {
+    "message": "выберите существующие"
+  },
+  "attach file": {
+    "message": "прикрепить файл"
+  },
+  "attach task": {
+    "message": "прикрепить задачу"
   },
   "Hours": {
     "message": "Часы"
@@ -2304,7 +2334,10 @@
     "message": "Создавай скриншоты, которые <span class='marked'>автоматически будут загружены</span> в проект Synecto, получай <span class='marked'>уведомления</span> от коллег, управляй своим Synecto <span class='marked'>аккаунтом</span> прямо из Вашего компьютера!"
   },
   "Download app": {
-    "message": "Скачать приложение"
+    "message": "Скачать приложение. Создавай скриншоты и получай уведомления со своего компьютера."
+  },
+  "Contact us menu": {
+    "message": "Поддержка. Мы рады ответить на любые Ваши вопросы, используя все доступные каналы связи."
   },
   "active": {
     "message": "активный"

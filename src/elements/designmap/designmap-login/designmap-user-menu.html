@@ -346,25 +346,25 @@
                     </div>
                 </div>
                 <paper-tooltip for="support"><i18-n msgid="Support">Support</i18-n></paper-tooltip>-->
-                <a hidden$="[[_isPremium(user)]]" href="/activate" class="block upgrade" id="upgrade" >
+                <!--<a hidden$="[[_isPremium(user)]]" href="/activate" class="block upgrade" id="upgrade" >
                    <i18-n msgid="Upgrade">Upgrade</i18-n>
-                </a>
-                <div hidden$="[[downloaded]]" class="block app" id="app" on-click="openAppDialog">
+                </a>-->
+                <!--<div hidden$="[[downloaded]]" class="block app" id="app" on-click="openAppDialog">
                     <div class="notify">
                         <iron-icon icon="designmap-user-menu:app"></iron-icon>
                     </div>
                 </div>
                 <paper-tooltip for="app">
                     <i18-n msgid="Download app">Download app</i18-n>
-                </paper-tooltip>
+                </paper-tooltip>-->
                 <!-- Support -->
-                <div class="block app" id="qa" on-click="goToDocs">
-                    <div class="notify">
+                <div class="block app"  on-click="goToDocs">
+                    <div class="notify" id="qa">
                         <iron-icon icon="designmap24:qa"></iron-icon>
                     </div>
                 </div>
                 <paper-tooltip for="qa">
-                    <i18-n msgid="Support">Support</i18-n>
+                    <i18-n msgid="Contact us menu">Contact us</i18-n>
                 </paper-tooltip>
                 <div class="block notification" id="notify" on-tap="openNotifyDropdown">
                     <div class="notify">
@@ -372,6 +372,7 @@
                     </div>
                     <div class="ntfy-indicator" hidden$="[[_areThereNotReadNotifications(notifications.*)]]"></div>
                 </div>
+
                 <!-- Notifications Dropdown -->
                 <designmap-dropdown horizontal-offset="-320" vertical-offset="60" id="notifyDropdown" tri-border previous>
                     <designmap-notifications on-link="closeNotifyDropdown" cut on-removed="refitDropdown"></designmap-notifications>
@@ -403,6 +404,11 @@
                 <!-- Account menu -->
                 <designmap-dropdown id="dropdown" previous use-capture="true" tri-border horizontal-offset="[[horizontalOffset]]"
                                     vertical-offset="[[verticalOffset]]">
+                    <div class="row">
+                        <!-- designmap-user-menu:language -->
+                        <iron-icon icon="icons:translate"></iron-icon>
+                        <designmap-language-switcher></designmap-language-switcher>
+                    </div>
                     <div class="row" on-tap="goToProfile">
                         <!-- designmap-user-menu:settings -->
                         <iron-icon icon="icons:settings"></iron-icon>
@@ -410,43 +416,38 @@
                             <i18-n msgid="Account Settings">Account Settings</i18-n>
                         </div>
                     </div>
-                    <div class="row">
-                        <!-- designmap-user-menu:language -->
-                        <iron-icon icon="icons:translate"></iron-icon>
-                        <designmap-language-switcher></designmap-language-switcher>
+                    <div class="row support" on-tap="goToDocs">
+                        <iron-icon icon="icons:question-answer"></iron-icon>
+                        <div class="text">
+                            <i18-n msgid="Contact support">Contact support</i18-n>
+                        </div>
                     </div>
                     <div class="row notify" on-tap="goToNotification">
                         <!-- designmap-user-menu:notify -->
                         <iron-icon icon="social:notifications"></iron-icon>
                         <div class="text">
                             <i18-n msgid="Notifications">Notifications</i18-n>
-                            &nbsp;<span hidden$="[[_areThereNotReadNotifications(notifications.*)]]">([[_getNotReadNotifications(notifications.*)]])</span></div>
+                            <span hidden$="[[_areThereNotReadNotifications(notifications.*)]]">([[_getNotReadNotifications(notifications.*)]])</span></div>
                     </div>
                     <div class="row app" on-click="openAppDialog">
                         <iron-icon icon="get-app"></iron-icon>
                         <div class="text">
-                            <i18-n msgid="App">App</i18-n>
+                            <i18-n msgid="Download the app">Download the app</i18-n>
                         </div>
                     </div>
-                    <div class="row support" on-tap="goToDocs">
-                        <iron-icon icon="icons:question-answer"></iron-icon>
-                        <div class="text">
-                            <i18-n msgid="Support">Support</i18-n>
-                        </div>
-                    </div>
-                    <div class="row" on-tap="goToPlans">
+                    <!--<div class="row" on-tap="goToPlans">
                         <iron-icon icon="icons:assignment"></iron-icon>
                         <div class="text">
-                            <i18-n msgid="Plans">Plans</i18-n>
+                            <i18-n msgid="Manage your plan">Manage your plan</i18-n>
                         </div>
-                    </div>
-                    <div class="row" on-tap="goToTypeForm">
-                        <!-- designmap-user-menu:feedback -->
+                    </div>-->
+                    <!--<div class="row" on-tap="goToTypeForm">
+                        &lt;!&ndash; designmap-user-menu:feedback &ndash;&gt;
                         <iron-icon icon="icons:feedback"></iron-icon>
                         <div class="text">
                             <i18-n msgid="Leave a feedback">Leave a feedback</i18-n>
                         </div>
-                    </div>
+                    </div>-->
                     <div class="row" on-tap="logout" id="logout">
                         <!-- designmap-user-menu:sign_out exit-to-app-->
                         <iron-icon icon="icons:exit-to-app"></iron-icon>
@@ -458,13 +459,13 @@
                 <!-- Download app dialog -->
                 <paper-dialog id="appDialog"  entry-animation="scale-up-animation" exit-animation="scale-down-animation">
                     <div class="content">
-                        <h1><i18-n msgid="Download app">Download app</i18-n></h1>
+                        <h1><i18-n msgid="Download the synecto app">Download the synecto app</i18-n></h1>
                         <p>
                             <i18-n msgid="Synecto app desc">Synecto app desc</i18-n>
                         </p>
-                        <p hidden$="[[!_isWin()]]" class="win-warn">
+                        <!--<p hidden$="[[!_isWin()]]" class="win-warn">
                             <i18-n msgid="Windows warn">Windows warn</i18-n>
-                        </p>
+                        </p>-->
                         <button is="designmap-button" blue on-click="downloadApp">
                             <i18-n msgid="Download">Download</i18-n>
                         </button>
@@ -536,7 +537,7 @@
             logout: function () {
                 document.querySelector('#globalLoading').style.display = 'flex';
                 if (this.$$('#logout').disabled) return;
-                page.redirect('/');
+                page.rdt('/');
                 this.dispatch('userLogout').then(function () {
                     this.$$("#dropdown").close();
                     this.async(function(){
@@ -555,23 +556,23 @@
                 this.$$("#dropdown").toggle();
             },
             goToProfile: function () {
-                page.redirect('/settings/profile');
+                page.rdt('/settings/profile');
                 this.$$("#dropdown").close();
             },
             goToNotification: function () {
-                page.redirect('/notifications/');
+                page.rdt('/notifications/');
                 this.$$("#dropdown").close();
             },
             goToDocs: function () {
-                page.redirect('/support');
+                page.rdt('/support');
                 this.$$("#dropdown").close();
             },
             goToPlans: function () {
-                page.redirect('/activate');
+                page.rdt('/activate');
                 this.$$("#dropdown").close();
             },
             goToTypeForm: function () {
-                window.open('https://kysonic.typeform.com/to/w61k3K', '_blank');
+                window.open('https://kysonic.typeform.coms/to/w61k3K', '_blank');
             },
             openNotifyDropdown: function(){
                 if(this.notifications) this.dispatch('readNotifications',this.notifications);

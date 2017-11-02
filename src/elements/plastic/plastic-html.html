@@ -5,11 +5,15 @@
         <style>
             :host {
                 display: inline-block;
+                position: relative;
                 width: 100%;
                 @apply(--plastic-html-mixin);
             }
+            *[hidden] {
+                display: none !important;
+            }
             #content {
-                white-space: pre-line;
+                color: var(--gray-darkend-color);
             }
             #content a {
                 color: var(--blue-darkest-color);
@@ -18,8 +22,42 @@
                 padding: 0 0;
                 background: #e7dad1;
             }
+            #content ul {
+                margin: 0;
+                padding: 0;
+                width: auto;
+                height: auto;
+            }
+            #content ul li {
+                margin: 0;
+                padding: 5px 0;
+            }
+            #content p {
+                margin: 3px 0;
+                white-space: pre-line;
+            }
+            #content blockquote {
+                margin: 5px 10px;
+                border-left: 3px solid var(--gray-color);
+                padding-left: 10px;
+            }
+            .panel {
+                position: absolute;
+                pading: 5px 10px;
+                border-radius: 3px;
+                background: var(--blue-darkest-color);
+            }
+            .panel iron-icon {
+                cursor: pointer;
+                --iron-icon-fill-color: var(--white-color);
+            }
         </style>
-        <div id="content"></div>
+        <div class="markdown-content" on-mouseup="textSelected" id="content"></div>
+        <div hidden$="[[!panelOpened]]" id="panel" class="panel">
+            <div class="button" on-click="quote">
+                <iron-icon icon="editor:format-quote"></iron-icon>
+            </div>
+        </div>
     </template>
     <script>
         Polymer({
@@ -34,15 +72,41 @@
                     type: String,
                     value: '',
                     observer: 'highlightChanged'
+                },
+                panelOpened: {
+                    type: Boolean,
+                    value: false
                 }
             },
             _msgChanged: function(msg){
                 // Escape stuff;
-                this.$.content.innerHTML = msg;
+                this.$.content.innerHTML = marked(this.msg);
             },
             highlightChanged: function(highlight){
-                if(!highlight) return  this.$.content.innerHTML = this.msg;
-                this.$.content.innerHTML = this.msg.replace(new RegExp(highlight,'g'),'<span class="marked">'+highlight+'</span>');
+                const msg = marked(this.msg);
+                if(!highlight) return  this.$.content.innerHTML = msg;
+                this.$.content.innerHTML = this.msg.replace(new RegExp(msg,'g'),'<span class="marked">'+msg+'</span>');
+            },
+            textSelected: function(e){
+                this.panelOpened = false;
+                const target = e.path ? e.path[0] : e.target;
+                const selection = this.shadowRoot ? this.shadowRoot.getSelection() : window.getSelection();
+                const text = target.innerHTML;
+                this.selectedText = text.substring(selection.baseOffset,selection.extentOffset);
+                if(!this.selectedText) return;
+                this.showPanel(e);
+            },
+            showPanel: function(e){
+                this.$.panel.style.left = e.layerX + 2 + 'px';
+                this.$.panel.style.top = e.layerY - 34 + 'px';
+                this.panelOpened = true;
+            },
+            hidePanel: function(e){
+                this.panelOpened = false;
+            },
+            quote: function(){
+                this.panelOpened = false;
+                this.fire('text-quote',this.selectedText)
             }
         })
     </script>

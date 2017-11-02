@@ -366,13 +366,13 @@
                     this.tempProjectId = e.model.project._id;
                     return this.$.trackedTaskConfirm.open();
                 }
-                page.redirect('/' + e.model.project._id);
+                page.rdt('/' + e.model.project._id,e.ctrlKey || e.metaKey);
                 this.fire('close-menu-in-mobile-mode');
             },
 
             anyWaySelectProject: function(){
                 this.$.trackedTaskConfirm.close();
-                page.redirect('/' + this.tempProjectId);
+                page.rdt('/' + this.tempProjectId);
                 this.fire('close-menu-in-mobile-mode');
             },
             /**
@@ -380,7 +380,7 @@
              * @param e
              */
             selectShare: function (e) {
-                page.redirect('/' + e.model.share._id);
+                page.rdt('/' + e.model.share._id,e.ctrlKey || e.metaKey);
                 this.fire('close-project-list');
             },
             /**
@@ -482,8 +482,8 @@
                 this.$.projectContextMenu.close();
                 this.dispatch('removeProject',this.projectID).then(function () {
                     if(this.projectID==this.projectId) {
-                        if(this.projects && this.projects[0]) return page.redirect('/'+this.projects[0]._id);
-                        page.redirect('/');
+                        if(this.projects && this.projects[0]) return page.rdt('/'+this.projects[0]._id);
+                        page.rdt('/');
                         localStorage.setItem('synecto:lop',null);
                     }
                     this.showMessage('Project has been removed');
@@ -500,8 +500,8 @@
                 this.dispatch('updateProject', this.projectID, {closed: true}).then(function(){
                     if(!this.projects.length) this.selectedTab = 1;
                     if(this.projectID==this.projectId) {
-                        if(this.overallProjects && this.overallProjects[0]) return page.redirect('/'+this.overallProjects[0]._id);
-                        page.redirect('/');
+                        if(this.overallProjects && this.overallProjects[0]) return page.rdt('/'+this.overallProjects[0]._id);
+                        page.rdt('/');
                     }
                     this.showMessage('Project has been closed');
                 }.bind(this));
@@ -514,7 +514,7 @@
                 this.dispatch('updateProject', this.projectID, {closed: false}).then(function(){
                     if(!this.closedProjects.length) this.selectedTab = 0;
                     this.showMessage('Project has been restored');
-                    page.redirect('/'+this.projectID);
+                    page.rdt('/'+this.projectID);
                 }.bind(this));
             },
             /**
@@ -581,7 +581,7 @@
             goToTrackedTask: function(){
                 if(!Designmap.trackedTask) return;
                 this.$.trackedTaskConfirm.close();
-                page.redirect('/'+Designmap.trackedTask.scope+'/task-manager'+this.getFullPath(Designmap.trackedTask));
+                page.rdt('/'+Designmap.trackedTask.scope+'/task-manager'+this.getFullPath(Designmap.trackedTask));
             }
         });
     </script>

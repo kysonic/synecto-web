@@ -552,6 +552,9 @@
                     <designmap-task-comment-list  project-id="[[projectId]]" user="[[user]]" task="[[task]]" comments="[[comments]]"></designmap-task-comment-list>
                 </div>
             </plastic-custom-scroll>
+            <designmap-confirm id="completeTaskConfirm"
+                               message="YouHaveUncompletedTasks" on-continue="changeStatus"
+                               on-suspend="suspendComplete"></designmap-confirm>
         </div>
         <!--comments-->
         <div class="comments">
@@ -636,7 +639,7 @@
                 }
             },
             listeners: {
-                'change-status': 'changeStatus',
+                'change-status': '_chngStatus',
                 'change-label': 'changeLabel',
                 'estimate-task': 'estimateTask',
                 'track-time': 'trackTime',
@@ -645,11 +648,15 @@
                 'clear-time': 'clearTime',
                 'save-date': 'saveDate',
                 'attach-files': 'attachFiles',
+                'attach-tasks': 'attachTasks',
                 'remove-file': 'removeFile',
+                'remove-task-attach': 'removeTaskAttach',
                 'remove-comment': 'removeComment',
                 'edit-comment': 'editComment',
                 'like-comment': 'likeComment',
                 'reply-comment': 'replyComment',
+                'quote-task-comment': 'quoteTaskComment',
+                'set-temp-comment': 'setTempComment',
                 'scroll-on-top': 'scrollOnTop',
                 'send-estimation-request': 'sendEstimationRequest',
                 'send-time-change-request': 'sendTimeChangeRequest',
@@ -727,9 +734,20 @@
                 this.dispatch('updateTask', e.detail.task._id, {assignee: null});
             },
 
-            changeStatus: function(e){
+            _chngStatus: function(e){
                 const status = e.detail;
+                this.tempStatus = status;
+                if(status=='completed' && this.checkNotCompletedChildren(this.task)) return this.$.completeTaskConfirm.open();
+                this.changeStatus(e);
+            },
+
+            suspendComplete: function(){
+                this.$.completeTaskConfirm.close();
+            },
+
+            changeStatus: function(e){
                 if (!this.canUpdateTask(this.task)) return this.showErrorMessage('Only project or task or assignee can change task status');
+                const status = e && typeof e.detail=='string' ? e.detail : this.tempStatus;
                 //if (this.isExpired(this.task.expired)) return;
                 const data = {status: status};
                 if(status=='completed') data.completed = new Date();
@@ -740,6 +758,7 @@
                 });
                 // Notify
                 this.sendTaskStatusNotification(this.task);
+                this.$.completeTaskConfirm.close();
             },
 
             changeLabel: function(e){
@@ -774,9 +793,27 @@
                 }.bind(this));
             },
 
+            attachTasks: function(e){
+                const selected = e.detail;
+                selected.forEach(function (task) {
+                    if (this.task.tasks.indexOf(task._id) != -1) return;
+                    this.task.tasks.push(task._id);
+                }.bind(this));
+                this.dispatch('updateTask', this.task._id, this.task).then(function (response) {
+                    if (!response.success) return;
+                    this.showMessage('Task was attached successful!');
+                }.bind(this));
+            },
+
             removeFile: function (e) {
                 const file = e.detail;
                 this.task.files.splice(this.task.files.indexOf(file._id), 1);
+                this.dispatch('updateTask', this.task._id, this.task);
+            },
+
+            removeTaskAttach: function (e) {
+                const task = e.detail;
+                this.task.tasks.splice(this.task.tasks.indexOf(task._id), 1);
                 this.dispatch('updateTask', this.task._id, this.task);
             },
 
@@ -874,6 +911,15 @@
                 this.$.comments.reply(comment);
             },
 
+            quoteTaskComment: function(e){
+                const text = e.detail;
+                this.$.comments.quoteText(text);
+            },
+
+            setTempComment: function(e){
+                this.$.comments.setTempComment(e.detail);
+            },
+
             sendEstimationRequest: function(e){
                 this.sendTaskEstimationRequestNotification(e.detail);
                 this.showMessage('Estimation request has been sent.')
@@ -886,9 +932,9 @@
             removeTask: function(){
                 const id = this.task._id;
                 this.fire('reset');
-                this.dispatch('updateTask', id, {removed: true,removedBy:{user:this.user._id,date:new Date()}}).then(function (response) {
+                this.dispatch('$updateTask', id, {removed: true,removedBy:{user:this.user._id,date:new Date()}}).then(function (response) {
                     if (!response.success) return this.showErrorMessage('Cannot archive task');
-                    this.showMessage('Task has been archived.');
+                    this.showUndoMessage('Task has been archived.');
                 }.bind(this));
             },
 

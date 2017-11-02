@@ -11,7 +11,7 @@
 
             }
 
-            .attach-file:hover {
+            .attach-file:hover, .attach-task:hover {
                 text-decoration: underline;
             }
 
@@ -91,17 +91,25 @@
         <template is="dom-repeat" items="[[_computeTaskFiles(task.files)]]" as="file">
             <div class="file">
                 <a class="file-name" title="[[cutFileName(file)]]" href="#" on-tap="openFile">[[cutFileName(file)]]</a>
-                <!--<div class="download-file">
-                    <a href="[[file.data.url]]" target="_blank">
-                        <iron-icon icon="icons:file-download"></iron-icon>
-                    </a>
-                </div>-->
+                <iron-icon icon="designmap24:file"></iron-icon>
                 <div class="remove-file" on-tap="removeFile">
                     <iron-icon icon="designmap-task-manager:remove"></iron-icon>
                 </div>
             </div>
         </template>
-        <span class="attach-file" on-tap="openFsExplorerDialog"><i18-n msgid="attach">attach</i18-n></span>
+
+        <template is="dom-repeat" items="[[_computeTaskTasks(task.tasks)]]" as="task">
+            <div class="file">
+                <a class="file-name" title="[[task.name]]" href="#" on-tap="openTask">[[task.name]]</a>
+                <iron-icon icon="designmap24:task"></iron-icon>
+                <div class="remove-file" on-tap="removeTask">
+                    <iron-icon icon="designmap-task-manager:remove"></iron-icon>
+                </div>
+            </div>
+        </template>
+
+        <span class="attach-file" on-tap="openFsExplorerDialog"><i18-n msgid="attach file">attach file</i18-n></span><br/>
+        <span class="attach-task" on-tap="openTasksExplorerDialog"><i18-n msgid="attach task">attach task</i18-n></span>
         <!-- FS Explorer -->
         <paper-dialog class="explorer-dialog"  id="fsExplorerDialog"
                       entry-animation="scale-up-animation" exit-animation="scale-down-animation">
@@ -110,12 +118,22 @@
         </paper-dialog>
         <!-- Uploader -->
         <designmap-file-uploader id="uploader" on-done="_selectFiles" parent="folder"></designmap-file-uploader>
+
+        <!-- Tasks explorer -->
+        <paper-dialog class="explorer-dialog" id="tasksExplorerDialog"
+                      entry-animation="scale-up-animation" exit-animation="scale-down-animation">
+            <designmap-tasks-explorer id="taskExplorer" button-text="Attach task" current-task-id="{{currentTaskId}}"
+                                      no-upload
+                                      on-task="_attachTask"></designmap-tasks-explorer>
+        </paper-dialog>
+
     </template>
     <script>
         Polymer({
             is: 'designmap-task-file-list',
             behaviors: [
                 Polymer.DesignMapFsService,
+                Polymer.DesignMapTaskService,
                 Polymer.DesignMapUtilsBehavior
             ],
             properties: {
@@ -144,13 +162,29 @@
                 }.bind(this));
             },
 
+            _computeTaskTasks: function (tasks) {
+                if (!tasks) return [];
+                return tasks.map(function (taskId) {
+                    return this.findTaskById(taskId);
+                }.bind(this));
+            },
+
             _attachFile: function (e) {
                 this.$.fsExplorerDialog.close();
                 this.fire('attach-files',e.detail)
             },
 
+            _attachTask: function (e) {
+                this.$.tasksExplorerDialog.close();
+                this.fire('attach-tasks',e.detail)
+            },
+
             removeFile: function (e) {
                 this.fire('remove-file',e.model.file);
+            },
+
+            removeTask: function (e) {
+                this.fire('remove-task-attach',e.model.task);
             },
 
             _openFileUploader: function (e) {
@@ -169,10 +203,20 @@
                 this.$.fsExplorerDialog.open();
             },
 
+            openTasksExplorerDialog: function () {
+                this.$.tasksExplorerDialog.open();
+            },
+
             openFile: function (e) {
                 e.preventDefault();
                 if(e.model.file.data.storage=='google') return window.open(e.model.file.data.url,'_blank');
-                page.redirect('/'+this.projectId+'/gallery/' + e.model.file._id);
+                page.rdt('/'+this.projectId+'/gallery/' + e.model.file._id);
+            },
+
+            openTask: function (e) {
+                e.preventDefault();
+                const task = e.model.task;
+                page.rdt('/'+this.projectId+'/task-manager'+this.getFullPath(task));
             },
         })
     </script>

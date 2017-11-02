@@ -56,7 +56,7 @@
             };
             this.dispatch('addComment', comment);
             this.textAreaValue = '';
-
+            this.doverl = false;
             this._sendNotification(this.file,sticker,comment);
 
             this.async(function () {
@@ -132,6 +132,7 @@
             this.commentEditMode = false;
             comment.text = this.textAreaValue;
             this.textAreaValue = '';
+            this.doverl = false;
             this.dispatch('updateComment', comment._id, comment);
         },
 

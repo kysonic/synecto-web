@@ -193,6 +193,11 @@
                 if(task.parent==this.parent && task.name == taskName) found = task;
             },this)
             return found;
+        },
+        checkNotCompletedChildren: function(task){
+            return this.findSubtasks(task).filter(function(t){
+                return !t.removed && t.status!='completed';
+            }).length;
         }
     }
 </script>

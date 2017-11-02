@@ -159,7 +159,7 @@
                         <!-- Add folder context -->
                         <designmap-context-menu id="addFolderContext" previous>
                             <div class="context-content">
-                                <iron-a11y-keys id="a11yAddFolder" keys="ctrl+enter meta+enter"
+                                <iron-a11y-keys id="a11yAddFolder" keys="enter"
                                                 on-keys-pressed="addFolderManually"></iron-a11y-keys>
                                 <paper-input label="[[translate('Folder Name',language,i18Loaded)]]" auto-validate
                                              pattern="[\w\dа-яА-ЯёЁ -]+"
@@ -342,7 +342,7 @@
              * Go on project page
              */
             goBack: function () {
-                page.redirect('/'+this.projectId);
+                page.rdt('/'+this.projectId);
             },
             /**
              * Change sort

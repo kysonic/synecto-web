@@ -266,7 +266,7 @@
         <designmap-hidden-panel target="[[bodyNode]]" position="top"
                                 cancel-auto-closing
                                 opened="[[computeHiddenPanelState(selected.length)]]">
-            <div class="select-panel-content">
+            <div class="select-panel-content centred">
                 <designmap-circle-button class="cancel-selecting" on-click="cleanSelected">
                     <iron-icon icon="designmap:add" style="transform: rotate(45deg)"></iron-icon>
                 </designmap-circle-button>
@@ -431,7 +431,8 @@
                 'apply-action':'applyAction'
             },
             observers: [
-                'selectedChanged(selected.splices)'
+                'selectedChanged(selected.splices)',
+                'elementsChanged(elements.*)'
             ],
             ready: function () {
                 window.addEventListener('click', this.clickOutside.bind(this));
@@ -445,12 +446,19 @@
             },
 
             attached: function(){
-                if(!this.hintTarget) {
-                    this.async(function(){
-                        this.hintFolderTarget = this.$$('designmap-fs-element[type="folder"]');
-                        this.hintFileTarget = this.$$('designmap-fs-element[type="file"]');
-                    },1000)
-                }
+                this.async(function(){
+                    this.findHintsTargets();
+                },1000)
+            },
+
+            findHintsTargets: function(){
+                this.hintFolderTarget = this.$$('designmap-fs-element[type="folder"]');
+                this.hintFileTarget = this.$$('designmap-fs-element[type="file"]');
+            },
+
+            elementsChanged: function(){
+                this.hintFolderTarget = this.$$('designmap-fs-element[type="folder"]');
+                this.hintFileTarget = this.$$('designmap-fs-element[type="file"]');
             },
 
             _countElements: function (state) {
@@ -572,7 +580,7 @@
              */
             executeFolderAction: function (folder) {
                 this.$$('#contextMenu').close();
-                page.redirect('/'+this.projectId+'/fs'+this.getFullPath(folder));
+                page.rdt('/'+this.projectId+'/fs'+this.getFullPath(folder));
             },
             /**
              * Open the gallery
@@ -580,7 +588,7 @@
              */
             executeFileAction: function (file) {
                 if(file.data.storage=='google') return window.open(file.data.url,'_blank');
-                page.redirect('/'+this.projectId+'/gallery/'+file._id);
+                page.rdt('/'+this.projectId+'/gallery/'+file._id);
             },
             /**
              * Get files only
@@ -705,7 +713,8 @@
             },
             download: function(e){
                 this.$$('#contextMenu').close();
-                window.open(this.currentElement.data.url.replace("#SERVER#", Designmap.config.apiURL));
+                const url = this.currentElement.data.url.replace("#SERVER#", Designmap.config.apiURL);
+                this.downloadFile(url);
             },
             /**
              * Cut/Paste
@@ -810,15 +819,17 @@
             },
 
             folderHintPreHook: function(){
-                if(!this.hintFolderTarget) this.fire('hint-skip',true);
+                if(!this.hintFolderTarget) {
+                    this.$.folderHint.finish();
+                    this.fire('hint-skip',true)
+                }
             },
 
             fileHintPreHook: function(){
                 if(!this.hintFileTarget) {
-                    this.async(function(){
-                        this.fire('hint-skip',true)
-                    },100)
-                };
+                    this.$.folderHint.finish();
+                    this.fire('hint-skip',true);
+                }
             }
         });
     </script>

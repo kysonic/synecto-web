@@ -118,6 +118,7 @@
                 this.fire('apply');
             },
             _amIIn: function(user){
+                if(!user) return false;
                 return this.followers.find(function(u){return u==user._id;});
             }
         })

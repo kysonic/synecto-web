@@ -115,7 +115,7 @@
                 const diff = moment().diff(date, 'days');
                 if(diff==0) return this.translate('today');
                 if(diff==1) return this.translate('yesterday');
-                return diff>5?date.format('YYYY-MM-DD'):diff+' '+this.translate('days ago');
+                return diff>5?date.format('DD-MMMM-YYYY'):diff+' '+this.translate('days ago');
             },
             _copyToClipBoard: function(){
                 this.showMessage('Task #ID has beem copied in clipboard');

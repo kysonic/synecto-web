@@ -8,12 +8,17 @@
 
 <dom-module id="designmap-task-comments">
     <template>
-        <style>
+        <style include="tooltip-shared-styles">
             :host {
                 --designmap-invk-textarea-mixin: {
                     border: none;
                     padding: 0 0 0 10px;
                     max-height: none;
+                };
+
+                --designmap-dropdown-triangle-bottom-mixin: {
+                    left: 100%;
+                    margin-left: -40px;
                 };
             }
 
@@ -68,19 +73,7 @@
                 flex: 10;
             }
 
-            .comments .send {
-                border: 1px solid var(--gray-color);
-                padding: 5px;
-                cursor: pointer;
-            }
-            .comments .send:hover {
-                background: var(--gry-lightern-color);
-            }
 
-            .comments .send iron-icon {
-                --iron-icon-stroke-color: var(--expired);
-                --iron-icon-fill-color: var(--expired);
-            }
 
             .comments .send[disabled] {
                 opacity: 0.6;
@@ -93,8 +86,112 @@
                 border: 1px solid var(--gray-color);
             }
 
+            .buttons {
+                display: flex;
+            }
+
+            .buttons .button {
+                width: 40px;
+                height: 40px;
+                border: 1px solid var(--gray-color);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                margin-left: 5px;
+            }
+            .buttons .button:first-child {
+                margin-left: 0px;
+            }
+            .buttons .button:hover {
+                background: var(--gry-lightern-color);
+                transition: background .2s;
+            }
+            .buttons .button iron-icon {
+                width: 24px;
+                height: 24px;
+                --iron-icon-components-mixin: {
+                    stroke: var(--gray-darkend-color) !important;
+                    fill: var(--white-color) !important;
+                };
+            }
+            .buttons .button.send iron-icon {
+                --iron-icon-components-mixin: {
+                    stroke: var(--expired) !important;
+                    fill: var(--expired) !important;
+                };
+            }
+
+            /** Attaches **/
+            .attaches {
+                padding-bottom: 10px;
+            }
+            .attaches .paper-clip {
+                display: inline-block;
+                margin-left: 14px;
+                --iron-icon-components-mixin: {
+                    stroke: var(--gray-darkend-color) !important;
+                };
+                vertical-align: top;
+                margin-top: 7px;
+            }
+            .attaches .wrap {
+                display: inline-block;
+                margin-left: 8px;
+                max-width: calc(100% - 55px);
+                width: calc(100% - 55px);
+            }
+
+            .attaches .wrap .attach {
+                font-size: 14px;
+            }
+
+            .attaches .wrap .attach > * {
+                display: inline-block;
+            }
+
+            .attaches .wrap .attach iron-icon {
+                width: 14px;
+                height: 14px;
+                vertical-align: top;
+                cursor: pointer;
+                --iron-icon-components-mixin: {
+                    stroke: var(--gray-darkend-color);
+                };
+            }
+
+            .attach {
+                margin-top: 5px;
+            }
+            .attach .name {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                max-width: calc(100% - 25px);
+            }
+            .attach a {
+                color: var(--gray-darkend-color);
+                text-decoration: none;
+            }
+
+            .attach label {
+                font-size: 12px;
+                margin-top: 5px;
+                color: var(--gray-darkend-color);
+                text-decoration: none;
+                max-width: 200px;
+                display: inline-block;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+
             @media (min-width: 320px) and (max-width: 768px) {
                 .followers {
+                    display: none;
+                }
+                #addTaskButton, #addFileButton {
                     display: none;
                 }
             }
@@ -102,7 +199,7 @@
         </style>
         <div class="followers" hidden$="[[!task.followers.length]]">
             <span class="txt" id="followTxt"><i18-n msgid="Followers">Followers</i18-n>:</span>
-            <paper-tooltip for="followTxt">
+            <paper-tooltip for="followTxt" position="top">
                 <i18-n msgid="FollowerTextHint">FollowerTextHint</i18-n>
             </paper-tooltip>
             <designmap-followers on-apply="_applyFollowing" on-cancel="_cancelFollowing" followers="[[_getFollowers(task)]]"></designmap-followers>
@@ -128,6 +225,7 @@
                         id="invkTextarea"
                         value="{{commentText}}"
                         users="[[projectUsers]]"
+                        on-keydown="_commentTextChanged"
                         invoked-users="{{invokedUsers}}"
                         placeholder="[[translate('Write a comment',language,i18Loaded)]]"
                         no-invoked
@@ -135,10 +233,64 @@
                 <iron-a11y-keys id="a11ySave" keys="ctrl+enter meta+enter"
                                 on-keys-pressed="_postComment"></iron-a11y-keys>
             </div>
-            <div id="sendButton" class="send" disabled$="[[!commentText]]" on-tap="_postComment">
-                <iron-icon icon="icons:send"></iron-icon>
+
+
+
+            <div class="buttons">
+                <div id="addFileButton" class="button add-file" on-click="openFileExplorer">
+                    <iron-icon class="bigicon" icon="designmap24:file"></iron-icon>
+                </div>
+                <paper-tooltip position="top" for="addFileButton"><i18-n msgid="Attach file">Attach file</i18-n></paper-tooltip>
+                <div id="addTaskButton" on-click="openTasksExplorer" class="button add-task">
+                    <iron-icon class="bigicon" icon="designmap24:task"></iron-icon>
+                </div>
+                <paper-tooltip position="top" for="addTaskButton"><i18-n msgid="Attach task">Attach task</i18-n></paper-tooltip>
+                <div id="sendButton" class="button send" disabled$="[[!_disablePostButton(commentText,attaches.length)]]" on-tap="_postComment">
+                    <iron-icon icon="icons:send"></iron-icon>
+                </div>
             </div>
+
+            <designmap-dropdown id="attachesDropdown"
+                                no-cancel-on-outside-click="true"
+                                target="[[attachesTarget]]"
+                                tri-border
+                                tri-bottom
+                                horizontal-offset="-225"
+                                vertical-offset="[[_computeVOffset(attaches.length)]]">
+                <!-- Attaches -->
+                <div class="attaches" hidden$="[[!attaches.length]]">
+                    <iron-icon class="paper-clip" icon="designmap24:paper-clip"></iron-icon>
+                    <div class="wrap">
+                        <template is="dom-repeat" items="[[attaches]]" as="attach">
+                            <div class="attach">
+                                <div class="name">[[_computeAttachName(attach)]]</div>
+                                <div class="remove" on-click="_removeAttach">
+                                    <iron-icon icon="designmap-task-manager:remove"></iron-icon>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </designmap-dropdown>
+
         </div>
+
+        <!-- FS Explorer -->
+        <paper-dialog class="explorer-dialog"  id="fsExplorerDialog"
+                      entry-animation="scale-up-animation" exit-animation="scale-down-animation">
+            <designmap-fs-explorer id="fsExplorer" button-text="Attach file to chat" on-upload-in="_openFileUploader"
+                                   on-file="_attachElement"></designmap-fs-explorer>
+        </paper-dialog>
+        <!-- Uploader -->
+        <designmap-file-uploader id="uploader" on-done="_selectFiles" parent="folder"></designmap-file-uploader>
+
+        <!-- Tasks explorer -->
+        <paper-dialog class="explorer-dialog" id="tasksExplorerDialog"
+                      entry-animation="scale-up-animation" exit-animation="scale-down-animation">
+            <designmap-tasks-explorer id="taskExplorer" button-text="Select task to chat" current-task-id="{{currentTaskId}}"
+                                      no-upload
+                                      on-task="_attachElement"></designmap-tasks-explorer>
+        </paper-dialog>
     </template>
     <script>
         Polymer({
@@ -199,6 +351,16 @@
                     type: Array,
                     notify: true,
                     value: []
+                },
+                attaches: {
+                    type: Array,
+                    value: []
+                },
+                attachesTarget: {
+                    type: Object,
+                    value: function(){
+                        return this.$.addFileButton
+                    }
                 }
             },
 
@@ -206,13 +368,15 @@
                 if(this.$.sendButton.disabled) return;
                 if(this.edit) return this._editComment();
                 // Permanent validation
-                if (!this.commentText.trim()) return false;
+
+                if (!(this.commentText.trim() || this.attaches.length)) return false;
 
                 const comment = {
-                    text: this.commentText,
+                    text: this.commentText || '',
                     owner: this.user,
                     task: this.task._id,
-                    project: this.projectId
+                    project: this.projectId,
+                    attaches: this.attaches.map((attach)=>attach._id)
                 };
                 this.dispatch('addComment', comment);
 
@@ -225,7 +389,8 @@
 
                 //Followers
                 if(this.followers.indexOf(this.user._id)===-1) this.dispatch('followTask',this.task,this.user._id);
-
+                this.set('attaches',[]);
+                this.$.attachesDropdown.close();
                 this.sendTaskCommentNotification(comment);
             },
 
@@ -262,12 +427,88 @@
                 const figure = user.profile && user.profile.name ? '@' + user.profile.name + ' ' : "+" + user.local.email + " ";
                 const words = comment.text.split(' ');
                 this.$.invkTextarea.$.textarea.value = figure + this.$.invkTextarea.$.textarea.value+'\n'+
-                    '[' + this.computeOwnerName(comment.owner) + ']('+moment(comment.created).format('YYYY-MM-DD')+') > "' + (words.length > 10 ? words.slice(0, 10).join(' ') + '...' : words.join(' ')) + '"\n';
+                    '*' + this.computeOwnerName(comment.owner) + '-'+moment(comment.created).format('DD-MMMM-YYYY')+'* \n\>' + (words.length > 20 ? words.slice(0, 20).join(' ') + '...' : words.join(' ')) + '\n\n';
                 this.commentText = this.$.invkTextarea.$.textarea.value;
                 this.$.invkTextarea.resolveInvokedUsers();
                 this.async(function(){
                     this.$.invkTextarea.$.textarea.$.textarea.focus()
                 },0);
+            },
+
+            setTempComment: function(tempComment) {
+                this.tempComment = tempComment;
+            },
+
+            quoteText: function(text){
+                this.async(function(){
+                    this.$.invkTextarea.$.textarea.$.textarea.focus();
+                    this.$.invkTextarea.refit();
+                },100);
+                const comment = this.tempComment;
+                const words = text.split(' ');
+                const msg = this.tempMessage;
+                const q = '*' + this.computeOwnerName(comment.owner) + '-'+moment(comment.created).format('DD-MMMM-YYYY')+'* \n\>' + (words.length > 20 ? words.slice(0, 20).join(' ') + '...' : words.join(' ')) + '\n\n';
+                this.commentText+= q;
+            },
+
+            openFileExplorer: function(){
+                this.attachesTarget = this.$.addFileButton;
+                this.$.fsExplorerDialog.open();
+            },
+
+            _openFileUploader: function (e) {
+                this.$.uploader._id = e.detail || null;
+                this.$.uploader.openOSDialog();
+            },
+
+            _attachElement: function (e) {
+                this.$.fsExplorerDialog.close();
+                this.$.tasksExplorerDialog.close();
+                const attaches = [];
+                e.detail.forEach(function (attach) {
+                    if (this.attaches.indexOf(attach) != -1) return;
+                    attaches.push(attach);
+                },this);
+                this.set('attaches',attaches.concat(this.attaches));
+                if(this.attaches.length) this.$.attachesDropdown.open();
+            },
+
+            _computeAttachName: function(attach){
+                return attach.data?attach.data.name:attach.name;
+            },
+
+            _removeAttach: function(e){
+                const attaches = this.attaches.slice(0);
+                const index = attaches.indexOf(e.model.attach);
+                attaches.splice(index,1);
+                this.set('attaches',attaches);
+                if(!this.attaches.length) this.$.attachesDropdown.close();
+            },
+
+            _commentTextChanged: function(){
+                this.async(function(){
+                    this.$.attachesDropdown.refit()
+                },10);
+            },
+
+            _computeVOffset: function(length){
+                return -((30*length)+25);
+            },
+
+            _disablePostButton: function(text,l){
+                return text || l;
+            },
+
+            _selectFiles: function (e) {
+                this.$.fsExplorer.selectElements(e.detail);
+                this._attachFile(e);
+                this.$.uploader.closeForm();
+                this.$.fsExplorerDialog.close();
+            },
+
+            openTasksExplorer: function(){
+                this.attachesTarget = this.$.addTaskButton;
+                this.$.tasksExplorerDialog.open();
             }
 
         })

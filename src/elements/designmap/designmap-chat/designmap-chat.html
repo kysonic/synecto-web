@@ -209,6 +209,11 @@
                 margin-bottom: 5px;
             }
 
+            .message .body .head .name {
+                display: inline-block;
+                font-weight: 700;
+            }
+
             .message .body .menu .button {
                 border-radius: 50%;
             }
@@ -696,19 +701,19 @@
                     <span>[[_firstMessageDate(messages.*)]]</span>
                 </div>
                 <template is="dom-repeat" items="[[messages]]" as="message" sort="[[_sortMessages(sortWay)]]">
-                    <div data-id$="[[message._id]]" class$="message [[_computeMessageClass(message,user)]]">
+                    <div data-id$="[[message._id]]" on-mouseup="saveUp" class$="message [[_computeMessageClass(message,user)]]">
                         <div class="gutter">
                             <template is="dom-if" if="[[_isFirst(message)]]">
                                 <designmap-avatar-projector user="[[message.owner]]" class="projector"></designmap-avatar-projector>
                             </template>
-                            <div hidden$="[[_isFirst(message)]]" title="[[_computeDate(message.created,'YYYY-MM-DD HH:mm:ss')]]" class="date">
+                            <div hidden$="[[_isFirst(message)]]" title="[[_computeDate(message.created,'DD-MMMM-YYYY HH:mm:ss')]]" class="date">
                                 [[_computeDate(message.created,'HH:mm:ss')]]
                             </div>
                         </div>
                         <div class="body">
                             <template is="dom-if" if="[[_isFirst(message)]]">
                                 <div class="head">
-                                    <strong class="name">[[computeOwnerName(message.owner)]]</strong>
+                                    <div class="name">[[computeOwnerName(message.owner)]]</div>
                                     <small class="message-date"> ([[_computeDate(message.created,'HH:mm:ss')]])</small>
                                 </div>
                             </template>
@@ -994,6 +999,9 @@
                 '_userChanged(user)',
                 '_isAuthChanged(isAuth)'
             ],
+            listeners: {
+                'text-quote': 'quoteText'
+            },
             ready: function () {
                 //if(/Safari/.test(navigator.userAgent)) this.classList.add('safari');
                 document.body.addEventListener('touchend',this._touchOutta.bind(this))
@@ -1077,7 +1085,7 @@
                 if (!message) return 'xxx';
                 const lastMessage = messages[messages.length-1];
                 if(this.user && this.user._id!=lastMessage.owner._id && new Date(lastMessage.created)>new Date(localStorage.getItem('designmap:lco'))) this.fire('set-unread-mark',true);
-                return moment(message.created).format('YYYY-MM-DD');
+                return moment(message.created).format('DD-MMMM-YYYY');
             },
             _createDateNode: function (msgNode, message) {
                 const div = document.createElement('div');
@@ -1085,7 +1093,7 @@
                 div.classList.add('style-scope');
                 div.classList.add('designmap-chat');
                 const span = document.createElement('span');
-                span.innerText = moment(message.created).format('YYYY-MM-DD');
+                span.innerText = moment(message.created).format('DD-MMMM-YYYY ');
                 div.appendChild(span);
                 const line = document.createElement('div');
                 line.classList.add('line');
@@ -1187,7 +1195,23 @@
                 this.$.contextMenu.close();
                 this.$.invkTextarea.focus();
                 const words = msg.text.split(' ');
-                this.message = '[' + this.computeOwnerName(msg.owner) + ']('+this._computeDate(msg.created,'HH:mm:ss')+')> "' + (words.length > 10 ? words.slice(0, 10).join(' ') + '...' : words.join(' ')) + '"\n';
+                this.message = this._buildQuote(msg,words);
+            },
+            _buildQuote: function(msg,words){
+                return '*' + this.computeOwnerName(msg.owner) + '-'+this._computeDate(msg.created,'HH:mm:ss')+'* \n >' + (words.length > 20 ? words.slice(0, 20).join(' ') + '...' : words.join(' ')) + '\n\n';
+            },
+            saveUp: function (e) {
+                this.tempMessage = e.model.message;
+            },
+            quoteText: function(e){
+                const text = e.detail;
+                this.async(function(){
+                    this.$.invkTextarea.focus();
+                },100);
+                const words = text.split(' ');
+                const msg = this.tempMessage;
+                const q = this._buildQuote(msg,words);
+                this.message+= q;
             },
             editMessage: function () {
                 this.editMode = true;

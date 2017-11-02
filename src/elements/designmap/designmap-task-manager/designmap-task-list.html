@@ -621,6 +621,24 @@
                 </div>
             </template>
         </div>
+
+        <!-- Hint -->
+        <designmap-hint id="taskListHint"
+                        previous
+                        have-skip
+                        name="taskList"
+                        tri-left
+                        vertical-offset="10"
+                        horizontal-offset="340">
+            <div class="title">
+                <i18-n msgid="Task list">Task list</i18-n>
+            </div>
+            <div class="desc">
+                <i18-n msgid="taskListDesc">taskListDesc</i18-n>
+            </div>
+        </designmap-hint>
+        <!-- Hint -->
+
         <plastic-custom-scroll hidden$="[[!tasks.length]]" no-scroll="[[noScroll]]" id="scroller" fit small-bar>
             <ul class="list" id="list">
                 <template id="listRepeater" is="dom-repeat" items="[[tasks]]" as="task" filter="[[taskFilter(selectedFilter,limit,tasks.*)]]" sort="[[taskSort(limit)]]">
@@ -675,21 +693,6 @@
                            error-message="{{translate('TaskNameError',language,i18nLoaded)}}" id="addTask"/>
                 </div>
             </div>
-            <!-- Hint -->
-            <designmap-hint id="taskListHint"
-                            previous
-                            have-skip
-                            name="taskList"
-                            vertical-offset="55"
-                            horizontal-offset="50">
-                <div class="title">
-                    <i18-n msgid="Task list">Task list</i18-n>
-                </div>
-                <div class="desc">
-                    <i18-n msgid="taskListDesc">taskListDesc</i18-n>
-                </div>
-            </designmap-hint>
-            <!-- Hint -->
         </template>
         <template is="dom-if" if="[[_notFound(tasks.length,searchMode)]]">
             <div class="white-space">

@@ -209,7 +209,7 @@
                     },
                     {
                         title: 'created',
-                        value: moment(new Date(data.created)).format('YYYY-MM-DD')
+                        value: moment(new Date(data.created)).format('DD-MMMM-YYYY')
                     }
                 ];
                 if(!this['_get'+data.type.capitalize()+'Info']) return infos;
@@ -272,7 +272,7 @@
                     },
                     {
                         title: 'completed',
-                        value:  moment(new Date(data.completed)).format('YYYY-MM-DD')
+                        value:  moment(new Date(data.completed)).format('DD-MMMM-YYYY')
                     },
                     {
                         title: 'files',

@@ -620,7 +620,7 @@
                     if (response.projectId) {
                         this.inviteMode = false;
                         this.ivktkn = null;
-                        return page.redirect('/' + response.projectId);
+                        return page.rdt('/' + response.projectId);
                     }
                     this.showMessage('Welcome to the Synecto!');
                     // Analytics
@@ -757,7 +757,7 @@
                         this.inviteMode = false;
                         this.ivktkn = null;
                         return this.async(function () {
-                            page.redirect('/' + response.projectId)
+                            page.rdt('/' + response.projectId)
                         }, 5000);
                     }
                     this.showMessage(response.message, {}, 10000);

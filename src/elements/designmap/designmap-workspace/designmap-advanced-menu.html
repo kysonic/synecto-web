@@ -86,10 +86,16 @@
         }
         ul li .marker {
             display: none;
-            opacity: 0.4;
             position: relative;
-            top: 1px;
+            width: 24px;
+            height: 24px;
+            margin-left: 10px;
+
         }
+        ul li .marker iron-icon {
+            --iron-icon-fill-color: var(--gray-darkend-color);
+        }
+
         ul li.selected .marker{
             display: inline-block;
         }
@@ -105,6 +111,10 @@
             font-weight: 500;
             vertical-align: middle;
             margin-left: 5px;
+        }
+
+        ul li.selected .text {
+            color: var(--gray-super-dark);
         }
 
         paper-dialog {
@@ -157,13 +167,6 @@
             justify-content: center;
         }
 
-        .dot {
-            width: 6px;
-            height: 6px;
-            margin-left: 10px;
-            border-radius: 50%;
-            background: var(--gray-super-dark);
-        }
         #taskManagerShowCaseDialog {
             padding: 35px !important;
         }
@@ -215,15 +218,13 @@
         }
         ul li .chat.marker {
             display: block;
-            background: var(--expired);
             position: absolute !important;
             top: 24px !important;
             margin-left: 24px !important;
             left: 50%;
             opacity: 1 !important;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
+            width: 12px;
+            height: 12px;
         }
         .upgrade-set {
             display: block;
@@ -402,7 +403,7 @@
                         <div class="text">
                             <i18-n msgid="Tasks">Tasks</i18-n>
                         </div>
-                        <div class="marker dot"></div>
+                        <div class="marker dot"><iron-icon icon="chevron-left"></iron-icon></div>
                     </li>
 
                     <li on-click="goToTheProject"   on-mouseover="_mouseOver" on-touchend="_closeMenu" class$="[[_computeSelectedItem(page,trashMode,'fs')]]" on-mouseleave="_mouseLeave"
@@ -413,7 +414,7 @@
                         <div class="text" on-touchend="_closeMenu">
                             <i18-n msgid="Files">Files</i18-n>
                         </div>
-                        <div class="marker dot"></div>
+                        <div class="marker dot"><iron-icon icon="chevron-left"></iron-icon></div>
                     </li>
 
                     <li id="chatItem" on-click="openChat" on-touchend="_closeMenu"  class$="[[_computeSelectedItem(page,trashMode,'chat')]]" on-mouseover="_mouseOver" on-mouseleave="_mouseLeave">
@@ -424,7 +425,7 @@
                         <div class="text chat-text">
                             <i18-n msgid="Project chat">Project chat</i18-n>
                         </div>
-                        <div class="marker dot"></div>
+                        <div class="marker dot"><iron-icon icon="chevron-left"></iron-icon></div>
                         <div id="chatMarker" hidden$="[[!_isThereUnread(user.system.lastChatReview,messages,messages.length)]]" class="chat marker"></div>
                     </li>
 
@@ -447,7 +448,7 @@
                         <div class="text">
                             <i18-n msgid="Archive">Archive</i18-n>
                         </div>
-                        <div class="marker dot"></div>
+                        <div class="marker dot"><iron-icon icon="chevron-left"></iron-icon></div>
                     </li>
                 </ul>
             <!-- Blocks -->
@@ -598,12 +599,12 @@
             },
             goToTheProject: function (e) {
                 this._closeMenu();
-                page.redirect('/'+(this.projectId+'/fs'));
+                page.rdt('/'+(this.projectId+'/fs'),e.ctrlKey || e.metaKey);
             },
             goToTaskManager: function (e) {
                 this._closeMenu();
                 //if(!this.user.isPremium) return this.$.taskManagerShowCaseDialog.open();
-                page.redirect('/'+(this.projectId||'')+'/task-manager/');
+                page.rdt('/'+(this.projectId||'')+'/task-manager/',e.ctrlKey || e.metaKey);
             },
             goToProtocol: function(){
                this.fire('open-protocol-showcase')
@@ -611,16 +612,16 @@
             goToTrashBox: function (e) {
                 this._closeMenu();
                 if (e.currentTarget.getAttribute('disabled') != undefined) return this.showErrorMessage('You do not have access to make it');
-                page.redirect('/'+this.projectId+'/archive');
+                page.rdt('/'+this.projectId+'/archive',e.ctrlKey || e.metaKey);
             },
             openSharingDialog: function (e) {
                 this._closeMenu();
-                if(this.MQ=='sm') return page.redirect('/'+this.projectId+'/accesses');
+                if(this.MQ=='sm') return page.rdt('/'+this.projectId+'/accesses',e.ctrlKey || e.metaKey);
                 this.fire('open-sharing');
             },
-            openChat: function(){
+            openChat: function(e){
                 this._closeMenu();
-                return page.redirect('/'+this.projectId+'/chat');
+                return page.rdt('/'+this.projectId+'/chat',e.ctrlKey || e.metaKey);
                 /*if(this.MQ=='sm') {
                     localStorage.setItem('designmap:lco',new Date());
                     this.async(function(){

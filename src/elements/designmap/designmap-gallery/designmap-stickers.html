@@ -477,6 +477,7 @@
             }
 
         </style>
+
         <div class="marker" id="marker">
             <i18-n msgid="Click to add a comment">Click to add a comment</i18-n>
         </div>
@@ -534,6 +535,7 @@
                                         id="invkTextarea"
                                         value="{{textAreaValue}}"
                                         users="[[projectUsers]]"
+                                        on-keydown="textChanged"
                                         invoked-users="{{invokedUsers}}"
                                         placeholder="[[translate('Write a comment',language,i18Loaded)]]"></designmap-invk-textarea>
                             </div>
@@ -927,6 +929,7 @@
             _toogleSticker: function (e) {
                 if (!e.target.classList.contains('bound') || this.stickerDrag || this.zoom != 1) return;
                 const sticker = e.model.sticker;
+                this.openedSticker = sticker;
                 this.closeAllStickers(sticker);
                 sticker.opened = !sticker.opened;
                 this.isThereOpened = sticker.opened;
@@ -951,9 +954,14 @@
                 this.async(function () {
                     const dropBound = dropdownNode.getBoundingClientRect();
                     dropdownNode.style.top = -(dropBound.height + 5) + 'px';
+                    const dropOverlapped = dropBound.height + dropBound.top > window.innerHeight-75;
                     if (sticker.position.top <= 50) dropdownNode.style.top = '36px';
                     if (sticker.position.left > 50) dropdownNode.style.left = -dropBound.width + 30 + 'px';
                     if (sticker.position.left < 50) dropdownNode.style.left = 0 + 'px';
+                    if(dropOverlapped || this.doverl) {
+                        this.doverl = true;
+                        dropdownNode.style.top = -dropBound.height + 'px';
+                    }
                 });
             },
 
@@ -1019,11 +1027,15 @@
 
                 const words = comment.text.split(' ');
                 this.textAreaValue = figure + this.textAreaValue+'\n'+
-                    '[' + this.computeOwnerName(comment.owner) + ']('+moment(comment.created).format('YYYY-MM-DD')+') > "' + (words.length > 10 ? words.slice(0, 10).join(' ') + '...' : words.join(' ')) + '"\n';
-
+                    '*' + this.computeOwnerName(comment.owner) + '-'+moment(comment.created).format('DD-MMMM-YYYY')+'* \n>' + (words.length > 20 ? words.slice(0, 20).join(' ') + '...' : words.join(' ')) + '\n\n';
 
                 const textArea = Polymer.dom(this.$.wrapper).querySelector('.sticker.opened #invkTextarea');
                 textArea.focus();
+            },
+
+            textChanged: function(){
+                const sticker = this.openedSticker;
+                this._resolveStickerDropdownPosition(sticker);
             }
 
 

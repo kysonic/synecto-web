@@ -84,13 +84,13 @@
     "message": "You don't have access to manage this project."
   },
   "Folder adding had been successful.": {
-    "message": "Folder was created."
+    "message": "Folder created."
   },
   "Folder removing had been successful.": {
-    "message": "Folder \"#NAME#\" was archived."
+    "message": "Folder \"#NAME#\" has been archived."
   },
   "Folder renaming had been successful.": {
-    "message": "Folder \"#NAME#\" was renamed on \"#NEWNAME#\"."
+    "message": "Folder \"#NAME#\" has been renamed on \"#NEWNAME#\"."
   },
   "ProjectNameError": {
     "message": "Project name field must contain at least one letter."
@@ -189,7 +189,7 @@
     "message": "Upload"
   },
   "Files loading in progress": {
-    "message": "Files loading in progress"
+    "message": "File upload being processed"
   },
   "There is no any opened project here.": {
     "message": "There is no any opened project here."
@@ -423,7 +423,7 @@
     "message": "Assign responsible"
   },
   "Subtask count": {
-    "message": "Sub-task count"
+    "message": "Subtask count"
   },
   "Attach file": {
     "message": "Attach file"
@@ -519,7 +519,7 @@
     "message": "Confirm new password"
   },
   "Stickers and Notifications": {
-    "message": "Stickers"
+    "message": "Precise comments"
   },
   "Total stickers count": {
     "message": "Total precise comments count per image"
@@ -552,7 +552,7 @@
     "message": "Receive synecto news"
   },
   "Receive notifications": {
-    "message": "Receive synecto news"
+    "message": "Receive notifications"
   },
   "Receive system alerts": {
     "message": "Receive synecto news"
@@ -612,7 +612,16 @@
     "message": "Project was removed successfully"
   },
   "Account Settings": {
-    "message": "Account Settings"
+    "message": "Account settings"
+  },
+  "Contact support": {
+    "message": "Contact support"
+  },
+  "Manage your plan": {
+    "message": "Manage your plan"
+  },
+  "Download the app": {
+    "message": "Download the app"
   },
   "All Notification": {
     "message": "All Notifications"
@@ -660,7 +669,7 @@
     "message": "Notifications"
   },
   "Account menu": {
-    "message": "Settings menu"
+    "message": "Settings"
   },
   "Creating sub-folder": {
     "message": "Create folder"
@@ -690,7 +699,7 @@
     "message": "File #ID has been copied in clipboard. Put it in comment or chat message to create link on this file."
   },
   "Element id was copied.": {
-    "message": "Element #ID has been copied in clipboard. Put it in comment or chat message to create link on this element."
+    "message": "Document #ID was copied to clipboard. You can copy/paste the #ID in a comment or in a chat message."
   },
   "accountSettingsMsg": {
     "message": "Connect your cloud drive to keep your files in one place. \n\n Open \"User's menu\", select \"Account settings\". Attention! Synecto data space is in beta now!"
@@ -1056,7 +1065,7 @@
     "message": "Locked file will be available only for you"
   },
   "Documentation description": {
-    "message": "Here you can find all required information about Synecto!"
+    "message": "Here you find all information about how to use Synecto!"
   },
   "Shortcuts": {
     "message": "Shortcuts"
@@ -1065,16 +1074,16 @@
     "message": "Make your work in Synecto more comfortable using hot keys!"
   },
   "Contact us": {
-    "message": "Contact a human"
+    "message": "Open a ticket"
   },
   "Contact us desc": {
-    "message": "Use on-line chat in bottom right corner or click here to open form."
+    "message": "If your request is not urgent you can open new ticket in our support system."
   },
   "Video tutorials": {
     "message": "Video tutorials"
   },
   "Video tutorials description": {
-    "message": "Explore basics of Synecto watching quick tutorials!"
+    "message": "Quickly learn how synecto works by watching these introductory videos!"
   },
   "Redo": {
     "message": "Redo"
@@ -1158,7 +1167,7 @@
     "message": "Selected elements was archived successfully."
   },
   "Information": {
-    "message": "Information"
+    "message": "Properties"
   },
   "AreYouSureThatYouWannaCreateProject": {
     "message": "Are you sure that you want to create a new project?"
@@ -1176,7 +1185,7 @@
     "message": "Drop files here or "
   },
   "new folder": {
-    "message": "new elements"
+    "message": "new documents"
   },
   "Your elements has been recycled": {
     "message": "Your elements has been recycled"
@@ -1434,7 +1443,7 @@
     "message": "Close"
   },
   "Activate premium": {
-    "message": "Plans management"
+    "message": "Manage your plan"
   },
   "onHome": {
     "message": "main page"
@@ -1503,7 +1512,7 @@
     "message": "up to"
   },
   "Estimate task tooltip": {
-    "message": "Estimate difficulty of task in story points"
+    "message": "Set task difficulty"
   },
   "Select folder to upload file in": {
     "message": "Upload file in "
@@ -1528,6 +1537,9 @@
   },
   "File was attached successful!": {
     "message": "File was attached successful!"
+  },
+  "Task was attached successful!": {
+    "message": "Task was attached successful!"
   },
   "Grades": {
     "message": "Grades:"
@@ -1653,7 +1665,7 @@
     "message": "3 projects"
   },
   "self support": {
-    "message": "without support"
+    "message": "no support"
   },
   "premium support": {
     "message": "premium support"
@@ -1850,6 +1862,12 @@
   "Attach file": {
     "message": "Attach file"
   },
+  "Attach file to chat": {
+    "message": "Attach file to message"
+  },
+  "YouHaveUncompletedTasks": {
+    "message": "Not all of this task subtasks are completed. Could you complete this task anyway?"
+  },
   "Attach task": {
     "message": "Attach task"
   },
@@ -1863,7 +1881,7 @@
     "message": "There is no tasks here..."
   },
   "Blocks": {
-    "message": "Blocks"
+    "message": "Management"
   },
   "AreYouSureThatYouWannaCloseProject": {
     "message": "Close project?"
@@ -1878,7 +1896,7 @@
     "message": "Closed"
   },
   "Members": {
-    "message": "Members"
+    "message": "Team members"
   },
   "Not selected": {
     "message": "Not selected..."
@@ -1893,7 +1911,7 @@
     "message": "Followers"
   },
   "FollowerTextHint": {
-    "message": "All followers will receive messages about task activity automatically"
+    "message": "Your project team members will receive automatic updates about each task activities"
   },
   "There is no lables...": {
     "message": "There is no lables..."
@@ -1914,10 +1932,10 @@
     "message": "Discard"
   },
   "owner": {
-    "message": "owner"
+    "message": "by owner"
   },
   "type": {
-    "message": "type"
+    "message": "in sources"
   },
   "Search...": {
     "message": "Search..."
@@ -2007,7 +2025,7 @@
     "message": "Show tasks overview"
   },
   "GoogleDocsIntegration": {
-    "message": "Integrate with Google Docs to add docs, spreadsheets and presentations"
+    "message": "Integrate with Google Docs"
   },
   "Create Doc": {
     "message": "Create Google Doc"
@@ -2052,7 +2070,7 @@
     "message": "Task #ID has been copied in clipboard. Put it in comment or chat message to create link on this task."
   },
   "Copy task #ID into clipboard": {
-    "message": "Copy task #ID into clipboard"
+    "message": "Copy task #ID to clipboard"
   },
   "difficulty": {
     "message": "difficulty"
@@ -2070,7 +2088,7 @@
     "message": "Set label"
   },
   "Datepicker tooltip": {
-    "message": "Setup due date"
+    "message": "Set due date"
   },
   "You request to time changeing has been sent": {
     "message": "Your request for change of spent time has been sent to project owner. If it will be approved - time will be changed."
@@ -2085,7 +2103,16 @@
     "message": "You cannot track time until new time will be approved"
   },
   "or select existed": {
-    "message": "or select existed"
+    "message": "or select a document from below list"
+  },
+  "select existed": {
+    "message": "select a document from below list"
+  },
+  "attach file": {
+    "message": "attach file"
+  },
+  "attach task": {
+    "message": "attach task"
   },
   "Hours": {
     "message": "Hours"
@@ -2130,7 +2157,7 @@
     "message": "Attach file(s) to message"
   },
   "Status changed": {
-    "message": "Task status is changed"
+    "message": "Task status change"
   },
   "You have tasks requiring your attention. Go to Synecto to find more information.": {
     "message": "You have tasks will be expired in 1-2 days. Don't forget to react on it."
@@ -2166,7 +2193,7 @@
     "message": "Due date"
   },
   "Element name": {
-    "message": "Element name"
+    "message": "Document name"
   },
   "Removed by": {
     "message": "Removed by"
@@ -2229,19 +2256,19 @@
     "message": "Copy #ID"
   },
   "Projects section": {
-    "message": "Projects section"
+    "message": "Projects"
   },
   "projectSectionHintDesc": {
-    "message": "Here you can find all required for your projects management. You can <b>close</b> your project, <b>rename</b> it or create <b>new one</b>."
+    "message": "The basis of your project management. Here you can create a new project, rename it, and close a project."
   },
   "blocksHintDesc": {
-    "message": "Any Synecto project contains following parts:<br/> <b>Tasks</b> - manage your project flow: tasks, due dates and so on;<br/> <b>Files</b> - cloud drive for your project's data;<br/> <b>Chat</b> - quick messaging and reports;<br/> <b>Archive</b> - tasks or files can be archived here."
+    "message": "Every synecto project includes the following features::<br/> <b>Tasks</b> - here you can manage your work process, define, assign and manage tasks, set task variables such as due dates, difficulty levels, labels and much more<br/> <b>Files</b> - the cloud drive allows you to create, store and manage all your project ́s folders and files;<br/> <b>Chat</b> - here you can communicate live with your project ́s team members;<br/> <b>Archive</b> - here you can archive and restore any project ́s document."
   },
   "membersHintDesc": {
-    "message": "Manage your <b>team members</b>. Invite colleagues, customers, or just friends. Of course if you are project owner... "
+    "message": "Here the project owner can add and manage his or her project team members. Anyone can join the team. Simply invite clients, colleagues, collaborators or friends for example."
   },
   "userMenuDesc": {
-    "message": "Click on e-mail to open <b>settings menu</b>. Here you can find <b>support menu</b>, <b>account settings</b> or <b>plans settings</b> and so on. By the way the bell nearby it is <b>notificaitons</b>."
+    "message": "Simply click on your <b>email address</b> and your settings menu opens. Here you can manage your account, your synecto customer plan, and contact support. The bell icon to the left highlights all your <b>notifications</b>."
   },
   "taskListDesc": {
     "message": "You can add <b>new task</b> here. Any task list has <b>quick filters</b>, they located on top of it. By default quick filter shows only <b>\"not completed\"</b> tasks."
@@ -2250,7 +2277,7 @@
     "message": "Clicking this button you can <b>assign</b> some team member on this task. Task assignee can change <b>task status</b> and <b>track time</b> spent on this task."
   },
   "statusHintDesc": {
-    "message": "There are <b>4 statuses</b> in Synecto: <br><b>Awaiting<b> - when task is not start. <br><b>In progress</b> - when assignee start working. <br><b>Completed</b> - When task is finished. <br><b>Expired</b> - when task is not completed by due date."
+    "message": "There are <b>4 statuses</b> in Synecto: <br><b>Awaiting</b> - when task is not start. <br><b>In progress</b> - when assignee start working. <br><b>Completed</b> - When task is finished. <br><b>Expired</b> - when task is not completed by due date."
   },
   "Task actions": {
     "message": "Task actions"
@@ -2265,22 +2292,22 @@
     "message": "Subtasks"
   },
   "folderHintDesc": {
-    "message": "Folder can be opened via <b>double click</b>. Navigation between folders can be established via <b>breadcrumbs</b>. Right click or click on folder menu button opens <b>context menu</b>."
+    "message": "You can open any folder <b>by double clicking it</b>. Breadcrumbs allow you to easily and quickly <b>view and navigate</b> through your folders. When you click the three vertical dots (folder menu buttons) or when you right-click on a folder the folder options menu opens"
   },
   "File system button panel": {
-    "message": "File system button panel"
+    "message": "File system"
   },
   "fsPanelHintDesc": {
-    "message": "Using those buttons you can: <br/><b>Create new folder</b>,<br/><b>Upload new file</b>, <br/><b>Create new Google document</b>"
+    "message": "Here the features allow you to create a new folder, upload a new file and create Google documents"
   },
   "fileHintDesc": {
     "message": "Images can be discussed using <b>precise comments</b>. Office files (docx,xlsx,pttx,pdf) can be <b>previewed</b>. Using context menu you can <b>copy file #ID</b> to create link on it in comments."
   },
   "attachFileChatDesc": {
-    "message": "Upload <b>new file</b> or attach one of <b>existing</b> using file system explorer. Uploaded files will be stored in File system."
+    "message": "Upload a <b>new file</b> or attach an <b>existing</> file from the file system. Newly uploaded files here will <b>automatically</b> be stored in the file system"
   },
   "attachTaskChatHintDesc": {
-    "message": "Create <b>new task</b> just right here or attach one of <b>existing</b> using task manager explorer. Created tasks will be stored in Task manager."
+    "message": "Create a <b>new</b> task or attach an <b>existing</b> task from the task manager. Newly created tasks here will <b>automatically</b> be saved in the task manager "
   },
   "Add new member": {
     "message": "Add new member"
@@ -2292,10 +2319,13 @@
     "message": "Do you want to donwload Syencto app for your computer? Using this app you will be able: <ul<li>Create screenshots</li></ul>"
   },
   "Synecto app desc": {
-    "message": "Create screenshots which will be <span class='marked'>upload</span> in Synecto app <span class='marked'>automatically</span>, receive <span class='marked'>notifications</span> from your colleagues, manage your Syencto <span class='marked'>account</span> right from your computer!"
+    "message": "Our app enables you to <span class='mark'>create screenshots</span> and upload them automatically in your synecto project. You will also receive notifications from your project team members."
   },
   "Download app": {
-    "message": "Download app"
+    "message": "Download app. Make screenshots and receive notifications from your computer."
+  },
+  "Contact us menu": {
+    "message": "Contact us for any questions or issues, we are available on different communication channels"
   },
   "active": {
     "message": "active"
@@ -2364,7 +2394,7 @@
     "message": "due date"
   },
   "expiredSoonMessage": {
-    "message": "You have tasks that will be expired tomorrow. Do you want to see those tasks?"
+    "message": "The project has open tasks that will expire tomorrow. Do you want to view these tasks now?"
   },
   "You already work on #NAME# task. You cannot work on two task on same time.": {
     "message": "You already work on \"#NAME#\" task. You cannot work on two task on same time."
@@ -2385,15 +2415,18 @@
     "message": "Name should be unique on this level. Check archive too."
   },
   "Process personal data agreement": {
-    "message": "I accept processing of my personal data"
+    "message": "by registering to make use of the <<synecto>> app do you accept our privacy policy and terms of use"
+  },
+  "Download the synecto app": {
+    "message": "Download the Synecto app"
   },
   "Windows warn": {
     "message": "Because Synecto app is currently self signed you will see notification from your OS. If you have some suspicions about Synecto app you can check it via any antivirus program before installation."
   },
   "Google Docs": {
-    "message": "Google Docs"
+    "message": "Google documents"
   },
   "googleDocsHintDesc": {
-    "message": "To create new google document do following: </br> 1. Click on this icon <b>first time</b> to connect google docs. </br> 2. Click <b>one more time</b> after account is connected to create new doc, sheet or slide"
+    "message": "Follow these steps to create a Google document: <br/> 1. Click on the Google Drive icon <b>to connect</b> to Google Docs and sync your account <br/> 2. Click the same icon <b>a second time</b> to create any type of Google Doc"
   }
 }
