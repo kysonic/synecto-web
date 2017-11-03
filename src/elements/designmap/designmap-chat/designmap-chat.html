@@ -1198,7 +1198,7 @@
                 this.message = this._buildQuote(msg,words);
             },
             _buildQuote: function(msg,words){
-                return '*' + this.computeOwnerName(msg.owner) + '-'+this._computeDate(msg.created,'HH:mm:ss')+'* \n >' + (words.length > 20 ? words.slice(0, 20).join(' ') + '...' : words.join(' ')) + '\n\n';
+                return '>*' + this.computeOwnerName(msg.owner) + '-'+this._computeDate(msg.created,'HH:mm:ss')+'* \n' + (words.length > 20 ? words.slice(0, 20).join(' ') + '...' : words.join(' ')) + '\n\n';
             },
             saveUp: function (e) {
                 this.tempMessage = e.model.message;

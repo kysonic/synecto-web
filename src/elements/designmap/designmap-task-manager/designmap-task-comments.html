@@ -32,6 +32,7 @@
                 justify-content: flex-end;
                 align-items: center;
                 min-height: 40px;
+                background: var(--white-color);
                 border-top: 1px dashed var(--gray-saturated-color);
             }
 
@@ -447,7 +448,7 @@
                 const comment = this.tempComment;
                 const words = text.split(' ');
                 const msg = this.tempMessage;
-                const q = '*' + this.computeOwnerName(comment.owner) + '-'+moment(comment.created).format('DD-MMMM-YYYY')+'* \n\>' + (words.length > 20 ? words.slice(0, 20).join(' ') + '...' : words.join(' ')) + '\n\n';
+                const q = '>*' + this.computeOwnerName(comment.owner) + '-'+moment(comment.created).format('DD-MMMM-YYYY')+'* \n' + (words.length > 20 ? words.slice(0, 20).join(' ') + '...' : words.join(' ')) + '\n\n';
                 this.commentText+= q;
             },
 
@@ -485,8 +486,9 @@
                 if(!this.attaches.length) this.$.attachesDropdown.close();
             },
 
-            _commentTextChanged: function(){
+            _commentTextChanged: function(e){
                 this.async(function(){
+                    //if(e.keyCode==13) this.$.invkTextarea.refit();
                     this.$.attachesDropdown.refit()
                 },10);
             },

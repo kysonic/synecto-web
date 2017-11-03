@@ -37,7 +37,7 @@
                 white-space: pre-line;
             }
             #content blockquote {
-                margin: 5px 10px;
+                margin: 5px 15px;
                 border-left: 3px solid var(--gray-color);
                 padding-left: 10px;
             }
@@ -62,6 +62,7 @@
     <script>
         Polymer({
             is: 'plastic-html',
+            behaviors:[Polymer.DesignMapUtilsBehavior],
             properties: {
                 msg: {
                     type:String,
@@ -89,10 +90,20 @@
             },
             textSelected: function(e){
                 this.panelOpened = false;
-                const target = e.path ? e.path[0] : e.target;
                 const selection = this.shadowRoot ? this.shadowRoot.getSelection() : window.getSelection();
-                const text = target.innerHTML;
-                this.selectedText = text.substring(selection.baseOffset,selection.extentOffset);
+
+                if(!selection.rangeCount) return;
+
+                const range = selection.getRangeAt(0),
+                    content = range.extractContents();
+                    span = document.createElement('span');
+
+                span.appendChild(content);
+                range.insertNode(span);
+
+                this.selectText(span);
+
+                this.selectedText = span.textContent;
                 if(!this.selectedText) return;
                 this.showPanel(e);
             },

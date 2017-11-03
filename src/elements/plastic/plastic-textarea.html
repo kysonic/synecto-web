@@ -32,13 +32,14 @@
                   on-keyup="_onKeyup"
                   on-keydown="_onKeydown"
                   on-input="_onInput"
+                  on-mouseup="_onUp"
                   value="{{value::input}}"
         ></textarea>
     </template>
     <script>
         Polymer({
             is: 'plastic-textarea',
-            behaviors: [],
+            behaviors: [Polymer.DesignMapUtilsBehavior],
             properties: {
                 value: {
                     type: String,
@@ -62,12 +63,6 @@
                 autosize(this.$.textarea);
             },
             refit: function () {
-                this.async(function(){
-                    const event = new CustomEvent('keydown');
-                    event.keyCode = 40;
-                    event.bubbles = true;
-                    this.$.textarea.dispatchEvent(event);
-                });
                 autosize.update(this.$.textarea);
             },
             focus: function () {
@@ -89,6 +84,10 @@
                 this.async(function () {
                     autosize.update(this.$.textarea)
                 }, 0);
+            },
+            _onUp: function(e){
+                const selectedText = this.$.textarea.value.substring(this.$.textarea.selectionStart, this.$.textarea.selectionEnd);
+                this.fire('text-select',{e:e,selectedText:selectedText});
             }
         });
     </script>

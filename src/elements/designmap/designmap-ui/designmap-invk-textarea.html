@@ -49,6 +49,29 @@
             designmap-users-select {
                 height: 0;
             }
+            .markdown-popup {
+                position: absolute;
+                padding: 10px;
+                background: var(--blue-darkest-color);
+                border-radius: 3px;
+                z-index: 999;
+                max-height: 48px;
+            }
+            .markdown-popup paper-icon-button {
+                padding: 0 !important;
+                width: 24px;
+                height: 24px;
+                --iron-icon-fill-color: var(--white-color);
+            }
+            .separator {
+                display: inline-block;
+                height: 20px;
+                position: relative;
+                top: 4px;
+                width: 1px;
+                background: var(--white-color);
+                margin: 0 5px;
+            }
         </style>
         <!-- Invoked -->
         <div class="invoked" hidden$="[[!_invokedState(invokedUsers.length,noInvoked)]]">
@@ -69,6 +92,7 @@
                   rows="1"
                   value="{{value}}"
                   placeholder="[[placeholder]]"
+                  on-text-select="openEditor"
                   on-keyup="_invocation"
                   on-keydown="_specialActionForInvocation"
         ></plastic-textarea>
@@ -79,6 +103,15 @@
                                     limit="5"></designmap-users-select>
         </div>
         <!-- Invocation dropdown -->
+        <div id="markdownPopup" class="markdown-popup" hidden$="[[!showMarkdownPopup]]">
+            <div class="button-set">
+                <paper-icon-button icon="editor:format-bold" on-click="boldText"></paper-icon-button>
+                <paper-icon-button icon="editor:format-italic" on-click="italicText"></paper-icon-button>
+                <paper-icon-button icon="editor:format-quote" on-click="quoteText"></paper-icon-button>
+                <div class="separator"></div>
+                <paper-icon-button icon="close" on-click="closeEditor"></paper-icon-button>
+            </div>
+        </div>
     </template>
     <script>
         let tempSearch = '';
@@ -124,6 +157,10 @@
                     value: []
                 },
                 noInvoked: {
+                    type: Boolean,
+                    value: false
+                },
+                showMarkdownPopup: {
                     type: Boolean,
                     value: false
                 }
@@ -187,14 +224,15 @@
             },
 
             _specialActionForInvocation: function(e){
-                if(e.detail && [13,40,38].indexOf(e.detail.keyCode)==-1 || !this.opened) return;
+                const ev = e.detail || e;
+                if([13,40,38].indexOf(ev.keyCode)==-1 || !this.opened) return;
 
-                e.detail.preventDefault();
-                e.detail.stopPropagation();
+                ev.preventDefault();
+                ev.stopPropagation();
 
-                if(e.detail.keyCode==13) this.$.select.add();
-                if(e.detail.keyCode==38) this.$.select.up();
-                if(e.detail.keyCode==40) this.$.select.down();
+                if(ev.keyCode==13) this.$.select.add();
+                if(ev.keyCode==38) this.$.select.up();
+                if(ev.keyCode==40) this.$.select.down();
 
             },
 
@@ -233,6 +271,38 @@
 
             refit: function(){
                 this.$.textarea.refit();
+            },
+
+            openEditor: function(e){
+                this.selectedText = e.detail.selectedText.trim();
+                this.showMarkdownPopup = false;
+                if(!this.selectedText) return;
+                this.showMarkdownPopup = true;
+                const ev = e.detail.e;
+                this.$.markdownPopup.style.left = ev.layerX + 'px';
+                this.$.markdownPopup.style.top = ev.layerY - 50 + 'px';
+            },
+
+            closeEditor: function(){
+                this.showMarkdownPopup = false;
+            },
+
+            boldText: function(){
+                this.showMarkdownPopup = false;
+                this.value = this.value.replace(this.selectedText,'**'+this.selectedText+'**');
+                this.$.textarea.focus();
+            },
+
+            italicText: function(){
+                this.showMarkdownPopup = false;
+                this.value = this.value.replace(this.selectedText,'*'+this.selectedText+'*');
+                this.$.textarea.focus();
+            },
+
+            quoteText: function(){
+                this.showMarkdownPopup = false;
+                this.value = this.value.replace(this.selectedText,'>'+this.selectedText);
+                this.$.textarea.focus();
             }
         })
     </script>

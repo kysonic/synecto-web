@@ -575,6 +575,14 @@
                 };
             }
 
+            .break-line {
+                height: 30px;
+                width: 1px;
+                background: var(--gray-color);
+                margin: 0 5px 0 22px;
+                display: inline-block;
+            }
+
 
 
 
@@ -620,6 +628,11 @@
                     <span><i18-n msgid="[[filter.text]]">[[filter.text]]</i18-n></span>
                 </div>
             </template>
+            <div class="break-line"></div>
+            <div class$="row [[_computeSelectedMineClass(mineFilterSelected)]]" on-click="toggleMine">
+                <iron-icon class="filter-icon" icon="designmap-task-manager:my"></iron-icon>
+                <span><i18-n msgid="mine">mine</i18-n></span>
+            </div>
         </div>
 
         <!-- Hint -->
@@ -641,7 +654,7 @@
 
         <plastic-custom-scroll hidden$="[[!tasks.length]]" no-scroll="[[noScroll]]" id="scroller" fit small-bar>
             <ul class="list" id="list">
-                <template id="listRepeater" is="dom-repeat" items="[[tasks]]" as="task" filter="[[taskFilter(selectedFilter,limit,tasks.*)]]" sort="[[taskSort(limit)]]">
+                <template id="listRepeater" is="dom-repeat" items="[[tasks]]" as="task" filter="[[taskFilter(selectedFilter,limit,mineFilterSelected,tasks.*)]]" sort="[[taskSort(limit)]]">
                     <li draggable$="[[_computeDraggable(searchMode,dragLine)]]" on-dragstart="dragStart" on-dragenter="dragEnter" on-dragover="dragOver" on-drop="dragDrop" class$="[[computeItemClass(task,selected)]]" data-task-id$="[[task._id]]">
                         <!--<div class="line" class$="[[computeSubLineClass(task)]]"></div>-->
                         <designmap-circle-button id$="statusButton[[index]]" class="status-button"
@@ -674,7 +687,7 @@
                         <!--<div class="status-line"></div>-->
                     </li>
                 </template>
-                <div class="not-found-msg" hidden$="[[checkTaskFilter(filter,selectedFilter,tasks.*)]]">
+                <div class="not-found-msg" hidden$="[[!showEmptyMsg]]">
                     <i18-n msgid="There are no found elements">There are no found elements</i18-n>
                 </div>
             </ul>
@@ -777,7 +790,6 @@
                     value: [
                         {type: 'all', text: 'all'},
                         {type: 'not_completed', text: 'not_completed'},
-                        {type: 'my', text: 'my'},
                        /* {type: 'expired', text: 'expired'}*/
                     ]
                 },
@@ -887,6 +899,14 @@
                 manager: {
                     type: Object,
                     value: {}
+                },
+                mineFilterSelected: {
+                    type: Boolean,
+                    value: false
+                },
+                showEmptyMsg: {
+                    type: Boolean,
+                    value: false
                 }
             },
             observers: [
@@ -1184,33 +1204,35 @@
             /**
              * Task filter
              */
-            taskFilter: function (selectedFilter,limit) {
+            taskFilter: function (selectedFilter,limit,mineFilterSelected) {
                 let i = 0;
+                let okCount = 0;
                 return function (task) {
-                    const ok = this.statusFilter(selectedFilter,task);
+                    const ok = this.statusFilter(selectedFilter,task,mineFilterSelected);
                     ok ? i++ : null;
                     if(i>limit) return false;
+                    if(ok) okCount++;
+                    this.showEmptyMsg = !okCount;
                     return ok;
                 }.bind(this)
             },
-            statusFilter: function(selectedFilter,task){
+            statusFilter: function(selectedFilter,task,mineFilterSelected){
                 if (task.removed) return false;
-                if (selectedFilter.type == 'all') return true;
+                if (mineFilterSelected && this.user && task.assignee != this.user._id) return false;
                 if (selectedFilter.type == 'not_completed') return task.status != 'completed';
-                if (selectedFilter.type == 'my' && this.user) {return task.assignee == this.user._id;}
+                if (selectedFilter.type == 'all') return true;
                 return selectedFilter.type == task.status;
             },
             /**
              * Task filter to define message displaying
              */
-            checkTaskFilter: function (filter, selectedFilter) {
-                if (!this.filter) return true;
-                return this.tasks ? !!this.tasks.filter(function (task) {
-                        if (task.removed) return false;
-                        if (selectedFilter.type == 'all') return true;
-                        if (selectedFilter.type == 'not_completed') return task.status != 'completed';
-                        if (selectedFilter.type == 'expired') return this.isExpired(task.expired, task.status);
-                        return selectedFilter.type == task.status;
+            checkTaskFilter: function (selectedFilter,limit,mineFilterSelected) {
+                let i = 0;
+                return this.tasks ? this.tasks(function (task) {
+                        const ok = this.statusFilter(selectedFilter,task,mineFilterSelected);
+                        ok ? i++ : null;
+                        if(i>limit) return false;
+                        return ok;
                     }.bind(this)).length : true;
             },
             /**
@@ -1338,7 +1360,7 @@
                 this.selectedFilter = filter;
             },
             _selectedChanged: function () {
-                this.updateStyles();
+                this.async(this.updateStyles,10);
             },
             _taskChanged: function () {
                 //this.updateScrollHeight();
@@ -1346,6 +1368,9 @@
             },
             _computeSelectedFilterClass: function (filter, selectedFilter) {
                 return filter.type == selectedFilter.type ? 'selected' : '';
+            },
+            _computeSelectedMineClass: function (selected) {
+                return selected ? 'selected' : '';
             },
             skipTutorialStep: function () {
                 this.doneHint('taskList', 'tm');
@@ -1509,6 +1534,11 @@
                     document.removeEventListener('mousemove', _drag);
                     document.removeEventListener('mouseup', _stop);
                 }
+            },
+
+            toggleMine: function(){
+                this.mineFilterSelected = !this.mineFilterSelected;
+                this.async(this.updateStyles,10);
             }
         })
     </script>
