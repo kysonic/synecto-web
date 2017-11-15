@@ -52,6 +52,10 @@
             Designmap.projectSocket.on('userOnline', function (o) {
                 this.fire('user-online',o);
             }.bind(this));
+
+            Designmap.projectSocket.on('userRegistered', function (o) {
+                this.fire('user-invoked-success',o);
+            }.bind(this));
         },
         /**
          * Add custom socket subscriber

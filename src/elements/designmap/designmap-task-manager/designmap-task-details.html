@@ -29,12 +29,13 @@
     <template>
         <style include="tooltip-shared-styles">
             :host {
-                flex: 1;
                 box-sizing: border-box;
                 position: relative;
                 background: var(--white-color);
+
                 display: flex;
                 flex-direction: column;
+                flex-grow: 1;
                 overflow: hidden;
 
                 --details-color: var(--gray-saturated-color);
@@ -62,22 +63,12 @@
             /** DETAILS **/
             .details {
                 width: 100%;
-                height: calc(100% - 64px);
             }
 
-            .details.followers {
-                width: 100%;
-                height: calc(100% - 108px);
-            }
-
-            .details.followers.invoked {
-                width: 100%;
-                height: calc(100% - 129px);
-            }
-
-            .details.invoked {
-                width: 100%;
-                height: calc(100% - 85px);
+            #scroller {
+                flex: 2;
+                overflow: auto;
+                display: block;
             }
 
             /** Panel **/
@@ -255,7 +246,7 @@
                 };
             }
             .desc-textarea.edit {
-                margin-top: -1px;
+                margin-top: 2px;
                 --plastic-textarea-mixin: {
                     margin-left: 24px;
                     font-family: var(--font-family);
@@ -274,6 +265,7 @@
                 border: 1px solid var(--gray-color);
                 padding: 5px;
                 cursor: pointer;
+                margin-top: 2px;
             }
             .desc-arrow iron-icon:hover {
                 background: var(--gray-lightern-color);
@@ -303,6 +295,9 @@
                     padding: 0 20px 0 30px;
                     margin-top: 5px;
                 };
+                --designmap-task-list-not-found-mixin: {
+                    margin: 10px 17px;
+                };
                 --designmap-task-list-status-button-mixin: {
                     margin-left: 0;
                 };
@@ -326,7 +321,7 @@
 
             plastic-custom-scroll {
                 --plastic-custom-scroll-content-mixin:{
-                    max-height: calc(100vh - 260px);
+                    max-height: 100%;
                 };
             }
 
@@ -384,44 +379,16 @@
                 }
 
 
-                plastic-custom-scroll {
-                    --plastic-custom-scroll-content-mixin:{
-                        max-height: calc(100vh - 295px);
-                    };
-                }
-
-
-
                 /** DETAILS **/
                 .details {
                     width: 100%;
-                    height: calc(100% - 55px);
-                }
-
-                .details.followers {
-                    width: 100%;
-                    height: calc(100% - 55px);
-                }
-
-                .details.followers.invoked {
-                    width: 100%;
-                    height: calc(100% - 75px);
-                }
-
-                .details.invoked {
-                    width: 100%;
-                    height: calc(100% - 75px);
-                }
-
-                .details.invoked plastic-custom-scroll {
-                    --plastic-custom-scroll-content-mixin:{
-                        max-height: calc(100vh - 320px);
-                    };
+                    height: 100%;
                 }
             }
 
         </style>
-        <div id="details" class$="details [[_computeAssigneeStatus(task)]] [[_computeFollowersCls(followers)]] [[_computeInvokedClass(invokedUsers)]]" >
+        <plastic-custom-scroll id="scroller" fit small-bar>
+            <div id="details" class$="details [[_computeAssigneeStatus(task)]] [[_computeFollowersCls(followers)]] [[_computeInvokedClass(invokedUsers)]]" >
             <!-- Panel -->
             <div class="panel">
                 <div class="left">
@@ -474,8 +441,6 @@
                     </paper-tooltip>
                 </div>
             </div>
-            <!-- Panel -->
-            <plastic-custom-scroll id="scroller" fit small-bar>
                 <div class="grid">
                     <div class="left">
                         <designmap-task-info id="info" task="[[task]]" project-users="[[projectUsers]]"></designmap-task-info>
@@ -551,11 +516,11 @@
                     <!-- Comment list -->
                     <designmap-task-comment-list  project-id="[[projectId]]" user="[[user]]" task="[[task]]" comments="[[comments]]"></designmap-task-comment-list>
                 </div>
-            </plastic-custom-scroll>
             <designmap-confirm id="completeTaskConfirm"
                                message="YouHaveUncompletedTasks" on-continue="changeStatus"
                                on-suspend="suspendComplete"></designmap-confirm>
         </div>
+        </plastic-custom-scroll>
         <!--comments-->
         <div class="comments">
             <designmap-task-comments
@@ -726,7 +691,12 @@
                 this.dispatch('updateTask', this.task._id, {assignee: e.detail._id});
                 // Notify but do not do this if for itself
                 if (e.detail._id == this.user._id) return;
-                this.sendAssigneeNotification(e.detail.task,e.detail._id);
+                const taskId = e.detail.task._id;
+                // Wait because you can change assignee
+                this.async(function(){
+                    const task = this.findTaskById(taskId);
+                    this.sendAssigneeNotification(task,task.assignee);
+                },60000);
             },
 
             _removeAssignee: function (e) {

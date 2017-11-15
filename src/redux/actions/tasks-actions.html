@@ -189,6 +189,7 @@
                         project: task.scope
                     }).then(function(response){
                         var taskIndex = this.findTaskIndexById(task._id);
+                        Designmap.projectSocket.emit('action', {type: 'UPDATE_TASK', data: response.task, index: taskIndex, uid:Designmap.uid});
                         dispatch({type: 'UPDATE_TASK', data: response.task, index: taskIndex});
                     }.bind(this));
                     return promise;
@@ -204,6 +205,7 @@
                         project: task.scope
                     }).then(function(response){
                         var taskIndex = this.findTaskIndexById(task._id);
+                        Designmap.projectSocket.emit('action', {type: 'UPDATE_TASK', data: response.task, index: taskIndex, uid:Designmap.uid});
                         dispatch({type: 'UPDATE_TASK', data: response.task, index: taskIndex});
                     }.bind(this));
                     return promise;

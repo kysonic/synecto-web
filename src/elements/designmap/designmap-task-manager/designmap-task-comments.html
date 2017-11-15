@@ -391,6 +391,7 @@
                 //Followers
                 if(this.followers.indexOf(this.user._id)===-1) this.dispatch('followTask',this.task,this.user._id);
                 this.set('attaches',[]);
+                this.set('invokedUsers',[]);
                 this.$.attachesDropdown.close();
                 this.sendTaskCommentNotification(comment);
             },

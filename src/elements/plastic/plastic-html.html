@@ -18,9 +18,11 @@
             #content a {
                 color: var(--blue-darkest-color);
             }
-            #content span.marked {
+            #content code {
                 padding: 0 0;
+                font-size: 16px;
                 background: #e7dad1;
+                font-weight: var(--font-family);
             }
             #content ul {
                 margin: 0;
@@ -84,9 +86,11 @@
                 this.$.content.innerHTML = marked(this.msg);
             },
             highlightChanged: function(highlight){
-                const msg = marked(this.msg);
-                if(!highlight) return  this.$.content.innerHTML = msg;
-                this.$.content.innerHTML = this.msg.replace(new RegExp(msg,'g'),'<span class="marked">'+msg+'</span>');
+                const msg = this.msg;
+                if(!highlight) return ;
+                const reg = new RegExp('[\s\S]*'+highlight+'[\s\S]*','ig');
+                const newMsg = this.msg.replace(reg,'`'+highlight+'`');
+                this.$.content.innerHTML = marked(newMsg);
             },
             textSelected: function(e){
                 this.panelOpened = false;

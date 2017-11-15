@@ -74,6 +74,13 @@
     padding-left: 10px;
 }
 
+.markdown-content code {
+    padding: 0 0;
+    font-size: 16px;
+    background: #e7dad1;
+    font-weight: 'Open Sans', sans-sarif;
+}
+
 @-webkit-keyframes uil-reload-css {
     0% {
         -ms-transform: rotate(0deg);

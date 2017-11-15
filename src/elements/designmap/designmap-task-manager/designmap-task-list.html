@@ -156,6 +156,7 @@
                 text-align: left;
                 margin: 10px 49px;
                 color: var(--filter-color);
+                @apply(--designmap-task-list-not-found-mixin)
             }
 
             /** LIST **/
@@ -1449,8 +1450,17 @@
                                 if(element[filterName]!=filter.value) fit = false;
                                 break;
                             case 'search':
-                                const name = element.name;
-                                if(!new RegExp(filter.value.toLowerCase()).test(name.toLowerCase())) fit = false;
+                                fit = false;
+                                const searchHub = ['name','description'];
+                                const searchRegexp = new RegExp('.*'+filter.value.toLowerCase()+'.*');
+                                searchHub.forEach(function(prop){
+                                    const text = element[prop].toLowerCase();
+                                    if(searchRegexp.test(text)) fit = true;
+                                });
+                                if(!fit) {
+                                    const taskId = this._computeTaskId(element);
+                                    if(filter.value=='#'+taskId) fit=true;
+                                }
                                 break;
                         }
                     }.bind(this));

@@ -96,7 +96,7 @@
             <i18-n msgid="Project's team members:">Project's team members</i18-n>
         </div>
         <div class="members">
-            <template is="dom-repeat" items="[[members]]" as="member" sort="[[sortFn(project)]]">
+            <template is="dom-repeat" items="[[members]]" as="member" sort="[[sortFn(project,members.*)]]">
                 <div class="member">
                     <designmap-avatar-projector user="[[member]]"></designmap-avatar-projector>
                     <div class$="mark [[_isOnline(member)]]"></div>

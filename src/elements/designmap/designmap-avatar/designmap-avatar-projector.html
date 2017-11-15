@@ -147,11 +147,11 @@
             },
 
             resolvePosition: function(e){
-                this.$.dropdown.style.left = e.pageX + 'px';
-                this.$.dropdown.style.top = e.pageY + 'px';
+                this.$.dropdown.style.left = e.pageX + 2 + 'px';
+                this.$.dropdown.style.top = e.pageY + 2 + 'px';
                 const bound = this.$.dropdown.getBoundingClientRect();
-                if(e.pageY + bound.height + 50 > window.innerHeight) this.$.dropdown.style.top = e.pageY - bound.height  + 'px';
-                if(e.pageX + bound.width + 50 > window.innerWidth) this.$.dropdown.style.left = e.pageX - bound.width  + 'px';
+                if(e.pageY + bound.height + 50 > window.innerHeight) this.$.dropdown.style.top = e.pageY + 2 - bound.height  + 'px';
+                if(e.pageX + bound.width + 50 > window.innerWidth) this.$.dropdown.style.left = e.pageX - 2 - bound.width  + 'px';
             },
 
             adMove: function(e){

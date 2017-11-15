@@ -132,7 +132,7 @@
                            on-continue="remove" on-suspend="suspendRemoving"></designmap-confirm>
         <!-- Members -->
         <div class="members">
-            <template id="membersRepeater" is="dom-repeat" items="[[members]]" as="member" sort="[[sortFn(project)]]">
+            <template id="membersRepeater" is="dom-repeat" items="[[members]]" as="member" sort="[[sortFn(project,members.*)]]">
                 <div class="member">
                     <designmap-avatar-projector class$="[[_ownerCls(member)]]" user="[[member]]"></designmap-avatar-projector>
                     <div class$="mark [[_isOnline(member.online)]]"></div>
@@ -368,6 +368,10 @@
                     }
                 });
                 this.set('members.'+indx+'.online',o.state);
+            },
+            userInvited: function(user){
+                this.splice('invited',this.invited.indexOf(user.local.email));
+                this.push('members',user);
             }
         })
     </script>

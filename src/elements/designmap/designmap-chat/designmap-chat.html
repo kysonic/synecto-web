@@ -10,6 +10,7 @@
 <link rel="import" href="../designmap-ui/designmap-context-menu.html">
 <link rel="import" href="../designmap-ui/designmap-invk-textarea.html">
 <link rel="import" href="../designmap-ui/designmap-dashboard.html">
+<link rel="import" href="../designmap-ui/designmap-search-filter.html">
 <link rel="import" href="../designmap-fs/designmap-file-uploader.html">
 <link rel="import" href="../designmap-task-manager/designmap-task-creator.html">
 <link rel="import" href="../designmap-fs/designmap-file-preview.html">
@@ -540,6 +541,11 @@
                 display: none;
             }
 
+            .cancel-search {
+                position: relative;
+                top: 5px;
+            }
+
 
             @media (min-width: 320px) and (max-width: 768px) {
                 .scroll {
@@ -645,21 +651,20 @@
                         <iron-icon class="line" icon="icons:chevron-left"></iron-icon>
                     </div>
                 </div>-->
+                <div class="breadcrumbs search" hidden$="[[!searchMode]]">
+                    <div class="crumb">
+                        <div class="title">
+                            <i18-n msgid="Search">Search</i18-n>
+                        </div>
+                        <iron-icon class="line" icon="icons:chevron-left"></iron-icon>
+                    </div>
+                    <paper-icon-button class="cancel-search" on-click="cancelSearch"
+                                       icon="icons:close"></paper-icon-button>
+                </div>
             </div>
             <div class="right">
-                <paper-input id="search" class="search" on-input="_search" label="[[translate('Search...',language,i18Loaded)]]">
-                    <paper-icon-button suffix icon="search" class="search-btn" on-click="_search"></paper-icon-button>
-                </paper-input>
-
-                <!-- Mobile -->
-                <div class$="mobile-dropdown bound [[_mobileDropDownCls(mobileDropdownOpened)]]">
-                    <paper-input id="mobileSearch"  class="mobile-search-input" on-input="_search" label="[[translate('Search...',language,i18Loaded)]]">
-                        <paper-icon-button suffix icon="close" class="search-btn" on-tap="cancelSearch"></paper-icon-button>
-                    </paper-input>
-                </div>
-                <!-- Mobile -->
-                <paper-icon-button class="search-button bound" icon="search" on-click="openMobileSearch"></paper-icon-button>
-
+                <designmap-search-filter on-cancel-search="cancelSearch" on-search="search" id="searchFilter" label="[[translate('Search...',language,i18Loaded)]]"
+                                         items="[[filterItems]]"></designmap-search-filter>
             </div>
         </designmap-dashboard>
 
@@ -776,10 +781,16 @@
                 </designmap-context-menu>
             </div>
             <div class="empty" hidden$="[[_isThereMessages(messages.length)]]">
-                <div class="msg">
+                <div hidden$="[[searchMode]]" class="msg">
                     <i18-n msgid="Chat of">Chat of</i18-n>
                     &laquo;[[project.name]]&raquo;
                     <i18-n msgid="project does not contain any messages">project does not contain any messages</i18-n>
+                </div>
+                <div hidden$="[[!searchMode]]" class="msg">
+                    <i18-n msgid="There is not found elements...">There is not found elements...</i18-n>
+                    <a href="#" on-click="cancelSearch">
+                        <i18-n msgid="Cancel search">Cancel search</i18-n>
+                    </a>
                 </div>
             </div>
         </plastic-custom-scroll>
@@ -990,6 +1001,14 @@
                     value: null
                 },
                 focused: {
+                    type: Boolean,
+                    value: false
+                },
+                filterItems: {
+                    type: Array,
+                    computed: '_computeFilterItems(project,language,i18Loaded,project.*)'
+                },
+                searchMode: {
                     type: Boolean,
                     value: false
                 }
@@ -1309,10 +1328,10 @@
             },
 
             highlightText: function(message,search){
-                this.clearHighLights();
                 const currentMsg = this.$.messages.querySelector('[data-id="' + message._id + '"]');
+                if(!currentMsg) return false;
                 currentMsg.classList.add('highlighted');
-                currentMsg.querySelector('.html').highlight=search;
+                currentMsg.querySelector('.html').highlight = search;
             },
 
             clearHighLights: function(){
@@ -1484,6 +1503,83 @@
                 this.message = '';
                 this.$.comment.classList.remove('focused');
                 this.focused = false;
+            },
+
+            getOwner: function(mix) {
+                const id = mix._id || mix;
+                if(!id) return;
+                const users = this.project ? this.project.users.concat([this.project.ownerData]) : [];
+                return users.find(function(user){
+                    return user._id = id;
+                });
+            },
+
+            _computeFilterItems: function (project, lng, loaded, splices) {
+                const users = project ? project.users.concat([project.ownerData]) : [];
+                const userOpts = [
+                    {
+                        value: 'all',
+                        label: 'Any'
+                    }
+                ].concat(users.map(function (user) {
+                    return {
+                        value: user._id,
+                        label: this.computeOwnerName(user)
+                    }
+                }.bind(this)));
+
+                const data = [
+                    {
+                        name: 'owner',
+                        type: 'select',
+                        default: 'all',
+                        options: userOpts
+                    }
+                ];
+
+                return data
+            },
+
+
+            search: function(e) {
+                const filters = e.detail;
+                this.searchMode = true;
+                const elements = ReduxStore.getState().messages;
+                const searchFilterValue = filters.searchInpt ? filters.searchInpt.value : '';
+                // Find messages
+                let filtred = elements.filter(function(element){
+                    let fit = true;
+                    Object.keys(filters).forEach(function(filterName){
+                        const filter = filters[filterName];
+                        switch(filter.type) {
+                            case 'select':
+                                if(filter.value=='all') return;
+                                if(filterName=='owner' && element.owner) return fit = element.owner._id==filter.value;
+                                if(element[filterName]!=filter.value) fit = false;
+                                break;
+                            case 'search':
+                                const regexp = new RegExp('.*'+filter.value.toLowerCase()+'.*');
+                                if(!regexp.test(element.text.toLowerCase())) fit = false;
+                                break;
+                        }
+                    }.bind(this));
+                    return fit;
+                }.bind(this));
+                // Hightlight texts
+                if(searchFilterValue) {
+                    filtred.forEach(function(message){
+                        this.async(function(){
+                            this.highlightText(message,searchFilterValue)
+                        },100);
+                    },this);
+                }
+
+                this.set('messages',filtred);
+            },
+            cancelSearch: function(){
+                this.searchMode = false;
+                this.$.searchFilter.empty();
+                this.set('messages',ReduxStore.getState().messages);
             }
         });
     </script>
