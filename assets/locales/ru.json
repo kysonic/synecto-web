@@ -2437,5 +2437,32 @@
   },
   "googleDocsHintDesc": {
     "message": "Чтобы создать новый Google документы сделайте следующее: </br> 1. Нажмите на иконку <b>первый раз</b>, чтобы подключить Ваш аккаунт. </br> 2. После подключения, <b>нажмите еще раз</b>, чтобы создать новый документ, таблицу или слайды."
+  },
+  "Open in folder": {
+    "message": "Открыть в папке"
+  },
+  "Set like dependant": {
+    "message": "Пометить эту задачу как зависимость. В этом случае основная задача может быть завершена только в том случае, если завершена зависимость."
+  },
+  "Now element \"#ELEMENT#\" is dependency for \"#TASK#\" task": {
+    "message": "Теперь элемент \"#ELEMENT#\" будет зависимостью задачи \"#TASK#\""
+  },
+  "\"#ELEMENT#\" is no more dependency for \"#TASK#\" task": {
+    "message": "Теперь элемент \"#ELEMENT#\" больше не является зависимостью для задачи \"#TASK#\""
+  },
+  "You cannot complete task until dependencies would be completed": {
+    "message": "Вы не можете завершить эту задачу до тех пор пока все зависимости не будут завершены"
+  },
+  "File is marked as completed": {
+    "message": "Файл помечен как \"завершенный\""
+  },
+  "File is marked as not completed": {
+    "message": "Файл помечен как \"не завершенный\""
+  },
+  "Complete file": {
+    "message": "Завершить файл"
+  },
+  "uncompleted": {
+    "message": "не готово"
   }
 }

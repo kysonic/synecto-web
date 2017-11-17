@@ -198,6 +198,17 @@
             return this.findSubtasks(task).filter(function(t){
                 return !t.removed && t.status!='completed';
             }).length;
+        },
+        checkDependencies: function(task){
+            if(!task.dependencies || !task.dependencies.length) return false;
+            const unCompleted = [];
+            task.dependencies.forEach(function(elementId){
+                const element = this.findTaskById(elementId) || this.findFileById(elementId);
+                if(!element) return;
+                if(element.type=='task' && element.status!='completed') unCompleted.push(task);
+                if(element.type=='file' && !element.completed) unCompleted.push(task);
+            },this);
+            return !!unCompleted.length;
         }
     }
 </script>

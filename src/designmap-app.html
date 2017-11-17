@@ -614,6 +614,7 @@
              * Get all project data
              */
             getProjectData: function () {
+                if(this.projectId && this.project._id) this.cleanProjectDataOnly();
                 this.dispatch('getFolders', {scope: this.project._id}).then(this._done.bind(this));
                 this.dispatch('getFiles', {project: this.project._id}).then(this._done.bind(this));
                 this.dispatch('getStickers', {project: this.project._id});
@@ -638,6 +639,10 @@
              */
             cleanProjectData: function () {
                 this.dispatch('cleanProjectState');
+                this.cleanProjectDataOnly();
+            },
+
+            cleanProjectDataOnly: function() {
                 this.dispatch('cleanFolders');
                 this.dispatch('cleanFiles');
                 this.dispatch('cleanStickers');

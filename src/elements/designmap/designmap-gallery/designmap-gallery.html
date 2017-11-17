@@ -666,6 +666,10 @@
                     <iron-icon class="chat-icon" icon="designmap:chat"></iron-icon>
                 </button>-->
                 <!--<paper-tooltip for="chatButton"><i18-n msgid="Chat">Chat</i18-n></paper-tooltip>-->
+                <button hidden$="[[!file]]" id="completeButton" class="top-panel-button" is="designmap-gallery-button" on-click="toggleComplete">
+                    <iron-icon class="share-icon" icon="designmap:[[_completedIcon(file.completed)]]"></iron-icon>
+                </button>
+                <paper-tooltip for="completeButton"><i18-n msgid="Complete file">Complete file</i18-n></paper-tooltip>
                 <button hidden$="[[!file]]" id="shareButton" class="top-panel-button" is="designmap-gallery-button" on-click="share">
                     <iron-icon class="share-icon" icon="designmap:ID"></iron-icon>
                 </button>
@@ -1690,6 +1694,17 @@
             },
             _isThereFile: function(file,loading) {
                 return file && !loading;
+            },
+
+            _completedIcon: function(completed){
+                return completed ? 'completed' : 'uncompleted'
+            },
+
+            toggleComplete: function () {
+                const newCompleted = !this.file.completed;
+                this.dispatch('updateFile', this.file._id, {completed: newCompleted}, this.file.project).then(function () {
+                   this.showMessage(newCompleted?'File is marked as completed':'File is marked as not completed');
+                }.bind(this)).catch(this.manageErrorResponse.bind(this));
             }
 
         });

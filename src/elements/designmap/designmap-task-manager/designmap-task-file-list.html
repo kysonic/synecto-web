@@ -3,6 +3,7 @@
 <link rel="import" href="../designmap-fs/designmap-fs-explorer.html">
 <link rel="import" href="../designmap-fs/designmap-fs-service.html">
 <link rel="import" href="../designmap-fs/designmap-file-uploader.html">
+<link rel="import" href="../designmap-icons/designmap-task-manager.html">
 
 <dom-module id="designmap-task-file-list">
     <template>
@@ -39,6 +40,20 @@
 
             .file {
                 font-size: 14px;
+            }
+
+            .file .buttons {
+                display: inline-flex;
+                align-items: center;
+                position: relative;
+                top: 1px;
+            }
+
+            .file .buttons paper-icon-button {
+                margin-left: 10px;
+                width:24px;
+                height: 24px;
+                padding: 0px;
             }
 
             .file-name {
@@ -82,34 +97,62 @@
                 };
             }
 
+            .separator {
+                width: 100%;
+                height: 1px;
+                background: var(--gray-color);
+                margin: 10px 0;
+            }
+
+            .attach-icon {
+                position: absolute;
+                margin-left: 25px;
+            }
+
+            .block {
+                margin-left: 60px;
+            }
+
+            .topler {
+                margin-top: -2px;
+            }
+
             @media (min-width: 320px) and (max-width: 768px) {
                 paper-dialog {
                     max-width: 300px !important;
                 }
             }
         </style>
-        <template is="dom-repeat" items="[[_computeTaskFiles(task.files)]]" as="file">
-            <div class="file">
-                <a class="file-name" title="[[cutFileName(file)]]" href="#" on-tap="openFile">[[cutFileName(file)]]</a>
-                <iron-icon icon="designmap24:file"></iron-icon>
-                <div class="remove-file" on-tap="removeFile">
-                    <iron-icon icon="designmap-task-manager:remove"></iron-icon>
+        <iron-icon class="attach-icon" icon="designmap-task-menu:attach"></iron-icon>
+        <div class="block">
+            <template is="dom-repeat" items="[[_computeTaskFiles(task.files)]]" as="file">
+                <div class="file">
+                    <a class="file-name" title="[[cutFileName(file)]]" href="#" on-tap="openFile">[[_computeFileName(file)]]</a>
+                    <!--  <iron-icon icon="designmap24:file"></iron-icon>-->
+                    <div class="buttons">
+                        <paper-icon-button id$="dfile-[[index]]" icon="[[_computeFileDependency(file,task)]]" on-tap="toggleDependency"></paper-icon-button>
+                        <paper-icon-button icon="designmap24:close" on-tap="removeFile"></paper-icon-button >
+                    </div>
+                    <paper-tooltip for$="dfile-[[index]]"><i18-n msgid="Set like dependant">Set like dependant</i18-n></paper-tooltip>
                 </div>
-            </div>
-        </template>
-
-        <template is="dom-repeat" items="[[_computeTaskTasks(task.tasks)]]" as="task">
-            <div class="file">
-                <a class="file-name" title="[[task.name]]" href="#" on-tap="openTask">[[task.name]]</a>
-                <iron-icon icon="designmap24:task"></iron-icon>
-                <div class="remove-file" on-tap="removeTask">
-                    <iron-icon icon="designmap-task-manager:remove"></iron-icon>
+            </template>
+            <span class="attach-file" on-tap="openFsExplorerDialog"><i18-n msgid="attach file">attach file</i18-n></span><br/>
+        </div>
+        <div class="separator"></div>
+        <iron-icon class="attach-icon topler" icon="designmap-task-menu:attach-task"></iron-icon>
+        <div class="block">
+            <template is="dom-repeat" items="[[_computeTaskTasks(task.tasks)]]" as="tsk">
+                <div class="file">
+                    <a class="file-name" title="[[tsk.name]]" href="#" on-tap="openTask">[[tsk.name]] ([[translate(tsk.status)]])</a>
+                    <div class="buttons">
+                        <paper-icon-button id$="dependant-[[index]]" icon="[[_computeTaskDependency(tsk,task)]]" on-tap="toggleDependency"></paper-icon-button>
+                        <paper-icon-button icon="designmap24:close" on-tap="removeTask"></paper-icon-button >
+                    </div>
+                    <paper-tooltip for$="dependant-[[index]]"><i18-n msgid="Set like dependant">Set like dependant</i18-n></paper-tooltip>
                 </div>
-            </div>
-        </template>
-
-        <span class="attach-file" on-tap="openFsExplorerDialog"><i18-n msgid="attach file">attach file</i18-n></span><br/>
-        <span class="attach-task" on-tap="openTasksExplorerDialog"><i18-n msgid="attach task">attach task</i18-n></span>
+            </template>
+            <span class="attach-task" on-tap="openTasksExplorerDialog"><i18-n msgid="attach task">attach task</i18-n></span>
+        </div>
         <!-- FS Explorer -->
         <paper-dialog class="explorer-dialog"  id="fsExplorerDialog"
                       entry-animation="scale-up-animation" exit-animation="scale-down-animation">
@@ -134,7 +177,8 @@
             behaviors: [
                 Polymer.DesignMapFsService,
                 Polymer.DesignMapTaskService,
-                Polymer.DesignMapUtilsBehavior
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapMessagesBehavior
             ],
             properties: {
                 task: {
@@ -184,7 +228,7 @@
             },
 
             removeTask: function (e) {
-                this.fire('remove-task-attach',e.model.task);
+                this.fire('remove-task-attach',e.model.tsk);
             },
 
             _openFileUploader: function (e) {
@@ -215,9 +259,33 @@
 
             openTask: function (e) {
                 e.preventDefault();
-                const task = e.model.task;
+                const task = e.model.tsk;
                 page.rdt('/'+this.projectId+'/task-manager'+this.getFullPath(task));
             },
+
+            toggleDependency: function(e){
+                this.fire('toggle-dependency',e.model.tsk || e.model.file);
+            },
+
+            _computeTaskDependency: function(task){
+                if(!this.task) return 'designmap-task-menu:no-dependant';
+                const index = this.task.dependencies.indexOf(task._id);
+                return index==-1 ? 'designmap-task-menu:no-dependant' : 'designmap-task-menu:dependant';
+            },
+
+            _computeFileDependency: function(file){
+                if(!this.task) return 'designmap-task-menu:no-dependant';
+                const index = this.task.dependencies.indexOf(file._id);
+                return index==-1 ? 'designmap-task-menu:no-dependant' : 'designmap-task-menu:dependant';
+            },
+
+            _computeFileName: function(file){
+                return this.cutFileName(file) + ' ('+this._isCompleted(file.completed)+')';
+            },
+
+            _isCompleted: function(completed) {
+                return this.translate(completed?'completed':'uncompleted');
+            }
         })
     </script>
 </dom-module>

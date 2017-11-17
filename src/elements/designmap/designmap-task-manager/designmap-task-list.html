@@ -1005,6 +1005,7 @@
                 // Tricky timer manipulation
                 clearInterval(this.timer);
                 var status = STATUSES[STATUSES.indexOf(e.model.task.status) + 1] || STATUSES[0];
+                if(status=='completed' && this.checkDependencies(e.model.task)) return this.showErrorMessage('You cannot complete task until dependencies would be completed');
                 const data = {status: status};
                 if(status=='completed') data.completed = new Date();
                 this.dispatch('updateTask', e.model.task._id, data);

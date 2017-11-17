@@ -214,6 +214,10 @@
                         </designmap-context-menu>
                     </template>
 
+                    <li hidden$="[[!_isSearchAndFile(currentElement,searchMode)]]" on-tap="openContainedFolder">
+                        <i18-n msgid="Open in folder">Open in folder</i18-n>
+                    </li>
+
                     <li on-tap="_copyId">
                         <cbn-copy-clipboard  value="#[[_computeTaskId(currentElement)]]">
                             <i18-n msgid="Copy id">Copy #ID</i18-n>
@@ -275,6 +279,9 @@
                     <i18-n msgid="selected">selected</i18-n>
                 </div>
                 <div class="button-set">
+                    <button is="designmap-button" class="no-unselect" on-click="cutSelectedElements" thin>
+                        <i18-n msgid="Cut">Cut</i18-n>
+                    </button>
                     <button is="designmap-button" class="no-unselect" on-click="removeSelectedElements" thin>
                         <i18-n msgid="Archive action">Archive</i18-n>
                     </button>
@@ -720,11 +727,7 @@
              * Cut/Paste
              */
             cutElement: function(){
-                this.fire('set-cutted',this.currentElement);
-                const element = Object.assign({},this.currentElement);
-                element.cutted = true;
-                const searchCriteria = this.currentElement.type==='file'?this.currentElement._id:this.getFullPath(this.currentElement);
-                this.dispatch('_update'+this.capitalizeFirstLetter(this.currentElement.type),searchCriteria,element);
+                this.fire('set-cutted',[this.currentElement]);
                 this.$$('#contextMenu').close();
             },
             _computeElementClass: function(cutted) {
@@ -830,6 +833,21 @@
                     this.$.folderHint.finish();
                     this.fire('hint-skip',true);
                 }
+            },
+
+            cutSelectedElements: function(){
+                this.fire('set-cutted',this.selected);
+                this.cleanSelected();
+            },
+
+            _isSearchAndFile: function(element,searchMode){
+                return element.type=='file' && searchMode;
+            },
+
+            openContainedFolder: function(){
+                const folder = this.findFolderById(this.currentElement.folder);
+                this.fire('cancel-search');
+                page.rdt('/'+this.projectId+'/fs'+this.getFullPath(folder)||'');
             }
         });
     </script>

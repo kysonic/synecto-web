@@ -2428,5 +2428,32 @@
   },
   "googleDocsHintDesc": {
     "message": "Follow these steps to create a Google document: <br/> 1. Click on the Google Drive icon <b>to connect</b> to Google Docs and sync your account <br/> 2. Click the same icon <b>a second time</b> to create any type of Google Doc"
+  },
+  "Open in folder": {
+    "message": "Open in folder"
+  },
+  "Set like dependant": {
+    "message": "Mark this task as dependency. In this case main task can be completed only if depandancy would be completed as well."
+  },
+  "Now element \"#ELEMENT#\" is dependency for \"#TASK#\" task": {
+    "message": "Now document \"#ELEMENT#\" is dependency for \"#TASK#\" task"
+  },
+  "\"#ELEMENT#\" is no more dependency for \"#TASK#\" task": {
+    "message": "\"#ELEMENT#\" is no more dependency for \"#TASK#\" task"
+  },
+  "You cannot complete task until dependencies would be completed": {
+    "message": "You cannot complete task until dependencies would be completed"
+  },
+  "File is marked as completed": {
+    "message": "File is marked as \"completed\""
+  },
+  "File is marked as not completed": {
+    "message": "File is marked as \"not completed\""
+  },
+  "Complete file": {
+    "message": "Complete file"
+  },
+  "uncompleted": {
+    "message": "not completed"
   }
 }

@@ -415,33 +415,41 @@
                 return !project || !project._id;
             },
             setCuttedElement: function(e){
-                if(this.cutted) {
-                    this.cutted.cutted = false;
-                    const searchCriteria = this.cutted.type==='file'?this.cutted._id:this.getFullPath(this.cutted);
-                    this.dispatch('_update'+this.capitalizeFirstLetter(this.cutted.type),searchCriteria,this.cutted);
+                if(this.cutted && this.cutted.length) {
+                    this.setCutState(this.cutted,false);
                 }
                 this.cutted = e.detail;
+                this.setCutState(this.cutted,true);
+            },
+            setCutState: function(cutElements,state){
+                cutElements.forEach(function(cutElement){
+                    cutElement.cutted = state;
+                    const searchCriteria = cutElement.type==='file'?cutElement._id:this.getFullPath(cutElement);
+                    this.dispatch('_update'+this.capitalizeFirstLetter(cutElement.type),searchCriteria,cutElement);
+                },this);
             },
             pasteElement: function(){
-                this['paste'+this.capitalizeFirstLetter(this.cutted.type)]();
+                this.cutted.forEach(function(cutElement){
+                    this['paste'+this.capitalizeFirstLetter(cutElement.type)](cutElement);
+                },this);
                 this.cutted = null;
                 this.$$('#contextMenu').close();
             },
-            pasteFile: function(){
-                this.dispatch('$updateFile',this.cutted._id,{folder:this.currentFolderId,cutted:false});
+            pasteFile: function(cutElement){
+                this.dispatch('$updateFile',cutElement._id,{folder:this.currentFolderId,cutted:false});
             },
-            pasteFolder: function(){
+            pasteFolder: function(cutElement){
                 const parentFolder = this.findFolderById(this.currentFolderId);
-                const folder = Object.assign({},this.cutted);
+                const folder = Object.assign({},cutElement);
                 if(this.getFullPath(parentFolder).indexOf(this.getFullPath(folder))!==-1) {
                     folder.cutted = false;
-                    this.dispatch('$updateFolder',this.getFullPath(this.cutted),folder);
+                    this.dispatch('updateFolder',this.getFullPath(cutElement),folder);
                     return this.showErrorMessage('You cannot paste folder inside it\'s child')
                 }
                 folder.parent = this.currentFolderId;
                 folder.path = this.getFullPath(parentFolder);
                 folder.cutted = false;
-                this.dispatch('$updateFolder',this.getFullPath(this.cutted),folder);
+                this.dispatch('updateFolder',this.getFullPath(cutElement),folder);
             },
             openRemoveAllConfirm: function(){
                 this.$$('#contextMenu').close();
