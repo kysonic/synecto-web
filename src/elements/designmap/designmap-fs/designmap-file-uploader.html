@@ -168,7 +168,6 @@
                     <template is="dom-if" if="[[storages.length]]">
                         <designmap-file-button thin gray hidden$="[[fileUploadLoading]]" name="files[]"
                                                files="{{buttonFiles}}"
-                                               on-change="openIt"
                                                allowed-extension="[[allowedExtension]]"
                                                on-notallowed="showFilesNotAllowedError" multiple="multiple" id="files">
                             <i18-n msgid="Select File">Select File</i18-n>
@@ -329,9 +328,9 @@
                     statePath: 'project'
                 }
             },
-            observers: [
-                'buttonFilesChanged(buttonFiles.length)'
-            ],
+            listeners: {
+                'button-files-changed': "buttonFilesChanged"
+            },
             /**
              * Show error.
              */
@@ -350,13 +349,15 @@
             closeForm: function () {
                 this.$.form.close();
             },
+
             /**
              * Change files count and consist
              */
-            buttonFilesChanged: function (buttonFiles) {
-                if(!buttonFiles) return;
-
+            buttonFilesChanged: function (e) {
+                const files = e.detail;
+                if(Array.isArray(files) && files.length) this.openIt();
             },
+
             openIt: function(){
                 this.openForm();
                 this.uploadFiles();
@@ -417,6 +418,7 @@
                 }, this);
             },
             uploadFiles: function () {
+                if(!this.buttonFiles.length) return;
                 this.fileUploadLoading = true;
                 this.async(function () {
                     this.$.form.refit();

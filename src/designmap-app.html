@@ -32,6 +32,7 @@
 <link rel="import" href="elements/designmap/designmap-tutorial/designmap-tutorials-data.html">
 <link rel="import" href="elements/plastic/plastic-media-query.html">
 <link rel="import" href="elements/designmap/designmap-ui/designmap-stub.html">
+<link rel="import" href="elements/designmap/designmap-avatar/designmap-avatar-projector-popup.html">
 <!-- Configs -->
 <link rel="import" href="config/designmap-app-config.html">
 <!-- Styles -->
@@ -164,6 +165,7 @@
         <!-- Keys -->
         <!--<iron-a11y-keys id="a11yUndo" keys="(ctrl||cmd)+z" target="[[keysTarget]]" on-keys-pressed="undo"></iron-a11y-keys>
         <iron-a11y-keys id="a11yRedo" keys="(ctrl||cmd)+shift+z" target="[[keysTarget]]" on-keys-pressed="redo"></iron-a11y-keys>-->
+        <designmap-avatar-projector-popup id="avatarDropdown"></designmap-avatar-projector-popup>
         <!-- Query -->
         <plastic-media-query on-query-changed="_queryChanged"></plastic-media-query>
         <!-- Notifier -->
@@ -421,6 +423,11 @@
                 maintenance: {
                     type: Boolean,
                     value: false
+                },
+                projectDataLoaded: {
+                    type: Boolean,
+                    value: false,
+                    observer: '_updateProjectDataLoaded'
                 }
             },
 
@@ -445,7 +452,9 @@
                 'hint-skip': 'hintSkip',
                 'tutorial-finish': 'finishTutorial',
                 'user-online': 'userOnline',
-                'user-invoked-success': 'userInvoked'
+                'user-invoked-success': 'userInvoked',
+                'avatar-dropdown-state': 'avatarDropdownState',
+                'avatar-dropdown-background-changed': 'avatarDropdownBackgroundChanged'
             },
 
 
@@ -538,6 +547,10 @@
                 this.dispatch('updateMQ', e.detail);
             },
 
+            _updateProjectDataLoaded: function(projectDataLoaded){
+                this.dispatch('updateProjectDataLoaded', projectDataLoaded);
+            },
+
             _userChanged: function (user) {
                 page.redirect(Designmap.currentPath);
             },
@@ -614,7 +627,7 @@
              * Get all project data
              */
             getProjectData: function () {
-                if(this.projectId && this.project._id) this.cleanProjectDataOnly();
+                this.projectDataLoaded = false;
                 this.dispatch('getFolders', {scope: this.project._id}).then(this._done.bind(this));
                 this.dispatch('getFiles', {project: this.project._id}).then(this._done.bind(this));
                 this.dispatch('getStickers', {project: this.project._id});
@@ -661,6 +674,7 @@
                 this.async(function(){this.loading = false},300);
                 this.readyState = true;
                 this.loaded = 0;
+                this.projectDataLoaded = true;
             },
 
             _unloaded: function(){
@@ -884,11 +898,18 @@
 
             userInvoked: function(e){
                 this.$.advancedMenu.$.members.userInvited(e.detail);
-            }
+            },
 
-            /*_loadingChanged: function(loading){
-                if(loading) this.async(function(){this.loading = false},5000);
-            }*/
+            avatarDropdownState: function(e){
+                const payload = e.detail;
+                this.$.avatarDropdown.user = payload.user;
+                this.$.avatarDropdown.resolvePosition(payload.e);
+                this.$.avatarDropdown.opened = payload.state;
+            },
+
+            avatarDropdownBackgroundChanged: function(e){
+                this.$.avatarDropdown.background = e.detail;
+            }
         });
     </script>
 </dom-module>

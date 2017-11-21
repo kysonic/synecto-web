@@ -208,7 +208,7 @@
             </template>
             <template is='dom-if' if="[[!tmpFile]]">
                 <designmap-file-button gray thin id="fileButton" label="[[translate('Upload file',language)]]" name="files[]"
-                                       files="{{buttonFiles}}" on-change="buttonFilesChanged"
+                                       files="{{buttonFiles}}" on-button-files-changed="buttonFilesChanged"
                                        allowed-extension="[[allowedExtension]]" on-notallowed="showNotAllowedError">
                     <i18-n msgid="Select File">Select File</i18-n>
                 </designmap-file-button>

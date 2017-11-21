@@ -60,7 +60,6 @@
              */
             addTask: function (task) {
                 return function (dispatch) {
-                    var state = ReduxStore.getState();
                     dispatch({type: 'ADD_TASK', data: task});
                     var promise = xhr.post(Designmap.config.apiURL + 'task/', {
                         path: task.path,

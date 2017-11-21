@@ -605,7 +605,7 @@
 
                 :host {
                     /** Chrome dashboard **/
-                    height: calc(100vh - 60px);
+                    height: calc(100vh);
                 }
 
                 .swipe-image, .swipe-ext {
@@ -666,7 +666,7 @@
                     <iron-icon class="chat-icon" icon="designmap:chat"></iron-icon>
                 </button>-->
                 <!--<paper-tooltip for="chatButton"><i18-n msgid="Chat">Chat</i18-n></paper-tooltip>-->
-                <button hidden$="[[!file]]" id="completeButton" class="top-panel-button" is="designmap-gallery-button" on-click="toggleComplete">
+                <button hidden$="[[!file]]" id="completeButton" class="top-panel-button hint" is="designmap-gallery-button" on-click="toggleComplete">
                     <iron-icon class="share-icon" icon="designmap:[[_completedIcon(file.completed)]]"></iron-icon>
                 </button>
                 <paper-tooltip for="completeButton"><i18-n msgid="Complete file">Complete file</i18-n></paper-tooltip>
@@ -685,7 +685,7 @@
                     </cbn-copy-clipboard>
                 </designmap-dropdown>
                 <paper-tooltip for="shareButton"><i18-n msgid="File id share">File id share</i18-n></paper-tooltip>
-                <button hidden$="[[!file]]" id="downloadButton" class="top-panel-button" is="designmap-gallery-button" on-click="dwnldFile">
+                <button hidden$="[[!file]]" id="downloadButton" class="top-panel-button hint" is="designmap-gallery-button" on-click="dwnldFile">
                     <iron-icon class="share-icon" icon="designmap:get-app"></iron-icon>
                 </button>
                 <paper-tooltip for="downloadButton"><i18-n msgid="Download">Download</i18-n></paper-tooltip>

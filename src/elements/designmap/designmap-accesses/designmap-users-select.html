@@ -273,9 +273,10 @@
                     let cond1 = option.local ? reg.test(option.local.email) : false;
                     let cond2 = option.profile ? reg.test(option.profile.name) : false;
                     let cond3 = option.profile ? reg.test(option.profile.lastName) : false;
+                    let cond4 = option.google ? reg.test(option.google.email) : false;
 
-                    if(cond1 || cond2 || cond3) this.count++;
-                    return (cond1 || cond2 || cond3)&&this.count<=parseInt(this.limit);
+                    if(cond1 || cond2 || cond3 || cond4) this.count++;
+                    return (cond1 || cond2 || cond3 || cond4)&&this.count<=parseInt(this.limit);
                 }.bind(this);
             },
             /**
@@ -292,9 +293,10 @@
                   let cond1 = option.local ? reg.test(option.local.email) : false;
                   let cond2 = option.profile ? reg.test(option.profile.name) : false;
                   let cond3 = option.profile ? reg.test(option.profile.lastName) : false;
+                  let cond4 = option.google ? reg.test(option.google.email) : false;
 
-                  if(cond1 || cond2 || cond3) this.count++;
-                  return (cond1 || cond2 || cond3)&&this.count<=parseInt(this.limit);
+                  if(cond1 || cond2 || cond3 || cond4) this.count++;
+                  return (cond1 || cond2 || cond3 || cond4)&&this.count<=parseInt(this.limit);
               }.bind(this))
             },
             action: function(){
@@ -368,7 +370,7 @@
                 var label = null;
                 var opts = options || this.options;
                 opts.forEach(function(option){
-                    if(option.local && option.local.email == value) label = option.label;
+                    if((option.local && option.local.email == value) || (option.google && option.google.email == value)) label = option.label;
                 },this);
 
                 return label;
@@ -430,9 +432,10 @@
                     let cond1 = option.local ? reg.test(option.local.email) : false;
                     let cond2 = option.profile ? reg.test(option.profile.name) : false;
                     let cond3 = option.profile ? reg.test(option.profile.lastName) : false;
+                    let cond4 = option.google ? reg.test(option.google.email) : false;
 
-                    if(cond1 || cond2 || cond3) count++;
-                    return (cond1 || cond2 || cond3)&&count<=parseInt(this.limit);
+                    if(cond1 || cond2 || cond3 || cond4) count++;
+                    return (cond1 || cond2 || cond3 || cond4)&&count<=parseInt(this.limit);
                 }.bind(this));
                 return !!filtered.length;
             },

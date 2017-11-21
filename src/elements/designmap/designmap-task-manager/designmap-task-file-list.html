@@ -268,13 +268,13 @@
             },
 
             _computeTaskDependency: function(task){
-                if(!this.task) return 'designmap-task-menu:no-dependant';
+                if(!this.task || !this.task.dependencies) return 'designmap-task-menu:no-dependant';
                 const index = this.task.dependencies.indexOf(task._id);
                 return index==-1 ? 'designmap-task-menu:no-dependant' : 'designmap-task-menu:dependant';
             },
 
             _computeFileDependency: function(file){
-                if(!this.task) return 'designmap-task-menu:no-dependant';
+                if(!this.task || !this.task.dependencies) return 'designmap-task-menu:no-dependant';
                 const index = this.task.dependencies.indexOf(file._id);
                 return index==-1 ? 'designmap-task-menu:no-dependant' : 'designmap-task-menu:dependant';
             },

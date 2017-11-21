@@ -1,0 +1,110 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module id="designmap-avatar-projector-popup">
+    <template>
+        <style>
+            :host {
+
+            }
+            .avatar-dropdown {
+                position: absolute;
+                width: 320px;
+                height: auto;
+                border-radius: 5px 5px 0 0;
+                z-index: 9999;
+                box-shadow: var(--box-shadow);
+            }
+            .avatar-dropdown .header {
+                background: var(--blue-darker-color);
+                color: var(--white-color);
+                padding: 10px 25px;
+                font-size: 20px;
+                text-align: left;
+            }
+
+            .avatar-dropdown .content {
+                border: 1px solid var(--gray-color);
+                background: var(--white-color);
+                color: var(--gray-darkend-color)
+            }
+
+            .avatar-dropdown .content .field {
+                margin-left: 10px;
+                display: inline-block;
+            }
+
+            .avatar-dropdown .content .field > * {
+                display: inline-block;
+            }
+
+            .avatar-dropdown .content .field  .value {
+                margin-left: 5px;
+                font-weight: bold;
+            }
+
+            .avatar-dropdown .fields {
+                background: rgba(256,256,256,0.7);
+                padding: 10px;
+            }
+        </style>
+        <div id="dropdown" hidden$="[[!opened]]" class="avatar-dropdown">
+            <div class="header">
+                <div class="title">[[computeOwnerName(user)]]</div>
+            </div>
+            <div id="content" class="content">
+                <div class="fields">
+                    <template is="dom-repeat" items="[[_getProfileData(user.profile)]]" as="field">
+                        <div class="field">
+                            <div class="key">[[translate(field.key)]]</div>:
+                            <div class="value">[[field.value]]</div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'designmap-avatar-projector-popup',
+            behaviors: [
+                Polymer.DesignMapUtilsBehavior,
+                Polymer.DesignMapMessagesBehavior
+            ],
+            omit: ['avatar','state','zipCode','name','lastName'],
+            properties: {
+                user: {
+                    type: Object,
+                    value: {}
+                },
+                opened: {
+                    type: Boolean,
+                    value: false
+                },
+                background: {
+                    type: String,
+                    value: '',
+                    observer: '_backgroundChanged'
+                }
+            },
+            resolvePosition: function(e){
+                 this.$.dropdown.style.left = e.pageX + 5 + 'px';
+                 this.$.dropdown.style.top = e.pageY + 5 + 'px';
+                 const bound = this.$.dropdown.getBoundingClientRect();
+                 if(e.pageY + bound.height + 10 > window.innerHeight) this.$.dropdown.style.top = e.pageY - bound.height - 5  + 'px';
+                 if(e.pageX + bound.width + 10 > window.innerWidth) this.$.dropdown.style.left = e.pageX - bound.width - 5  + 'px';
+            },
+            _getProfileData: function(profile){
+                if(!profile) return [];
+                if(profile.birthDate) profile.birthDate = moment(profile.birthDate).format('DD-MMMM-YYYY');
+                return Object.keys(profile).map(function(pk){
+                    return {key:pk,value:profile[pk]};
+                }).filter(function(f){
+                    return this.omit.indexOf(f.key)==-1;
+                }.bind(this));
+            },
+            _backgroundChanged: function(neBack){
+                this.$.content.style.backgroundImage = neBack;
+            }
+        })
+    </script>
+</dom-module>

@@ -1,5 +1,7 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
+
 <link rel="import" href="/bower_components/google-chart/google-chart.html">
+
 
 <dom-module id="designmap-tasks-overview">
     <template>
@@ -55,8 +57,12 @@
                     margin-left: -12px;
                 };
             }
+
+
         </style>
-        <div class="title">
+
+
+       <div class="title">
             <i18-n msgid="Tasks overview">Tasks overview</i18-n>
         </div>
         <plastic-custom-scroll fit small-bar>
@@ -134,7 +140,7 @@
                 i18Loaded: {
                     type: Boolean,
                     value: false
-                }
+                },
             },
             _getByStatus: function(tasks,status){
                 return tasks.filter(function(task){

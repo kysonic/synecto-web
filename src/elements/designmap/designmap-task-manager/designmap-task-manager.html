@@ -241,7 +241,7 @@
 
                 :host > .wrapper > .content {
                     display: flex;
-                    height: calc(100vh - 180px);
+                    height: calc(100vh - 130px) !important;
                 }
 
                 .hidden-xs {
@@ -535,7 +535,8 @@
                 'reset': 'findDefaultTask',
                 'mobile-go-back': 'mobileGoBack',
                 'cancel-search': 'cancelSearch',
-                'resize-col': 'resizeCol'
+                'resize-col': 'resizeCol',
+                'apply-sort-list': 'listApplySort'
             },
             attached: function () {
                 const position = localStorage.getItem('synecto:tm:cols');
@@ -635,7 +636,7 @@
                 page.rdt('/' + this.projectId + '/task-manager' + this.getFullPath(e.detail));
             },
             focusInput: function () {
-                if (this.$.details) this.$.details.focusInput();
+                //if (this.$.details) this.$.details.focusInput();
             },
             _computedAuth: function (user) {
                 return !!user;
@@ -930,6 +931,9 @@
             },
             closeExpiredSoonDialog: function () {
                 this.$.expiredSoonDialog.close();
+            },
+            listApplySort: function(){
+                this.$.list.saveSort();
             }
         })
     </script>

@@ -370,6 +370,7 @@
                 this.set('members.'+indx+'.online',o.state);
             },
             userInvited: function(user){
+                user.online = true;
                 this.splice('invited',this.invited.indexOf(user.local.email));
                 this.push('members',user);
             }

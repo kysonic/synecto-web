@@ -82,21 +82,6 @@
                 <div class="text"> [[computeName(user)]]</div>
             </template>
         </div>
-        <div id="dropdown" hidden$="[[!opened]]" class="avatar-dropdown">
-            <div class="header">
-                <div class="title">[[computeOwnerName(user)]]</div>
-            </div>
-            <div id="content" class="content">
-                <div class="fields">
-                    <template is="dom-repeat" items="[[_getProfileData(user.profile)]]" as="field">
-                        <div class="field">
-                            <div class="key">[[translate(field.key)]]</div>:
-                            <div class="value">[[field.value]]</div>
-                        </div>
-                    </template>
-                </div>
-            </div>
-        </div>
     </template>
     <script>
         Polymer({
@@ -105,25 +90,18 @@
                 Polymer.DesignMapUtilsBehavior,
                 Polymer.DesignMapMessagesBehavior
             ],
-            omit: ['avatar','state','zipCode','name','lastName'],
             properties: {
                 user: {
                     type: Object,
                     value: {}
-                },
-                opened: {
-                    type: Boolean,
-                    value: false
                 }
             },
             observers:[
                 '_avatarChanged(user.profile.avatar)'
             ],
             ready: function(){
-                document.body.appendChild(this.$.dropdown);
-                this.addEventListener('mouseover',this.adOpen.bind(this))
-                this.addEventListener('mouseleave',this.adClose.bind(this))
-                this.addEventListener('mousemove',this.adMove.bind(this))
+                this.addEventListener('mouseover',this.adOpen.bind(this));
+                this.addEventListener('mouseleave',this.adClose.bind(this));
             },
             computeAvatarPath: function (path) {
                 if (!path) return '';
@@ -139,47 +117,23 @@
             adOpen: function (e) {
                 if (this.st) return;
                 this.st = setTimeout(function () {
-                    this.opened = true;
-                    this.async(function(){
-                       this.resolvePosition(e);
-                    })
+                    this.fire('avatar-dropdown-state',{state:true,user:this.user,e:e});
                 }.bind(this), 1000);
-            },
-
-            resolvePosition: function(e){
-                this.$.dropdown.style.left = e.pageX + 2 + 'px';
-                this.$.dropdown.style.top = e.pageY + 2 + 'px';
-                const bound = this.$.dropdown.getBoundingClientRect();
-                if(e.pageY + bound.height + 50 > window.innerHeight) this.$.dropdown.style.top = e.pageY + 2 - bound.height  + 'px';
-                if(e.pageX + bound.width + 50 > window.innerWidth) this.$.dropdown.style.left = e.pageX - 2 - bound.width  + 'px';
-            },
-
-            adMove: function(e){
-                this.resolvePosition(e);
             },
 
             adClose: function (e) {
                 clearTimeout(this.st);
                 this.st = null;
-                this.opened = false;
+                this.fire('avatar-dropdown-state',{state:false,user:this.user,e:e});
             },
 
-            _getProfileData: function(profile){
-                if(!profile) return [];
-                if(profile.birthDate) profile.birthDate = moment(profile.birthDate).format('DD-MMMM-YYYY');
-                return Object.keys(profile).map(function(pk){
-                    return {key:pk,value:profile[pk]};
-                }).filter(function(f){
-                    return this.omit.indexOf(f.key)==-1;
-                }.bind(this));
-            },
 
             _avatarChanged: function(avatar){
                 if(!avatar) return;
                 if (/images/.test(avatar)) return;
                 //Designmap.config.apiURL + path+'?v='+Designmap.uid
                 const path = Designmap.config.apiURL + avatar+'?v='+Designmap.uid;
-                this.$.content.style.backgroundImage = "url("+path+")"
+                this.fire('avatar-dropdown-background-changed',"url("+path+")")
             }
         })
     </script>

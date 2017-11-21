@@ -905,6 +905,7 @@
                 this.fire('reset');
                 this.dispatch('$updateTask', id, {removed: true,removedBy:{user:this.user._id,date:new Date()}}).then(function (response) {
                     if (!response.success) return this.showErrorMessage('Cannot archive task');
+                    this.fire('apply-sort-list');
                     this.showUndoMessage('Task has been archived.');
                 }.bind(this));
             },

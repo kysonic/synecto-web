@@ -167,6 +167,10 @@
                 padding: 20px 75px;
             }
 
+            .wrapper > .content.true {
+                padding: 0 75px;
+            }
+
             .wrapper button {
                 display: inline-block;
                 background: var(--blue-darker-color);
@@ -289,6 +293,15 @@
                 padding-top: 11px;
             }
 
+            .invite-header {
+                background: var(--white-color);
+                padding: 30px 75px 0 75px;
+                text-align: center;
+            }
+            .invite-header .email {
+                font-weight: 700;
+            }
+
             @media (min-width: 320px) and (max-width: 768px) {
                 :host {
                     max-width: calc(100vw - 10px);
@@ -317,12 +330,12 @@
                              on-google-signin-aware-signed-out="googleSigninFailure"
                              client-id="{{clientID}}"></google-signin-aware>
         <div class="wrapper">
-            <div class="header-phantom"></div>
+            <div class="header-phantom" ></div>
             <div class="header">
-                <iron-icon icon="designmap-logo:logo"></iron-icon>
+                <iron-icon icon="designmap-logo:logo" ></iron-icon>
                 <div class="beta">[[version]]</div>
             </div>
-            <div class="social">
+            <div class="social" >
                 <div class="button-wrapper">
                     <button id="registerGoogleButton" is="designmap-loading-button"
                             class="google-btn " on-click="googleAuth" thin>
@@ -330,14 +343,18 @@
                     </button>
                 </div>
             </div>
-            <div class="title">
+            <div class="title" >
                 <hr/>
                 <div class="text">
                     <i18-n msgid="or">or</i18-n>
                 </div>
             </div>
+            <div class="invite-header" hidden$="[[!inviteMode]]">
+                <i18-n msgid="Enter your password and click 'Sign up' to proceed">Enter your password and click 'Sign up' to proceed</i18-n>
+                <i18-n msgid="Your email">Your email</i18-n>: <span class="email">{{registerEmail}}</span>
+            </div>
             <!-- Forgot password form -->
-            <div class="forgot-password-form" id="forgotPasswordForm">
+            <div class="forgot-password-form" hidden$="[[inviteMode]]" id="forgotPasswordForm">
                 <div class="content" id="forgotPasswordFormContent">
                     <div class="panel-title">
                         <i18-n msgid="Forgot password">Forgot password?</i18-n>
@@ -368,7 +385,7 @@
                 </div>
             </div>
             <!-- Send approving link -->
-            <div class="approval-form" id="approvingForm">
+            <div class="approval-form" hidden$="[[inviteMode]]" id="approvingForm">
                 <div class="content" id="approvingFormContent">
                     <div class="panel-title">
                         <i18-n msgid="Approving link">Approving link</i18-n>
@@ -399,7 +416,7 @@
                 </div>
             </div>
             <!-- Main form -->
-            <div class="content" id="content">
+            <div class$="content [[inviteMode]]" id="content">
                 <neon-animated-pages id="pages" class="flex" selected="[[selected]]"
                                      entry-animation="[[entryAnimation]]"
                                      exit-animation="[[exitAnimation]]">
@@ -438,7 +455,7 @@
                     </neon-animatable>
                     <!-- Sign up -->
                     <neon-animatable id="animatable2">
-                        <paper-input id="emailSignup" required pattern="[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*"
+                        <paper-input id="emailSignup" hidden$="[[inviteMode]]" required pattern="[a-zA-Z0-9-_]*.[a-zA-Z0-9-_]*@\w*.\w.\S*"
                                      value="{{registerEmail::keyup}}"
                                      label="E-mail" error-message="[[translate('EmailError',language,i18Loaded)]]"
                                      autocomplete="email"
@@ -557,6 +574,10 @@
                     value: function () {
                         return Designmap.version;
                     }
+                },
+                registerEmail: {
+                    type: String,
+                    value: ''
                 }
             },
             ready: function () {
@@ -576,6 +597,7 @@
                     this.inviteMode = true;
                     this.invtkn = query.invtkn;
                     this.$.emailSignup.value = query.email;
+                    this.registerEmail = query.email;
                 }
             },
 
@@ -620,7 +642,9 @@
                     if (response.projectId) {
                         this.inviteMode = false;
                         this.ivktkn = null;
-                        return page.rdt('/' + response.projectId);
+                        return this.async(function(){
+                            page.rdt('/' + response.projectId);
+                        },1000);
                     }
                     this.showMessage('Welcome to the Synecto!');
                     // Analytics
@@ -763,6 +787,7 @@
                     this.showMessage(response.message, {}, 10000);
                 }.bind(this)).catch(function (err) {
                     this.$.registerGoogleButton.loading = false;
+                    this.showErrorMessage(err);
                 }.bind(this));
             },
             /**

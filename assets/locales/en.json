@@ -2455,5 +2455,17 @@
   },
   "uncompleted": {
     "message": "not completed"
+  },
+  "You have been invited": {
+    "message": "You have been invited in synecto"
+  },
+  "Your email": {
+    "message": "your email"
+  },
+  "Enter your password and click 'Sign up' to proceed": {
+    "message": "Enter a password and click 'Sign up' to proceed"
+  },
+  "This google account already bound to another account.": {
+    "message": "This google account already bound to another account."
   }
 }

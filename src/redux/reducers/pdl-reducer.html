@@ -1,0 +1,13 @@
+<script>
+    Reducers.ProjectDataLoadedReducer = function(state,action) {
+        if(!state) state = null;
+        switch(action.type) {
+            case "UPDATE_PROJECT_DATA_LOADED":
+                return action.projectDataLoaded;
+                break;
+            default:
+                return state;
+                break;
+        }
+    }
+</script>

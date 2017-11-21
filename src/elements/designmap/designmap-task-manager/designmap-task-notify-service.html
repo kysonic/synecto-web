@@ -26,9 +26,10 @@
             }
         },
 
-        sendTaskStatusNotification: function(){
-            const recipients = this.prepareRecipients([this.project.owner,this.task.owner],this.user);
-            this.sendTaskNotification('status-changed',this.task,recipients);
+        sendTaskStatusNotification: function(t){
+            const task = this.task || t;
+            const recipients = this.prepareRecipients([this.project.owner,task.owner],this.user);
+            this.sendTaskNotification('status-changed',task,recipients);
         },
 
         sendTaskCommentNotification: function(comment){
@@ -67,6 +68,24 @@
                         project: this.project.name,
                         task: task.name,
                         xlink: this.getAppUrl() + this.projectId + '/task-manager' + pth
+                    }
+                }
+            });
+        },
+
+        sendNewTaskNotification: function (task) {
+            var pth = (task.path ? task.path : Designmap.config.separator) + task.name;
+            if (this.project.owner == this.user._id) return;
+            this.notifier = this.notifier || document.querySelector('designmap-app').$.notifier;
+            this.notifier.create({
+                sender: this.user._id,
+                recipient: this.project.owner,
+                type: 'new-task',
+                text: {
+                    message: 'New task was added to project',
+                    replacement: {"#PROJECT#": this.project.name, "#NAME#": task.name},
+                    info: {
+                        xlink: this.getAppUrl() + this.project._id + '/task-manager' + pth
                     }
                 }
             });

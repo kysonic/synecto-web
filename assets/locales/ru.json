@@ -2464,5 +2464,17 @@
   },
   "uncompleted": {
     "message": "не готово"
+  },
+  "You have been invited": {
+    "message": "Вы были приглашены в Synecto"
+  },
+  "Your email": {
+    "message": "ваш email"
+  },
+  "Enter your password and click 'Sign up' to proceed": {
+    "message": "Введите пароль и нажмите \"Регистрация\" чтобы продолжить."
+  },
+  "This google account already bound to another account.": {
+    "message": "Этот Google аккаунт уже привязан к другому аккаунту."
   }
 }

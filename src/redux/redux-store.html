@@ -25,6 +25,7 @@
 <link rel="import" href="reducers/messages-reducer.html">
 <link rel="import" href="reducers/mq-reducer.html">
 <link rel="import" href="reducers/hash-reducer.html">
+<link rel="import" href="reducers/pdl-reducer.html">
 
 <script>
     const initialState = {
@@ -47,7 +48,8 @@
         stickers: [],
         comments: [],
         MQ: '',
-        hash: ''
+        hash: '',
+        projectDataLoaded: false
     };
     // Combine reducers
     const reducer = Redux.combineReducers({
@@ -62,6 +64,7 @@
        folderId: filterActions(Reducers.FolderIdReducer,['UPDATE_FOLDER_ID']),
        MQ: filterActions(Reducers.MQReducer,['UPDATE_MQ']),
        hash: filterActions(Reducers.HashReducer,['UPDATE_HASH']),
+       projectDataLoaded: filterActions(Reducers.ProjectDataLoadedReducer,['UPDATE_PROJECT_DATA_LOADED']),
        path: filterActions(Reducers.PathReducer,['UPDATE_PATH']),
        page: filterActions(Reducers.PageReducer,['UPDATE_PAGE']),
        ready: filterActions(Reducers.ReadyReducer,['UPDATE_READY']),
