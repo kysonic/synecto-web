@@ -207,7 +207,7 @@
                 &laquo;[[_getTaskName(currentTaskId,project)]]&raquo;
             </button>
         </div>
-        <div class="or">
+        <div class="or"  hidden$="[[noUpload]]">
             <i18-n hidden$="[[noUpload]]" class="text" msgid="or select existed">or select existed</i18-n>
             <i18-n hidden$="[[!noUpload]]" class="text" msgid="select existed">select existed</i18-n>
             <div class="line"></div>
@@ -269,7 +269,8 @@
                 },
                 selected: {
                     type: Array,
-                    value: []
+                    value: [],
+                    notify: true
                 },
                 user: {
                     type: Object,
@@ -290,6 +291,22 @@
                 noUpload: {
                     type: Boolean,
                     value: false
+                },
+                selectRoot: {
+                    type: Boolean,
+                    value: false
+                },
+                multiMode: {
+                    type: Boolean,
+                    value: false
+                }
+            },
+            attached: function(){
+                if(this.selectRoot) {
+                    this.async(function(){
+                        this.fire('select-element',null);
+                        this.selected = [null];
+                    },100)
                 }
             },
             _getName: function(el) {
@@ -297,7 +314,8 @@
             },
             _getTaskName: function(id,project){
                 const task = this.findTaskById(id);
-                return task ? task.name : project?project.name:'xxx';
+                const name = this.translate('root');
+                return task ? task.name : name[0].toUpperCase()+name.substring(1,name.length);
             },
             _drawArrow: function(id){
                 return !!this.findTaskById(id);
@@ -312,6 +330,8 @@
                 if(e.target.classList.contains('arrow-right') || e.model.element.type=='folder') return this.clearSelected();
                 const multiMode = !!(e.ctrlKey || e.metaKey);
                 if (!multiMode && this.selected.length) this.clearSelected();
+                if (!this.multiMode) this.clearSelected();
+                this.fire('select-element',e.model.element);
                 this.push('selected',e.model.element);
             },
             _computeSelected: function(element,selected){
@@ -331,7 +351,13 @@
                 this.currentTaskId = e.model.element._id;
                 this.fire('down',this.currentTaskId);
                 this.updateTasks();
-                this.async(function(){this.clearSelected()}.bind(this),0);
+                this.async(function(){
+                    if(this.selectRoot) {
+                        this.fire('select-element',this.currentTaskId);
+                        return this.selected = [this.currentTaskId||null];
+                    }
+                    this.clearSelected()
+                }.bind(this),10);
             },
             _goBack: function(){
                 const task = this.findTaskById(this.currentTaskId);
@@ -339,7 +365,13 @@
                 this.currentTaskId = task.parent;
                 this.fire('up',this.currentTaskId);
                 this.updateTasks();
-                this.async(function(){this.clearSelected()}.bind(this),0);
+                this.async(function(){
+                    if(this.selectRoot) {
+                        this.fire('select-element',this.currentTaskId);
+                        return this.selected = [this.currentTaskId||null];
+                    }
+                    this.clearSelected()
+                }.bind(this),0);
             },
             updateTasks: function(){
                 this.set('tasks',this.getState(ReduxStore.getState()));

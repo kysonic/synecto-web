@@ -2467,5 +2467,38 @@
   },
   "This google account already bound to another account.": {
     "message": "This google account already bound to another account."
+  },
+  "Add new team member": {
+    "message": "Add new team member:"
+  },
+  "Move task": {
+    "message": "Move task"
+  },
+  "Move this task": {
+    "message": "Move this task"
+  },
+  "Move into": {
+    "message": "Move into \"#NAME#\""
+  },
+  "root": {
+    "message": "root"
+  },
+  "Task was moved": {
+    "message": "Task \"#TASK#\" was moved to \"#TO#\""
+  },
+  "Move": {
+    "message": "Move"
+  },
+  "Already here": {
+    "message": "Already here"
+  },
+  "Cannot move in itself": {
+    "message": "Cannot move in itself"
+  },
+  "All tasks are moved successfully!": {
+    "message": "All tasks are moved successfully!"
+  },
+  "AreYouSureYouWantToAddThisUserInProject": {
+    "message": "Are you sure you want to add the user in this project?"
   }
 }

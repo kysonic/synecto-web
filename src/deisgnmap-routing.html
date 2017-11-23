@@ -11,6 +11,18 @@
         const driftWidget = document.getElementById('drift-widget-container');
         if(driftWidget) driftWidget.style.display = 'none';
     };
+
+    // Decorate redirect
+
+    page.rdt = function(url,metaKey){
+        const a = document.createElement('a');
+        a.href=url;
+        if(metaKey) a.target = "_blank";
+        document.body.appendChild(a);
+        a.click();
+        a.parentNode.removeChild(a);
+    }
+
     /**
      * Route like a boss
      */

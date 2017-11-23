@@ -1,5 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="../../plastic/plastic-custom-scroll.html">
+<link rel="import" href="../designmap-ui/designmap-hidden-panel.html">
 <link rel="import" href="./designmap-assignee.html">
 <link rel="import" href="../../../styles/tooltip-shared-styles.html">
 <!-- Thrid party -->
@@ -45,6 +46,17 @@
                 --filter-inprogress: var(--inprogress);
                 --filter-completed: var(--completed);
                 --filter-expired: var(--expired);
+
+                --designmap-hidden-panel: {
+                    height: var(--header-height);
+                    background: var(--blue-color);
+                    z-index: 9999;
+                };
+
+                --designmap-circle-button-circle-mixin: {
+                    stroke: #fff !important;
+                    stroke-width: 1px;
+                }
             }
 
             :host(.notask) {
@@ -397,6 +409,10 @@
                 left: 18px;
             }
 
+            .list li.selector {
+                background: var(--gray-lightenest-color);
+            }
+
             .list li.expired .subtask-count {
                 color: var(--filter-expired);
             }
@@ -600,6 +616,11 @@
                opacity: 0;
             }
 
+            .move {
+                cursor: move;
+                margin: 0 10px;
+            }
+
             @media (min-width: 320px) and (max-width: 768px) {
                 .hidden-xs {
                     display: none;
@@ -672,35 +693,38 @@
                 <!-- filter="[[taskFilter(selectedFilter,limit,mineFilterSelected,tasks.*)]]" -->
                 <sortable-js id="sortable" disabled="[[_sortableDisabled(MQ)]]" scroll-fn="[[scrollFn]]" store="[[store]]"  on-update="sortableUpdate" >
                     <template id="listRepeater" is="dom-repeat" items="[[tasks]]" filter="[[listFilter(selectedFilter,limit,mineFilterSelected,tasks.*)]]"  on-dom-change="listRepeaterDomChanged" as="task">
-                        <li class$="[[computeItemClass(task,selected)]]" data-id$="[[task._id]]" data-task-id$="[[task._id]]">
+                        <li class$="[[computeItemClass(task,selected,selectedTasks)]]" data-id$="[[task._id]]" data-task-id$="[[task._id]]">
                             <!--<div class="line" class$="[[computeSubLineClass(task)]]"></div>-->
-                            <designmap-circle-button id$="statusButton[[index]]" class="status-button"
+                            <designmap-circle-button id$="statusButton[[index]]" class="status-button ignore"
                                                      on-tap="changeStatus">
                                 <iron-icon class="status-icon" icon="[[computeIcon(task.status,task.expired)]]"></iron-icon>
                             </designmap-circle-button>
                             <paper-tooltip for$="statusButton[[index]]" position="right">
                                 <i18-n msgid="Change status">Change status</i18-n>
                             </paper-tooltip>
-                            <div class="title" title="[[task.name]]" on-click="select">[[task.name]]</div>
-                            <div class="label no-selected" hidden$="[[!_getLabel(task,labels)]]" style$="[[_getLabelStyle(task,labels)]]">[[_getLabelText(task,labels)]]</div>
+                            <div class="title ignore" title="[[task.name]]" on-click="select">[[task.name]]</div>
+                            <div class="label no-selected ignore" hidden$="[[!_getLabel(task,labels)]]" style$="[[_getLabelStyle(task,labels)]]">[[_getLabelText(task,labels)]]</div>
                             <!--<div class="position no-selected">
                                 [[task.position]]
                             </div>-->
                             <template is="dom-if" if="[[task.assignee]]">
-                                <div class="assignee no-selected">
+                                <div class="assignee no-selected ignore">
                                     <designmap-avatar-projector user="[[_computeOwner(task.assignee)]]"></designmap-avatar-projector>
                                 </div>
                             </template>
                             <template is="dom-if" if="[[_isThereExp(task.expired,task.status)]]">
-                                <div class="expired_row no-selected">[[computeTimeLeftFormMobile(task,language)]]</div>
+                                <div class="expired_row no-selected ignore">[[computeTimeLeftFormMobile(task,language)]]</div>
                             </template>
-                            <div id$="subtask[[index]]" class="subtask hidden-xs no-selected" on-tap="selectWithFocus">
+                            <div class="move" id$="move[[index]]">
+                                <iron-icon icon="editor:drag-handle"></iron-icon>
+                            </div>
+                            <!--<div id$="subtask[[index]]" class="subtask hidden-xs no-selected" on-tap="selectWithFocus">
                                 <iron-icon icon="designmap-taskmanager:subtask"></iron-icon>
                                 <div class$="subtask-count [[_subtskCls(task,tasks)]]">[[findSubtasksLength(task,tasks)]]</div>
                             </div>
                             <paper-tooltip for$="subtask[[index]]" position="left">
                                 <i18-n msgid="Subtask count">Subtask count</i18-n>
-                            </paper-tooltip>
+                            </paper-tooltip>-->
                             <!--<div class="status-line"></div>-->
                         </li>
                     </template>
@@ -738,6 +762,30 @@
             </div>
         </template>
         <div on-mousedown="_lineMouseDown"  class$="[[computeLineClass(selected,dragLine)]]"></div>
+
+        <!-- Associated components -->
+        <designmap-hidden-panel target="[[bodyNode]]" position="top"
+                                cancel-auto-closing
+                                opened="[[computeHiddenPanelState(selectedTasks.length)]]">
+            <div class="select-panel-content centred">
+                <designmap-circle-button class="cancel-selecting" on-click="clearSelectedTasks">
+                    <iron-icon icon="designmap:add" style="transform: rotate(45deg)"></iron-icon>
+                </designmap-circle-button>
+                <div class="selected">
+                    [[selectedTasks.length]]
+                    <i18-n msgid="selected">selected</i18-n>
+                </div>
+                <div class="button-set">
+                    <button is="designmap-button" class="no-unselect" on-click="moveSelectedTasks" thin>
+                        <i18-n msgid="Move">Move</i18-n>
+                    </button>
+                    <button is="designmap-button" class="no-unselect" on-click="archiveSelectedTasks" thin>
+                        <i18-n msgid="Archive action">Archive</i18-n>
+                    </button>
+                </div>
+            </div>
+        </designmap-hidden-panel>
+
     </template>
     <script>
         var STATUSES = ['incomplete', 'in_progress', 'completed'];
@@ -799,7 +847,7 @@
                  */
                 selectedFilter: {
                     type: Object,
-                    value: {type: 'all', text: 'all'}
+                    value: {type: 'not_completed', text: 'not_completed'}
                 },
                 /**
                  * Filter array to provide dinamic
@@ -937,6 +985,17 @@
                 projectDataLoaded: {
                     type: Boolean,
                     statePath: 'projectDataLoaded'
+                },
+
+                selectedTasks: {
+                    type: Array,
+                    value: []
+                },
+                bodyNode: {
+                    type: Object,
+                    value: function () {
+                        return document.body;
+                    }
                 }
             },
             ready: function () {
@@ -1011,10 +1070,13 @@
              * @param e
              */
             select: function (e) {
-                /*this.details.$.title.mode = 'read';
-                 this.details.$.desc.mode = 'read';
-                 this.manager.mode = 'details';*/
+                if(!(e.metaKey || e.ctrlKey)) this.clearSelectedTasks();
+                this.push('selectedTasks',e.model.task);
                 this.fire('select-task', e.model.task);
+            },
+            clearSelectedTasks: function(){
+                this.set('selectedTasks',[]);
+                this.async(this.updateStyles,10);
             },
             /**
              * Change selected task to affect
@@ -1040,9 +1102,10 @@
              * @param task - task
              * @returns {string}
              */
-            computeItemClass: function (task) {
+            computeItemClass: function (task,selected,selectedTasks) {
                 var cls = this.isExpired(task.expired, task.status) ? 'expired' : task.status;
                 if (!this.selected) return task.type;
+                if(selectedTasks.length>1 && selectedTasks.indexOf(task)!=-1) return cls+= "item selector ";
                 return (this.selected._id == task._id || this.isChildOf(this.selected._id, task._id) ? 'item ' + (this.selecting ? ' selected ' : ' ') + cls : 'item ' + cls) + ' ' + task.type
             },
             /**
@@ -1224,8 +1287,8 @@
                 // Notify
                 this.sendNewTaskNotification(task);
                 // Scroll
-                this.async(function(){this.$.scroller.setScroll(this.$.scroller.$.content.scrollHeight + 500)},50);
-                this.sortHook(tuid);
+                this.async(function(){this.$.scroller.setScroll(this.$.scroller.$.content.scrollHeight + 500)},10);
+                this.async(function(){this.sortHook(tuid);});
                 // Create task
                 this.dispatch('addTask', task).then(function (response) {
                     this.sortHook(response.task._id);
@@ -1476,7 +1539,10 @@
             },
 
             sortableUpdate: function (e) {
-                this.saveSort();
+                // Prevent accidental click
+               this.async(function(){
+                   this.saveSort();
+               },1000);
             },
 
             saveSort: function(newOrder){
@@ -1494,6 +1560,25 @@
 
             _sortableDisabled: function(MQ){
                 return MQ=='sm';
+            },
+
+            computeHiddenPanelState: function (length) {
+                return length > 1;
+            },
+
+            archiveSelectedTasks: function(){
+                this.selectedTasks.forEach(function(task){
+                    const id = task._id;
+                    this.fire('reset');
+                    this.async(function(){this.clearSelectedTasks();},0);
+                    this.dispatch('$updateTask', id, {removed: true,removedBy:{user:this.user._id,date:new Date()}}).then(function (response) {
+                        if (!response.success) return this.showErrorMessage('Cannot archive task');
+                        this.fire('apply-sort-list');
+                    }.bind(this));
+                },this);
+            },
+            moveSelectedTasks: function(){
+                this.fire('open-move-tasks-dialog',this.selectedTasks);
             }
         })
     </script>

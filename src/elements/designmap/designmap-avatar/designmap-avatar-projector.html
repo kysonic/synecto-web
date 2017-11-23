@@ -117,7 +117,8 @@
             adOpen: function (e) {
                 if (this.st) return;
                 this.st = setTimeout(function () {
-                    this.fire('avatar-dropdown-state',{state:true,user:this.user,e:e});
+                    const path = Designmap.config.apiURL + this.user.profile.avatar+'?v='+Designmap.uid;
+                    this.fire('avatar-dropdown-state',{state:true,user:this.user,e:e,background:"url("+path+")"});
                 }.bind(this), 1000);
             },
 

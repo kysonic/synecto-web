@@ -383,6 +383,9 @@
                     width: 100%;
                     height: 100%;
                 }
+                .hide-on-mobile {
+                    display: none !important;
+                }
             }
 
         </style>
@@ -430,6 +433,15 @@
                     <iron-a11y-keys keys="enter" on-keys-pressed="titleFocusOut"></iron-a11y-keys>
                 </div>
                 <div class="right">
+                    <designmap-circle-button class="hide-on-mobile"
+                                             id="moveButton"
+                                             on-click="openMoveExplorer">
+                        <iron-icon class="panel-icon" icon="designmap-task-manager:move"></iron-icon>
+                    </designmap-circle-button>
+                    <paper-tooltip for="moveButton" position="left">
+                        <i18-n msgid="Move this task">Move this task</i18-n>
+                    </paper-tooltip>
+
                     <designmap-circle-button class="hidden-xs"
                                              id="removeButton"
                                              on-click="removeTask">
@@ -533,6 +545,15 @@
                     task="[[task]]"
                     user="[[user]]"></designmap-task-comments>
         </div>
+
+        <!-- Tasks explorer -->
+        <paper-dialog class="explorer-dialog" id="tasksExplorerDialog"
+                      entry-animation="scale-up-animation" exit-animation="scale-down-animation">
+            <designmap-tasks-explorer id="taskExplorer" button-text="[[buttonText]]" on-select-element="changeButtonText" selected="{{selectedTasks}}" current-task-id="{{currentTaskId}}"
+                                      no-upload
+                                      select-root
+                                      on-task="_moveTasks"></designmap-tasks-explorer>
+        </paper-dialog>
     </template>
     <script>
         Polymer({
@@ -597,6 +618,10 @@
                     value: []
                 },
                 invokedUsers: {
+                    type: Array,
+                    value: []
+                },
+                selectedTasks: {
                     type: Array,
                     value: []
                 }
@@ -778,6 +803,7 @@
             removeFile: function (e) {
                 const file = e.detail;
                 this.task.files.splice(this.task.files.indexOf(file._id), 1);
+                this.task.dependencies.splice(this.task.dependencies.indexOf(file._id), 1);
                 this.dispatch('updateTask', this.task._id, this.task);
             },
 
@@ -933,6 +959,39 @@
                     if (!response.success) return this.showErrorMessage('Cannot set dependency');
                     this.showMessage(index==-1?'Now element "#ELEMENT#" is dependency for "#TASK#" task':'"#ELEMENT#" is no more dependency for "#TASK#" task',{'#ELEMENT#':element.name||element.data.name,'#TASK#':this.task.name});
                 }.bind(this));
+            },
+
+            openMoveExplorer: function(){
+                this.$.taskExplorer.currentTaskId = null;
+                this.$.taskExplorer.selected = [null];
+                this.$.tasksExplorerDialog.open();
+            },
+
+            changeButtonText: function(e){
+                const task = this.findTaskById(e.detail._id || e.detail);
+                if(!task) return this.buttonText = this.replaceExpressions(this.translate('Move into'),{"#NAME#":this.translate('root')});
+                this.buttonText = this.replaceExpressions(this.translate('Move into'),{"#NAME#":task.name});
+            },
+
+            _moveTasks: function(e){
+                const tsk = e.detail[0];
+                const toTaskId = tsk?tsk._id?tsk._id:tsk:tsk;
+                const tasks = this.moveManyMode ? this.moveSelectedTasks : [this.task];
+                tasks.forEach(function(task){
+                    if(toTaskId==task._id) return this.showErrorMessage('Cannot move in itself');
+                    if(toTaskId==task.parent) return this.showErrorMessage('Already here');
+                    this.$.tasksExplorerDialog.close();
+                    this.dispatch('updateTask', task._id, {parent:toTaskId}).then(function(response){
+                        if(!response.success) return this.manageErrorResponse(response);
+                        const toTask = this.findTaskById(toTaskId);
+                        if(!this.moveManyMode) this.showMessage('Task was moved',{'#TASK#':this.task.name,"#TO#":toTask?toTask.name:this.translate('root')});
+                        this.moveManyMode = true;
+                    }.bind(this)).catch(this.manageErrorResponse.bind(this));
+                },this);
+                if(this.moveManyMode ) {
+                    this.async(function(){this.fire('clear-list-selected');},0);
+                    this.showMessage('All tasks are moved successfully!')
+                }
             }
         })
     </script>

@@ -40,6 +40,14 @@
             *[hidden] {
                 display: none !important;
             }
+            .header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+                height: 70px;
+                background: var(--gray-lightenest-color);
+            }
             paper-icon-button {
                 display: inline-block;
                 vertical-align: top;
@@ -50,7 +58,23 @@
                 vertical-align: top;
                 color:var(--gray-darkend-color);
                 font-size: 18px;
-                padding: 7px 0 0 0;
+                padding: 7px 0 0 11px;
+            }
+            .new-member-title {
+                display: inline-block;
+                vertical-align: top;
+                color:var(--gray-darkend-color);
+                font-size: 16px;
+                padding: 13px 0 0 11px;
+            }
+            .laptop-icon {
+                width: 154px;
+                height: 30px;
+                position: relative;
+                top: 2px;
+            }
+            .close-button {
+                margin-right: 3px;
             }
             .members {
                 display: block;
@@ -87,14 +111,19 @@
                 text-align: left;
                 padding: 0 10px;
             }
-            .message button {
 
+            designmap-users-combo {
+                position: relative;
+                bottom: 13px;
             }
+
         </style>
-        <paper-icon-button icon="designmap:arrow" on-click="closeIt"></paper-icon-button>
-        <div class="title">
-            <i18-n msgid="Project's team members:">Project's team members</i18-n>
+
+        <div class="header">
+            <iron-icon class="laptop-icon" icon="designmap-logo:logo-gray"></iron-icon>
+            <paper-icon-button clas="close-button" icon="designmap24:close" on-click="closeIt"></paper-icon-button>
         </div>
+        <div class="title"><i18-n msgid="Project's team members:">Project's team members</i18-n></div>
         <div class="members">
             <template is="dom-repeat" items="[[members]]" as="member" sort="[[sortFn(project,members.*)]]">
                 <div class="member">
@@ -109,6 +138,7 @@
             </template>
         </div>
         <template is="dom-if" if="[[_notExceed(user.plan,members.length)]]">
+            <div class="new-member-title"><i18-n msgid="Add new team member">Add new team member</i18-n></div>
             <designmap-users-combo id="userCombo" label="[[translate('User email',language,iLoaded)]]" email-mode="true" on-selected="select"></designmap-users-combo>
         </template>
         <template is="dom-if" if="[[!_notExceed(user.plan,members.length)]]">
@@ -127,6 +157,9 @@
         <!-- Confirm -->
         <designmap-confirm id="removingConfirm" message="AreYouSureYouWantToRemoveUser"
                            on-continue="remove" on-suspend="suspendRemoving"></designmap-confirm>
+        <!-- Confirm -->
+        <designmap-confirm id="confirmExistingUser" message="AreYouSureYouWantToAddThisUserInProject"
+                           on-continue="selectForSure" on-suspend="suspendRemoving"></designmap-confirm>
     </template>
     <script>
         Polymer({
@@ -229,8 +262,13 @@
                 return plan.teamMembers>=length;
             },
             select: function (e) {
+                this.tempUser = e.detail;
+                this.$.confirmExistingUser.open();
+            },
+            selectForSure: function(){
                 this.$$('#userCombo').$.select.value = '';
-                this.parent.select({detail:e.detail});
+                this.suspendRemoving();
+                this.parent.select({detail: this.tempUser});
             },
             remove: function(){
                 this.$.removingConfirm.close();
@@ -243,6 +281,7 @@
             suspendRemoving: function(){
                 this.$.invitationConfirm.close();
                 this.$.removingConfirm.close();
+                this.$.confirmExistingUser.close();
             },
             _getPlanMsg: function(msg,user,plan){
                 if(!this.user || !this.user.plan) return 'xxx';

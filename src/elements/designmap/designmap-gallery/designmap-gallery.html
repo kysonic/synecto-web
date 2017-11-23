@@ -608,6 +608,10 @@
                     height: calc(100vh);
                 }
 
+                .hide-on-mobile {
+                    display: none !important;
+                }
+
                 .swipe-image, .swipe-ext {
                     display: block;
                     position: absolute;
@@ -638,9 +642,6 @@
 
 
         </style>
-        <!-- Keys -->
-        <iron-a11y-keys id="a11yLeft" keys="left" target="[[keysTarget]]" on-keys-pressed="previous"></iron-a11y-keys>
-        <iron-a11y-keys id="a11yRight" keys="right" target="[[keysTarget]]" on-keys-pressed="next"></iron-a11y-keys>
         <div id="galleryWrapper" class$="top-panel panel [[_computeIronImageClass(MQ)]]">
             <div class="left">
                 <iron-icon class="designmap-logo" on-click="close" icon="designmap-logo:logo-gray"></iron-icon>
@@ -666,7 +667,7 @@
                     <iron-icon class="chat-icon" icon="designmap:chat"></iron-icon>
                 </button>-->
                 <!--<paper-tooltip for="chatButton"><i18-n msgid="Chat">Chat</i18-n></paper-tooltip>-->
-                <button hidden$="[[!file]]" id="completeButton" class="top-panel-button hint" is="designmap-gallery-button" on-click="toggleComplete">
+                <button hidden$="[[!file]]" id="completeButton" class="top-panel-button hide-on-mobile" is="designmap-gallery-button" on-click="toggleComplete">
                     <iron-icon class="share-icon" icon="designmap:[[_completedIcon(file.completed)]]"></iron-icon>
                 </button>
                 <paper-tooltip for="completeButton"><i18-n msgid="Complete file">Complete file</i18-n></paper-tooltip>
@@ -685,7 +686,7 @@
                     </cbn-copy-clipboard>
                 </designmap-dropdown>
                 <paper-tooltip for="shareButton"><i18-n msgid="File id share">File id share</i18-n></paper-tooltip>
-                <button hidden$="[[!file]]" id="downloadButton" class="top-panel-button hint" is="designmap-gallery-button" on-click="dwnldFile">
+                <button hidden$="[[!file]]" id="downloadButton" class="top-panel-button hide-on-mobile" is="designmap-gallery-button" on-click="dwnldFile">
                     <iron-icon class="share-icon" icon="designmap:get-app"></iron-icon>
                 </button>
                 <paper-tooltip for="downloadButton"><i18-n msgid="Download">Download</i18-n></paper-tooltip>
@@ -1122,7 +1123,6 @@
              * Previous file
              */
             previous: function (e) {
-                if(this.page!='gallery') return;
                 this.clearZoom();
                 let previousIndex = this.files.indexOf(this.file) - 1;
                 if (previousIndex < 0) previousIndex = this.files.length - 1;
@@ -1145,7 +1145,6 @@
              * Next file
              */
             next: function (e) {
-                if(this.page!='gallery') return;
                 this.clearZoom();
                 let nextIndex = this.files.indexOf(this.file) + 1;
                 if (nextIndex >= this.files.length) nextIndex = 0;

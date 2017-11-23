@@ -481,12 +481,12 @@
                             </div>
                             <div class="row agreement">
                                 <div class="col col-md-12 col-xs-12">
-                                    <paper-checkbox checked="{{user.config.agreedPersonal::change}}">
+                                    <paper-checkbox checked="{{user.profile.agreedPersonal::change}}">
                                         <label><i18-n msgid="Process personal data agreement"></i18-n></label>
                                     </paper-checkbox>
                                 </div>
                             </div>
-                            <button class="save-button" disabled$="[[!user.config.agreedPersonal]]" data-form="profile-form" id="saveProfileButton"
+                            <button class="save-button" disabled$="[[!user.profile.agreedPersonal]]" data-form="profile-form" id="saveProfileButton"
                                     is="designmap-loading-button" thin on-click="save">
                                 <i18-n msgid="Save">Save</i18-n>
                             </button>
@@ -736,7 +736,6 @@
                 const userProp = formName.replace('Form','').toLowerCase();
                 const data = {};
                 data[userProp] = this.user[userProp];
-                console.log(userProp,data);
                 this.dispatch('userUpdate', data).then(function (response) {
                     this.$['save' + formName + 'Button'].loading = false;
                     if (!response.success) return this.manageErrorResponse(response);

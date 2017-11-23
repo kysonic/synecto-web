@@ -2476,5 +2476,35 @@
   },
   "This google account already bound to another account.": {
     "message": "Этот Google аккаунт уже привязан к другому аккаунту."
+  },
+  "Add new team member": {
+    "message": "Добавить нового члена команды:"
+  },
+  "Move this task": {
+    "message": "Переместить эту задачу"
+  },
+  "Move into": {
+    "message": "Переместить в \"#NAME#\""
+  },
+  "root": {
+    "message": "корень"
+  },
+  "Task was moved": {
+    "message": "Задача \"#TASK#\" была перемещена в \"#TO#\""
+  },
+  "Already here": {
+    "message": "Уже тут"
+  },
+  "Cannot move in itself": {
+    "message": "Нельзя переместить в себя"
+  },
+  "Move": {
+    "message": "Переместить"
+  },
+  "All tasks are moved successfully!": {
+    "message": "Все задачи были успешно перемещены!"
+  },
+  "AreYouSureYouWantToAddThisUserInProject": {
+    "message": "Вы уверены что хотите добавить этого пользователя в проект?"
   }
 }

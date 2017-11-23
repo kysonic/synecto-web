@@ -87,11 +87,15 @@
                 }
             },
             resolvePosition: function(e){
-                 this.$.dropdown.style.left = e.pageX + 5 + 'px';
-                 this.$.dropdown.style.top = e.pageY + 5 + 'px';
-                 const bound = this.$.dropdown.getBoundingClientRect();
-                 if(e.pageY + bound.height + 10 > window.innerHeight) this.$.dropdown.style.top = e.pageY - bound.height - 5  + 'px';
-                 if(e.pageX + bound.width + 10 > window.innerWidth) this.$.dropdown.style.left = e.pageX - bound.width - 5  + 'px';
+
+                 this.async(function(){
+                     const bound = this.$.dropdown.getBoundingClientRect();
+                     this.$.dropdown.style.left = e.pageX + 5 + 'px';
+                     this.$.dropdown.style.top = e.pageY + 5 + 'px';
+                     if(e.pageY + bound.height + 50 > window.innerHeight) this.$.dropdown.style.top = e.pageY - bound.height - 5  + 'px';
+                     if(e.pageX + bound.width + 50 > window.innerWidth) this.$.dropdown.style.left = e.pageX - bound.width - 5  + 'px';
+                 });
+
             },
             _getProfileData: function(profile){
                 if(!profile) return [];

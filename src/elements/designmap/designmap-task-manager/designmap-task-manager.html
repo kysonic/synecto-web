@@ -536,7 +536,9 @@
                 'mobile-go-back': 'mobileGoBack',
                 'cancel-search': 'cancelSearch',
                 'resize-col': 'resizeCol',
-                'apply-sort-list': 'listApplySort'
+                'apply-sort-list': 'listApplySort',
+                'open-move-tasks-dialog': 'openMoveTasksDialog',
+                'clear-list-selected': 'clearListSelected'
             },
             attached: function () {
                 const position = localStorage.getItem('synecto:tm:cols');
@@ -653,7 +655,7 @@
             },
             findDefaultTask: function () {
                 // Last on first level
-                const parent = this.findTaskById(this.selectedTask.parent);
+                const parent = this.selectedTask?this.findTaskById(this.selectedTask.parent):null;
                 if(!parent) {
                     this.selectedTask = null;
                     return page.rdt('/' + this.projectId + '/task-manager/');
@@ -934,6 +936,14 @@
             },
             listApplySort: function(){
                 this.$.list.saveSort();
+            },
+            openMoveTasksDialog: function(e){
+                this.$.details.moveSelectedTasks = e.detail;
+                this.$.details.moveManyMode = true;
+                this.$.details.openMoveExplorer();
+            },
+            clearListSelected: function(){
+                this.$.list.clearSelectedTasks();
             }
         })
     </script>

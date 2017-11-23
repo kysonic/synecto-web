@@ -22,7 +22,7 @@
       ghostClass        : { type: String, value: "sortable-ghost", observer: "ghostClassChanged" },
       chosenClass       : { type: String, value: "sortable-chosen", observer: "chosenClassChanged" },
       ignore            : { type: String, value: "a, img", observer: "ignoreChanged" },
-      filter            : { type: Object, value: null, observer: "filterChanged" },
+      filter            : { type: Object, value: '.ignore', observer: "filterChanged" },
       animation         : { type: Number, value: 150, observer: "animationChanged" },
       dropBubble        : { type: Boolean, value: false, observer: "dropBubbleChanged" },
       dragoverBubble    : { type: Boolean, value: false, observer: "dragoverBubbleChanged" },

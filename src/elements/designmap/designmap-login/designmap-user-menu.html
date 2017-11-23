@@ -389,8 +389,9 @@
                 <!-- Chat -->
                 <div id="menu" class="block" on-tap="openUserMenu" data-hint="login">
                     <div class="email" title="[[user.local.email]]">
-                        [[user.local.email]]
+                        [[computeOwnerName(user)]]
                     </div>
+                    <div class="indicator" hidden$="[[_areThereNotReadNotifications(notifications.*)]]"></div>
                     <div class="avatar">
                         <template is="dom-if" if="[[user.profile.avatar]]">
                             <img src="[[computeAvatarPath(user.profile.avatar)]]" title="[[user.local.email]]">
@@ -399,63 +400,63 @@
                             <div class="text">[[computeUserName(user)]]</div>
                         </template>
                     </div>
-                    <div class="indicator" hidden$="[[_areThereNotReadNotifications(notifications.*)]]"></div>
+                    <!-- Account menu -->
+                    <designmap-dropdown id="dropdown" previous use-capture="true" tri-border horizontal-offset="[[horizontalOffset]]"
+                                        vertical-offset="[[verticalOffset]]">
+                        <div class="row">
+                            <!-- designmap-user-menu:language -->
+                            <iron-icon icon="icons:translate"></iron-icon>
+                            <designmap-language-switcher></designmap-language-switcher>
+                        </div>
+                        <div class="row" on-tap="goToProfile">
+                            <!-- designmap-user-menu:settings -->
+                            <iron-icon icon="icons:settings"></iron-icon>
+                            <div class="text">
+                                <i18-n msgid="Account Settings">Account Settings</i18-n>
+                            </div>
+                        </div>
+                        <div class="row support" on-tap="goToDocs">
+                            <iron-icon icon="icons:question-answer"></iron-icon>
+                            <div class="text">
+                                <i18-n msgid="Contact support">Contact support</i18-n>
+                            </div>
+                        </div>
+                        <div class="row notify" on-tap="goToNotification">
+                            <!-- designmap-user-menu:notify -->
+                            <iron-icon icon="social:notifications"></iron-icon>
+                            <div class="text">
+                                <i18-n msgid="Notifications">Notifications</i18-n>
+                                <span hidden$="[[_areThereNotReadNotifications(notifications.*)]]">([[_getNotReadNotifications(notifications.*)]])</span></div>
+                        </div>
+                        <div class="row app" on-click="openAppDialog">
+                            <iron-icon icon="get-app"></iron-icon>
+                            <div class="text">
+                                <i18-n msgid="Download the app">Download the app</i18-n>
+                            </div>
+                        </div>
+                        <!--<div class="row" on-tap="goToPlans">
+                            <iron-icon icon="icons:assignment"></iron-icon>
+                            <div class="text">
+                                <i18-n msgid="Manage your plan">Manage your plan</i18-n>
+                            </div>
+                        </div>-->
+                        <!--<div class="row" on-tap="goToTypeForm">
+                            &lt;!&ndash; designmap-user-menu:feedback &ndash;&gt;
+                            <iron-icon icon="icons:feedback"></iron-icon>
+                            <div class="text">
+                                <i18-n msgid="Leave a feedback">Leave a feedback</i18-n>
+                            </div>
+                        </div>-->
+                        <div class="row" on-tap="logout" id="logout">
+                            <!-- designmap-user-menu:sign_out exit-to-app-->
+                            <iron-icon icon="icons:exit-to-app"></iron-icon>
+                            <div class="text">
+                                <i18-n msgid="SignOut">Sign out</i18-n>
+                            </div>
+                        </div>
+                    </designmap-dropdown>
                 </div>
-                <!-- Account menu -->
-                <designmap-dropdown id="dropdown" previous use-capture="true" tri-border horizontal-offset="[[horizontalOffset]]"
-                                    vertical-offset="[[verticalOffset]]">
-                    <div class="row">
-                        <!-- designmap-user-menu:language -->
-                        <iron-icon icon="icons:translate"></iron-icon>
-                        <designmap-language-switcher></designmap-language-switcher>
-                    </div>
-                    <div class="row" on-tap="goToProfile">
-                        <!-- designmap-user-menu:settings -->
-                        <iron-icon icon="icons:settings"></iron-icon>
-                        <div class="text">
-                            <i18-n msgid="Account Settings">Account Settings</i18-n>
-                        </div>
-                    </div>
-                    <div class="row support" on-tap="goToDocs">
-                        <iron-icon icon="icons:question-answer"></iron-icon>
-                        <div class="text">
-                            <i18-n msgid="Contact support">Contact support</i18-n>
-                        </div>
-                    </div>
-                    <div class="row notify" on-tap="goToNotification">
-                        <!-- designmap-user-menu:notify -->
-                        <iron-icon icon="social:notifications"></iron-icon>
-                        <div class="text">
-                            <i18-n msgid="Notifications">Notifications</i18-n>
-                            <span hidden$="[[_areThereNotReadNotifications(notifications.*)]]">([[_getNotReadNotifications(notifications.*)]])</span></div>
-                    </div>
-                    <div class="row app" on-click="openAppDialog">
-                        <iron-icon icon="get-app"></iron-icon>
-                        <div class="text">
-                            <i18-n msgid="Download the app">Download the app</i18-n>
-                        </div>
-                    </div>
-                    <!--<div class="row" on-tap="goToPlans">
-                        <iron-icon icon="icons:assignment"></iron-icon>
-                        <div class="text">
-                            <i18-n msgid="Manage your plan">Manage your plan</i18-n>
-                        </div>
-                    </div>-->
-                    <!--<div class="row" on-tap="goToTypeForm">
-                        &lt;!&ndash; designmap-user-menu:feedback &ndash;&gt;
-                        <iron-icon icon="icons:feedback"></iron-icon>
-                        <div class="text">
-                            <i18-n msgid="Leave a feedback">Leave a feedback</i18-n>
-                        </div>
-                    </div>-->
-                    <div class="row" on-tap="logout" id="logout">
-                        <!-- designmap-user-menu:sign_out exit-to-app-->
-                        <iron-icon icon="icons:exit-to-app"></iron-icon>
-                        <div class="text">
-                            <i18-n msgid="SignOut">Sign out</i18-n>
-                        </div>
-                    </div>
-                </designmap-dropdown>
+
                 <!-- Download app dialog -->
                 <paper-dialog id="appDialog"  entry-animation="scale-up-animation" exit-animation="scale-down-animation">
                     <div class="content">
@@ -506,7 +507,7 @@
                 },
                 horizontalOffset: {
                     type: Number,
-                    value: -223
+                    value: -225
                 },
                 notifications: {
                     type: Array,
@@ -525,9 +526,6 @@
                     value: false
                 }
             },
-            observers: [
-                'changeOffset(MQ,user.plan)'
-            ],
             ready: function(){
                 this.downloaded = !!JSON.parse(localStorage.getItem('synecto:app:downloaded'));
             },
@@ -612,9 +610,6 @@
             _computeChatIsOpenClass: function(isOpen) {
                 this.async(this.updateStyles,10);
                 return isOpen?'opened':'';
-            },
-            changeOffset: function(MQ,plan){
-                this.horizontalOffset = MQ=='sm'?-223:plan&&plan.name=='startup'?-80:-105;
             },
             _isPremium: function(user) {
                 if(!user || !user.plan) return false;
