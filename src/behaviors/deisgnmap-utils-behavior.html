@@ -369,7 +369,6 @@
             });
             pure.forEach(function (uid, i) {
                 if (projectUsersIds.indexOf(uid) == -1) {
-                    console.log(uid, projectUsersIds, pure, pure.indexOf(uid), 12);
                     pure.splice(pure.indexOf(uid), 1);
                 }
             }, this);
