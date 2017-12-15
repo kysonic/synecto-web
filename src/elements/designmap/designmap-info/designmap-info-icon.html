@@ -8,8 +8,8 @@
 
             }
             .circle {
-                width: 60px;
-                height: 60px;
+                width: 100px;
+                height: 100px;
                 background: var(--designmap-info-circle-background);
                 color: var(--designmap-info-message-text);
                 border-radius: 50%;
@@ -22,7 +22,7 @@
             .circle .store-icon {
                 width: 30px;
                 height: 30px;
-                padding: 15px 0;
+                padding: 35px 0;
             }
 
             .circle .size {
@@ -36,7 +36,7 @@
             .circle .folder-wrapper {
                 height: 20px;
                 width: 30px;
-                padding: 16px 9px;
+                padding: 36px 28px;
             }
 
             .circle .folder-wrapper .label {
@@ -56,13 +56,23 @@
                 text-align: center;
                 font-size: 22px;
                 text-transform: uppercase;
-                padding: 15px 0;
+                padding: 32px 0;
                 font-weight: bold;
             }
             .circle iron-icon {
                 width: 40px;
                 height: 40px;
-                padding: 10px;
+                padding: 31px;
+            }
+            img {
+                width: 100%;
+                height: 100%;
+                max-width: 100%;
+                border-radius: 50%;
+            }
+            .user-text {
+                font-size: 38px;
+                padding: 21px 31px;
             }
         </style>
         <div class="circle">
@@ -84,6 +94,14 @@
             </template>
             <template is="dom-if" if="[[isTask(data)]]">
                 <iron-icon icon="designmap-archive:task"></iron-icon>
+            </template>
+            <template is="dom-if" if="[[isUser(data)]]">
+                <template is="dom-if" if="[[data.profile.avatar]]">
+                    <img src="[[computeAvatarPath(data.profile.avatar)]]">
+                </template>
+                <template is="dom-if" if="[[!data.profile.avatar]]">
+                    <div class="user-text"> [[computeName(data)]]</div>
+                </template>
             </template>
         </div>
     </template>
@@ -110,6 +128,10 @@
                 return element ? element.type == 'task' : false;
             },
 
+            isUser: function (user) {
+                return user ? user.local : false;
+            },
+
             isGoogleDoc: function (element) {
                 return element && element.data ? element.data.storage == 'google' : false;
             },
@@ -122,6 +144,18 @@
                 var splitter = name.split('.');
                 var ext = splitter[splitter.length - 1];
                 return '.' + ext.substr(0,3);
+            },
+
+            computeAvatarPath: function (path) {
+                if (!path) return '';
+                if (/images/.test(path)) return path;
+                return Designmap.config.apiURL + path+'?v='+Designmap.uid;
+            },
+
+            computeName: function (user) {
+                if (typeof user == 'string' || !user || !user.profile) return '...';
+                return user ? user.profile.name && user.profile.lastName ? user.profile.name[0] + user.profile.lastName[0] :
+                        user.profile.name ? user.profile.name.substr(0,2) : user.local.email.substr(0,2) : 'XX';
             }
         })
     </script>

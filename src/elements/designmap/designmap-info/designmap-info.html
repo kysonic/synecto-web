@@ -174,6 +174,7 @@
                     statePath: 'tasks'
                 }
             },
+            omit: ['avatar','state','zipCode','name','lastName','agreedPersonal'],
             /**
              * State of information
              */
@@ -185,6 +186,7 @@
              */
             computeName: function (element) {
                 if (!element) return '';
+                if (element.profile) return this.computeOwnerName(element);
                 if (element && element.name) return element.name;
                 if (element && element.data && element.data.name) return this.getElementName(element);
             },
@@ -198,6 +200,7 @@
 
             _computeElementInfo: function(data) {
                 if(!data) return [];
+                if(data.profile) return this._getUserData(data);
                 const infos = [
                     {
                         title: 'type',
@@ -214,6 +217,17 @@
                 ];
                 if(!this['_get'+data.type.capitalize()+'Info']) return infos;
                 return infos.concat(this['_get'+data.type.capitalize()+'Info'](data));
+            },
+
+            _getUserData: function(user){
+                const profile = user.profile;
+                if(!profile) return [];
+                if(profile.birthDate) profile.birthDate = moment(profile.birthDate).format('DD-MMMM-YYYY');
+                return Object.keys(profile).map(function(pk){
+                    return {title:pk,value:profile[pk]};
+                }).filter(function(f){
+                    return this.omit.indexOf(f.title)==-1;
+                }.bind(this));
             },
 
             _getFolderInfo: function(data) {

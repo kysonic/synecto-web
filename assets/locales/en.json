@@ -1932,10 +1932,10 @@
     "message": "Discard"
   },
   "owner": {
-    "message": "by owner"
+    "message": "owner"
   },
   "type": {
-    "message": "in sources"
+    "message": "type"
   },
   "Search...": {
     "message": "Search..."

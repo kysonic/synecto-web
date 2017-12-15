@@ -788,6 +788,7 @@
                             this.showErrorMessage(response.errors.message, {"#COUNT#": response.errors.count});
                         }
                     }
+                    window.reachGoal('precise_comment','done');
                 }.bind(this)).catch(this.manageErrorResponse.bind(this));
 
                 this.async(function () {

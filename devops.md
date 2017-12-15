@@ -19,6 +19,7 @@ we will start to develop big environment for app.synecto.io.
 
 Deploy
 
+login as Elena
 npm run build
 export CLOUDSDK_CORE_PROJECT=tenacious-works-175319
 gcloud compute scp ~/WebDevelopments/CDC/designmap-spa-v3/build/unbundled/* app-synecto:~/synecto --zone us-east1-c --recurse

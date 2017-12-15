@@ -74,7 +74,7 @@
             }
 
         </style>
-        <div class="avtr">
+        <div class="avtr" on-click="openInfo">
             <template is="dom-if" if="[[user.profile.avatar]]">
                 <img src="[[computeAvatarPath(user.profile.avatar)]]">
             </template>
@@ -100,8 +100,8 @@
                 '_avatarChanged(user.profile.avatar)'
             ],
             ready: function(){
-                this.addEventListener('mouseover',this.adOpen.bind(this));
-                this.addEventListener('mouseleave',this.adClose.bind(this));
+                //this.addEventListener('mouseover',this.adOpen.bind(this));
+                //this.addEventListener('mouseleave',this.adClose.bind(this));
             },
             computeAvatarPath: function (path) {
                 if (!path) return '';
@@ -135,6 +135,11 @@
                 //Designmap.config.apiURL + path+'?v='+Designmap.uid
                 const path = Designmap.config.apiURL + avatar+'?v='+Designmap.uid;
                 this.fire('avatar-dropdown-background-changed',"url("+path+")")
+            },
+
+            openInfo: function(){
+                document.querySelector('designmap-app').$.info.data = this.user;
+                this.fire('open-info');
             }
         })
     </script>
