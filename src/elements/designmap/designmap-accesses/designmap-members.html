@@ -265,6 +265,7 @@
                     // Notify
                     this.sendNotification(user);
                     this.showMessage('Share was updated successful');
+                    window.reachGoal('user_added','done');
                 }.bind(this));
             },
             remove: function(e){

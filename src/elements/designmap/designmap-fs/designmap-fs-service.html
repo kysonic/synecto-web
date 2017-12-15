@@ -45,6 +45,7 @@
                 if (!response.success) throw new Error(response.errors.message);
                 // Message
                 this.showUndoMessage('Folder adding had been successful.');
+                window.reachGoal('folder_created','done');
                 // Hints
                 this.doneHint('createFolder','fs',function(){
                     const elements = this._findElement('fsView.fs.elements');

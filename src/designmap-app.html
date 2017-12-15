@@ -497,6 +497,7 @@
             },
 
             _pageChanged: function (page) {
+                if(window.reachGoal) window.reachGoal('redirect',page);
                 this._setLayoutState(NO_HEADER_PAGES.indexOf(page)!==-1);
                 // Load page import on demand. Show 404 page if fails
                 const resolvedPageUrl = this.resolveUrl('./views/designmap-' + page + '-view.html');
@@ -679,7 +680,8 @@
             },
 
             _computeIsAuth: function(user){
-                 return user && user._id;
+                if(user) this.async(function(){window.setUserId(user ? user.local.email : null)},5000);
+                return user && user._id;
             },
 
             openInfo: function () {

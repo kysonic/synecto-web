@@ -1293,6 +1293,7 @@
                 this.dispatch('addTask', task).then(function (response) {
                     this.sortHook(response.task._id);
                     this.showUndoMessage('Task was added successfully.');
+                    window.reachGoal('task_created','done');
                     this.$.scroller.calculate();
                     if (this.MQ != 'sm') this.$$('#addTask').focus();
                     //this.fire('select-task',response.task);

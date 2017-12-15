@@ -234,6 +234,7 @@
                 }).then(function(response){
                     if(!response.success) return this.manageErrorResponse(response);
                     this.showMessage('Invitation has been sent.',{'#EMAIL#':this.email});
+                    window.reachGoal('user_invited','done');
                     this.$$('#userCombo').$.select.$.input.value='';
                     this.$$('#userCombo').cancelInvt();
                     this.$$('#userCombo').blur();

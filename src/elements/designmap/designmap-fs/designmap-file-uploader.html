@@ -402,6 +402,7 @@
                     }).then(function (response) {
                         if (!response.success) throw new Error(response.errors.details && response.errors.details.message || response.errors.message);
                         this.showMessage('File was added successful.', {"#FILE#": file.name});
+                        window.reachGoal('file_uploaded','done');
                         // Real time
                         uploadedFiles.push(response.file);
                         // Remove file from list

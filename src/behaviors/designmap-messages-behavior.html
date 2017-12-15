@@ -120,15 +120,6 @@
             if(response.message) {
                 return this.showErrorMessage(response.message);
             }
-        },
-        /**
-         * Reach Yandex and Google goals
-         * @param category
-         * @param eventName
-         */
-        reachGoal: function(category, eventName, label){
-            ga('send', 'event', category, eventName, label);
-            //yaCounter39987865.reachGoal(category+'_'+eventName);
         }
     }
 </script>

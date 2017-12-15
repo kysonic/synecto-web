@@ -176,13 +176,13 @@
             action: function () {
                 this.fire('close-showcase-dialog');
                 // Analytics
-                this.reachGoal('show_case_event',this.name);
+                //this.reachGoal('show_case_event',this.name);
                 if (!this.faster) return page.redirect('/activate');
                 this.showMessage('Thank you! We will try to do it quicker!');
             },
             close: function(){
-                this.fire('close-showcase-dialog');
-                this.reachGoal('show_case_event_decline',this.name);
+                //this.fire('close-showcase-dialog');
+                //this.reachGoal('show_case_event_decline',this.name);
             },
             _computeSelected: function (item) {
                 return this.items.indexOf(item) == this.selected ? ' selected' : '';
