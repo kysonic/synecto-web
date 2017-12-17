@@ -648,7 +648,7 @@
                     }
                     this.showMessage('Welcome to the Synecto!');
                     // Analytics
-                    this.reachGoal('auth', 'register', email);
+                    window.reachGoal('signup', email);
                 }.bind(this)).catch(function (err) {
                     this.$.registerButton.loading = true;
                     this.manageErrorResponse(err)
@@ -677,7 +677,7 @@
                     this.$.emailSignin.value = null;
                     this.$.passwordSignin.value = null;
                     // Analytics
-                    this.reachGoal('auth', 'login', email);
+                    window.reachGoal('signin', email);
                 }.bind(this)).catch(function (err) {
                     this.$.signInLoadingButton.loading = false;
                     this.manageErrorResponse(err);
@@ -748,8 +748,6 @@
                 this.googleButtonPressed = true;
                 this.$.registerGoogleButton.loading = true;
                 this.$.aware.signIn();
-                // Analytics
-                this.reachGoal('auth', 'google');
             },
             /**
              * Google sign-in success
@@ -785,6 +783,8 @@
                         }, 5000);
                     }
                     this.showMessage(response.message, {}, 10000);
+                    const user = response.user;
+                    window.reachGoal(response.signup?'signup':'signin',user?user.local.email:'unknown');
                 }.bind(this)).catch(function (err) {
                     this.$.registerGoogleButton.loading = false;
                     this.showErrorMessage(err);
