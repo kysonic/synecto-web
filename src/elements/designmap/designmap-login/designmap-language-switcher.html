@@ -64,8 +64,9 @@
             },
             checkLanguage: function (e) {
                 this.selected = e.model.index;
+                const code = e.model.lang.code;
                 const user = Object.assign({},this.user);
-                user.system.language = e.model.lang.code;
+                user.system.language = code;
                 this.dispatch('_userUpdate', user);
                 this.async(function(){
                     this.dispatch('userUpdate', user);

@@ -306,7 +306,7 @@
                                         <div id$="teamMember[[index]]" class="feature">
                                             <i18-n msgid="up to" class$="[[_isDashed(plan)]]">up to</i18-n>
                                             <span class$="[[_isDashed(plan)]]">[[plan.teamMembers]]</span>
-                                            <i18-n msgid="team members" class$="[[_isDashed(plan)]]">team members
+                                            <i18-n msgid="team members" class$="[[_isDashed(plan)]]">team members/per project
                                             </i18-n>
                                         </div>
                                         <paper-tooltip for$="teamMember[[index]]">
@@ -398,7 +398,7 @@
                             name: 'agency',
                             teamMembers: 5,
                             months: 3,
-                            storage: 5000,
+                            storage: 10000,
                             price: 15,
                             power: 1,
                             gumlink: "https://gum.co/LtMXJ",
@@ -410,7 +410,7 @@
                         {
                             name: 'enterprise',
                             teamMembers: 10,
-                            storage: 10000,
+                            storage: 'unlimited',
                             price: 30,
                             months: 3,
                             power: 2,
@@ -440,6 +440,7 @@
                 return '/' + (projectId || '');
             },
             _countDataSpace: function (storage) {
+                if(storage=='unlimited') return this.translate('unlimited');
                 return storage < 1000 ? storage + ' MB' : storage / 1000 + ' GB';
             },
             _isCurrent: function (userPlan, plan) {

@@ -1322,6 +1322,7 @@
 
             scrollToMessage: function(message){
                 const currentMsg = this.$.messages.querySelector('[data-id="' + message._id + '"]');
+                if(!currentMsg) return false;
                 const bound = currentMsg.getBoundingClientRect();
                 const top = this.$.scroll.$.content.scrollHeight-bound.top;
                 this.$.scroll.setScroll(currentMsg.offsetTop);
@@ -1450,7 +1451,7 @@
                     return new RegExp(value.toLowerCase()).test(message.text.toLowerCase());
                 });
                 if(!found) return this.clearHighLights();
-                this.scrollToMessage(found);
+                //this.scrollToMessage(found);
                 this.highlightText(found,value);
             },
 

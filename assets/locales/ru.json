@@ -1653,13 +1653,16 @@
     "message": "Управление планами"
   },
   "team members": {
-    "message": "членов команды"
+    "message": "членов команды на проект"
   },
   "storage": {
     "message": "хранилища"
   },
   "unlimited projects": {
     "message": "бесконечное кол-во проектов"
+  },
+  "unlimited": {
+    "message": "бесконечное кол-во"
   },
   "3 projects": {
     "message": "3 проекта"

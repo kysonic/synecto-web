@@ -1290,6 +1290,7 @@
                 this.async(function(){this.$.scroller.setScroll(this.$.scroller.$.content.scrollHeight + 500)},10);
                 this.async(function(){this.sortHook(tuid);});
                 // Create task
+                this.cannotAdd = true;
                 this.dispatch('addTask', task).then(function (response) {
                     this.sortHook(response.task._id);
                     this.showUndoMessage('Task was added successfully.');
@@ -1297,8 +1298,12 @@
                     this.$.scroller.calculate();
                     if (this.MQ != 'sm') this.$$('#addTask').focus();
                     //this.fire('select-task',response.task);
+                    this.cannotAdd = false;
                     if(assignee) this.sendAssigneeNotification(response.task,assignee);
-                }.bind(this)).catch(this.manageErrorResponse.bind(this));
+                }.bind(this)).catch(function(){
+                    this.cannotAdd = false;
+                    this.manageErrorResponse();
+                }.bind(this));
                 this.taskName = '';
             },
 

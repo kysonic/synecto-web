@@ -346,9 +346,9 @@
                     </div>
                 </div>
                 <paper-tooltip for="support"><i18-n msgid="Support">Support</i18-n></paper-tooltip>-->
-                <!--<a hidden$="[[_isPremium(user)]]" href="/activate" class="block upgrade" id="upgrade" >
+                <a hidden$="[[_isPremium(user)]]" href="/activate" class="block upgrade" id="upgrade" >
                    <i18-n msgid="Upgrade">Upgrade</i18-n>
-                </a>-->
+                </a>
                 <!--<div hidden$="[[downloaded]]" class="block app" id="app" on-click="openAppDialog">
                     <div class="notify">
                         <iron-icon icon="designmap-user-menu:app"></iron-icon>
@@ -434,12 +434,12 @@
                                 <i18-n msgid="Download the app">Download the app</i18-n>
                             </div>
                         </div>
-                        <!--<div class="row" on-tap="goToPlans">
+                        <div class="row" on-tap="goToPlans">
                             <iron-icon icon="icons:assignment"></iron-icon>
                             <div class="text">
                                 <i18-n msgid="Manage your plan">Manage your plan</i18-n>
                             </div>
-                        </div>-->
+                        </div>
                         <!--<div class="row" on-tap="goToTypeForm">
                             &lt;!&ndash; designmap-user-menu:feedback &ndash;&gt;
                             <iron-icon icon="icons:feedback"></iron-icon>
@@ -567,8 +567,9 @@
                 this.$$("#dropdown").close();
             },
             goToPlans: function () {
-                page.rdt('/activate');
+
                 this.$$("#dropdown").close();
+                page.rdt('/activate');
             },
             goToTypeForm: function () {
                 window.open('https://kysonic.typeform.coms/to/w61k3K', '_blank');

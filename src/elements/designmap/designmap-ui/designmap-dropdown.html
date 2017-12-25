@@ -230,7 +230,9 @@
                 this.$.dropdown.open();
             },
             close: function () {
-                this.$.dropdown.close();
+                this.async(function(){
+                    this.$.dropdown.close();
+                });
             },
             toggle: function () {
                 this.$.dropdown.opened?this.$.dropdown.close(): this.$.dropdown.open();
