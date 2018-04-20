@@ -154,10 +154,11 @@
                 return diff._milliseconds < 0 && status != 'completed';
             },
             _getSpentTime: function(tasks,who){
-                const spentMS = tasks.filter(function(task){
+                const usersTask = tasks.filter(function(task){
                     if(who) return task.assignee==who;
                     return true;
-                }).reduce(function(a,b){
+                });
+                const spentMS = usersTask.reduce(function(a,b){
                     const as = a&&a.time?a.time.spent:a;
                     const bs = b&&b.time?b.time.spent:b;
                     return as+bs;
@@ -165,7 +166,9 @@
                 return spentMS;
             },
             _getFormattedSpentTime: function(tasks,who){
-                return moment(this._getSpentTime(tasks,who)).subtract('hours',3).format('HH:mm:ss')
+                const spentTime = this._getSpentTime(tasks,who);
+                const hms = this._getHMS(spentTime);
+                return this._checkZero(hms[0])+':'+this._checkZero(hms[1])+':'+this._checkZero(hms[2]);
             },
             _statusChartData: function(tasks){
                 const data = [
@@ -204,15 +207,24 @@
                 const day = d.getDate();
                 return (month<10?'0'+month:month) + '.'+(day<10?'0'+day:day);
             },
+            _getHMS: function (spent) {
+                const sec_num = parseInt(spent / 1000, 10);
+                const hours = Math.floor(sec_num / 3600);
+                const minutes = Math.floor(sec_num / 60) % 60;
+                const seconds = sec_num % 60;
+
+                return [hours, minutes, seconds];
+            },
+            _checkZero(num) {
+                return num<10 ? '0'+num : num;
+            },
             _getSpentTimeData: function(tasks,projectUsers){
                 if(!projectUsers) return [[this.translate("Who"),this.translate("How much")], [this.translate("I am"), 0]];
                 const data = [[this.translate("Who"),this.translate("How much")]];
                 projectUsers.forEach(function(user){
                     const spentTime = this._getSpentTime(tasks,user._id);
-                    const date = moment(spentTime).subtract('hours',3);
-                    const minutes = date.minutes()
-                    const hours = date.hours()
-                    data.push([this.computeOwnerName(user),hours+(minutes/60)])
+                    const hours = this._getHMS(spentTime)[0];
+                    data.push([this.computeOwnerName(user),hours]);
                 },this);
                 return  data;
             }
