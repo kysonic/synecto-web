@@ -42,6 +42,7 @@
         },
 
         _postComment: function (e) {
+            if(Polymer.shiftIsPressed && e && e.type=='keys-pressed') return false;
             if(this.commentEditMode) return this._saveComment();
             if (!this.textAreaValue.trim()) return;
             let sticker = e.model.sticker;
@@ -56,6 +57,7 @@
             };
             this.dispatch('addComment', comment);
             this.textAreaValue = '';
+            this.$.invkTextarea.clear();
             this.doverl = false;
             this._sendNotification(this.file,sticker,comment);
 

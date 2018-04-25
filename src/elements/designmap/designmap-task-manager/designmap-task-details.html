@@ -457,14 +457,14 @@
                         <designmap-task-info id="info" task="[[task]]" project-users="[[projectUsers]]"></designmap-task-info>
                         <!-- Description -->
                         <div class="description">
-                            <iron-a11y-keys id="a11ySaveDesc" keys="ctrl+enter meta+enter"
+                            <iron-a11y-keys id="a11ySaveDesc" keys="enter"
                                             on-keys-pressed="descFocusOut"></iron-a11y-keys>
                             <plastic-textarea id="desc"
                                               class$="desc-textarea [[_descEditModeCls(descEditMode)]]"
                                               value="[[task.description]]"
                                               rows="1"
                                               on-focus="descEditModeOn"
-                                              on-blur="saveDesc"
+                                              on-focusout="saveDesc"
                                               on-input="saveTempDesc"
                                               hidden$="[[!descEditMode]]"
                                               placeholder="[[translate('Enter description',language,i18Loaded)]]"></plastic-textarea>
@@ -946,7 +946,8 @@
                 this.$.title.blur();
             },
 
-            descFocusOut: function(){
+            descFocusOut: function(e){
+                if(Polymer.shiftIsPressed) return false;
                 this.$.desc.blur();
             },
 

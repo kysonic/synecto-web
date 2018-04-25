@@ -634,6 +634,7 @@
                 if (!(this.$.emailSignup.validate() && this.$.passwordSignup.validate())) return this.showErrorMessage('AuthorizationFormWasFilledNotCorrectly');
                 this.$.registerButton.loading = true;
                 const email = this.$.emailSignup.value;
+                this._clearStorage();
                 this.dispatch('userSignup', this.$.emailSignup.value, this.$.passwordSignup.value, this.invtkn).then(function (response) {
                     this.$.registerButton.loading = false;
                     if (!response.success) return this.manageErrorResponse(response);
@@ -646,6 +647,7 @@
                             page.rdt('/' + response.projectId);
                         },1000);
                     }
+
                     this.showMessage('Welcome to the Synecto!');
                     // Analytics
                     window.reachGoal('signup', email);
@@ -813,6 +815,15 @@
                 };
                 this.dispatch('_userUpdate', user);
                 localStorage.setItem('designmap:user', JSON.stringify(user));
+            },
+            _clearStorage: function(){
+                localStorage.setItem('synecto:lop', 'null');
+                localStorage.setItem('synecto:filter', '{}');
+                localStorage.setItem('synecto:collapsed', 'false');
+                localStorage.setItem('synecto:order', '{}');
+                localStorage.setItem('synecto:tm:cols', '{}');
+                localStorage.setItem('synecto:trackedTask', 'null');
+                localStorage.setItem('synecto:tutorial:basic', 'false');
             }
         })
     </script>

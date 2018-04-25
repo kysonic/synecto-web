@@ -267,6 +267,21 @@
                 margin-left: -40px;
             }
 
+            .remove-all {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--blue-darkest-color);
+                cursor: pointer;
+                font-size: 14px;
+                transition: .2s bacground ease-in;
+            }
+
+            .remove-all:hover {
+                background: var(--gray-lightenest-color);
+                transition: .2s bacground ease-in;
+            }
+
             @media (min-width: 320px) and (max-width: 768px) {
                 .wrapper {
                     height: calc(100vh - 130px);
@@ -278,7 +293,7 @@
                     font-size: 20px;
                 }
                 .notification .data{
-                    margin-left: 0px;
+                    margin-left: 0;
                 }
                 .notification .info .data {
                     margin-left: 5px;
@@ -360,6 +375,11 @@
                         </div>
                     </template>
                 </plastic-custom-scroll>
+                <template is="dom-if" if="[[notifications.length]]">
+                    <div class="remove-all" on-tap="removeAllNotifications">
+                        <i18-n msgid="Remove all"></i18-n>
+                    </div>
+                </template>
                 <div class="message" hidden$="[[computeNotificationsLength(notifications.length)]]">
                     <designmap-stub image="designmap-workspace-stub:postbox"
                                     message="There is no any notifications"></designmap-stub>
@@ -539,6 +559,13 @@
             },
             _computeInfo: function(info){
                 return this.capitalizeFirstLetter(this.translate(info));
+            },
+            removeAllNotifications: function(e){
+                e.stopPropagation();
+                this.dispatch('removeNotifications', this.notifications.map(function(notification){
+                    return notification._id
+                }));
+                this.fire('removed');
             }
         })
     </script>

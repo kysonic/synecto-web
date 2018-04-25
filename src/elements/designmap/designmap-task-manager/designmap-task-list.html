@@ -3,6 +3,7 @@
 <link rel="import" href="../designmap-ui/designmap-hidden-panel.html">
 <link rel="import" href="./designmap-assignee.html">
 <link rel="import" href="../../../styles/tooltip-shared-styles.html">
+<link rel="import" href="../../reworked/paper-checkbox/paper-checkbox.html">
 <!-- Thrid party -->
 <link rel="import" href="../../reworked/polymer-sortablejs/polymer-sortablejs.html">
 <!-- Services -->
@@ -56,6 +57,21 @@
                 --designmap-circle-button-circle-mixin: {
                     stroke: #fff !important;
                     stroke-width: 1px;
+                }
+
+                /** CHECKBOX **/
+                --paper-checkbox-unchecked-color: var(--gray-darkend-color);
+                --paper-checkbox-checked-color: var(--blue-color);
+                --paper-checkbox-mixin: {
+                    border: 1px solid var(--gray-color-darked);
+                    overflow: hidden;
+                }
+                --paper-checkbox-checkmark-mixin: {
+                    border: 1px solid var(--gray-color-darked);
+                    transform: rotate(55deg);
+                    top: -1px;
+                    width: 14px;
+                    left: -6px;
                 }
             }
 
@@ -126,6 +142,10 @@
 
             .desktop-filters .row.selected {
                 text-decoration: underline;
+            }
+
+            .mine-checkbox {
+                margin-left: 13px;
             }
 
             /** DROP DOWN **/
@@ -668,6 +688,7 @@
             <div class$="row [[_computeSelectedMineClass(mineFilterSelected)]]" on-click="toggleMine">
                 <iron-icon class="filter-icon" icon="designmap-task-manager:my"></iron-icon>
                 <span><i18-n msgid="mine">mine</i18-n></span>
+                <paper-checkbox class="mine-checkbox" on-change="toggleMine" checked="[[mineFilterSelected]]"></paper-checkbox>
             </div>
         </div>
 
@@ -733,9 +754,9 @@
                     <i18-n msgid="There are no found elements">There are no found elements</i18-n>
                 </div>
             </ul>
-            <div hidden$="[[!_showMoreState(tasks,limit,selectedFilter)]]" class="show-more" on-click="showMore">
+            <!--<div hidden$="[[!_showMoreState(tasks,limit,selectedFilter)]]" class="show-more" on-click="showMore">
                 <i18-n msgid="see more">see more</i18-n>
-            </div>
+            </div>-->
         </plastic-custom-scroll>
         <template is="dom-if" if="[[!cannotAdd]]">
             <div class="add-task">
@@ -1292,7 +1313,7 @@
                 // Create task
                 this.cannotAdd = true;
                 this.dispatch('addTask', task).then(function (response) {
-                    this.sortHook(response.task._id);
+                    this.sortHook(response.task._id, tuid);
                     this.showUndoMessage('Task was added successfully.');
                     window.reachGoal('task_created','done');
                     this.$.scroller.calculate();
@@ -1307,8 +1328,11 @@
                 this.taskName = '';
             },
 
-            sortHook: function(taskId){
+            sortHook: function(taskId, tuid){
                 const order = this.getOrder();
+                if(tuid) {
+                    order.splice(order.indexOf(tuid),1);
+                }
                 order.push(taskId);
                 this.saveSort(order);
                 this.async(function(){this.applySort()});
@@ -1339,7 +1363,7 @@
                     const ok = this.statusFilter(selectedFilter,task,mineFilterSelected);
                     ok ? i++ : null;
                     const indx = order.indexOf(task._id)!=-1 ? order.indexOf(task._id) : i;
-                    if(indx>limit) return false;
+                    //if(indx>limit) return false;
                     if(ok) okCount++;
                     this.showEmptyMsg = !okCount;
                     return ok;

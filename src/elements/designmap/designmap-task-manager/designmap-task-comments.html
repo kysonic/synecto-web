@@ -231,7 +231,7 @@
                         placeholder="[[translate('Write a comment',language,i18Loaded)]]"
                         no-invoked
                 ></designmap-invk-textarea>
-                <iron-a11y-keys id="a11ySave" keys="ctrl+enter meta+enter"
+                <iron-a11y-keys id="a11ySave" keys="enter enter"
                                 on-keys-pressed="_postComment"></iron-a11y-keys>
             </div>
 
@@ -366,7 +366,8 @@
                 }
             },
 
-            _postComment: function () {
+            _postComment: function (e) {
+                if(Polymer.shiftIsPressed && e && e.type==='keys-pressed') return false;
                 if(this.$.sendButton.disabled) return;
                 if(this.edit) return this._editComment();
                 // Permanent validation

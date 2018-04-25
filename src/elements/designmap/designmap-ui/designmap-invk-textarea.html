@@ -303,6 +303,10 @@
                 this.showMarkdownPopup = false;
                 this.value = this.value.replace(this.selectedText,'>'+this.selectedText);
                 this.$.textarea.focus();
+            },
+
+            clear: function(){
+                this.$.textarea.clear();
             }
         })
     </script>

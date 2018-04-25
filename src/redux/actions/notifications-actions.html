@@ -79,6 +79,22 @@
                 }.bind(this)
             },
             /**
+             * Remove all notifications
+             * @returns {function(this:Polymer.NotificationActions)}
+             */
+            removeNotifications: function (notifications) {
+                return function (dispatch) {
+                    const promise = xhr.delete(Designmap.config.apiURL + 'notification',{ids:notifications});
+                    dispatch({type: 'CLEAN_NOTIFICATIONS'})
+                    promise.then(function (response) {
+                        if (!response.success) return;
+                    }.bind(this)).catch(function (e) {
+                        console.log(e);
+                    });
+                    return promise;
+                }.bind(this)
+            },
+            /**
              * Read notifications. Update {read:true}
              * @param notifications
              * @returns {function(this:Polymer.NotificationsActions)}

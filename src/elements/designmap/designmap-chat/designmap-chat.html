@@ -798,7 +798,7 @@
         <div class="comment" id="comment">
             <div class="comment-wrap">
                 <designmap-avatar-projector user="[[user]]" class="user-projector"></designmap-avatar-projector>
-                <iron-a11y-keys keys="ctrl+enter meta+enter" on-keys-pressed="postMessage"></iron-a11y-keys>
+                <iron-a11y-keys keys="enter" on-keys-pressed="postMessage"></iron-a11y-keys>
                 <designmap-invk-textarea
                         id="invkTextarea"
                         value="{{message}}"
@@ -1127,7 +1127,8 @@
             /**
              * Post new message
              */
-            postMessage: function () {
+            postMessage: function (e) {
+                if(Polymer.shiftIsPressed && e && e.type==='keys-pressed') return false;
                 if(!this.message && !this.attaches.length) return;
                 if (this.editMode) return this.updateMessage();
                 const data = {
@@ -1136,7 +1137,9 @@
                     owner: this.user,
                     created: new Date(),
                     project: this.projectId,
-                    attaches: this.attaches.map((attach)=>attach._id)
+                    attaches: this.attaches.map(function(attach){
+                        return attach._id
+                    })
                 };
                 const invokedUsers = this.invokedUsers.slice(0);
                 this.dispatch('addMessage', data).then(function(response){
@@ -1144,6 +1147,7 @@
                     this._sendNotification(response.message,invokedUsers);
                 }.bind(this));
                 this.message = '';
+                this.$.invkTextarea.clear();
                 this.$.comment.classList.remove('focused');
                 this.focused = false;
                 this.set('invokedUsers', []);

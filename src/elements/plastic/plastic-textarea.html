@@ -81,13 +81,20 @@
                 this.fire('input', e);
             },
             _valueChanged: function () {
+                if(!Polymer.shiftIsPressed) {
+                    this.$.textarea.value = this.$.textarea.value.replace(/\n$/, "");
+                }
                 this.async(function () {
-                    autosize.update(this.$.textarea)
+                    autosize.update(this.$.textarea);
                 }, 0);
             },
             _onUp: function(e){
                 const selectedText = this.$.textarea.value.substring(this.$.textarea.selectionStart, this.$.textarea.selectionEnd);
                 this.fire('text-select',{e:e,selectedText:selectedText});
+            },
+            clear: function(){
+                this.value = '';
+                this.$.textarea.value = '';
             }
         });
     </script>

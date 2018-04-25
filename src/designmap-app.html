@@ -460,6 +460,20 @@
                     this.i18Loaded = true;
                     ReduxStore.dispatch({type: "UPDATE_I18_LOADED", i18Loaded: true});
                 });
+                this.detectShift();
+            },
+
+            detectShift() {
+              document.body.addEventListener('keydown', function(e){
+                  if (e.keyCode == 16) {
+                      Polymer.shiftIsPressed = true;
+                  }
+              });
+              document.body.addEventListener('keyup', function(e){
+                  if (e.keyCode == 16) {
+                      Polymer.shiftIsPressed = false;
+                  }
+              });
             },
 
             /**
